@@ -19,6 +19,8 @@ class CreateMasterPerimeterTable extends Migration
 			$table->mediumInteger('mpm_mr_id')->default(null)->nullable();
 			$table->string('mpm_mu_nik',20)->default(null)->nullable();
 			$table->mediumInteger('mpm_mpmk_id')->default(null)->nullable();
+			$table->string('longitude', 30)->default(null)->nullable();
+			$table->string('latitude', 30)->default(null)->nullable();
             $table->timestamps();
         });
     }

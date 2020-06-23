@@ -17,7 +17,7 @@ class CreateMasterPerimeterLevelTable extends Migration
             $table->mediumIncrements('mpml_id');
 			$table->string('mpml_name', 255)->default(null)->nullable();
 			$table->mediumInteger('mpml_mpm_id')->default(null)->nullable();
-			$table->string('mpm_mu_nik',20)->default(null)->nullable();
+			$table->string('mpml_mu_nik',20)->default(null)->nullable();
 			$table->string('mpml_ket', 255)->default(null)->nullable();
             $table->timestamps();
         });

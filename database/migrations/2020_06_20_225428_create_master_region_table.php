@@ -17,7 +17,7 @@ class CreateMasterRegionTable extends Migration
             
 			$table->mediumIncrements('mr_id');
 			$table->string('mr_name', 255)->default(null)->nullable();
-			$table->mediumInteger('mr_mc_id')->default(null)->nullable();
+			$table->string('mr_mc_id',11)->default(null)->nullable();
             $table->timestamps();
         });
     }

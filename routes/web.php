@@ -27,4 +27,5 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Temporary Perimeter
     $router->get('/tmp_perimeter', 'TmpPerimeterController@index');
     $router->get('/parsingperimeter', 'TmpPerimeterController@parsingPerimeter');
+	$router->post('/import', 'ImportController@import');
 });

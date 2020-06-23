@@ -25,6 +25,8 @@ class CreateTmpPerimeterTable extends Migration
 			$table->string('nik_fo', 50);
 			$table->string('keterangan', 255)->nullable();
 			$table->string('kd_perusahaan', 255)->nullable();
+			$table->string('longitude', 30)->nullable();
+			$table->string('latitude', 30)->nullable();
 			$table->smallInteger('status')->default(0)->nullable();
 
 			$table->string('c1', 2)->default(null)->nullable();

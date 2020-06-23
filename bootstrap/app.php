@@ -95,7 +95,20 @@ $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Pearl\RequestValidate\RequestServiceProvider::class);
+$app->register(Maatwebsite\Excel\ExcelServiceProvider::class);
+/*
+|--------------------------------------------------------------------------
+| Register Alias
+|--------------------------------------------------------------------------
+|
+*/
+// I register the db alias here because the Application::registerContainerAliases()
+// doesn't register it by default like laravel does, it's probable because the db is not always
+// register by default.
 
+$app->alias('Excel', Maatwebsite\Excel\Facades\Excel::class);
+
+/*
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes

@@ -20,7 +20,7 @@ class CreateMasterUserTable extends Migration
 			$table->string('mu_nik',20)->default(null)->nullable();
 			
 			$table->string('mu_name', 255)->default(null)->nullable();
-			$table->mediumInteger('mu_mc_id')->default(null)->nullable();
+			$table->string('mu_mc_id',11)->default(null)->nullable();
 			$table->mediumInteger('mu_mr_id')->default(null)->nullable();
             $table->timestamps();
         });
