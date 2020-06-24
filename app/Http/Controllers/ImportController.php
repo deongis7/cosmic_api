@@ -39,14 +39,14 @@ class ImportController extends Controller
         if($import) {
             //redirect
             return response()->json([
-				'name' => '200',
-				'state' => 'Data Berhasil di Import'
+				'status' => '200',
+				'message' => 'Data Berhasil di Import'
 			]);
         } else {
             //redirect
             return response()->json([
-				'name' => '500',
-				'state' => 'Data Gagal di Import'
+				'status' => '500',
+				'message' => 'Data Gagal di Import'
 			]);
         }
     }
