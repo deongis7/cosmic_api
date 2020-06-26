@@ -18,12 +18,13 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
 	 
-	protected $table = 'master_user';
-	protected $primaryKey = 'mu_id';
+	protected $table = 'app_users';
+	protected $primaryKey = 'id';
     protected $fillable = [
-        'mu_name', 'mu_username',
+        'username', 'first_name','mc_id'
     ];
-
+	const CREATED_AT = 'date_insert';
+	const UPDATED_AT = 'date_update';
     /**
      * The attributes excluded from the model's JSON form.
      *

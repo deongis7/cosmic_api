@@ -10,4 +10,5 @@ class PerimeterKategori extends Model
 {
     protected $table = 'master_perimeter_kategori';
 	protected $primaryKey = 'mpmk_id';
+	public $timestamps = false;
 }
