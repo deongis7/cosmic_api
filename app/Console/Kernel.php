@@ -25,5 +25,12 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         //
+		        // $schedule->command('inspire')
+        //          ->hourly();
+		$filePath       = base_path().'/storage/logs/Parsing.log';
+
+        // Parsing
+        $schedule->call('\App\Http\Controllers\TmpPerimeterController@parsingPerimeter')->everyMinute()->sendOutputTo($filePath);
+		
     }
 }
