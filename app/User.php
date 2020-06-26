@@ -21,7 +21,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	protected $table = 'app_users';
 	protected $primaryKey = 'id';
     protected $fillable = [
-        'username', 'first_name','mc_id'
+        'username', 'first_name','mc_id','active'
     ];
 	const CREATED_AT = 'date_insert';
 	const UPDATED_AT = 'date_update';

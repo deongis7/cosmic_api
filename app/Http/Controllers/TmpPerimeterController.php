@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 
+use DB;
+
 
 class TmpPerimeterController extends Controller
 {
@@ -59,7 +61,7 @@ class TmpPerimeterController extends Controller
 			try {
 			
 			//cek region
-			$cekdata_region=(Region::where('mr_name','like','%'.$item_tmp_perimeter->region.'%')
+			$cekdata_region=(Region::where(DB::raw("TRIM(mr_name)"),'like','%'.trim($item_tmp_perimeter->region).'%')
 							->where('mr_mc_id',$item_tmp_perimeter->kd_perusahaan)->count());
 			//cek region sudah terdaftar di master atau belum
 			if ($cekdata_region == 0) {
@@ -69,12 +71,12 @@ class TmpPerimeterController extends Controller
 				
 				$data_region->save();
 			}							
-			$region_id = Region::where('mr_name','like','%'.$item_tmp_perimeter->region.'%')
+			$region_id = Region::where(DB::raw("TRIM(mr_name)"),'like','%'.trim($item_tmp_perimeter->region).'%')
 							->where('mr_mc_id',$item_tmp_perimeter->kd_perusahaan)->first()->mr_id;
 			
 			
 			//cek kategori perimeter
-			$cekdata_kat_perimeter=(PerimeterKategori::where('mpmk_name','like','%'.$item_tmp_perimeter->k_perimeter.'%')->count());
+			$cekdata_kat_perimeter=(PerimeterKategori::where(DB::raw("TRIM(mpmk_name)"),'like','%'.trim($item_tmp_perimeter->k_perimeter).'%')->count());
 			
 			//cek kategori perimeter sudah terdaftar di master atau belum
 			if ($cekdata_kat_perimeter == 0) {
@@ -83,11 +85,11 @@ class TmpPerimeterController extends Controller
 				
 				$data_kat_perimeter->save();
 			}							
-			$kat_perimeter_id = PerimeterKategori::where('mpmk_name','like','%'.$item_tmp_perimeter->k_perimeter.'%')->first()->mpmk_id;
+			$kat_perimeter_id = PerimeterKategori::where(DB::raw("TRIM(mpmk_name)"),'like','%'.trim($item_tmp_perimeter->k_perimeter).'%')->first()->mpmk_id;
 			
 			
 			//cek pic
-			$cekdata_pic=(User::where('username','=',$item_tmp_perimeter->nik_pic)->count());
+			$cekdata_pic=(User::where(DB::raw("TRIM(username)"),'=',trim($item_tmp_perimeter->nik_pic))->count());
 			
 			//cek  user sudah terdaftar di master atau belum
 			if ($cekdata_pic == 0) {
@@ -97,22 +99,23 @@ class TmpPerimeterController extends Controller
 				$data_pic->password= Hash::make('P@ssw0rd');
 				$data_pic->first_name = $item_tmp_perimeter->pic;
 				$data_pic->mc_id= $item_tmp_perimeter->kd_perusahaan;
+				$data_pic->status= 1;
 												
 				$data_pic->save();
 				
 				$data_pic_group = new UserGroup();				
-				$data_pic_group->user_id= User::where('username','=',$item_tmp_perimeter->nik_pic)->first()->id;
+				$data_pic_group->user_id= User::where(DB::raw("TRIM(username)"),'=',trim($item_tmp_perimeter->nik_pic))->first()->id;
 				$data_pic_group->group_id= 3;
 				$data_pic_group->save();
 				//dd('berhasil');
 			}				
 			
-			$pic_nik = $item_tmp_perimeter->nik_pic;
+			$pic_nik = trim($item_tmp_perimeter->nik_pic);
 			
 			
 			//cek perimeter
 			$cekdata_perimeter=(Perimeter::where('mpm_mr_id',$region_id)
-							->where('mpm_name','like','%'.$item_tmp_perimeter->perimeter.'%')->count());
+							->where(DB::raw("TRIM(mpm_name)"),'like','%'.trim($item_tmp_perimeter->perimeter).'%')->count());
 			
 			//cek perimeter sudah terdaftar di master atau belum
 			if ($cekdata_perimeter == 0) {
@@ -128,7 +131,7 @@ class TmpPerimeterController extends Controller
 				$data_perimeter->save();
 			}	else {
 				$data_perimeter=(Perimeter::where('mpm_mr_id',$region_id)
-							->where('mpm_name','like','%'.$item_tmp_perimeter->perimeter.'%')->first());
+							->where(DB::raw("TRIM(mpm_name)"),'like','%'.trim($item_tmp_perimeter->perimeter).'%')->first());
 				$data_perimeter->mpm_mpmk_id = $kat_perimeter_id;
 				$data_perimeter->mpm_me_nik = $pic_nik;		
 				$data_perimeter->mpm_longitude = $item_tmp_perimeter->longitude;
@@ -137,57 +140,58 @@ class TmpPerimeterController extends Controller
 			}				
 			
 			$perimeter_id =(Perimeter::where('mpm_mr_id',$region_id)
-							->where('mpm_name','like','%'.$item_tmp_perimeter->perimeter.'%')->first()->mpm_id);
+							->where(DB::raw("TRIM(mpm_name)"),'like','%'.trim($item_tmp_perimeter->perimeter).'%')->first()->mpm_id);
 			
 			
 			//cek fo user
-			$cekdata_fo=(User::where('username',$item_tmp_perimeter->nik_fo)->count());
+			$cekdata_fo=(User::where(DB::raw("TRIM(username)"),trim($item_tmp_perimeter->nik_fo))->count());
 			
 			//cek  fo user sudah terdaftar di master atau belum
 			if ($cekdata_fo == 0) {
 				$data_fo = new User();
 				
-				$data_fo->username= $item_tmp_perimeter->nik_fo;
+				$data_fo->username= trim($item_tmp_perimeter->nik_fo);
 				$data_fo->password= Hash::make('P@ssw0rd');
 				$data_fo->first_name = $item_tmp_perimeter->fo;
 				$data_fo->mc_id = $item_tmp_perimeter->kd_perusahaan;
+				$data_fo->active = 1;
 								
 				$data_fo->save();
 				
 				$data_fo_group = new UserGroup();				
-				$data_fo_group->user_id= User::where('username','=',$item_tmp_perimeter->nik_fo)->first()->id;
+				$data_fo_group->user_id= User::where(DB::raw("TRIM(username)"),'=',trim($item_tmp_perimeter->nik_fo))->first()->id;
 				$data_fo_group->group_id= 4;
 				$data_fo_group->save();
 				
 				
 			}				
 			
-			$fo_nik = $item_tmp_perimeter->nik_fo;
+			$fo_nik = trim($item_tmp_perimeter->nik_fo);
 			
 			
 			//cek perimeter_level
 			$cekdata_perimeter_level=(PerimeterLevel::where('mpml_mpm_id',$perimeter_id)
-							->where('mpml_name','=',$item_tmp_perimeter->level)->count());
+							->where(DB::raw("TRIM(mpml_name)"),'=',trim($item_tmp_perimeter->level))->count());
 			
 			//cek perimeter_level sudah terdaftar di master atau belum
 			if ($cekdata_perimeter_level == 0) {
 				$data_perimeter_level = new PerimeterLevel();
 				$data_perimeter_level->mpml_mpm_id= $perimeter_id;
-				$data_perimeter_level->mpml_name = $item_tmp_perimeter->level;
+				$data_perimeter_level->mpml_name = trim($item_tmp_perimeter->level);
 				$data_perimeter_level->mpml_ket = $item_tmp_perimeter->keterangan;
 				$data_perimeter_level->mpml_me_nik = $fo_nik;
 				
 				$data_perimeter_level->save();
 			}	else {
 				$data_perimeter_level=(PerimeterLevel::where('mpml_mpm_id',$perimeter_id)
-							->where('mpml_name','=',$item_tmp_perimeter->level)->first());
+							->where(DB::raw("TRIM(mpml_name)"),'=',trim($item_tmp_perimeter->level))->first());
 				$data_perimeter_level->mpml_ket =$item_tmp_perimeter->keterangan;
 				$data_perimeter_level->mpml_me_nik = $fo_nik;		
 				$data_perimeter_level->save();			
 			}				
 			
 			$perimeter_level_id =(PerimeterLevel::where('mpml_mpm_id',$perimeter_id)
-							->where('mpml_name','=',$item_tmp_perimeter->level)->first()->mpml_id);	
+							->where(DB::raw("TRIM(mpml_name)"),'=',trim($item_tmp_perimeter->level))->first()->mpml_id);	
 			//dd('berhasil');
 			//lobby
 			$c1= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '1'],['tpmd_cek' => (($item_tmp_perimeter->c1== 'v' || $item_tmp_perimeter->c1== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n1== '' || $item_tmp_perimeter->n1== null) ? '0':$item_tmp_perimeter->n1)]);
