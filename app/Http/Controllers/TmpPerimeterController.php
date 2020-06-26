@@ -99,7 +99,7 @@ class TmpPerimeterController extends Controller
 				$data_pic->password= Hash::make('P@ssw0rd');
 				$data_pic->first_name = $item_tmp_perimeter->pic;
 				$data_pic->mc_id= $item_tmp_perimeter->kd_perusahaan;
-				$data_pic->status= 1;
+				$data_pic->active= 1;
 												
 				$data_pic->save();
 				
@@ -192,75 +192,75 @@ class TmpPerimeterController extends Controller
 			
 			$perimeter_level_id =(PerimeterLevel::where('mpml_mpm_id',$perimeter_id)
 							->where(DB::raw("TRIM(mpml_name)"),'=',trim($item_tmp_perimeter->level))->first()->mpml_id);	
-			//dd('berhasil');
+			//dd(is_int($item_tmp_perimeter->n1));
 			//lobby
-			$c1= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '1'],['tpmd_cek' => (($item_tmp_perimeter->c1== 'v' || $item_tmp_perimeter->c1== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n1== '' || $item_tmp_perimeter->n1== null) ? '0':$item_tmp_perimeter->n1)]);
+			$c1= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '1'],['tpmd_cek' => (($item_tmp_perimeter->c1== 'v' || $item_tmp_perimeter->c1== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n1== '' || $item_tmp_perimeter->n1== null || is_int($item_tmp_perimeter->n1)==false) ? '0':$item_tmp_perimeter->n1)]);
 			
 			//r kerja
-			$c2= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '2'],['tpmd_cek' => (($item_tmp_perimeter->c2== 'v' || $item_tmp_perimeter->c2== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n2== '' || $item_tmp_perimeter->n2== null) ? '0':$item_tmp_perimeter->n2)]);
+			$c2= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '2'],['tpmd_cek' => (($item_tmp_perimeter->c2== 'v' || $item_tmp_perimeter->c2== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n2== '' || $item_tmp_perimeter->n2== null || is_int($item_tmp_perimeter->n2)==false) ? '0':$item_tmp_perimeter->n2)]);
 			
 			//r meeting
-			$c3= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '3'],['tpmd_cek' => (($item_tmp_perimeter->c3== 'v' || $item_tmp_perimeter->c3== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n3== '' || $item_tmp_perimeter->n3== null) ? '0':$item_tmp_perimeter->n3)]);
+			$c3= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '3'],['tpmd_cek' => (($item_tmp_perimeter->c3== 'v' || $item_tmp_perimeter->c3== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n3== '' || $item_tmp_perimeter->n3== null || is_int($item_tmp_perimeter->n3)==false) ? '0':$item_tmp_perimeter->n3)]);
 			
 			//toilet
-			$c4= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '4'],['tpmd_cek' => (($item_tmp_perimeter->c4== 'v' || $item_tmp_perimeter->c4== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n4== '' || $item_tmp_perimeter->n4== null) ? '0':$item_tmp_perimeter->n4)]);
+			$c4= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '4'],['tpmd_cek' => (($item_tmp_perimeter->c4== 'v' || $item_tmp_perimeter->c4== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n4== '' || $item_tmp_perimeter->n4== null || is_int($item_tmp_perimeter->n4)==false) ? '0':$item_tmp_perimeter->n4)]);
 			
 			//a_tangga
-			$c5= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '5'],['tpmd_cek' => (($item_tmp_perimeter->c5== 'v' || $item_tmp_perimeter->c5== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n5== '' || $item_tmp_perimeter->n5== null) ? '0':$item_tmp_perimeter->n5)]);
+			$c5= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '5'],['tpmd_cek' => (($item_tmp_perimeter->c5== 'v' || $item_tmp_perimeter->c5== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n5== '' || $item_tmp_perimeter->n5== null || is_int($item_tmp_perimeter->n5)==false) ? '0':$item_tmp_perimeter->n5)]);
 			
 			//a_lift
-			$c6= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '6'],['tpmd_cek' => (($item_tmp_perimeter->c6== 'v' || $item_tmp_perimeter->c6== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n6== '' || $item_tmp_perimeter->n6== null) ? '0':$item_tmp_perimeter->n6)]);
+			$c6= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '6'],['tpmd_cek' => (($item_tmp_perimeter->c6== 'v' || $item_tmp_perimeter->c6== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n6== '' || $item_tmp_perimeter->n6== null || is_int($item_tmp_perimeter->n6)==false) ? '0':$item_tmp_perimeter->n6)]);
 			
 			//r_tunggu
-			$c7= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '7'],['tpmd_cek' => (($item_tmp_perimeter->c7== 'v' || $item_tmp_perimeter->c7== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n7== '' || $item_tmp_perimeter->n7== null) ? '0':$item_tmp_perimeter->n7)]);
+			$c7= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '7'],['tpmd_cek' => (($item_tmp_perimeter->c7== 'v' || $item_tmp_perimeter->c7== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n7== '' || $item_tmp_perimeter->n7== null || is_int($item_tmp_perimeter->n7)==false) ? '0':$item_tmp_perimeter->n7)]);
 			
 			//r_penyimpanan
-			$c8= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '8'],['tpmd_cek' => (($item_tmp_perimeter->c8== 'v' || $item_tmp_perimeter->c8== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n8== '' || $item_tmp_perimeter->n8== null) ? '0':$item_tmp_perimeter->n8)]);
+			$c8= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '8'],['tpmd_cek' => (($item_tmp_perimeter->c8== 'v' || $item_tmp_perimeter->c8== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n8== '' || $item_tmp_perimeter->n8== null || is_int($item_tmp_perimeter->n8)==false) ? '0':$item_tmp_perimeter->n8)]);
 			
 			//r_server
-			$c9= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '9'],['tpmd_cek' => (($item_tmp_perimeter->c9== 'v' || $item_tmp_perimeter->c9== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n9== '' || $item_tmp_perimeter->n9== null) ? '0':$item_tmp_perimeter->n9)]);
+			$c9= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '9'],['tpmd_cek' => (($item_tmp_perimeter->c9== 'v' || $item_tmp_perimeter->c9== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n9== '' || $item_tmp_perimeter->n9== null || is_int($item_tmp_perimeter->n9)==false) ? '0':$item_tmp_perimeter->n9)]);
 			
 			//a_pemeriksaan
-			$c10= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '10'],['tpmd_cek' => (($item_tmp_perimeter->c10== 'v' || $item_tmp_perimeter->c10== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n10== '' || $item_tmp_perimeter->n10== null) ? '0':$item_tmp_perimeter->n10)]);
+			$c10= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '10'],['tpmd_cek' => (($item_tmp_perimeter->c10== 'v' || $item_tmp_perimeter->c10== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n10== '' || $item_tmp_perimeter->n10== null || is_int($item_tmp_perimeter->n10)==false) ? '0':$item_tmp_perimeter->n10)]);
 			
 			//a_parkir
-			$c11= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '11'],['tpmd_cek' => (($item_tmp_perimeter->c11== 'v' || $item_tmp_perimeter->c11== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n11== '' || $item_tmp_perimeter->n11== null) ? '0':$item_tmp_perimeter->n11)]);
+			$c11= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '11'],['tpmd_cek' => (($item_tmp_perimeter->c11== 'v' || $item_tmp_perimeter->c11== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n11== '' || $item_tmp_perimeter->n11== null || is_int($item_tmp_perimeter->n11)==false) ? '0':$item_tmp_perimeter->n11)]);
 			
 			//a_perdagangan
-			$c12= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '12'],['tpmd_cek' => (($item_tmp_perimeter->c12== 'v' || $item_tmp_perimeter->c12== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n12== '' || $item_tmp_perimeter->n12== null) ? '0':$item_tmp_perimeter->n12)]);
+			$c12= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '12'],['tpmd_cek' => (($item_tmp_perimeter->c12== 'v' || $item_tmp_perimeter->c12== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n12== '' || $item_tmp_perimeter->n12== null || is_int($item_tmp_perimeter->n12)==false) ? '0':$item_tmp_perimeter->n12)]);
 			
 			//a_produksi
-			$c13= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '13'],['tpmd_cek' => (($item_tmp_perimeter->c13== 'v' || $item_tmp_perimeter->c13== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n13== '' || $item_tmp_perimeter->n13== null) ? '0':$item_tmp_perimeter->n13)]);
+			$c13= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '13'],['tpmd_cek' => (($item_tmp_perimeter->c13== 'v' || $item_tmp_perimeter->c13== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n13== '' || $item_tmp_perimeter->n13== null || is_int($item_tmp_perimeter->n13)==false) ? '0':$item_tmp_perimeter->n13)]);
 			
 			//r_laboratorium
-			$c14= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '14'],['tpmd_cek' => (($item_tmp_perimeter->c14== 'v' || $item_tmp_perimeter->c14== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n14== '' || $item_tmp_perimeter->n14== null) ? '0':$item_tmp_perimeter->n14)]);
+			$c14= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '14'],['tpmd_cek' => (($item_tmp_perimeter->c14== 'v' || $item_tmp_perimeter->c14== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n14== '' || $item_tmp_perimeter->n14== null || is_int($item_tmp_perimeter->n14)==false) ? '0':$item_tmp_perimeter->n14)]);
 			
 			//r_ibadah
-			$c15= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '15'],['tpmd_cek' => (($item_tmp_perimeter->c15== 'v' || $item_tmp_perimeter->c15== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n15== '' || $item_tmp_perimeter->n15== null) ? '0':$item_tmp_perimeter->n15)]);
+			$c15= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '15'],['tpmd_cek' => (($item_tmp_perimeter->c15== 'v' || $item_tmp_perimeter->c15== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n15== '' || $item_tmp_perimeter->n15== null || is_int($item_tmp_perimeter->n15)==false) ? '0':$item_tmp_perimeter->n15)]);
 			
 			//a_konstruksi
-			$c16= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '16'],['tpmd_cek' => (($item_tmp_perimeter->c16== 'v' || $item_tmp_perimeter->c16== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n16== '' || $item_tmp_perimeter->n16== null) ? '0':$item_tmp_perimeter->n16)]);
+			$c16= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '16'],['tpmd_cek' => (($item_tmp_perimeter->c16== 'v' || $item_tmp_perimeter->c16== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n16== '' || $item_tmp_perimeter->n16== null || is_int($item_tmp_perimeter->n16)==false) ? '0':$item_tmp_perimeter->n16)]);
 			
 			//r_pengemudi
-			$c17= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '17'],['tpmd_cek' => (($item_tmp_perimeter->c17== 'v' || $item_tmp_perimeter->c17== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n17== '' || $item_tmp_perimeter->n17== null) ? '0':$item_tmp_perimeter->n17)]);
+			$c17= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '17'],['tpmd_cek' => (($item_tmp_perimeter->c17== 'v' || $item_tmp_perimeter->c17== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n17== '' || $item_tmp_perimeter->n17== null || is_int($item_tmp_perimeter->n17)==false) ? '0':$item_tmp_perimeter->n17)]);
 			
 			//r_klinik
-			$c18= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '18'],['tpmd_cek' => (($item_tmp_perimeter->c18== 'v' || $item_tmp_perimeter->c18== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n18== '' || $item_tmp_perimeter->n18== null) ? '0':$item_tmp_perimeter->n18)]);
+			$c18= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '18'],['tpmd_cek' => (($item_tmp_perimeter->c18== 'v' || $item_tmp_perimeter->c18== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n18== '' || $item_tmp_perimeter->n18== null || is_int($item_tmp_perimeter->n18)==false) ? '0':$item_tmp_perimeter->n18)]);
 			
 			//banking
-			$c19= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '19'],['tpmd_cek' => (($item_tmp_perimeter->c19== 'v' || $item_tmp_perimeter->c19== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n19== '' || $item_tmp_perimeter->n19== null) ? '0':$item_tmp_perimeter->n19)]);
+			$c19= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '19'],['tpmd_cek' => (($item_tmp_perimeter->c19== 'v' || $item_tmp_perimeter->c19== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n19== '' || $item_tmp_perimeter->n19== null || is_int($item_tmp_perimeter->n19)==false) ? '0':$item_tmp_perimeter->n19)]);
 			
 			//cafetaria
-			$c20= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '20'],['tpmd_cek' => (($item_tmp_perimeter->c20== 'v' || $item_tmp_perimeter->c20== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n20== '' || $item_tmp_perimeter->n20== null) ? '0':$item_tmp_perimeter->n20)]);
+			$c20= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '20'],['tpmd_cek' => (($item_tmp_perimeter->c20== 'v' || $item_tmp_perimeter->c20== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n20== '' || $item_tmp_perimeter->n20== null || is_int($item_tmp_perimeter->n20)==false) ? '0':$item_tmp_perimeter->n20)]);
 			
 			//hospitality
-			$c21= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '21'],['tpmd_cek' => (($item_tmp_perimeter->c21== 'v' || $item_tmp_perimeter->c21== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n21== '' || $item_tmp_perimeter->n21== null) ? '0':$item_tmp_perimeter->n21)]);
+			$c21= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '21'],['tpmd_cek' => (($item_tmp_perimeter->c21== 'v' || $item_tmp_perimeter->c21== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n21== '' || $item_tmp_perimeter->n21== null || is_int($item_tmp_perimeter->n21)==false) ? '0':$item_tmp_perimeter->n21)]);
 			
 			//aula
-			$c22= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '22'],['tpmd_cek' => (($item_tmp_perimeter->c22== 'v' || $item_tmp_perimeter->c22== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n22== '' || $item_tmp_perimeter->n22== null) ? '0':$item_tmp_perimeter->n22)]);
+			$c22= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '22'],['tpmd_cek' => (($item_tmp_perimeter->c22== 'v' || $item_tmp_perimeter->c22== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n22== '' || $item_tmp_perimeter->n22== null || is_int($item_tmp_perimeter->n22)==false) ? '0':$item_tmp_perimeter->n22)]);
 			
 			//dapur
-			$c23= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '23'],['tpmd_cek' => (($item_tmp_perimeter->c23== 'v' || $item_tmp_perimeter->c23== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n23== '' || $item_tmp_perimeter->n23== null) ? '0':$item_tmp_perimeter->n23)]);
+			$c23= PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeter_level_id, 'tpmd_mcr_id' => '23'],['tpmd_cek' => (($item_tmp_perimeter->c23== 'v' || $item_tmp_perimeter->c23== '1') ? true:false), 'tpmd_jml' => (($item_tmp_perimeter->n23== '' || $item_tmp_perimeter->n23== null || is_int($item_tmp_perimeter->n23)==false) ? '0':$item_tmp_perimeter->n23)]);
 			
 			
 			//ubah status tmp perimeter
