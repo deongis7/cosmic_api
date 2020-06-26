@@ -174,14 +174,14 @@ class TmpPerimeterController extends Controller
 				$data_perimeter_level = new PerimeterLevel();
 				$data_perimeter_level->mpml_mpm_id= $perimeter_id;
 				$data_perimeter_level->mpml_name = $item_tmp_perimeter->level;
-				$data_perimeter_level->mpml_ket = (isset($item_tmp_perimeter->keterangan)? '':$item_tmp_perimeter->keterangan);
+				$data_perimeter_level->mpml_ket = $item_tmp_perimeter->keterangan;
 				$data_perimeter_level->mpml_me_nik = $fo_nik;
 				
 				$data_perimeter_level->save();
 			}	else {
 				$data_perimeter_level=(PerimeterLevel::where('mpml_mpm_id',$perimeter_id)
 							->where('mpml_name','=',$item_tmp_perimeter->level)->first());
-				$data_perimeter_level->mpml_ket =(isset($item_tmp_perimeter->keterangan)? '':$item_tmp_perimeter->keterangan);
+				$data_perimeter_level->mpml_ket =$item_tmp_perimeter->keterangan;
 				$data_perimeter_level->mpml_me_nik = $fo_nik;		
 				$data_perimeter_level->save();			
 			}				
