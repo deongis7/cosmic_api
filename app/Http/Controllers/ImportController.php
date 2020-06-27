@@ -38,6 +38,7 @@ class ImportController extends Controller
 
         if($import) {
             //redirect
+			
             return response()->json([
 				'status' => '200',
 				'message' => 'Data Berhasil di Import'
@@ -49,6 +50,7 @@ class ImportController extends Controller
 				'message' => 'Data Gagal di Import'
 			]);
         }
+
     }
 
 }
