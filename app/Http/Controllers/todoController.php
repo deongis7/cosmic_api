@@ -49,7 +49,8 @@ class todoController extends Controller
 	}
 
 	public function apikey(){
-		$random = Str::random(40);
+		$random = base64_decode(Str::random(40));
+		$random = Str::random(32);
 
 		return response($random);
 	}

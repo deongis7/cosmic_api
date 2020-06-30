@@ -55,8 +55,8 @@ class Handler extends ExceptionHandler
         
 			return response()->json([
 							'status' => '500',
-							'message' => 'Data Gagal di Import. Format masih ada yang salah. Silahkan diperiksa kembali.'
-							//'message' => 'Data Gagal di Import. '.$exception->getMessage()
+							//'message' => 'Data Gagal di Import. Format masih ada yang salah. Silahkan diperiksa kembali.'
+							'message' => 'Data Gagal di Import. '.$exception->getMessage()
 						])->setStatusCode(500);
     }
 

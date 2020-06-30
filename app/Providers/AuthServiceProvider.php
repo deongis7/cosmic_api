@@ -16,6 +16,7 @@ class AuthServiceProvider extends ServiceProvider
     public function register()
     {
         //
+	//	\Dusterio\LumenPassport\LumenPassport::routes($this->app);
     }
 
     /**

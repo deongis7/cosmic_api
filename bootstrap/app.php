@@ -5,7 +5,6 @@ require_once __DIR__.'/../vendor/autoload.php';
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
     dirname(__DIR__)
 ))->bootstrap();
-
 date_default_timezone_set(env('APP_TIMEZONE', 'UTC'));
 
 /*
@@ -60,6 +59,8 @@ $app->singleton(
 */
 
 $app->configure('app');
+//untuk auth
+$app->configure('auth');
 
 /*
 |--------------------------------------------------------------------------
@@ -76,9 +77,10 @@ $app->configure('app');
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+$app->routeMiddleware([
+     'auth' => App\Http\Middleware\Authenticate::class,
+	 'client' => \Laravel\Passport\Http\Middleware\CheckClientCredentials::class,
+ ]);
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +98,10 @@ $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Pearl\RequestValidate\RequestServiceProvider::class);
 $app->register(Maatwebsite\Excel\ExcelServiceProvider::class);
+$app->register(Laravel\Passport\PassportServiceProvider::class);
+$app->register(Dusterio\LumenPassport\PassportServiceProvider::class);
+
+Dusterio\LumenPassport\LumenPassport::routes($app->router, ['prefix' => 'v1/oauth'] );
 /*
 |--------------------------------------------------------------------------
 | Register Alias
@@ -125,5 +131,8 @@ $app->router->group([
 ], function ($router) {
     require __DIR__.'/../routes/web.php';
 });
+
+//\Dusterio\LumenPassport\LumenPassport::routes($app, ['prefix' => 'v1/oauth']);
+//\Dusterio\LumenPassport\LumenPassport::routes($this->app, ['prefix' => 'v1/oauth']);
 
 return $app;
