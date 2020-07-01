@@ -45,6 +45,7 @@ class ProtokolController extends Controller
 
 	}
 
+	//Get Protokol
 	public function protokol($id){
 		$data = array();
 		$protokol = Protokol::select('master_protokol.mpt_id','master_protokol.mpt_name','table_protokol.tbpt_filename','table_protokol.tbpt_date_insert' )
@@ -74,6 +75,7 @@ class ProtokolController extends Controller
 		}	
 	}
 	
+	//Upload Protokol
 	public function uploadProtokol(Request $request)
     {
 		$this->validate($request, [
@@ -106,6 +108,7 @@ class ProtokolController extends Controller
 		}			
 	}
 
+	//Upload Protokol JSON
 	public function uploadProtokolJSON(Request $request)
     {
 

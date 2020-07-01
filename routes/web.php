@@ -25,12 +25,20 @@ $router->post('/todo', 'todoController@store');
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	
 	//Perimeter
-	$router->get('/jml_perimeter/{id}', 'PerimeterController@getCountPerimeter');
+	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
+	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
+	$router->get('/perimeter/{id}', 'PerimeterController@getPerimeter');
+	$router->get('/perimeter/region/{id}', 'PerimeterController@getPerimeterbyRegion');
+	$router->get('/taskforce/count/{id}', 'PerimeterController@getCountTaskForce');
+	
+	//Cluster Ruangan
+	$router->get('/cluster/perimeter/{id}', 'PerimeterController@getClusterbyPerimeter');
+	$router->get('/cluster/perimeter_level/{id}', 'PerimeterController@getClusterbyPerimeterLevel');
 	
 	//Protokol
 	$router->get('/protokol/{id}', 'ProtokolController@protokol');
-	$router->post('/protokol_upload', 'ProtokolController@uploadProtokol');
-	$router->post('/protokol_upload_json', 'ProtokolController@uploadProtokolJSON');
+	$router->post('/protokol/upload', 'ProtokolController@uploadProtokol');
+	$router->post('/protokol/upload_json', 'ProtokolController@uploadProtokolJSON');
 	
 	//Temporary Perimeter
     $router->get('/tmp_perimeter', 'TmpPerimeterController@index');
