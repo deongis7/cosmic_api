@@ -24,6 +24,14 @@ $router->post('/todo', 'todoController@store');
 
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	
+	//Perimeter
+	$router->get('/jml_perimeter/{id}', 'PerimeterController@getCountPerimeter');
+	
+	//Protokol
+	$router->get('/protokol/{id}', 'ProtokolController@protokol');
+	$router->post('/protokol_upload', 'ProtokolController@uploadProtokol');
+	$router->post('/protokol_upload_json', 'ProtokolController@uploadProtokolJSON');
+	
 	//Temporary Perimeter
     $router->get('/tmp_perimeter', 'TmpPerimeterController@index');
     $router->get('/parsingperimeter', 'TmpPerimeterController@parsingPerimeter');
