@@ -44,4 +44,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/tmp_perimeter', 'TmpPerimeterController@index');
     $router->get('/parsingperimeter', 'TmpPerimeterController@parsingPerimeter');
 	$router->post('/import', 'ImportController@import');
+	
+	//Data_detail
+	$router->get('/datadetail/laporan_harian/{id}', 'DatadetailController@getDatadetail');
+	$router->get('/datadetail/laporan_home/{id}', 'DatadetailController@getDataHome');
 });
