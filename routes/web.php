@@ -52,4 +52,14 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Data_detail
 	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
 	$router->get('/terpapar/laporan_detail/{id}', 'TerpaparController@getDatadetail');
+	
+	//Data_User
+	$router->get('/user/detail/{id}', 'UserController@getDetailUser');
+	$router->post('/user/detail/{id}', 'UserController@updateDetailUser');
+	
+	Route::group(['middleware' => 'auth:api'], function () {
+		Route::post('/user/change_password', 'UserController@change_password');
+		Route::post('/user/logout', 'UserController@logout');
+	});
+	
 });
