@@ -136,6 +136,8 @@ class ProtokolController extends Controller
 						$filename_protokol = $name;
 					}
 		$dataProtokol= TblProtokol::updateOrCreate(['tbpt_mpt_id' => $protokol, 'tbpt_mc_id' => $kd_perusahaan],['tbpt_filename' => $filename_protokol, 'tbpt_user_insert' => $user_id]);	
+		
+		
 
 		if($dataProtokol) {
 			return response()->json(['status' => 200,'message' => 'Data Berhasil di Import']);
