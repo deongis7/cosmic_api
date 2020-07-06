@@ -1,6 +1,6 @@
 <?php
 namespace App\Http\Controllers;
-use App\Datadetail;
+use App\Terpapar;
 use App\User;
 use App\UserGroup;
 use Illuminate\Http\Request;
@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Http\File;
 use DB;
-class DatadetailController extends Controller {
+class TerpaparController extends Controller {
     /**
      * Create a new controller instance.
      *
@@ -35,34 +35,35 @@ class DatadetailController extends Controller {
 	}	
 	
 	public function getDataHome($id) {
-	    $datadetail = DB::select("SELECT mjk_name,
+	    $terpapar = DB::select("SELECT mjk_name,
     		CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
     		FROM master_jenis_kasus mjk
-    		LEFT JOIN (SELECT dd1.jenis_kasus, 
-    		COUNT(dd1.jenis_kasus) jml 
-    		FROM data_detail1 dd1
-    		WHERE dd1.kd_perusahaan=?
-    		GROUP BY dd1.jenis_kasus) b on b.jenis_kasus=mjk.mjk_name",[$id]);
+    		LEFT JOIN (SELECT tpp.jenis_kasus, 
+    		COUNT(tpp.jenis_kasus) jml 
+    		FROM table_terpapar tpp
+    		WHERE tpp.kd_perusahaan=?
+    		GROUP BY tpp.jenis_kasus) b on b.jenis_kasus=mjk.mjk_name",[$id]);
 
-	    foreach($datadetail as $dd){
+	    foreach($terpapar as $tpp){
 	        $data[] = array(
-	            "jenis_kasus" => $dd->mjk_name,
-	            "jumlah" => $dd->jml
+	            "jenis_kasus" => $tpp->mjk_name,
+	            "jumlah" => $tpp->jml
 	        );
 	    }
-	    return response()->json(['status' => 200,'data' => $data]);
+	    return response()->json(['status' => 200,
+	        'data' => $data]);
 	}
 	
 	public function getDatadetail($id) {
-	    $datadetail = Datadetail::where('kd_perusahaan', $id)->get();
+	    $terpapar = Terpapar::where('kd_perusahaan', $id)->get();
 	    
-	    foreach($datadetail as $dd){
+	    foreach($terpapar as $tpp){
 	        $data[] = array(
-	            "id" => $dd->id,
-	            "kd_perusahaan" => $dd->kd_perusahaan,
-	            "perusahaan" => $dd->perusahaan,
-	            "nama_pasien" => $dd->nama_pasien,
-	            "jenis_kasus" => $dd->jenis_kasus,
+	            "id" => $tpp->id,
+	            "kd_perusahaan" => $tpp->kd_perusahaan,
+	            "perusahaan" => $tpp->perusahaan,
+	            "nama_pasien" => $tpp->nama_pasien,
+	            "jenis_kasus" => $tpp->jenis_kasus,
 	        );
 	    }
 	    return response()->json(['status' => 200,'data' => $data]);

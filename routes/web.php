@@ -46,6 +46,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->post('/import', 'ImportController@import');
 	
 	//Data_detail
-	$router->get('/datadetail/laporan_harian/{id}', 'DatadetailController@getDatadetail');
-	$router->get('/datadetail/laporan_home/{id}', 'DatadetailController@getDataHome');
+	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
+	$router->get('/terpapar/laporan_detail/{id}', 'TerpaparController@getDatadetail');
 });
