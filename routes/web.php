@@ -57,6 +57,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/user/detail/{id}', 'UserController@getDetailUser');
 	$router->post('/user/detail/{id}', 'UserController@updateDetailUser');
 	
+	//Cluster Aktifitas Ruangan
+	$router->get('/cluster_aktfiktas_ruangan/getall/', 'CARuanganController@getAll');
+	$router->get('/cluster_aktfiktas_ruangan/getbyid/{id}', 'CARuanganController@getById');
+	$router->get('/cluster_aktfiktas_ruangan/create/', 'CARuanganController@CreateCARuangan');
+	$router->get('/cluster_aktfiktas_ruangan/update/{id}', 'CARuanganController@UpdateCARuangan');
+	$router->get('/cluster_aktfiktas_ruangan/delete/{id}', 'CARuanganController@DeleteCARuangan');
+	
 	Route::group(['middleware' => 'auth:api'], function () {
 		Route::post('/user/change_password', 'UserController@change_password');
 		Route::post('/user/logout', 'UserController@logout');

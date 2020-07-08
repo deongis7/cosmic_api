@@ -3,12 +3,13 @@ namespace App\Http\Controllers;
 use App\Terpapar;
 use App\User;
 use App\UserGroup;
+use Carbon\Carbon;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
-use Illuminate\Http\File;
-use DB;
+use Illuminate\Support\Facades\DB;
+
 class TerpaparController extends Controller {
     /**
      * Create a new controller instance.
@@ -22,6 +23,7 @@ class TerpaparController extends Controller {
 	public function index() {
 
 	}
+	
 	public function show($id) {
 
 	}
