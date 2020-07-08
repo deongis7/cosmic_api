@@ -48,6 +48,7 @@ class PerimeterController extends Controller
 	public function getCountPerimeter($id){
 		$data = array();
 		$perimeter = Perimeter::join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
+					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('master_region.mr_mc_id',$id)	
 					->count();
 				
@@ -64,40 +65,50 @@ class PerimeterController extends Controller
 	//Peta Sebaran Perimeter
 	public function getPerimeterMap($id){
 		$data = array();
-		$perimeter = Perimeter::select('master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude')
+		$perimeter = Perimeter::select('master_perimeter_level.mpml_id','master_perimeter.mpm_name','master_perimeter_level.mpml_name','master_perimeter.mpm_alamat','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude')
 					->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
+					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('master_region.mr_mc_id',$id)	
 					->get();
 		foreach($perimeter as $itemperimeter){		
 			$data[] = array(
-					"id_perimeter" => $itemperimeter->mpm_id,
+					"id_perimeter" => $itemperimeter->mpml_id,
 					"nama_perimeter" => $itemperimeter->mpm_name,
-					"longitude" => $itemperimeter->mpm_longitude,
-					"latitude" => $itemperimeter->mpm_latitude,
+					"level" => $itemperimeter->mpml_name,
+					"alamat" => $itemperimeter->mpm_alamat,	
+					"longitude" => str_replace("'","",$itemperimeter->mpm_longitude),
+					"latitude" => str_replace("'","",$itemperimeter->mpm_latitude),
 				);
 		}
 		return response()->json(['status' => 200,'data' => $data]);
 
 	}
 
-	//Get Perimeter
+	//Get Perimeter by Kode Perusahaan
 	public function getPerimeter($id){
 		$data = array();
-		$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter_kategori.mpmk_name','app_users.username','app_users.first_name')
+		$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket','master_perimeter_kategori.mpmk_name','userpic.username as nik_pic','userpic.first_name as pic','userfo.username as nik_fo','userfo.first_name as fo')
+					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
 					->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
-					->leftjoin('app_users','app_users.username','master_perimeter.mpm_me_nik')
+					->leftjoin('app_users as userpic','userpic.username','master_perimeter_level.mpml_pic_nik')
+					->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
 					->where('master_region.mr_mc_id',$id)	
 					->get();
 		foreach($perimeter as $itemperimeter){		
 			$data[] = array(
 					"id_region" => $itemperimeter->mr_id,
 					"region" => $itemperimeter->mr_name,
-					"id_perimeter" => $itemperimeter->mpm_id,
+					"id_perimeter" => $itemperimeter->mpml_id,
 					"nama_perimeter" => $itemperimeter->mpm_name,
+					"level" => $itemperimeter->mpml_name,
+					"keterangan" => $itemperimeter->mpml_ket,
+					"alamat" => $itemperimeter->mpm_name,
 					"kategori" => $itemperimeter->mpmk_name,
-					"nik_pic" => $itemperimeter->username,
-					"pic" => $itemperimeter->first_name,
+					"nik_pic" => $itemperimeter->nik_pic,
+					"pic" => $itemperimeter->pic,
+					"nik_fo" => $itemperimeter->nik_fo,
+					"fo" => $itemperimeter->fo,
 					
 				);
 		}
@@ -108,19 +119,26 @@ class PerimeterController extends Controller
 	//Get Perimeter per Region
 	public function getPerimeterbyRegion($id){
 		$data = array();
-		$perimeter = Perimeter::select('master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter_kategori.mpmk_name','app_users.username','app_users.first_name')
+		$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket','master_perimeter_kategori.mpmk_name','userpic.username as nik_pic','userpic.first_name as pic','userfo.username as nik_fo','userfo.first_name as fo')
+					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
 					->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
-					->leftjoin('app_users','app_users.username','master_perimeter.mpm_me_nik')
+					->leftjoin('app_users as userpic','userpic.username','master_perimeter_level.mpml_pic_nik')
+					->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
 					->where('master_region.mr_id',$id)	
 					->get();
 		foreach($perimeter as $itemperimeter){		
 			$data[] = array(
-					"id_perimeter" => $itemperimeter->mpm_id,
+					"id_perimeter" => $itemperimeter->mpml_id,
 					"nama_perimeter" => $itemperimeter->mpm_name,
+					"level" => $itemperimeter->mpml_name,
+					"keterangan" => $itemperimeter->mpml_ket,
+					"alamat" => $itemperimeter->mpm_name,
 					"kategori" => $itemperimeter->mpmk_name,
 					"nik_pic" => $itemperimeter->username,
 					"pic" => $itemperimeter->first_name,
+					"nik_fo" => $itemperimeter->nik_fo,
+					"fo" => $itemperimeter->fo,
 					
 				);
 		}
