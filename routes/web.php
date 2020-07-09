@@ -66,9 +66,16 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/cluster_aktfiktas_ruangan/update/{id}', 'CARuanganController@UpdateCARuangan');
 	$router->get('/cluster_aktfiktas_ruangan/delete/{id}', 'CARuanganController@DeleteCARuangan');
 	
+	//Sosialisasi
+	$router->get('/sosialisasi/get_bymcid/{id}', 'SosialisasiController@getDataByMcid');
+	$router->get('/sosialisasi/get_byid/{id}', 'SosialisasiController@getDataById');
+	$router->post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
+	$router->get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
+	$router->post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
+	
 	Route::group(['middleware' => 'auth:api'], function () {
 		Route::post('/user/change_password', 'UserController@change_password');
 		Route::post('/user/logout', 'UserController@logout');
 	});
-	
+	   
 });
