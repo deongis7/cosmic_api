@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 use DB;
 
@@ -95,7 +96,7 @@ class ProtokolController extends Controller
 						//$name = $timestamp . '-'.  $request->nama_file_jaminan->getClientOriginalName();
 						$name = round(microtime(true) * 1000).'.pdf';
 						
-						$request->file_protokol->move(storage_path() . '/app/public/protokol/', $name);
+						$request->file_protokol->move(storage_path() . '/app/public/protokol/'.$kd_perusahaan.'/', $name);
 
 						$filename_protokol = $name;
 					}
@@ -132,7 +133,7 @@ class ProtokolController extends Controller
 						
 						$name = round(microtime(true) * 1000).'.pdf';;
 						//\File::put(storage_path(). '/public/protokol/' . $name, base64_decode($image));
-						Storage::disk('public')->put('protokol/'.$name, base64_decode($image));
+						Storage::disk('public')->put('protokol/'.$kd_perusahaan.'/'.$name, base64_decode($image));
 						$filename_protokol = $name;
 					}
 		$dataProtokol= TblProtokol::updateOrCreate(['tbpt_mpt_id' => $protokol, 'tbpt_mc_id' => $kd_perusahaan],['tbpt_filename' => $filename_protokol, 'tbpt_user_insert' => $user_id]);	
@@ -146,7 +147,28 @@ class ProtokolController extends Controller
 		}			
 	}
 	
+	//Download File Protokol by binary
+	public function getDownloadFileProtokol($kd_perusahaan,$id_protokol)
+	{
+    //PDF file is stored under project/public/download/info.pdf
+	$protokol = TblProtokol::where('tbpt_mpt_id',$id_protokol)->where('tbpt_mc_id',$kd_perusahaan)->first();
+    $file= storage_path() . "/app/public/protokol/".$kd_perusahaan."/". $protokol->tbpt_filename;
+
+	$headers = [
+				  'Content-Type' => 'application/pdf',
+				 ];
 	
+	if (!is_file($file)) {  
+	   return response()->json(['status' => 404,'message' => 'Data Tidak Ada'])->setStatusCode(404);	
+		}
+	$response = new BinaryFileResponse($file, 200 , $headers);
+
+	return $response;	
+	//return response()->file($file);
+
+	}
+	
+
 	
 
 

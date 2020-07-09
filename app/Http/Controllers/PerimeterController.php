@@ -250,9 +250,10 @@ class PerimeterController extends Controller
 		$taskforce = DB::select( "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
 			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end) as mr_name,app.mc_id
 		from app_users app
-		LEFT JOIN (select cast(mp1.mpm_mr_id as int), mr1.mr_name, mp1.mpm_me_nik from master_perimeter mp1
-				join master_region mr1 on mr1.mr_id = mp1.mpm_mr_id) a1 on a1.mpm_me_nik = app.username
-		LEFT JOIN (select cast(mp2.mpm_mr_id as int), mr2.mr_name, mpl2.mpml_me_nik from master_perimeter_level mpl2 
+		left JOIN (select mp1.mpm_mr_id , mr1.mr_name, mpl1.mpml_pic_nik from master_perimeter_level mpl1 
+				join master_perimeter mp1  on mpl1.mpml_mpm_id = mp1.mpm_id
+				join master_region mr1 on mr1.mr_id = mp1.mpm_mr_id) a1 on a1.mpml_pic_nik = app.username
+		left JOIN (select mp2.mpm_mr_id, mr2.mr_name, mpl2.mpml_me_nik from master_perimeter_level mpl2 
 				join master_perimeter mp2  on mpl2.mpml_mpm_id = mp2.mpm_id
 				join master_region mr2 on mr2.mr_id = mp2.mpm_mr_id) a2 on a2.mpml_me_nik = app.username
 		join app_users_groups aup on aup.user_id = app.id and (aup.group_id=3 or aup.group_id=4)
@@ -281,13 +282,14 @@ class PerimeterController extends Controller
 		$taskforce = DB::select( "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
 			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end) as mr_name,app.mc_id
 		from app_users app
-		LEFT JOIN (select cast(mp1.mpm_mr_id as int), mr1.mr_name, mp1.mpm_me_nik from master_perimeter mp1
-				join master_region mr1 on mr1.mr_id = mp1.mpm_mr_id) a1 on a1.mpm_me_nik = app.username
-		LEFT JOIN (select cast(mp2.mpm_mr_id as int), mr2.mr_name, mpl2.mpml_me_nik from master_perimeter_level mpl2 
+		left JOIN (select mp1.mpm_mr_id , mr1.mr_name, mpl1.mpml_pic_nik from master_perimeter_level mpl1 
+				join master_perimeter mp1  on mpl1.mpml_mpm_id = mp1.mpm_id
+				join master_region mr1 on mr1.mr_id = mp1.mpm_mr_id) a1 on a1.mpml_pic_nik = app.username
+		left JOIN (select mp2.mpm_mr_id, mr2.mr_name, mpl2.mpml_me_nik from master_perimeter_level mpl2 
 				join master_perimeter mp2  on mpl2.mpml_mpm_id = mp2.mpm_id
 				join master_region mr2 on mr2.mr_id = mp2.mpm_mr_id) a2 on a2.mpml_me_nik = app.username
 		join app_users_groups aup on aup.user_id = app.id and (aup.group_id=3 or aup.group_id=4)
-		where a1.mpm_mr_id = ? or a2.mpm_mr_id = ? 
+		where a1.mpm_mr_id = ? or a2.mpm_mr_id = ?
 		GROUP BY app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) ,
 			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end),app.mc_id
 		order by mpm_mr_id asc,app.first_name asc", [$id,$id]);

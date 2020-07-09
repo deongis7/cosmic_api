@@ -44,6 +44,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/protokol/{id}', 'ProtokolController@protokol');
 	$router->post('/protokol/upload', 'ProtokolController@uploadProtokol');
 	$router->post('/protokol/upload_json', 'ProtokolController@uploadProtokolJSON');
+	$router->get('/protokol/download/{kd_perusahaan}/{id_protokol}', 'ProtokolController@getDownloadFileProtokol');
 	
 	//Temporary Perimeter
     $router->get('/tmp_perimeter', 'TmpPerimeterController@index');
