@@ -68,13 +68,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Sosialisasi
 	$router->get('/sosialisasi/getall_bymcid/{id}', 'SosialisasiController@getDataAllByMcid');
 	$router->get('/sosialisasi/get_byid/{id}', 'SosialisasiController@getDataById');
-	//$router->get('/sosialisasi/get_bymcidtgl/{tgl}', 'SosialisasiController@getDataByMcidTgl');
 	$router->post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
-	
+	$router->get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
+	$router->post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
 	
 	Route::group(['middleware' => 'auth:api'], function () {
 		Route::post('/user/change_password', 'UserController@change_password');
 		Route::post('/user/logout', 'UserController@logout');
 	});
-	
+	   
 });
