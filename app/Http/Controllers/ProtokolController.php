@@ -130,7 +130,7 @@ class ProtokolController extends Controller
 						$filedecode = base64_decode($image);
 						//dd($filedecode);
 						
-						$name = round(microtime(true) * 1000).'.pdf';;
+						$name = round(microtime(true) * 1000).'.pdf';
 						//\File::put(storage_path(). '/public/protokol/' . $name, base64_decode($image));
 						Storage::disk('public')->put('protokol/'.$name, base64_decode($image));
 						$filename_protokol = $name;

@@ -19,22 +19,6 @@ class CARuanganController extends Controller {
     public function __construct() {
         //
     }
-
-	public function index() {
-
-	}
-	
-	public function show($id) {
-
-	}
-	
-	public function store (Request $request) {
-
-	}
-
-	public function getCountData() {
-
-	}	
 	
 	public function getAll() {
 	    $car = CARuangan::all();
