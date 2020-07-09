@@ -11,14 +11,34 @@ class SosialisasiController extends Controller {
     public function __construct() {
     }
     
-    public function getDataAllByMcid($id) {
+    public function getDataByMcid($id) {
         $sosialisasi = Sosialisasi::where('ts_mc_id', $id)->get();
-
+     
         if(count($sosialisasi) > 0) {
             foreach($sosialisasi as $sos){
-                $data = array(
+                if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
+                    $path_file1 = base_path("storage\app\public\sosialisasi/").$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1;
+                    $type1 = pathinfo($path_file1, PATHINFO_EXTENSION);
+                    $data_file1 = file_get_contents($path_file1);
+                    $filesos1 = 'data:image/jpeg;base64,'.base64_encode($data_file1);
+                }else{
+                    $filesos1 = NULL;
+                }
+                
+                if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
+                    $path_file2 =  base_path("storage\app\public\sosialisasi/").$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2;
+                    $type2 = pathinfo($path_file2, PATHINFO_EXTENSION);
+                    $data_file2 = file_get_contents($path_file2);
+                    $filesos2 = 'data:image/jpeg;base64,'.base64_encode($data_file2);
+                }else{
+                    $filesos2 = NULL;
+                }
+                
+                $data[] = array(
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
                     "tanggal" => $sos->ts_tanggal,
+                    "file_1" => $filesos1,
+                    "file_2" => $filesos2,
                 );
             }
         }else{
@@ -27,20 +47,28 @@ class SosialisasiController extends Controller {
         return response()->json(['status' => 200,'data' => $data]);
     }
     
-    public function getDataById($tanggal) {
-        $sosialisasi = Sosialisasi::where('ts_tanggal',$tanggal)->get();
+    public function getDataById($id) {
+        $sosialisasi = Sosialisasi::where('ts_id',$id)->get();
        
         if(count($sosialisasi) > 0) {
             foreach($sosialisasi as $sos){
-                $path_file1 =  base_path("storage\app\public\sosialisasi/").$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1;
-                $type1 = pathinfo($path_file1, PATHINFO_EXTENSION);
-                $data_file1 = file_get_contents($path_file1);
-                $filesos1 = base64_encode($data_file1);
+                if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
+                    $path_file1 = base_path("storage\app\public\sosialisasi/").$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1;
+                    $type1 = pathinfo($path_file1, PATHINFO_EXTENSION);
+                    $data_file1 = file_get_contents($path_file1);           
+                    $filesos1 = 'data:image/jpeg;base64,'.base64_encode($data_file1);
+                }else{
+                    $filesos1 = NULL;
+                }
     
-                $path_file2 =  base_path("storage\app\public\sosialisasi/").$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2;
-                $type2 = pathinfo($path_file2, PATHINFO_EXTENSION);
-                $data_file2 = file_get_contents($path_file2);
-                $filesos2 = base64_encode($data_file2);
+                if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
+                    $path_file2 =  base_path("storage\app\public\sosialisasi/").$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2;
+                    $type2 = pathinfo($path_file2, PATHINFO_EXTENSION);
+                    $data_file2 = file_get_contents($path_file2);
+                    $filesos2 = 'data:image/jpeg;base64,'.base64_encode($data_file2);
+                }else{
+                    $filesos2 = NULL;
+                }
                 
                 $data = array(
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
@@ -108,9 +136,9 @@ class SosialisasiController extends Controller {
             ['ts_file2' => $name2, 'ts_user_insert' => $user_id]);
 
         if($dataSosialisasi) {
-            return response()->json(['status' => 200,'message' => 'Data Berhasil di Import']);
+            return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diImport']);
         } else {
-            return response()->json(['status' => 500,'message' => 'Data Gagal di Import'])->setStatusCode(500);
+            return response()->json(['status' => 500,'message' => 'DataSosialisasi  Gagal diImport'])->setStatusCode(500);
         }
     }
     
@@ -129,9 +157,9 @@ class SosialisasiController extends Controller {
                 unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_tanggal.'/'.$data->ts_file2));
             }
 
-            return response('Berhasil Menghapus Data');
-        }else{
-            return response('Gagal Menghapus Data');
+            return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diDelete']);
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Sosialisasi Gagal diDelete'])->setStatusCode(500);
         }
     }
     
@@ -190,9 +218,9 @@ class SosialisasiController extends Controller {
         $dataSosialisasi->ts_file2 = $name2;
         $dataSosialisasi->save();
         if($dataSosialisasi) {
-            return response()->json(['status' => 200,'message' => 'Data Berhasil di Update']);
+            return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diUpdate']);
         } else {
-            return response()->json(['status' => 500,'message' => 'Data Gagal di Update'])->setStatusCode(500);
+            return response()->json(['status' => 500,'message' => 'Data Sosialisasi Gagal diUpdate'])->setStatusCode(500);
         }
     }
 }

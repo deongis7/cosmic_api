@@ -66,7 +66,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/cluster_aktfiktas_ruangan/delete/{id}', 'CARuanganController@DeleteCARuangan');
 	
 	//Sosialisasi
-	$router->get('/sosialisasi/getall_bymcid/{id}', 'SosialisasiController@getDataAllByMcid');
+	$router->get('/sosialisasi/get_bymcid/{id}', 'SosialisasiController@getDataByMcid');
 	$router->get('/sosialisasi/get_byid/{id}', 'SosialisasiController@getDataById');
 	$router->post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
 	$router->get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
