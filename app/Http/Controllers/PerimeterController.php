@@ -146,39 +146,62 @@ class PerimeterController extends Controller
 
 	}
 	
-	//Get Cluster per Perimeter
-	public function getClusterbyPerimeter($id){
+	//Get Perimeter per NIK
+	public function getPerimeterbyUser($nik){
+		$user = User::where('username',$nik)->first();
 		$data = array();
-		$perimeter = PerimeterDetail::select('master_perimeter_level.mpml_id','master_perimeter_level.mpml_name','master_cluster_ruangan.mcr_id','table_perimeter_detail.tpmd_id','master_cluster_ruangan.mcr_name','table_perimeter_detail.tpmd_jml')
-					->join('master_cluster_ruangan','master_cluster_ruangan.mcr_id','table_perimeter_detail.tpmd_mcr_id')
-					->join('master_perimeter_level','master_perimeter_level.mpml_id','table_perimeter_detail.tpmd_mpml_id')
-					->join('master_perimeter','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
-					->where('table_perimeter_detail.tpmd_cek',true)	
-					->where('master_perimeter.mpm_id',$id)
-					->orderBy('master_perimeter_level.mpml_name', 'asc')->orderBy('master_cluster_ruangan.mcr_id', 'asc')
-					->get();
-		foreach($perimeter as $itemperimeter){		
-			$data[] = array(
-					"id_lantai" => $itemperimeter->mpml_id,
-					"lantai" => $itemperimeter->mpml_name,
-					"id_dtl_cluster" => $itemperimeter->tpmd_id,
-					"id_cluster" => $itemperimeter->mcr_id,
-					"cluster" => $itemperimeter->mcr_name,
-					"jumlah" => $itemperimeter->tpmd_jml,
-					
-					
-				);
-		}
-		return response()->json(['status' => 200,'data' => $data]);
+		if ($user != null){
+			$role_id = $user->roles()->first()->id;
+			
+			if ($role_id == 3 || $role_id == 4 ){
+				$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket','master_perimeter_kategori.mpmk_name','userpic.username as nik_pic','userpic.first_name as pic','userfo.username as nik_fo','userfo.first_name as fo')
+							->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
+							->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
+							->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
+							->leftjoin('app_users as userpic','userpic.username','master_perimeter_level.mpml_pic_nik')			
+							->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik');							
+				if ($role_id == 3 )	{
+					$perimeter = $perimeter->where('userpic.username',$nik);	
+				} else {
+					$perimeter = $perimeter->where('userfo.username',$nik);
+				}	
+
+				$perimeter = $perimeter->get();
+				
+				foreach($perimeter as $itemperimeter){		
+					$data[] = array(
+							"id_perimeter" => $itemperimeter->mpml_id,
+							"nama_perimeter" => $itemperimeter->mpm_name,
+							"level" => $itemperimeter->mpml_name,
+							"keterangan" => $itemperimeter->mpml_ket,
+							"alamat" => $itemperimeter->mpm_name,
+							"kategori" => $itemperimeter->mpmk_name,
+							"nik_pic" => $itemperimeter->username,
+							"pic" => $itemperimeter->first_name,
+							"nik_fo" => $itemperimeter->nik_fo,
+							"fo" => $itemperimeter->fo,
+							
+						);
+				}
+				return response()->json(['status' => 200,'data' => $data]);
+			} else {
+				return response()->json(['status' => 200,'data' => $data]);
+			}	
+			
+		} else {
+			return response()->json(['status' => 200,'data' => $data]);
+		}	
+		
 
 	}
 	
-	//Get Cluster per Lantai Perimeter
-	public function getClusterbyPerimeterLevel($id){
+	//Get Cluster per Perimeter
+	public function getClusterbyPerimeter($id){
 		$data = array();
-		$perimeter = PerimeterDetail::select('master_perimeter_level.mpml_id','master_perimeter_level.mpml_name','master_cluster_ruangan.mcr_id','table_perimeter_detail.tpmd_id','master_cluster_ruangan.mcr_name','table_perimeter_detail.tpmd_jml')
+		$perimeter = PerimeterDetail::select('master_perimeter_level.mpml_id','master_perimeter_level.mpml_name','master_cluster_ruangan.mcr_id','table_perimeter_detail.tpmd_id','master_cluster_ruangan.mcr_name','table_perimeter_detail.tpmd_order')
 					->join('master_cluster_ruangan','master_cluster_ruangan.mcr_id','table_perimeter_detail.tpmd_mcr_id')
 					->join('master_perimeter_level','master_perimeter_level.mpml_id','table_perimeter_detail.tpmd_mpml_id')
+					->join('master_perimeter','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('table_perimeter_detail.tpmd_cek',true)	
 					->where('master_perimeter_level.mpml_id',$id)
 					->orderBy('master_perimeter_level.mpml_name', 'asc')->orderBy('master_cluster_ruangan.mcr_id', 'asc')
@@ -190,7 +213,7 @@ class PerimeterController extends Controller
 					"id_dtl_cluster" => $itemperimeter->tpmd_id,
 					"id_cluster" => $itemperimeter->mcr_id,
 					"cluster" => $itemperimeter->mcr_name,
-					"jumlah" => $itemperimeter->tpmd_jml,
+					"order" => $itemperimeter->tpmd_order,
 					
 					
 				);
@@ -198,6 +221,7 @@ class PerimeterController extends Controller
 		return response()->json(['status' => 200,'data' => $data]);
 
 	}
+	
 	
 	//Jumlah Task Force
 	public function getCountTaskForce($id){

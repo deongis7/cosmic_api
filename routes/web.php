@@ -29,6 +29,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
 	$router->get('/perimeter/{id}', 'PerimeterController@getPerimeter');
 	$router->get('/perimeter/region/{id}', 'PerimeterController@getPerimeterbyRegion');
+	$router->get('/perimeter/user/{nik}', 'PerimeterController@getPerimeterbyUser');
 	
 	//TaskForce
 	$router->get('/taskforce/count/{id}', 'PerimeterController@getCountTaskForce');
@@ -37,7 +38,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	
 	//Cluster Ruangan
 	$router->get('/cluster/perimeter/{id}', 'PerimeterController@getClusterbyPerimeter');
-	$router->get('/cluster/perimeter_level/{id}', 'PerimeterController@getClusterbyPerimeterLevel');
+
 	
 	//Protokol
 	$router->get('/protokol/{id}', 'ProtokolController@protokol');

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Lumen\Auth\Authorizable;
 use Laravel\Passport\HasApiTokens;
 
+
 class User extends Model implements AuthenticatableContract, AuthorizableContract
 {
     use HasApiTokens, Authenticatable, Authorizable;
@@ -38,4 +39,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	public function AauthAcessToken(){
 		return $this->hasMany('\App\OauthAccessToken');
 	}
+
+	public function roles(){
+		return $this->belongsToMany('App\Group', 'app_users_groups', 'user_id', 'group_id');
+	}
+	
+	
 }

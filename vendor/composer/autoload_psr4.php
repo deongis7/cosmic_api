@@ -60,6 +60,7 @@ return array(
     'Laravel\\Lumen\\' => array($vendorDir . '/laravel/lumen-framework/src'),
     'Laminas\\ZendFrameworkBridge\\' => array($vendorDir . '/laminas/laminas-zendframework-bridge/src'),
     'Laminas\\Diactoros\\' => array($vendorDir . '/laminas/laminas-diactoros/src'),
+    'Intervention\\Image\\' => array($vendorDir . '/intervention/image/src/Intervention/Image'),
     'Illuminate\\View\\' => array($vendorDir . '/illuminate/view'),
     'Illuminate\\Validation\\' => array($vendorDir . '/illuminate/validation'),
     'Illuminate\\Translation\\' => array($vendorDir . '/illuminate/translation'),

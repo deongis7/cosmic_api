@@ -100,6 +100,7 @@ $app->register(Pearl\RequestValidate\RequestServiceProvider::class);
 $app->register(Maatwebsite\Excel\ExcelServiceProvider::class);
 $app->register(Laravel\Passport\PassportServiceProvider::class);
 $app->register(Dusterio\LumenPassport\PassportServiceProvider::class);
+$app->register(Intervention\Image\ImageServiceProvider::class);
 
 Dusterio\LumenPassport\LumenPassport::routes($app->router, ['prefix' => 'v1/oauth'] );
 /*
@@ -113,6 +114,7 @@ Dusterio\LumenPassport\LumenPassport::routes($app->router, ['prefix' => 'v1/oaut
 // register by default.
 
 $app->alias('Excel', Maatwebsite\Excel\Facades\Excel::class);
+$app->alias('Image', Intervention\Image\Facades\Image::class);
 
 /*
 /*
