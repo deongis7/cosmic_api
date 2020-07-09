@@ -75,8 +75,8 @@ class UserController extends Controller
 		$this->validate($request, [
             'name' => 'required',
         ]);
-			
-		$user = User::find($id);
+		
+		$user = User::find($id);	
 		$user->first_name = $request->name;
 		$user->email = $request->email;
 		
