@@ -49,7 +49,7 @@ class ProtokolController extends Controller
 	//Get Protokol
 	public function protokol($id){
 		$data = array();
-		$protokol = Protokol::select('master_protokol.mpt_id','master_protokol.mpt_name','table_protokol.tbpt_filename','table_protokol.tbpt_date_insert' )
+		$protokol = Protokol::select('master_protokol.mpt_id','master_protokol.mpt_name','table_protokol.tbpt_mpt_id','table_protokol.tbpt_filename','table_protokol.tbpt_date_insert' )
 					->leftJoin('table_protokol', function($q) use ($id)
 						{
 							$q->on('table_protokol.tbpt_mpt_id', '=', 'master_protokol.mpt_id')
@@ -62,7 +62,9 @@ class ProtokolController extends Controller
 		foreach ($protokol as $itemprotokol){
 				
 				$data[] = array(
+					"id_protokol" => $itemprotokol->mpt_id,
 					"protokol" => $itemprotokol->mpt_name,
+					"id_trn_protokol" => $itemprotokol->tbpt_mpt_id,
 					"filename" => $itemprotokol->tbpt_filename,
 					"tgl_upload" => ($itemprotokol->tbpt_date_insert != null ? Carbon::parse($itemprotokol->tbpt_date_insert)->format('d-m-Y H:i')
 					:null)

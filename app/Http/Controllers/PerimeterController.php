@@ -65,16 +65,14 @@ class PerimeterController extends Controller
 	//Peta Sebaran Perimeter
 	public function getPerimeterMap($id){
 		$data = array();
-		$perimeter = Perimeter::select('master_perimeter_level.mpml_id','master_perimeter.mpm_name','master_perimeter_level.mpml_name','master_perimeter.mpm_alamat','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude')
+		$perimeter = Perimeter::select('master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude')
 					->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
-					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('master_region.mr_mc_id',$id)	
 					->get();
 		foreach($perimeter as $itemperimeter){		
 			$data[] = array(
-					"id_perimeter" => $itemperimeter->mpml_id,
+					"id_perimeter" => $itemperimeter->mpm_id,
 					"nama_perimeter" => $itemperimeter->mpm_name,
-					"level" => $itemperimeter->mpml_name,
 					"alamat" => $itemperimeter->mpm_alamat,	
 					"longitude" => str_replace("'","",$itemperimeter->mpm_longitude),
 					"latitude" => str_replace("'","",$itemperimeter->mpm_latitude),
@@ -99,7 +97,7 @@ class PerimeterController extends Controller
 			$data[] = array(
 					"id_region" => $itemperimeter->mr_id,
 					"region" => $itemperimeter->mr_name,
-					"id_perimeter" => $itemperimeter->mpml_id,
+					"id_perimeter_level" => $itemperimeter->mpml_id,
 					"nama_perimeter" => $itemperimeter->mpm_name,
 					"level" => $itemperimeter->mpml_name,
 					"keterangan" => $itemperimeter->mpml_ket,
@@ -129,7 +127,7 @@ class PerimeterController extends Controller
 					->get();
 		foreach($perimeter as $itemperimeter){		
 			$data[] = array(
-					"id_perimeter" => $itemperimeter->mpml_id,
+					"id_perimeter_level" => $itemperimeter->mpml_id,
 					"nama_perimeter" => $itemperimeter->mpm_name,
 					"level" => $itemperimeter->mpml_name,
 					"keterangan" => $itemperimeter->mpml_ket,
@@ -170,7 +168,7 @@ class PerimeterController extends Controller
 				
 				foreach($perimeter as $itemperimeter){		
 					$data[] = array(
-							"id_perimeter" => $itemperimeter->mpml_id,
+							"id_perimeter_level" => $itemperimeter->mpml_id,
 							"nama_perimeter" => $itemperimeter->mpm_name,
 							"level" => $itemperimeter->mpml_name,
 							"keterangan" => $itemperimeter->mpml_ket,

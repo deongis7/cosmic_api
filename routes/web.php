@@ -73,6 +73,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
 	$router->post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
 	
+	//PIC
+	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
+
+	
 	Route::group(['middleware' => 'auth:api'], function () {
 		Route::post('/user/change_password', 'UserController@change_password');
 		Route::post('/user/logout', 'UserController@logout');
