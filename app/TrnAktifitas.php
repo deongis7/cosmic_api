@@ -13,7 +13,7 @@ class TrnAktifitas extends Model
 	const CREATED_AT = 'ta_date_insert';
 	const UPDATED_AT = 'ta_date_update';
 	protected $fillable = [
-       'ta_nik','ta_tpmd_id','ta_kcar_id','ta_date','ta_file','ta_filetumb',
+       'ta_nik','ta_tpmd_id','ta_kcar_id','ta_date','ta_file','ta_filetumb','ta_keterangan',
     ];
 
 }
