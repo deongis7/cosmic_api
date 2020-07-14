@@ -84,6 +84,7 @@ class SosialisasiController extends Controller {
     }
     
     public function uploadSosialisasiJSON(Request $request) {
+        //var_dump($request);die;
         $this->validate($request, [
             'kd_perusahaan' => 'required',
             'nama_kegiatan' => 'required',
@@ -102,10 +103,10 @@ class SosialisasiController extends Controller {
             Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan.'/'.$tanggal);
         }
   
-        $destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
-
+        //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
+        $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal;
         $name1 = NULL;
-        $name1_tumb = NULL ; 
+        $name1_tumb = NULL;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {
             $img1 = explode(',', $file1);
             $image1 = $img1[1];
@@ -123,20 +124,21 @@ class SosialisasiController extends Controller {
         }
         
         $name2 = NULL;
-        $name2_tumb = NULL ; 
+        $name2_tumb = NULL;
         if(isset($request->file_sosialisasi2)){
             $file2 = $request->file_sosialisasi2;
             if ($request->file_sosialisasi2 != null || $request->file_sosialisasi2 != '') {
                 $img2 = explode(',', $file2);
                 $image2 = $img1[1];
-                $name2 = round(microtime(true) * 1000).'.jpg';
+                $filedecode2 = base64_decode($image2);
+                $name2 = round(microtime(true)*1000).'.jpg';
                 $name2_tumb = round(microtime(true) * 1000).'_tumb.jpg';
                 
-                Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+                Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
                     $constraint->aspectRatio();
                 })->save($destinationPath.'/'.$name2);
                 
-                Image::make($filedecode1)->resize(50, NULL, function ($constraint) {
+                Image::make($filedecode2)->resize(50, NULL, function ($constraint) {
                     $constraint->aspectRatio();
                 })->save($destinationPath.'/'.$name2_tumb);
             }
@@ -144,13 +146,13 @@ class SosialisasiController extends Controller {
         
         $dataSosialisasi= Sosialisasi::updateOrCreate(
             ['ts_mc_id' => $kd_perusahaan, 'ts_nama_kegiatan' => $nama_kegiatan,          
-                'ts_tanggal'=> $tanggal, 'ts_file1' => $name1, 'ts_file1_tumb' => $name1_tumb], 
+                'ts_tanggal'=> $tanggal, 'ts_file1' => $name1, 'ts_file1_tumb' => $name1_tumb],
             ['ts_file2' => $name2, 'ts_file2_tumb' => $name2_tumb, 'ts_user_insert' => $user_id]);
 
         if($dataSosialisasi) {
             return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diImport']);
         } else {
-            return response()->json(['status' => 500,'message' => 'DataSosialisasi  Gagal diImport'])->setStatusCode(500);
+            return response()->json(['status' => 500,'message' => 'Data Sosialisasi  Gagal diImport'])->setStatusCode(500);
         }
     }
     
@@ -176,7 +178,7 @@ class SosialisasiController extends Controller {
             if(is_file($file2_tumb)){
                 unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_tanggal.'/'.$data->ts_file2_tumb));
             }
-
+            
             return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diDelete']);
         } else {
             return response()->json(['status' => 500,'message' => 'Data Sosialisasi Gagal diDelete'])->setStatusCode(500);
@@ -202,7 +204,8 @@ class SosialisasiController extends Controller {
         $filex2 = $dataSosialisasi->ts_file2;
         $filex2_tumb = $dataSosialisasi->ts_file2_tumb;
         
-        $destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
+        //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
+        $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal;
         
         $name1 = NULL;
         $name1_tumb = NULL;
@@ -210,9 +213,11 @@ class SosialisasiController extends Controller {
             if($filex1!=NULL){
                 unlink(storage_path('app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal.'/'.$filex1));
             }
+            
             if($filex1_tumb!=NULL){
                 unlink(storage_path('app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal.'/'.$filex1_tumb));
             }
+            
             $img1 = explode(',', $file1);
             $image1 = $img1[1];
             $filedecode1 = base64_decode($image1);
@@ -230,31 +235,33 @@ class SosialisasiController extends Controller {
         
         $name2 = NULL;
         $name2_tumb = NULL;
-        if ($request->file_sosialisasi2 != null || $request->file_sosialisasi2 != '') {
+        if(isset($request->file_sosialisasi2)){
             if($filex2!=NULL){
                 unlink(storage_path('app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal.'/'.$filex2));
             }
             if($filex2_tumb!=NULL){
                 unlink(storage_path('app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal.'/'.$filex2_tumb));
             }
-            $img2 = explode(',', $file2);
-            $image2 = $img2[1];
-            $filedecode2 = base64_decode($image2);
-            $name2 = round(microtime(true) * 1000).'.jpg';
-            $name2_tumb = round(microtime(true) * 1000).'_tumb.jpg';
-            
-            Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
-                $constraint->aspectRatio();
-            })->save($destinationPath.'/'.$name2);
-            
-            Image::make($filedecode2)->resize(50, NULL, function ($constraint) {
-                $constraint->aspectRatio();
-            })->save($destinationPath.'/'.$name2_tumb);
+            if ($request->file_sosialisasi2 != null || $request->file_sosialisasi2 != '') {
+                $img2 = explode(',', $file2);
+                $image2 = $img1[1];
+                $filedecode2 = base64_decode($image2);
+                $name2 = round(microtime(true)*1000).'.jpg';
+                $name2_tumb = round(microtime(true) * 1000).'_tumb.jpg';
+                
+                Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($destinationPath.'/'.$name2);
+                
+                Image::make($filedecode2)->resize(50, NULL, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($destinationPath.'/'.$name2_tumb);
+            }
         }
 
         $dataSosialisasi->ts_file1 = $name1;
-        $dataSosialisasi->ts_file1_tumb = $name1_tumb;
         $dataSosialisasi->ts_file2 = $name2;
+        $dataSosialisasi->ts_file1_tumb = $name1_tumb;
         $dataSosialisasi->ts_file2_tumb = $name2_tumb;
         $dataSosialisasi->save();
         if($dataSosialisasi) {
