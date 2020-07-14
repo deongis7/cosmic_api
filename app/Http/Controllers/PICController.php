@@ -77,7 +77,8 @@ class PICController extends Controller
             Storage::disk('public')->makeDirectory('/aktifitas/'.$kd_perusahaan.'/'.$tanggal);
         }
   
-        $destinationPath = base_path("storage\app\public\aktifitas/").$kd_perusahaan.'/'.$tanggal;
+        //$destinationPath = base_path("storage\app\public\aktifitas/").$kd_perusahaan.'/'.$tanggal;
+		$destinationPath = storage_path().'/app/public/aktifitas/' .$kd_perusahaan.'/'.$tanggal;
 		$name1 = round(microtime(true) * 1000).'.jpg';
         $name2 = round(microtime(true) * 1000).'_tumb.jpg';
 		
@@ -384,7 +385,7 @@ class PICController extends Controller
 						"order" => $itemaktifitas->tpmd_order,
 						"id_konfig_cluster_aktifitas" => $itemaktifitas->kcar_id,
 						"aktifitas" => $itemaktifitas->mcar_name,
-						"montoring" => $data_monitoring,
+						"monitoring" => $data_monitoring,
 
 						
 					);
