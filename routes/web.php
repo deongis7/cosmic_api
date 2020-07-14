@@ -37,7 +37,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/taskforce/region/{id}', 'PerimeterController@getTaskForcebyRegion');
 	
 	//Cluster Ruangan
-	$router->get('/cluster/perimeter/{nik}/{id}', 'PICController@getClusterbyPerimeter');
+	$router->get('/cluster/perimeter/{id}', 'PerimeterController@getClusterbyPerimeter');
+	$router->get('/cluster/perimeter/{id}/{nik}', 'PICController@getClusterbyPerimeter');
 
 	
 	//Protokol

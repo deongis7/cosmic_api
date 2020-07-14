@@ -116,6 +116,7 @@ class PICController extends Controller
 		
 		
 		$data = array();
+		$dashboard = array("total_perimeter"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
 		if ($user != null){
 			$role_id = $user->roles()->first()->id;
 			
@@ -133,11 +134,14 @@ class PICController extends Controller
 				}	
 
 				$perimeter = $perimeter->get();
+				$totalperimeter = $perimeter->count();
+				$totalpmmonitoring = 0;
 				
 				foreach($perimeter as $itemperimeter){
 					$cluster = TblPerimeterDetail::where('tpmd_mpml_id',$itemperimeter->mpml_id)->where('tpmd_cek',true)->count();
 		
 					$status = $this->getStatusMonitoring($itemperimeter->mpml_id,$role_id,$cluster);	
+					//dd($status['status']);
 					$data[] = array(
 							"id_perimeter_level" => $itemperimeter->mpml_id,
 							"nama_perimeter" => $itemperimeter->mpm_name,
@@ -149,17 +153,27 @@ class PICController extends Controller
 							"pic" => $itemperimeter->first_name,
 							"nik_fo" => $itemperimeter->nik_fo,
 							"fo" => $itemperimeter->fo,
-							"status_monitoring" =>$status,
+							"status_monitoring" =>($status['status']),
+							"percentage" =>($status['percentage']),
 							
 						);
+					if ($status['status'] == true ){ $totalpmmonitoring++; }
 				}
-				return response()->json(['status' => 200,'data' => $data]);
+				
+				//dashboard
+				$dashboard = array (
+							"total_perimeter"=> $totalperimeter,
+							"sudah_dimonitor"=> $totalpmmonitoring,
+							"belum_dimonitor"=> $totalperimeter - $totalpmmonitoring
+							);
+				
+				return response()->json(['status' => 200,'data_dashboard' => $dashboard ,'data' => $data]);
 			} else {
-				return response()->json(['status' => 200,'data' => $data]);
+				return response()->json(['status' => 200,'data_dashboard' => $dashboard, 'data' => $data]);
 			}	
 			
 		} else {
-			return response()->json(['status' => 200,'data' => $data]);
+			return response()->json(['status' => 200,'data_dashboard' => $dashboard,'data' => $data]);
 		}	
 		
 
@@ -209,10 +223,51 @@ class PICController extends Controller
 		where tpd.tpmd_mpml_id = ? and ta.ta_date = NOW()::date and kc.kcar_ag_id = ?
 		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level,  $id_role]);			
 		}	
+		
 		if ($cluster <= count($clustertrans)) {
+			//return true;
+			return array(
+							"status" => true,
+							"percentage" => 1);
+		} else {
+			//return false;
+			return array(
+							"status" => false,
+							"percentage" => round((count($clustertrans)/$cluster),2));
+		}	
+
+	}
+	
+	//Get Status Monitoring per Cluster
+	private function getStatusMonitoringCluster($id_perimeter_cluster,$id_role){
+		
+		$data = array();
+        $now = Carbon::now();
+
+		$startdate = $now->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
+		$enddate = $now->endOfWeek(Carbon::SUNDAY)->format('Y-m-d');	
+		if ($id_role == 3){
+		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+		where tpd.tpmd_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = ? 
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_cluster, $startdate, $enddate, $id_role]);				
+		} else {
+		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+		where tpd.tpmd_id = ? and ta.ta_date = NOW()::date and kc.kcar_ag_id = ? 
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_cluster,  $id_role]);			
+		}	
+		
+		if ( count($clustertrans)>0) {
 			return true;
+			
 		} else {
 			return false;
+			
 		}	
 
 	}
@@ -266,7 +321,7 @@ class PICController extends Controller
 	}
 	
 	//Get Cluster per Perimeter Level
-	public function getClusterbyPerimeter($nik,$id){
+	public function getClusterbyPerimeter($id,$nik){
 		$user = User::where('username',$nik)->first();
 		$data = array();
 		if ($user != null){
@@ -283,6 +338,7 @@ class PICController extends Controller
 			foreach($perimeter as $itemperimeter){
 				$data_aktifitas_cluster = array();
 				$data_aktifitas_cluster = $this->getClusterAktifitas($itemperimeter->mcr_id,$role_id );
+				$status = $this->getStatusMonitoringCluster($itemperimeter->tpmd_id,$role_id);
 				$data[] = array(
 						"id_perimeter_level" => $itemperimeter->mpml_id,
 						"level" => $itemperimeter->mpml_name,
@@ -290,6 +346,7 @@ class PICController extends Controller
 						"id_cluster" => $itemperimeter->mcr_id,
 						"cluster_ruangan" => $itemperimeter->mcr_name,
 						"order" => $itemperimeter->tpmd_order,
+						"status" => $status,
 						"aktifitas" => $data_aktifitas_cluster,
 
 						
@@ -320,6 +377,7 @@ class PICController extends Controller
 			foreach($aktifitas as $itemaktifitas){
 				$data_monitoring = array();
 				$data_monitoring = $this->getDataMonitoring($itemaktifitas->tpmd_id,$itemaktifitas->kcar_id,$role_id,$nik);
+				
 				$data[] = array(
 						"id_perimeter_cluster" => $itemaktifitas->tpmd_id,
 						"cluster" => $itemaktifitas->mcr_name,

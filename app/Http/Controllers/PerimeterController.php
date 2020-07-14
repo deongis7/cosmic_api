@@ -144,6 +144,37 @@ class PerimeterController extends Controller
 
 	}
 
+	//Get Cluster per Perimeter Level
+	public function getClusterbyPerimeter($id){
+		
+		$data = array();
+
+			$perimeter = DB::select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo from master_perimeter_level mpl
+					join master_perimeter mpm on mpm.mpm_id = mpl.mpml_mpm_id
+					join master_perimeter_kategori mpk on mpk.mpmk_id = mpm.mpm_mpmk_id
+					join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id and tpd.tpmd_cek=true
+					join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
+					where mpl.mpml_id = ?
+					order by mpm.mpm_name asc, mpk.mpmk_name asc, mpl.mpml_name asc", [$id]);				
+			foreach($perimeter as $itemperimeter){
+
+	
+				$status = $this->getStatusMonitoringCluster($itemperimeter->tpmd_id);
+				$data[] = array(
+						"id_perimeter_level" => $itemperimeter->mpml_id,
+						"level" => $itemperimeter->mpml_name,
+						"id_perimeter_cluster" => $itemperimeter->tpmd_id,
+						"id_cluster" => $itemperimeter->mcr_id,
+						"cluster_ruangan" => $itemperimeter->mcr_name,
+						"order" => $itemperimeter->tpmd_order,
+						"status" => $status,
+						
+					);
+			}
+			return response()->json(['status' => 200,'data' => $data]);
+		
+
+	}
 	
 	//Jumlah Task Force
 	public function getCountTaskForce($id){
@@ -230,7 +261,29 @@ class PerimeterController extends Controller
 
 	}
 	
+	//Get Status Monitoring per Cluster
+	private function getStatusMonitoringCluster($id_perimeter_cluster){
+		
+		$data = array();
+        $now = Carbon::now();
+
+		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+		where tpd.tpmd_id = ? and ta.ta_date = NOW()::date 
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_cluster]);			
 	
+		
+		if ( count($clustertrans)>0) {
+			return true;
+			
+		} else {
+			return false;
+			
+		}	
+
+	}
 	
 
     //
