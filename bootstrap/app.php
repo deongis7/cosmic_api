@@ -102,7 +102,7 @@ $app->register(Laravel\Passport\PassportServiceProvider::class);
 $app->register(Dusterio\LumenPassport\PassportServiceProvider::class);
 $app->register(Intervention\Image\ImageServiceProvider::class);
 
-Dusterio\LumenPassport\LumenPassport::routes($app->router, ['prefix' => 'v1/oauth'] );
+Dusterio\LumenPassport\LumenPassport::routes($app->router, ['prefix' => 'api/v1/oauth'] );
 /*
 |--------------------------------------------------------------------------
 | Register Alias
