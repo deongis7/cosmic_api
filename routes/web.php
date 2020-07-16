@@ -56,9 +56,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
 	$router->get('/terpapar/laporan_detail/{id}', 'TerpaparController@getDatadetail');
 	
-	//Data_User
-	$router->get('/user/detail/{id}', 'UserController@getDetailUser');
-	$router->post('/user/detail/{id}', 'UserController@updateDetailUser');
+	
 	
 	//Cluster Aktifitas Ruangan
 	$router->get('/cluster_aktfiktas_ruangan/getall/', 'CARuanganController@getAll');
@@ -80,6 +78,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 	
 	Route::group(['middleware' => 'auth:api'], function () {
+		//Data_User
+		Route::get('/user/detail', 'UserController@getDetailUser');
+		Route::post('/user/detail/{id}', 'UserController@updateDetailUser');
 		Route::post('/user/change_password', 'UserController@change_password');
 		Route::post('/user/logout', 'UserController@logout');
 	});
