@@ -211,11 +211,11 @@ class SosialisasiController extends Controller {
         $name1_tumb = NULL;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {
             if($filex1!=NULL){
-                unlink(storage_path('app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal.'/'.$filex1));
+                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1);
             }
             
             if($filex1_tumb!=NULL){
-                unlink(storage_path('app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal.'/'.$filex1_tumb));
+                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1_tumb);
             }
             
             $img1 = explode(',', $file1);
@@ -237,10 +237,10 @@ class SosialisasiController extends Controller {
         $name2_tumb = NULL;
         if(isset($request->file_sosialisasi2)){
             if($filex2!=NULL){
-                unlink(storage_path('app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal.'/'.$filex2));
+                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex2);
             }
             if($filex2_tumb!=NULL){
-                unlink(storage_path('app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal.'/'.$filex2_tumb));
+                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex2_tumb);
             }
             if ($request->file_sosialisasi2 != null || $request->file_sosialisasi2 != '') {
                 $img2 = explode(',', $file2);
