@@ -42,8 +42,9 @@ class UserController extends Controller
 	}
 
 	//Detail User
-	public function getDetailUser($id){
+	public function getDetailUser(){
 		$data = array();
+		$id = Auth::guard('api')->user()->id;
 		$user = User::select('app_users.id','app_users.username','app_users.first_name','master_company.mc_id','master_company.mc_name','app_groups.name')
 					->join('master_company','master_company.mc_id','app_users.mc_id')
 					->join('app_users_groups','app_users_groups.user_id','app_users.id')
