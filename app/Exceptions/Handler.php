@@ -9,6 +9,7 @@ use Illuminate\Database\QueryException;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Intervention\Image\Exception\NotReadableException;
 use Throwable;
 
 
@@ -52,21 +53,28 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-		/**if ($exception instanceof QueryException) {
+		if ($exception instanceof QueryException) {
         
 			return response()->json([
 							'status' => '500',
 							//'message' => 'Data Gagal di Import. Format masih ada yang salah. Silahkan diperiksa kembali.'
-							'message' => 'Data Gagal di Import. '.$exception->getMessage()
+							'message' => 'Internal Service Error. '.$exception->getMessage()
 						])->setStatusCode(500);
 		}		
 		if ($exception instanceof NotFoundHttpException) {
         
 			return response()->json([
 							'status' => '404',
-							'message' => 'Data Tidak Ditemukan. '.$exception->getMessage()
+							'message' => 'Data Tidak Ditemukan. '
 						])->setStatusCode(404);
-		}*/
+		}
+		if ($exception instanceof NotReadableException) {
+        
+			return response()->json([
+							'status' => '404',
+							'message' => 'Data Tidak Ditemukan. '
+						])->setStatusCode(404);
+		}
 
         return parent::render($request, $exception);
 		
