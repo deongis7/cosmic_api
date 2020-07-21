@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\ClusterRuangan;
+use App\Region;
 use App\Perimeter;
 use App\PerimeterLevel;
 use App\PerimeterDetail;
@@ -47,6 +48,11 @@ class PerimeterController extends Controller
 	//Jumlah Perimeter
 	public function getCountPerimeter($id){
 		$data = array();
+		$region = Region::where('mr_mc_id',$id)->count();
+		$user = User::join('app_users_groups','app_users_groups.user_id','app_users.id')
+					->where('app_users.mc_id',$id)
+					->where('app_users_groups.group_id','3')
+					->count();
 		$perimeter = Perimeter::join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
 					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('master_region.mr_mc_id',$id)	
@@ -54,6 +60,8 @@ class PerimeterController extends Controller
 				
 			$data[] = array(
 					"jml_perimeter" => $perimeter,
+					"jml_pic" => $user,
+					"jml_region" => $region
 					
 					);
 
