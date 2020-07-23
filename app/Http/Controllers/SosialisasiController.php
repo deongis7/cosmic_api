@@ -39,6 +39,7 @@ class SosialisasiController extends Controller {
                 }
                 
                 $data[] = array(
+		    "id" => $sos->ts_id,
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
                     "tanggal" => $sos->ts_tanggal,
                     "file_1" => $filesos1,
