@@ -145,7 +145,7 @@ class PICController extends Controller
 					//dd($status['status']);
 					$data[] = array(
 							"id_perimeter_level" => $itemperimeter->mpml_id,
-							"nama_perimeter" => $itemperimeter->mpm_name,
+							"nama_perimeter" => $itemperimeter->mpm_name.' - '.$itemperimeter->mpml_name,
 							"level" => $itemperimeter->mpml_name,
 							"keterangan" => $itemperimeter->mpml_ket,
 							"alamat" => $itemperimeter->mpm_name,
@@ -345,7 +345,7 @@ class PICController extends Controller
 						"level" => $itemperimeter->mpml_name,
 						"id_perimeter_cluster" => $itemperimeter->tpmd_id,
 						"id_cluster" => $itemperimeter->mcr_id,
-						"cluster_ruangan" => $itemperimeter->mcr_name,
+						"cluster_ruangan" => (($itemperimeter->tpmd_order > 1)? ($itemperimeter->mcr_name.' - '.$itemperimeter->tpmd_order) :$itemperimeter->mcr_name),
 						"order" => $itemperimeter->tpmd_order,
 						"status" => $status,
 						"aktifitas" => $data_aktifitas_cluster,
