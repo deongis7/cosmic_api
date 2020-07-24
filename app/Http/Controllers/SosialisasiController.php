@@ -17,24 +17,29 @@ class SosialisasiController extends Controller {
         if(count($sosialisasi) > 0) {
             foreach($sosialisasi as $sos){
                 if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
-                    $path_file1 = base_path("storage\app\public\sosialisasi/").$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1;
-                    $type1 = pathinfo($path_file1, PATHINFO_EXTENSION);
-                    $data_file1 = file_get_contents($path_file1);
-                    $filesos1 = 'data:image/jpeg;base64,'.base64_encode($data_file1);
+                    $path_file1 = // base_path("storage/app/public/sosialisasi/").
+		    '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1_tumb;
+                    //$type1 = pathinfo($path_file1, PATHINFO_EXTENSION);
+                    //$data_file1 = file_get_contents($path_file1);
+                    //$filesos1 = 'data:image/jpeg;base64,'.base64_encode($data_file1);
+		    $filesos1 = $path_file1;
                 }else{
                     $filesos1 = NULL;
                 }
                 
                 if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
-                    $path_file2 =  base_path("storage\app\public\sosialisasi/").$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2;
-                    $type2 = pathinfo($path_file2, PATHINFO_EXTENSION);
-                    $data_file2 = file_get_contents($path_file2);
-                    $filesos2 = 'data:image/jpeg;base64,'.base64_encode($data_file2);
+                    $path_file2 = // base_path("storage/app/public/sosialisasi/").
+		    '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2_tumb;
+                    // $type2 = pathinfo($path_file2, PATHINFO_EXTENSION);
+                    // $data_file2 = file_get_contents($path_file2);
+                    //$filesos2 = 'data:image/jpeg;base64,'.base64_encode($data_file2);
+		    $filesos2 = $path_file2;
                 }else{
                     $filesos2 = NULL;
                 }
                 
                 $data[] = array(
+		    "id" => $sos->ts_id,
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
                     "tanggal" => $sos->ts_tanggal,
                     "file_1" => $filesos1,
@@ -53,19 +58,23 @@ class SosialisasiController extends Controller {
         if(count($sosialisasi) > 0) {
             foreach($sosialisasi as $sos){
                 if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
-                    $path_file1 = base_path("storage\app\public\sosialisasi/").$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1;
-                    $type1 = pathinfo($path_file1, PATHINFO_EXTENSION);
-                    $data_file1 = file_get_contents($path_file1);           
-                    $filesos1 = 'data:image/jpeg;base64,'.base64_encode($data_file1);
+                    $path_file1 = // base_path("storage/app/public/sosialisasi/").
+		    '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1_tumb;
+                    //$type1 = pathinfo($path_file1, PATHINFO_EXTENSION);
+                    //$data_file1 = file_get_contents($path_file1);           
+                    //$filesos1 = 'data:image/jpeg;base64,'.base64_encode($data_file1);
+		    $filesos1 = $path_file1;
                 }else{
                     $filesos1 = NULL;
                 }
     
                 if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
-                    $path_file2 =  base_path("storage\app\public\sosialisasi/").$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2;
-                    $type2 = pathinfo($path_file2, PATHINFO_EXTENSION);
-                    $data_file2 = file_get_contents($path_file2);
-                    $filesos2 = 'data:image/jpeg;base64,'.base64_encode($data_file2);
+                    $path_file2 = // base_path("storage/app/public/sosialisasi/").
+		    '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2_tumb;
+                    //$type2 = pathinfo($path_file2, PATHINFO_EXTENSION);
+                    //$data_file2 = file_get_contents($path_file2);
+                    //$filesos2 = 'data:image/jpeg;base64,'.base64_encode($data_file2);
+		    $filesos2 = $path_file2;
                 }else{
                     $filesos2 = NULL;
                 }
@@ -258,7 +267,7 @@ class SosialisasiController extends Controller {
                 })->save($destinationPath.'/'.$name2_tumb);
             }
         }
-
+	$dataSosialisasi->ts_nama_kegiatan = $nama_kegiatan;
         $dataSosialisasi->ts_file1 = $name1;
         $dataSosialisasi->ts_file2 = $name2;
         $dataSosialisasi->ts_file1_tumb = $name1_tumb;

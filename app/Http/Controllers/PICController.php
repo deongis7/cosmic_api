@@ -145,7 +145,7 @@ class PICController extends Controller
 					//dd($status['status']);
 					$data[] = array(
 							"id_perimeter_level" => $itemperimeter->mpml_id,
-							"nama_perimeter" => $itemperimeter->mpm_name,
+							"nama_perimeter" => $itemperimeter->mpm_name.' - '.$itemperimeter->mpml_name,
 							"level" => $itemperimeter->mpml_name,
 							"keterangan" => $itemperimeter->mpml_ket,
 							"alamat" => $itemperimeter->mpm_name,
@@ -274,7 +274,7 @@ class PICController extends Controller
 	}
 
 	//Get List Monitoring
-	private function getDataMonitoring($id_perimeter_cluster,$id_konfig_cluster_aktifitas,$id_role,$nik){
+	private function getDataMonitoring($id_perimeter_cluster,$id_konfig_cluster_aktifitas,$id_role,$nik,$mc_id){
 		
 		$data = array();
         $now = Carbon::now();
@@ -283,14 +283,14 @@ class PICController extends Controller
 		$startdate = $now->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
 		$enddate = $now->endOfWeek(Carbon::SUNDAY)->format('Y-m-d');	
 		if ($id_role == 3){
-		$clustertrans = DB::select( "select tpd.tpmd_id,kc.kcar_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,ta.ta_id,ta.ta_filetumb,ta.ta_nik,ta.ta_keterangan from transaksi_aktifitas ta
+		$clustertrans = DB::select( "select tpd.tpmd_id,kc.kcar_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,ta.ta_id,ta.ta_filetumb,ta.ta_nik,ta.ta_keterangan,ta.ta_date from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 		where tpd.tpmd_id = ? and ta.ta_kcar_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = ? and ta.ta_nik = ?
 		order by  ta.ta_id asc limit 2", [$id_perimeter_cluster, $id_konfig_cluster_aktifitas,$startdate, $enddate, $id_role,$nik]);				
 		} else {
-		$clustertrans = DB::select( "select tpd.tpmd_id,kc.kcar_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,ta.ta_id,ta.ta_filetumb,ta.ta_nik from transaksi_aktifitas ta
+		$clustertrans = DB::select( "select tpd.tpmd_id,kc.kcar_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,ta.ta_id,ta.ta_filetumb,ta.ta_nik,ta.ta_keterangan,ta.ta_date from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
@@ -307,7 +307,7 @@ class PICController extends Controller
 							"id_konfig_cluster_aktifitas" => $id_konfig_cluster_aktifitas,
 							"id_transaksi" => $itemclustertrans->ta_id,
 							"nik" => $itemclustertrans->ta_nik,
-							"file" => $itemclustertrans->ta_filetumb,
+							"file" => "/aktifitas/".$mc_id."/".$itemclustertrans->ta_date."/".$itemclustertrans->ta_filetumb,
 							"keterangan" => $itemclustertrans->ta_keterangan,
 
 						);
@@ -345,7 +345,7 @@ class PICController extends Controller
 						"level" => $itemperimeter->mpml_name,
 						"id_perimeter_cluster" => $itemperimeter->tpmd_id,
 						"id_cluster" => $itemperimeter->mcr_id,
-						"cluster_ruangan" => $itemperimeter->mcr_name,
+						"cluster_ruangan" => (($itemperimeter->tpmd_order > 1)? ($itemperimeter->mcr_name.' - '.$itemperimeter->tpmd_order) :$itemperimeter->mcr_name),
 						"order" => $itemperimeter->tpmd_order,
 						"status" => $status,
 						"aktifitas" => $data_aktifitas_cluster,
@@ -377,7 +377,7 @@ class PICController extends Controller
 			order by mcr.mcr_name asc,tpd.tpmd_order asc, mcar.mcar_name asc", [$id_perimeter_cluster,$role_id]);				
 			foreach($aktifitas as $itemaktifitas){
 				$data_monitoring = array();
-				$data_monitoring = $this->getDataMonitoring($itemaktifitas->tpmd_id,$itemaktifitas->kcar_id,$role_id,$nik);
+				$data_monitoring = $this->getDataMonitoring($itemaktifitas->tpmd_id,$itemaktifitas->kcar_id,$role_id,$nik,$user->mc_id);
 				
 				$data[] = array(
 						"id_perimeter_cluster" => $itemaktifitas->tpmd_id,

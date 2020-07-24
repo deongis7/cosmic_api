@@ -10,6 +10,7 @@
 | and give it the Closure to call when that URI is requested.
 |
 */
+use Intervention\Image\ImageManagerStatic as Image;
 
 $router->get('/', function () use ($router) {
     return $router->app->version();
@@ -21,6 +22,10 @@ $router->get('/todo', 'todoController@index');
 $router->get('/key', 'todoController@apikey');
 $router->get('/todo/{id}', 'todoController@show');
 $router->post('/todo', 'todoController@store');
+$router->get('/storage/{jenis}/{kd_perusahaan}/{tgl}/{filename}', function ($jenis,$kd_perusahaan,$tgl,$filename)
+	{
+		return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/' .$tgl.'/'. $filename))->response();
+	});
 
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	
@@ -76,7 +81,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
 	$router->get('/monitoring/{nik}/{id_perimeter_cluster}', 'PICController@getAktifitasbyCluster');
 
-	
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
 		Route::get('/user/detail', 'UserController@getDetailUser');
@@ -84,5 +88,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::post('/user/change_password', 'UserController@change_password');
 		Route::post('/user/logout', 'UserController@logout');
 	});
+	
+
 	   
 });
