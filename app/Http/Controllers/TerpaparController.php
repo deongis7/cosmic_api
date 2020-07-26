@@ -58,12 +58,11 @@ class TerpaparController extends Controller {
 	}
 	
 	public function getDatadetail($id) {
-	    $terpapar = DB::select("
-                    SELECT tk_id, tk_mc_id, tk_name, mc_name, msk_name
+	    $terpapar = DB::select("SELECT tk_id, tk_mc_id, tk_name, mc_name, msk_name
                     FROM transaksi_kasus tk 
                     INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
                     INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
-                    WHERE tk_mc_id=?",[$id])->get();
+                    WHERE tk_mc_id=?",[$id]);
 	    
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
@@ -71,7 +70,7 @@ class TerpaparController extends Controller {
 	            "kd_perusahaan" => $tpp->tk_mc_id,
 	            "perusahaan" => $tpp->mc_name,
 	            "nama_pasien" => $tpp->tk_name,
-	            "jenis_kasus" => $tpp->msk_name,
+	            "jenis_kasus" => $tpp->msk_name
 	        );
 	    }
 	    return response()->json(['status' => 200,'data' => $data]);
