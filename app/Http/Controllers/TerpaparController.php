@@ -62,8 +62,8 @@ class TerpaparController extends Controller {
                     FROM transaksi_kasus tk 
                     INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
                     INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
-                    WHERE tk_mc_id=?",[$id]);
-	    
+                    WHERE tk_mc_id='$id'");
+	    //var_dump($terpapar);die;
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
 	            "id" => $tpp->tk_id,
