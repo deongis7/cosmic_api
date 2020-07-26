@@ -38,7 +38,7 @@ class TerpaparController extends Controller {
 	}	
 	
 	public function getDataHome($id) {
-	    $terpapar = DB::select("SELECT msk_id, msk_name,
+	    $terpapar = DB::select("SELECT msk_id, msk_name2,
                     CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
                     FROM master_status_kasus msk
                     LEFT JOIN (
@@ -49,7 +49,7 @@ class TerpaparController extends Controller {
 
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
-	            "jenis_kasus" => $tpp->msk_name,
+	            "jenis_kasus" => $tpp->msk_name2,
 	            "jumlah" => $tpp->jml
 	        );
 	    }
@@ -59,7 +59,7 @@ class TerpaparController extends Controller {
 	
 	public function getDatadetail($id) {
 	    $terpapar = DB::select("
-                    SELECT tk_id, tk_mc_id, tk_name, mc_name, msk_name
+                    SELECT tk_id, tk_mc_id, tk_name, mc_name, msk_name2
                     FROM transaksi_kasus tk 
                     INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
                     INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
@@ -71,7 +71,7 @@ class TerpaparController extends Controller {
 	            "kd_perusahaan" => $tpp->tk_mc_id,
 	            "perusahaan" => $tpp->mc_name,
 	            "nama_pasien" => $tpp->tk_name,
-	            "jenis_kasus" => $tpp->msk_name,
+	            "jenis_kasus" => $tpp->msk_name2,
 	        );
 	    }
 	    return response()->json(['status' => 200,'data' => $data]);
