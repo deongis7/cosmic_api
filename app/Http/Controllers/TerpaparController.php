@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\TrnKasus;
 
 class TerpaparController extends Controller {
     /**
@@ -37,18 +38,18 @@ class TerpaparController extends Controller {
 	}	
 	
 	public function getDataHome($id) {
-	    $terpapar = DB::select("SELECT mjk_name,
-    		CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
-    		FROM master_jenis_kasus mjk
-    		LEFT JOIN (SELECT tpp.jenis_kasus, 
-    		COUNT(tpp.jenis_kasus) jml 
-    		FROM table_terpapar tpp
-    		WHERE tpp.kd_perusahaan=?
-    		GROUP BY tpp.jenis_kasus) b on b.jenis_kasus=mjk.mjk_name",[$id]);
+	    $terpapar = DB::select("SELECT msk_id, msk_name,
+                    CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
+                    FROM master_status_kasus msk
+                    LEFT JOIN (
+                    SELECT tk_msk_id, count(tk_msk_id) jml 
+                    from transaksi_kasus
+                    where tk_mc_id=?
+                    group by tk_msk_id) tk on tk.tk_msk_id=msk.msk_id",[$id]);
 
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
-	            "jenis_kasus" => $tpp->mjk_name,
+	            "jenis_kasus" => $tpp->msk_name,
 	            "jumlah" => $tpp->jml
 	        );
 	    }
@@ -57,15 +58,20 @@ class TerpaparController extends Controller {
 	}
 	
 	public function getDatadetail($id) {
-	    $terpapar = Terpapar::where('kd_perusahaan', $id)->get();
+	    $terpapar = DB::select("
+                    SELECT tk_id, tk_mc_id, tk_name, mc_name, msk_name
+                    FROM transaksi_kasus tk 
+                    INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
+                    INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
+                    WHERE tk_mc_id=?",[$id])->get();
 	    
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
-	            "id" => $tpp->id,
-	            "kd_perusahaan" => $tpp->kd_perusahaan,
-	            "perusahaan" => $tpp->perusahaan,
-	            "nama_pasien" => $tpp->nama_pasien,
-	            "jenis_kasus" => $tpp->jenis_kasus,
+	            "id" => $tpp->tk_id,
+	            "kd_perusahaan" => $tpp->tk_mc_id,
+	            "perusahaan" => $tpp->mc_name,
+	            "nama_pasien" => $tpp->tk_name,
+	            "jenis_kasus" => $tpp->msk_name,
 	        );
 	    }
 	    return response()->json(['status' => 200,'data' => $data]);

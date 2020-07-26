@@ -105,7 +105,7 @@ class SosialisasiController extends Controller {
         $file1 = $request->file_sosialisasi1;
         $kd_perusahaan = $request->kd_perusahaan;
         $nama_kegiatan = $request->nama_kegiatan;
-        $tanggal = $request->tanggal;
+        $tanggal = date('Y-m-d',$request->tanggal);
         $user_id = $request->user_id;
 
         if(!Storage::exists('/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal)) {
