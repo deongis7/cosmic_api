@@ -63,15 +63,18 @@ class TerpaparController extends Controller {
                     INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
                     INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
                     WHERE tk_mc_id='$id'");
-	    //var_dump($terpapar);die;
-	    foreach($terpapar as $tpp){
-	        $data[] = array(
-	            "id" => $tpp->tk_id,
-	            "kd_perusahaan" => $tpp->tk_mc_id,
-	            "perusahaan" => $tpp->mc_name,
-	            "nama_pasien" => $tpp->tk_nama,
-	            "jenis_kasus" => $tpp->msk_name
-	        );
+	    if (count($terpapar) > 0){
+    	    foreach($terpapar as $tpp){
+    	        $data[] = array(
+    	            "id" => $tpp->tk_id,
+    	            "kd_perusahaan" => $tpp->tk_mc_id,
+    	            "perusahaan" => $tpp->mc_name,
+    	            "nama_pasien" => $tpp->tk_nama,
+    	            "jenis_kasus" => $tpp->msk_name
+    	        );
+    	    }
+	    }else{
+	        $data = array();
 	    }
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
