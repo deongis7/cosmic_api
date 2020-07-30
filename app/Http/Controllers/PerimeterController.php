@@ -309,7 +309,7 @@ class PerimeterController extends Controller
 	public function getExecutionReport($id){
 	    $data = array();
 	    $execution = DB::select("
-                        SELECT v_judul, v_desc, v_color, v_jml*v_bobot/100 v_persen
+                        SELECT v_judul, v_desc, v_color, v_jml v_persen
                         FROM execution_report('$id')
                         UNION ALL 
                         SELECT 'COSMIC INDEX', 'Impelemetasi Leading Indikator', '#ff9933', 
