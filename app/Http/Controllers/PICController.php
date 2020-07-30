@@ -12,7 +12,6 @@ use App\TblPerimeterDetail;
 use App\TrnAktifitas;
 use App\TrnAktifitasFile;
 
-
 use App\User;
 use App\UserGroup;
 use App\Helpers\AppHelper;
@@ -75,10 +74,10 @@ class PICController extends Controller
 		
 		$user_id = $request->user_id;
 		$tanggal= Carbon::now()->format('Y-m-d');
-		
+
 		$weeks = AppHelper::Weeks();
 		//dd($weeks['weeks']);
-		
+	
         if(!Storage::exists('/public/aktifitas/'.$kd_perusahaan.'/'.$tanggal)) {
             Storage::disk('public')->makeDirectory('/aktifitas/'.$kd_perusahaan.'/'.$tanggal);
         }
