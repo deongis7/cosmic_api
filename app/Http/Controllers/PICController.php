@@ -10,9 +10,12 @@ use App\PerimeterDetail;
 use App\PerimeterKategori;
 use App\TblPerimeterDetail;
 use App\TrnAktifitas;
+use App\TrnAktifitasFile;
+
 
 use App\User;
 use App\UserGroup;
+use App\Helpers\AppHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -49,7 +52,7 @@ class PICController extends Controller
 
 	}
 
-	//Jumlah Perimeter
+	//Daily Monitoring
 	public function updateDailyMonitoring(Request $request){
 		$this->validate($request, [
             'id_perimeter_cluster' => 'required',
@@ -57,6 +60,7 @@ class PICController extends Controller
 			'nik' => 'required',
 			'file_foto' => 'required',
         ]);
+		
 		
 		$user = User::where(DB::raw("TRIM(username)"),'=',trim($request->nik))->first();
 		if($user==null){
@@ -72,6 +76,8 @@ class PICController extends Controller
 		$user_id = $request->user_id;
 		$tanggal= Carbon::now()->format('Y-m-d');
 		
+		$weeks = AppHelper::Weeks();
+		//dd($weeks['weeks']);
 		
         if(!Storage::exists('/public/aktifitas/'.$kd_perusahaan.'/'.$tanggal)) {
             Storage::disk('public')->makeDirectory('/aktifitas/'.$kd_perusahaan.'/'.$tanggal);
@@ -96,20 +102,52 @@ class PICController extends Controller
             })->save($destinationPath.'/'.$name2);
         }
 		
-		$trn_aktifitas= TrnAktifitas::create(
-            ['ta_tpmd_id' => $id_perimeter_cluster, 'ta_nik' => $nik, 'ta_kcar_id' => $id_konfig_cluster_aktifitas,'ta_date' => $tanggal, 'ta_file' => $name1, 'ta_filetumb' => $name2, 'ta_keterangan' => $name2]);
+		$trn_aktifitas= TrnAktifitas::updateOrCreate(
+            ['ta_tpmd_id' => $id_perimeter_cluster, 'ta_nik' => $nik, 'ta_kcar_id' => $id_konfig_cluster_aktifitas,'ta_week' =>$weeks['weeks']],['ta_date' => $tanggal, 'ta_keterangan' => $keterangan , 'ta_status' => 0]);	
 		
-
+		
+		$trn_aktifitas_file= TrnAktifitasFile::create(
+            ['taf_ta_id' => $trn_aktifitas->ta_id,'taf_date' => $tanggal, 'taf_file' => $name1, 'taf_file_tumb' => $name2]);
 
         if($trn_aktifitas) {
             return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
         } else {
             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
-        }
-		
-
+        }		
 	}
 
+	//Validasi
+	public function validasiMonitoring(Request $request){
+		$this->validate($request, [
+            'id_perimeter_cluster' => 'required',
+			'id_konfig_cluster_aktifitas' => 'required',
+			'status' => 'required',
+        ]);
+			
+		$id_perimeter_cluster = $request->id_perimeter_cluster;
+		$id_konfig_cluster_aktifitas = $request->id_konfig_cluster_aktifitas;	
+		$weeks = AppHelper::Weeks();
+		//dd($weeks['weeks']);
+		
+		$trn_aktifitas= TrnAktifitas::where('ta_tpmd_id',$id_perimeter_cluster)
+									->where('ta_kcar_id',$id_konfig_cluster_aktifitas)
+									->where('ta_week',$weeks['weeks'])->first();
+		if($trn_aktifitas != null){
+			$trn_aktifitas->ta_status = $request->status;
+			if($request->status==2){
+				$trn_aktifitas->ta_ket_tolak = $request->keterangan;
+			}
+			
+			if($trn_aktifitas->save()) {
+				return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+			} else {
+				return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+			}
+		} else {
+			return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+		}	
+		   		
+	}
 	
 	//Get Perimeter per NIK
 	public function getPerimeterbyUser($nik){
@@ -209,21 +247,22 @@ class PICController extends Controller
 
 		$startdate = $now->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
 		$enddate = $now->endOfWeek(Carbon::SUNDAY)->format('Y-m-d');	
-		if ($id_role == 3){
+		
+		if($id_role == 4){
 		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-		where tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = ?
-		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate, $id_role]);				
-		} else {
+		where ta.ta_aktif = true and tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);				
+		} else {	
 		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-		where tpd.tpmd_mpml_id = ? and ta.ta_date = NOW()::date and kc.kcar_ag_id = ?
-		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level,  $id_role]);			
-		}	
+		where ta.ta_aktif = true and ta.ta_status = 1 and tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
+		}
 		
 		if ($cluster <= count($clustertrans)) {
 			//return true;
@@ -247,20 +286,21 @@ class PICController extends Controller
 
 		$startdate = $now->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
 		$enddate = $now->endOfWeek(Carbon::SUNDAY)->format('Y-m-d');	
-		if ($id_role == 3){
+		
+		if($id_role == 4){
 		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-		where tpd.tpmd_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = ? 
-		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_cluster, $startdate, $enddate, $id_role]);				
+		where ta.ta_aktif = true and tpd.tpmd_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_cluster, $startdate, $enddate]);				
 		} else {
 		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-		where tpd.tpmd_id = ? and ta.ta_date = NOW()::date and kc.kcar_ag_id = ? 
-		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_cluster,  $id_role]);			
+		where ta.ta_aktif = true and ta.ta_status = 1 and  tpd.tpmd_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_cluster, $startdate, $enddate]);		
 		}	
 		
 		if ( count($clustertrans)>0) {
@@ -282,21 +322,14 @@ class PICController extends Controller
 
 		$startdate = $now->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
 		$enddate = $now->endOfWeek(Carbon::SUNDAY)->format('Y-m-d');	
-		if ($id_role == 3){
+		
 		$clustertrans = DB::select( "select tpd.tpmd_id,kc.kcar_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,ta.ta_id,ta.ta_filetumb,ta.ta_nik,ta.ta_keterangan,ta.ta_date from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-		where tpd.tpmd_id = ? and ta.ta_kcar_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = ? and ta.ta_nik = ?
-		order by  ta.ta_id asc limit 2", [$id_perimeter_cluster, $id_konfig_cluster_aktifitas,$startdate, $enddate, $id_role,$nik]);				
-		} else {
-		$clustertrans = DB::select( "select tpd.tpmd_id,kc.kcar_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,ta.ta_id,ta.ta_filetumb,ta.ta_nik,ta.ta_keterangan,ta.ta_date from transaksi_aktifitas ta
-		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
-		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
-		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-		where tpd.tpmd_id  = ? and ta.ta_kcar_id = ? and ta.ta_date = NOW()::date and kc.kcar_ag_id = ? and ta.ta_nik = ?
-		order by ta.ta_id asc limit 2", [$id_perimeter_cluster, $id_konfig_cluster_aktifitas, $id_role,$nik]);			
-		}	
+		where ta.ta_aktif = true and tpd.tpmd_id = ? and ta.ta_kcar_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = ? and ta.ta_nik = ?
+		order by  ta.ta_id desc limit 2", [$id_perimeter_cluster, $id_konfig_cluster_aktifitas,$startdate, $enddate, $id_role,$nik]);				
+			
 	    
 			foreach ($clustertrans as $itemclustertrans){
 				

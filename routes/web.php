@@ -79,6 +79,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
+	$router->post('/validasi_monitoring', 'PICController@validasiMonitoring');
 	$router->get('/monitoring/{nik}/{id_perimeter_cluster}', 'PICController@getAktifitasbyCluster');
 
 	Route::group(['middleware' => 'auth:api'], function () {
