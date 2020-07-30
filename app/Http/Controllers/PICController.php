@@ -71,8 +71,7 @@ class PICController extends Controller
 		
 		$user_id = $request->user_id;
 		$tanggal= Carbon::now()->format('Y-m-d');
-		
-		
+
         if(!Storage::exists('/public/aktifitas/'.$kd_perusahaan.'/'.$tanggal)) {
             Storage::disk('public')->makeDirectory('/aktifitas/'.$kd_perusahaan.'/'.$tanggal);
         }

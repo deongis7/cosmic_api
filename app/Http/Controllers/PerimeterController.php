@@ -299,15 +299,33 @@ class PerimeterController extends Controller
 	
 		
 		if ( count($clustertrans)>0) {
-			return true;
-			
+			return true;	
 		} else {
 			return false;
-			
 		}	
-
 	}
 	
 
-    //
+	public function getExecutionReport($id){
+	    $data = array();
+	    $execution = DB::select("SELECT v_judul, v_desc, v_color, v_jml*v_bobot/100 v_persen
+                        FROM execution_report('?')
+                        UNION ALL 
+                        SELECT 'COSMIC INDEX', 'Impelemetasi Leading Indikator', '#ff9933', 
+                        (SELECT SUM(v_jml*v_bobot/100)
+                        FROM execution_report('?'))
+                        ", [$id]);
+	    
+	    foreach($execution as $exec){
+	        $data[] = array(
+	            "judul" => $er->v_judul,
+	            "desc" => $er->v_desc,
+	            "color" => $er->v_color,
+	            "persen" => $er->v_persen,
+	        );
+	    }
+	    
+	    return response()->json(['status' => 200,'data' => $data]);
+	    
+	}
 }
