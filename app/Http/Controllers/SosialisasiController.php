@@ -18,32 +18,41 @@ class SosialisasiController extends Controller {
             foreach($sosialisasi as $sos){
                 if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
                     $path_file1 = // base_path("storage/app/public/sosialisasi/").
-		    '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1_tumb;
+                    '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1;
+                    $path_file1_tumb = // base_path("storage/app/public/sosialisasi/").
+		            '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1_tumb;
                     //$type1 = pathinfo($path_file1, PATHINFO_EXTENSION);
                     //$data_file1 = file_get_contents($path_file1);
                     //$filesos1 = 'data:image/jpeg;base64,'.base64_encode($data_file1);
-		    $filesos1 = $path_file1;
+		            $filesos1 = $path_file1;
                 }else{
                     $filesos1 = NULL;
+                    $filesos1_tumb = NULL;
                 }
                 
                 if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
                     $path_file2 = // base_path("storage/app/public/sosialisasi/").
-		    '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2_tumb;
+		            '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2;
+                    $path_file2_tumb = // base_path("storage/app/public/sosialisasi/").
+                    '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2_tumb;
                     // $type2 = pathinfo($path_file2, PATHINFO_EXTENSION);
                     // $data_file2 = file_get_contents($path_file2);
                     //$filesos2 = 'data:image/jpeg;base64,'.base64_encode($data_file2);
-		    $filesos2 = $path_file2;
+		            $filesos2 = $path_file2;
+		            $filesos2_tumb = $path_file2_tumb;
                 }else{
                     $filesos2 = NULL;
+                    $filesos2_tumb = NULL;
                 }
                 
                 $data[] = array(
-		    "id" => $sos->ts_id,
+		            "id" => $sos->ts_id,
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
                     "tanggal" => $sos->ts_tanggal,
                     "file_1" => $filesos1,
+                    "file_1_tumb" => $filesos1_tumb,
                     "file_2" => $filesos2,
+                    "file_2_tumb" => $filesos2_tumb
                 );
             }
         }else{
@@ -59,31 +68,41 @@ class SosialisasiController extends Controller {
             foreach($sosialisasi as $sos){
                 if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
                     $path_file1 = // base_path("storage/app/public/sosialisasi/").
-		    '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1_tumb;
+		            '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1;
+                    $path_file1_tumb = // base_path("storage/app/public/sosialisasi/").
+                    '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1_tumb;
                     //$type1 = pathinfo($path_file1, PATHINFO_EXTENSION);
                     //$data_file1 = file_get_contents($path_file1);           
                     //$filesos1 = 'data:image/jpeg;base64,'.base64_encode($data_file1);
-		    $filesos1 = $path_file1;
+    		        $filesos1 = $path_file1;
+    		        $filesos1_tumb = $path_file1_tumb;
                 }else{
                     $filesos1 = NULL;
+                    $filesos1_tumb = NULL;
                 }
     
                 if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
                     $path_file2 = // base_path("storage/app/public/sosialisasi/").
-		    '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2_tumb;
+		            '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2;
+                    $path_file2_tumb = // base_path("storage/app/public/sosialisasi/").
+                    '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2_tumb;
                     //$type2 = pathinfo($path_file2, PATHINFO_EXTENSION);
                     //$data_file2 = file_get_contents($path_file2);
                     //$filesos2 = 'data:image/jpeg;base64,'.base64_encode($data_file2);
-		    $filesos2 = $path_file2;
+                    $filesos2 = $path_file2;
+                    $filesos2_tumb = $path_file2_tumb;
                 }else{
                     $filesos2 = NULL;
+                    $filesos2_tumb = NULL;
                 }
                 
                 $data = array(
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
                     "tanggal" => $sos->ts_tanggal,
                     "file_1" => $filesos1,
+                    "file_1_tumb" => $filesos1_tumb,
                     "file_2" => $filesos2,
+                    "file_2_tumb" => $filesos2_tumb
                 );
             }
         }else{
