@@ -11,6 +11,7 @@ use App\PerimeterDetail;
 use App\PerimeterKategori;
 use App\User;
 use App\UserGroup;
+use App\Helpers\AppHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -158,10 +159,12 @@ class PerimeterController extends Controller
 					"keterangan" => $itemperimeter->mpml_ket,
 					"alamat" => $itemperimeter->mpm_name,
 					"kategori" => $itemperimeter->mpmk_name,
-					"nik_pic" => $itemperimeter->username,
-					"pic" => $itemperimeter->first_name,
+					"nik_pic" => $itemperimeter->nik_pic,
+					"pic" => $itemperimeter->pic,
 					"nik_fo" => $itemperimeter->nik_fo,
 					"fo" => $itemperimeter->fo,
+			        "provinsi" => $itemperimeter->mpro_name,
+			        "kabupaten" => $itemperimeter->mkab_name,					
 				);
 		}
 		return response()->json(['status' => 200,'data' => $data]);
@@ -288,14 +291,16 @@ class PerimeterController extends Controller
 	private function getStatusMonitoringCluster($id_perimeter_cluster){
 		
 		$data = array();
-        $now = Carbon::now();
+        $weeks = AppHelper::Weeks();
+		$startdate = $weeks['startweek'];
+		$enddate = $weeks['endweek'];
 
 		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-		where tpd.tpmd_id = ? and ta.ta_date = NOW()::date 
-		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_cluster]);			
+		where tpd.tpmd_id = ? and ta.ta_status = 1 and (ta.ta_date >= ? and ta.ta_date <= ? ) 
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_cluster, $startdate, $enddate]);			
 	
 		
 		if ( count($clustertrans)>0) {
