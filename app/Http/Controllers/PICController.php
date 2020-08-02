@@ -248,13 +248,17 @@ class PICController extends Controller
 	private function getClusterAktifitasMonitoring($id_perimeter_cluster,$id_cluster,$id_role){
 		
 		$data = array();
-
+		
+		$weeks = AppHelper::Weeks();
+		$startdate = $weeks['startweek'];
+		$enddate = $weeks['endweek'];
+		
 		$cluster = DB::select( "select  kc.kcar_id, kc.kcar_mcr_id, kc.kcar_ag_id, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from konfigurasi_car kc
 		join  master_cluster_ruangan mcr on kc.kcar_mcr_id = mcr.mcr_id
 		join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
 		left join transaksi_aktifitas ta on  ta.ta_kcar_id = kc.kcar_id
-		where ta.ta_tpmd_id = ? and kc.kcar_mcr_id = ? and kc.kcar_ag_id = 4 
-		order by kc.kcar_mcar_id asc, mcar.mcar_name asc", [$id_perimeter_cluster,$id_cluster]);	
+		where ta.ta_tpmd_id = ? and kc.kcar_mcr_id = ? and kc.kcar_ag_id = 4  and (ta.ta_date >= ? and ta.ta_date <= ? )
+		order by kc.kcar_mcar_id asc, mcar.mcar_name asc", [$id_perimeter_cluster,$id_cluster, $startdate, $enddate]);	
 
 		
 		foreach($cluster as $itemcluster){	
