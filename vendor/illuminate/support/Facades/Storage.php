@@ -35,7 +35,7 @@ use Illuminate\Filesystem\Filesystem;
  *
  * @see \Illuminate\Filesystem\FilesystemManager
  */
-class $tanggal extends Facade
+class Storage extends Facade
 {
     /**
      * Replace the given disk with a local testing disk.

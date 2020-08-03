@@ -82,6 +82,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->post('/validasi_monitoring', 'PICController@validasiMonitoring');
 	$router->get('/monitoring/{nik}/{id_perimeter_cluster}', 'PICController@getAktifitasbyCluster');
 	$router->get('/monitoring/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeter');
+	$router->get('/monitoring_detail/{id_aktifitas}', 'PICController@getMonitoringDetail');
+	$router->get('/notif/{nik}', 'PICController@getNotifFO');
 	
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');

@@ -486,6 +486,9 @@ class PICController extends Controller
 	//Get Cluster per Perimeter Level
 	public function getAktifitasbyPerimeter($nik,$id_perimeter_level){
 		$user = User::where('username',$nik)->first();
+		$total_monitoring = 0;
+		$jml_monitoring = 0;
+		$dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
 		$data = array();
 		if ($user != null){
 			$role_id = $user->roles()->first()->id;
@@ -502,6 +505,8 @@ class PICController extends Controller
 				$data_aktifitas_cluster = array();
 				$data_aktifitas_cluster = $this->getClusterAktifitasMonitoring($itemperimeter->tpmd_id,$itemperimeter->mcr_id,$role_id );
 				$status = $this->getStatusMonitoringCluster($itemperimeter->tpmd_id,$role_id);
+				$total_monitoring = $total_monitoring + 1;
+				$jml_monitoring = $jml_monitoring + ($status==true?1:0);
 				$data[] = array(
 						"id_perimeter_level" => $itemperimeter->mpml_id,
 						"level" => $itemperimeter->mpml_name,
@@ -511,18 +516,86 @@ class PICController extends Controller
 						"order" => $itemperimeter->tpmd_order,
 						"status" => $status,
 						"aktifitas" => $data_aktifitas_cluster,
-
-						
-						
+	
 					);
+				
 			}
-			return response()->json(['status' => 200,'data' => $data]);
+			$dataprogress = array("total_monitor"=> $total_monitoring,
+							"sudah_dimonitor"=> $jml_monitoring,
+							"belum_dimonitor"=> $total_monitoring - $jml_monitoring );
+			
+			return response()->json(['status_monitoring' => $dataprogress,'status' => 200,'data' => $data]);
 		} else {
-			return response()->json(['status' => 200,'data' => $data]);
+			return response()->json(['status_monitoring' => $dataprogress,'status' => 200,'data' => $data]);
 		}			
 
 	}
 	
+	//Get ID
+	public function getMonitoringDetail($id_aktifitas){
+		$data = array();
+		
+		
+		$monitor = TrnAktifitas::join('konfigurasi_car','konfigurasi_car.kcar_id','transaksi_aktifitas.ta_kcar_id')
+					->join('master_car','master_car.mcar_id','konfigurasi_car.kcar_mcar_id')
+					->where('transaksi_aktifitas.ta_id',$id_aktifitas)					
+					->first();
+		
+		if ($monitor != null) {
+			
+				$data = array(
+						"id_perimeter_cluster" => $monitor->ta_tpmd_id,
+						"id_konfig_cluster_aktifitas" => $monitor->ta_kcar_id,
+						"aktifitas" => $monitor->mcar_name,
+						"id_aktifitas" => $monitor->ta_id,
+						"status" => $monitor->ta_status,
+						"ket_tolak" => $monitor->ta_ket_tolak,
+						"file" => $this->getFile($id_aktifitas),
+
+					);
+			
+			return response()->json(['status' => 200,'data' => $data]);
+		}  else {
+			return response()->json(['status' => 200,'data' => $data]);
+		}	
+		
+	}
+		
+	//Get Notif
+	public function getNotifFO($nik){
+		$data = array();
+		
+		$weeks = AppHelper::Weeks();
+		$startdate = $weeks['startweek'];
+		$enddate = $weeks['endweek'];
+		
+		$notif = DB::select( "select mp.mpm_name, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak from transaksi_aktifitas ta
+		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+		join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+		join master_car mcar on mcar.mcar_id = kcar_mcar_id 
+		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id
+		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+		join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id 
+		where ta.ta_status = 2 and ta.ta_nik = ?  
+		order by ta_date_update asc", [$nik]);	
+
+		
+		foreach($notif as $itemnotif){	
+		
+			$data[] = array(
+					"id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
+					"id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
+					"perimeter" => $itemnotif->mpm_name. " lantai ". $itemnotif->mpml_name,
+					"cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
+					"aktifitas" => $itemnotif->mcar_name,
+					"id_aktifitas" => $itemnotif->ta_id,
+					"status" => $itemnotif->ta_status,
+					"ket_tolak" => $itemnotif->ta_ket_tolak,
+
+				);
+		}
+		return response()->json(['status' => 200,'data' => $data]);
+	}
 
     //
 }
