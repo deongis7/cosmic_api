@@ -126,13 +126,14 @@ class SosialisasiController extends Controller {
         $nama_kegiatan = $request->nama_kegiatan;
         $tanggal = date('Y-m-d',$request->tanggal);
         $user_id = $request->user_id;
-
+    
         if(!Storage::exists('/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal)) {
             Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan.'/'.$tanggal);
         }
-  
+      
         //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
         $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal;
+      
         $name1 = NULL;
         $name1_tumb = NULL;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {

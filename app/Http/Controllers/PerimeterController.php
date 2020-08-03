@@ -314,15 +314,16 @@ class PerimeterController extends Controller
 	public function getExecutionReport($id){
 	    $data = array();
 	    $execution = DB::select("
-                        SELECT v_judul, v_desc, v_color, v_jml v_persen
+                        SELECT v_id, v_judul, v_desc, v_color, v_jml v_persen
                         FROM execution_report('$id')
                         UNION ALL 
-                        SELECT 'COSMIC INDEX', 'Impelemetasi Leading Indikator', '#ff9933', 
+                        SELECT 0, 'COSMIC INDEX', 'Impelemetasi Leading Indikator', '#ff9933', 
                         (SELECT SUM(v_jml*v_bobot/100) FROM execution_report('$id'))
                         ");
 	 
 	    foreach($execution as $exec){
 	        $data[] = array(
+	            "id" => $exec->v_id,
 	            "judul" => $exec->v_judul,
 	            "desc" => $exec->v_desc,
 	            "color" => $exec->v_color,
