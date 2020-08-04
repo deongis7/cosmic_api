@@ -256,9 +256,9 @@ class PICController extends Controller
 		$cluster = DB::select( "select  kc.kcar_id, kc.kcar_mcr_id, kc.kcar_ag_id, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from konfigurasi_car kc
 		join  master_cluster_ruangan mcr on kc.kcar_mcr_id = mcr.mcr_id
 		join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
-		left join transaksi_aktifitas ta on  ta.ta_kcar_id = kc.kcar_id
-		where ta.ta_tpmd_id = ? and kc.kcar_mcr_id = ? and kc.kcar_ag_id = 4  and (ta.ta_date >= ? and ta.ta_date <= ? )
-		order by kc.kcar_mcar_id asc, mcar.mcar_name asc", [$id_perimeter_cluster,$id_cluster, $startdate, $enddate]);	
+		left join transaksi_aktifitas ta on  ta.ta_kcar_id = kc.kcar_id and (ta.ta_date >= ? and ta.ta_date <= ? ) and ta.ta_tpmd_id = ?
+		where  kc.kcar_mcr_id = ? and kc.kcar_ag_id = 4  
+		order by kc.kcar_mcar_id asc, mcar.mcar_name asc", [ $startdate, $enddate,$id_perimeter_cluster,$id_cluster]);	
 
 		
 		foreach($cluster as $itemcluster){	
@@ -279,16 +279,18 @@ class PICController extends Controller
 	
 	//Get File
 	private function getFile($id_aktifitas,$id_perusahaan){
-		
-		$transaksi_aktifitas_file = TrnAktifitasFile::where("taf_ta_id",$id_aktifitas)->limit("2")->get();
+		$data =[];
+		if ($id_aktifitas != null){
+		$transaksi_aktifitas_file = TrnAktifitasFile::where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
 				
-		foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){	
-		
-			$data[] = array(
-					"id_file" => $itemtransaksi_aktifitas_file->taf_id,
-					"file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
-					"file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
-				);
+			foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){	
+			
+				$data[] = array(
+						"id_file" => $itemtransaksi_aktifitas_file->taf_id,
+						"file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
+						"file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
+					);
+			}
 		}
 		return $data;
 	}	
@@ -340,26 +342,30 @@ class PICController extends Controller
 		$enddate = $weeks['endweek'];
 		
 		if($id_role == 4){
-		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,max(ta.ta_date_update) from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 		where  tpd.tpmd_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
-		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_cluster, $startdate, $enddate]);				
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id order by max(ta.ta_date_update) desc", [$id_perimeter_cluster, $startdate, $enddate]);				
 		} else {
-		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,max(ta.ta_date_update) from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 		where  ta.ta_status = 1 and  tpd.tpmd_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
-		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_cluster, $startdate, $enddate]);		
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id order by max(ta.ta_date_update) desc", [$id_perimeter_cluster, $startdate, $enddate]);		
 		}	
 		
 		if ( count($clustertrans)>0) {
-			return true;
+			return array(
+							"status" => true,
+							"last_date" =>$clustertrans[0]->max);
 			
 		} else {
-			return false;
+			return array(
+							"status" => false,
+							"last_date" => null);
 			
 		}	
 
@@ -433,7 +439,7 @@ class PICController extends Controller
 						"id_cluster" => $itemperimeter->mcr_id,
 						"cluster_ruangan" => (($itemperimeter->tpmd_order > 1)? ($itemperimeter->mcr_name.' - '.$itemperimeter->tpmd_order) :$itemperimeter->mcr_name),
 						"order" => $itemperimeter->tpmd_order,
-						"status" => $status,
+						"status" => $status['status'],
 						"aktifitas" => $data_aktifitas_cluster,
 
 						
@@ -507,7 +513,7 @@ class PICController extends Controller
 				$data_aktifitas_cluster = $this->getClusterAktifitasMonitoring($itemperimeter->tpmd_id,$itemperimeter->mcr_id,$role_id,  $user->mc_id);
 				$status = $this->getStatusMonitoringCluster($itemperimeter->tpmd_id,$role_id);
 				$total_monitoring = $total_monitoring + 1;
-				$jml_monitoring = $jml_monitoring + ($status==true?1:0);
+				$jml_monitoring = $jml_monitoring + ($status['status']==true?1:0);
 				$data[] = array(
 						"id_perimeter_level" => $itemperimeter->mpml_id,
 						"level" => $itemperimeter->mpml_name,
@@ -515,7 +521,8 @@ class PICController extends Controller
 						"id_cluster" => $itemperimeter->mcr_id,
 						"cluster_ruangan" => (($itemperimeter->tpmd_order > 1)? ($itemperimeter->mcr_name.' - '.$itemperimeter->tpmd_order) :$itemperimeter->mcr_name),
 						"order" => $itemperimeter->tpmd_order,
-						"status" => $status,
+						"status" => $status['status'],
+						"last_update" => $status['last_date'],
 						"aktifitas" => $data_aktifitas_cluster,
 	
 					);
