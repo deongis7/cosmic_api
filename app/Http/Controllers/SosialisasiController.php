@@ -112,7 +112,7 @@ class SosialisasiController extends Controller {
     }
     
     public function uploadSosialisasiJSON(Request $request) {
-        //var_dump($request);die;
+        
         $this->validate($request, [
             'kd_perusahaan' => 'required',
             'nama_kegiatan' => 'required',
@@ -124,10 +124,12 @@ class SosialisasiController extends Controller {
         $file1 = $request->file_sosialisasi1;
         $kd_perusahaan = $request->kd_perusahaan;
         $nama_kegiatan = $request->nama_kegiatan;
-        $tanggal = date('Y-m-d',$request->tanggal);
-        $user_id = $request->user_id;
-    
-        if(!Storage::exists('/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal)) {
+        $tgl = strtotime($request->tanggal);
+        $tanggal = date('Y-m-d',$tgl);
+        $user_id = $request->user_id;    
+        //var_dump($tanggal);die;
+        
+        if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal)) {
             Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan.'/'.$tanggal);
         }
       
