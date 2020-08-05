@@ -25,6 +25,7 @@ class SosialisasiController extends Controller {
                     //$data_file1 = file_get_contents($path_file1);
                     //$filesos1 = 'data:image/jpeg;base64,'.base64_encode($data_file1);
 		            $filesos1 = $path_file1;
+		            $filesos1_tumb = $path_file1_tumb;
                 }else{
                     $filesos1 = NULL;
                     $filesos1_tumb = NULL;
@@ -112,7 +113,7 @@ class SosialisasiController extends Controller {
     }
     
     public function uploadSosialisasiJSON(Request $request) {
-        //var_dump($request);die;
+        
         $this->validate($request, [
             'kd_perusahaan' => 'required',
             'nama_kegiatan' => 'required',
@@ -124,15 +125,18 @@ class SosialisasiController extends Controller {
         $file1 = $request->file_sosialisasi1;
         $kd_perusahaan = $request->kd_perusahaan;
         $nama_kegiatan = $request->nama_kegiatan;
-        $tanggal = date('Y-m-d',$request->tanggal);
-        $user_id = $request->user_id;
-
-        if(!Storage::exists('/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal)) {
+        $tgl = strtotime($request->tanggal);
+        $tanggal = date('Y-m-d',$tgl);
+        $user_id = $request->user_id;    
+        //var_dump($tanggal);die;
+        
+        if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal)) {
             Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan.'/'.$tanggal);
         }
-  
+      
         //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
         $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal;
+      
         $name1 = NULL;
         $name1_tumb = NULL;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {
