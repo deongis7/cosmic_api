@@ -11,6 +11,7 @@ use App\PerimeterKategori;
 use App\TblPerimeterDetail;
 use App\TrnAktifitas;
 use App\TrnAktifitasFile;
+use App\KonfigurasiCAR;
 
 use App\User;
 use App\UserGroup;
@@ -334,7 +335,7 @@ class PICController extends Controller
 	}
 	
 	//Get Status Monitoring per Cluster
-	private function getStatusMonitoringCluster($id_perimeter_cluster,$id_role){
+	private function getStatusMonitoringCluster($id_perimeter_cluster,$id_role,$aktifitas){
 		
 		$data = array();
 		$weeks = AppHelper::Weeks();
@@ -342,32 +343,38 @@ class PICController extends Controller
 		$enddate = $weeks['endweek'];
 		
 		if($id_role == 4){
-		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,max(ta.ta_date_update) from transaksi_aktifitas ta
+		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id,max(ta.ta_date_update) from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 		where  tpd.tpmd_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
-		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id order by max(ta.ta_date_update) desc", [$id_perimeter_cluster, $startdate, $enddate]);				
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id order by max(ta.ta_date_update) desc", [$id_perimeter_cluster, $startdate, $enddate]);				
 		} else {
-		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,max(ta.ta_date_update) from transaksi_aktifitas ta
+		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id,max(ta.ta_date_update) from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 		where  ta.ta_status = 1 and  tpd.tpmd_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
-		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id order by max(ta.ta_date_update) desc", [$id_perimeter_cluster, $startdate, $enddate]);		
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id order by max(ta.ta_date_update) desc", [$id_perimeter_cluster, $startdate, $enddate]);		
 		}	
 		
-		if ( count($clustertrans)>0) {
-			return array(
-							"status" => true,
-							"last_date" =>$clustertrans[0]->max);
-			
+		if (count($clustertrans) > 0) {
+			if ( $aktifitas <= count($clustertrans)) {
+				return array(
+								"status" => true,
+								"last_date" =>$clustertrans[0]->max);
+				
+			} else {
+				return array(
+								"status" => false,
+								"last_date" =>$clustertrans[0]->max);
+				
+			}
 		} else {
 			return array(
-							"status" => false,
-							"last_date" => null);
-			
-		}	
+								"status" => false,
+								"last_date" => null);
+		}
 
 	}
 
@@ -430,8 +437,12 @@ class PICController extends Controller
 					order by mpm.mpm_name asc, mpk.mpmk_name asc, mpl.mpml_name asc", [$id]);				
 			foreach($perimeter as $itemperimeter){
 				$data_aktifitas_cluster = array();
+				$aktifitas = KonfigurasiCAR::join('master_car','master_car.mcar_id','konfigurasi_car.kcar_mcar_id')
+							->where('konfigurasi_car.kcar_ag_id',4)->where('konfigurasi_car.kcar_mcr_id',$itemperimeter->mcr_id)
+							->where('master_car.mcar_active',true)->count();
+						
 				$data_aktifitas_cluster = $this->getClusterAktifitas($itemperimeter->tpmd_id,$itemperimeter->mcr_id,$role_id);
-				$status = $this->getStatusMonitoringCluster($itemperimeter->tpmd_id,$role_id);
+				$status = $this->getStatusMonitoringCluster($itemperimeter->tpmd_id,$role_id,$aktifitas);
 				$data[] = array(
 						"id_perimeter_level" => $itemperimeter->mpml_id,
 						"level" => $itemperimeter->mpml_name,
@@ -440,6 +451,7 @@ class PICController extends Controller
 						"cluster_ruangan" => (($itemperimeter->tpmd_order > 1)? ($itemperimeter->mcr_name.' - '.$itemperimeter->tpmd_order) :$itemperimeter->mcr_name),
 						"order" => $itemperimeter->tpmd_order,
 						"status" => $status['status'],
+						"last_update" => $status['last_date'],
 						"aktifitas" => $data_aktifitas_cluster,
 
 						
@@ -510,8 +522,12 @@ class PICController extends Controller
 					order by mpm.mpm_name asc, mpk.mpmk_name asc, mpl.mpml_name asc", [$id_perimeter_level]);				
 			foreach($perimeter as $itemperimeter){
 				$data_aktifitas_cluster = array();
+				$aktifitas = KonfigurasiCAR::join('master_car','master_car.mcar_id','konfigurasi_car.kcar_mcar_id')
+							->where('konfigurasi_car.kcar_ag_id',4)->where('konfigurasi_car.kcar_mcr_id',$itemperimeter->mcr_id)
+							->where('master_car.mcar_active',true)->count();
+						
 				$data_aktifitas_cluster = $this->getClusterAktifitasMonitoring($itemperimeter->tpmd_id,$itemperimeter->mcr_id,$role_id,  $user->mc_id);
-				$status = $this->getStatusMonitoringCluster($itemperimeter->tpmd_id,$role_id);
+				$status = $this->getStatusMonitoringCluster($itemperimeter->tpmd_id,$role_id,$aktifitas);
 				$total_monitoring = $total_monitoring + 1;
 				$jml_monitoring = $jml_monitoring + ($status['status']==true?1:0);
 				$data[] = array(
