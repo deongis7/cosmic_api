@@ -25,6 +25,7 @@ class SosialisasiController extends Controller {
                     //$data_file1 = file_get_contents($path_file1);
                     //$filesos1 = 'data:image/jpeg;base64,'.base64_encode($data_file1);
 		            $filesos1 = $path_file1;
+		            $filesos1_tumb = $path_file1_tumb;
                 }else{
                     $filesos1 = NULL;
                     $filesos1_tumb = NULL;
