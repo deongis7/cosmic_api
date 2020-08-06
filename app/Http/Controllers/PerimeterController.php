@@ -12,6 +12,7 @@ use App\PerimeterKategori;
 use App\User;
 use App\UserGroup;
 use App\Helpers\AppHelper;
+use App\TblPerimeterDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -111,6 +112,9 @@ class PerimeterController extends Controller
 					->where('master_region.mr_mc_id',$id)	
 					->get();
 		foreach($perimeter as $itemperimeter){		
+			$cluster = TblPerimeterDetail::where('tpmd_mpml_id',$itemperimeter->mpml_id)->where('tpmd_cek',true)->count();
+		
+			$status = $this->getStatusMonitoring($itemperimeter->mpml_id,$cluster);
 			$data[] = array(
 					"id_region" => $itemperimeter->mr_id,
 					"region" => $itemperimeter->mr_name,
@@ -124,6 +128,8 @@ class PerimeterController extends Controller
 					"pic" => $itemperimeter->pic,
 					"nik_fo" => $itemperimeter->nik_fo,
 					"fo" => $itemperimeter->fo,
+					"status_monitoring" =>($status['status']),
+					"percentage" =>($status['percentage']),
 			        "provinsi" => $itemperimeter->mpro_name,
 			        "kabupaten" => $itemperimeter->mkab_name,
 				);
@@ -332,5 +338,36 @@ class PerimeterController extends Controller
 	    }
 	   
 	    return response()->json(['status' => 200,'data' => $data]);
+	}
+	
+	//Get Status Monitoring
+	private function getStatusMonitoring($id_perimeter_level, $cluster){
+		
+		$data = array();
+		$weeks = AppHelper::Weeks();
+		$startdate = $weeks['startweek'];
+		$enddate = $weeks['endweek'];
+		
+			
+		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+		where ta.ta_status = 1 and tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
+		
+		
+		if ($cluster <= count($clustertrans)) {
+			//return true;
+			return array(
+							"status" => true,
+							"percentage" => 1);
+		} else {
+			//return false;
+			return array(
+							"status" => false,
+							"percentage" => round((count($clustertrans)/$cluster),2));
+		}	
+
 	}
 }
