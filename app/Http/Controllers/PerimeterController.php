@@ -50,8 +50,7 @@ class PerimeterController extends Controller
 	//Jumlah Perimeter
 	public function getCountPerimeter($id){
 		$data = array();
-		$region = Region::join('master_perimeter','master_region.mr_id','master_perimeter.mpm_mr_id')
-					->where('mr_mc_id',$id)->count();
+		$region = Region::where('mr_mc_id',$id)->count();
 		$user = User::join('app_users_groups','app_users_groups.user_id','app_users.id')
 					->where('app_users.mc_id',$id)
 					->where('app_users_groups.group_id','3')
