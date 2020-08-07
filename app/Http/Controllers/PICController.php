@@ -635,7 +635,7 @@ class PICController extends Controller
 					"id_aktifitas" => $itemnotif->ta_id,
 					"status" => $itemnotif->ta_status,
 					"ket_tolak" => $itemnotif->ta_ket_tolak,
-					"file" => $this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id )['file_tumb']
+					"file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id )
 
 				);
 		}
