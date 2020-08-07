@@ -613,7 +613,7 @@ class PICController extends Controller
 		$startdate = $weeks['startweek'];
 		$enddate = $weeks['endweek'];
 		
-		$notif = DB::select( "select mp.mpm_name,mp.mpm_mc_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak from transaksi_aktifitas ta
+		$notif = DB::select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak from transaksi_aktifitas ta
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 		join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
 		join master_car mcar on mcar.mcar_id = kcar_mcar_id 
@@ -627,6 +627,7 @@ class PICController extends Controller
 		foreach($notif as $itemnotif){	
 		//dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
 			$data[] = array(
+					"id_perimeter_level" => $itemnotif->mpml_id,
 					"id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
 					"id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
 					"perimeter" => $itemnotif->mpm_name. " lantai ". $itemnotif->mpml_name,
