@@ -296,6 +296,23 @@ class PICController extends Controller
 		return $data;
 	}	
 	
+		//Get File
+	private function getOneFile($id_aktifitas,$id_perusahaan){
+		$data =[];
+		if ($id_aktifitas != null){
+		$transaksi_aktifitas_file = TrnAktifitasFile::where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("1")->first();
+				
+			if ($transaksi_aktifitas_file != null){	
+			
+				$data = array(
+						"id_file" => $transaksi_aktifitas_file->taf_id,
+						"file_tumb" => "/aktifitas/".$id_perusahaan."/".$transaksi_aktifitas_file->taf_date."/".$transaksi_aktifitas_file->taf_file_tumb,
+					);
+			}
+		}
+		return $data;
+	}	
+	
 	//Get Status Monitoring
 	private function getStatusMonitoring($id_perimeter_level,$id_role, $cluster){
 		
@@ -596,19 +613,19 @@ class PICController extends Controller
 		$startdate = $weeks['startweek'];
 		$enddate = $weeks['endweek'];
 		
-		$notif = DB::select( "select mp.mpm_name, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak from transaksi_aktifitas ta
+		$notif = DB::select( "select mp.mpm_name,mp.mpm_mc_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak from transaksi_aktifitas ta
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 		join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
 		join master_car mcar on mcar.mcar_id = kcar_mcar_id 
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id 
-		where ta.ta_status = 2 and ta.ta_nik = ?  
-		order by ta_date_update asc", [$nik]);	
+		where ta.ta_status = 2 and ta.ta_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
+		order by ta_date_update asc", [$nik,$startdate,$enddate]);	
 
 		
 		foreach($notif as $itemnotif){	
-		
+		//dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
 			$data[] = array(
 					"id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
 					"id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
@@ -618,6 +635,7 @@ class PICController extends Controller
 					"id_aktifitas" => $itemnotif->ta_id,
 					"status" => $itemnotif->ta_status,
 					"ket_tolak" => $itemnotif->ta_ket_tolak,
+					"file" => $this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id )['file_tumb']
 
 				);
 		}
