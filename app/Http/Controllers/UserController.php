@@ -72,7 +72,6 @@ class UserController extends Controller
 	//Ubah User
 	public function updateDetailUser(Request $request,$id)
     {
-		
 		$this->validate($request, [
             'name' => 'required',
         ]);
@@ -80,6 +79,8 @@ class UserController extends Controller
 		$user = User::find($id);	
 		$user->first_name = $request->name;
 		$user->email = $request->email;
+		$user->no_hp = $request->no_hp;
+		$user->divisi = $request->divisi;
 		
 		if($user->save()){
 			return response()->json(['status' => 200,'data' => $user]);	
