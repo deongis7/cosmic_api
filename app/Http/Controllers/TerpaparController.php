@@ -57,12 +57,17 @@ class TerpaparController extends Controller {
 	        'data' => $data]);
 	}
 	
-	public function getDatadetail($id) {
+	public function getDatadetail($id, $page) {
+	    $row = 10;
+	    $page = isset($page) ? (int)$page : 1;
+	    $pageq = $page*$row;
+	    
 	    $terpapar = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name2
                     FROM transaksi_kasus tk 
                     INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
                     INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
-                    WHERE tk_mc_id='$id'");
+                    WHERE tk_mc_id='$id' ORDER BY tk_id
+					OFFSET $pageq LIMIT $row");
 	    if (count($terpapar) > 0){
     	    foreach($terpapar as $tpp){
     	        $data[] = array(
