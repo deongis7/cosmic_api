@@ -58,9 +58,20 @@ class TerpaparController extends Controller {
 	}
 	
 	public function getDatadetail($id, $page) {
+	    if($page > 0){
+	        $page=$page-1;
+	    }else{
+	        $page=0;
+	    }
+	    
 	    $row = 10;
-	    $page = isset($page) ? (int)$page : 1;
 	    $pageq = $page*$row;
+	    
+	    $terpaparall = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name2
+                    FROM transaksi_kasus tk
+                    INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
+                    INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
+                    WHERE tk_mc_id='$id' ORDER BY tk_id");
 	    
 	    $terpapar = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name2
                     FROM transaksi_kasus tk 
@@ -68,6 +79,10 @@ class TerpaparController extends Controller {
                     INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
                     WHERE tk_mc_id='$id' ORDER BY tk_id
 					OFFSET $pageq LIMIT $row");
+	    
+	    $cntterpaparall = count($terpaparall);
+        $pageend = ceil($cntterpaparall/$row);
+	
 	    if (count($terpapar) > 0){
     	    foreach($terpapar as $tpp){
     	        $data[] = array(
@@ -81,6 +96,6 @@ class TerpaparController extends Controller {
 	    }else{
 	        $data = array();
 	    }
-	    return response()->json(['status' => 200,'data' => $data]);
+	    return response()->json(['status' => 200, 'page_end'=>$pageend, 'data' => $data]);
 	}
 }
