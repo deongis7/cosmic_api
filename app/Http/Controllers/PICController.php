@@ -245,7 +245,9 @@ class PICController extends Controller
 					$perimeter = $perimeter->where('userfo.username',$nik);
 				}	
 
-				$perimeter = $perimeter->get();
+				$perimeter = $perimeter->orderBy('master_region.mr_name', 'asc')
+					->orderBy('master_perimeter.mpm_name', 'asc')
+					->orderBy('master_perimeter_level.mpml_name', 'asc')->get();
 				$totalperimeter = $perimeter->count();
 				$totalpmmonitoring = 0;
 				
@@ -303,7 +305,7 @@ class PICController extends Controller
 		join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
 		left join transaksi_aktifitas ta on  ta.ta_kcar_id = kc.kcar_id
 		where kc.kcar_mcr_id = ? and kc.kcar_ag_id = 4 
-		order by kc.kcar_mcar_id asc, mcar.mcar_name asc", [$id_cluster]);				
+		order by mcar.mcar_name asc", [$id_cluster]);				
 		foreach($cluster as $itemcluster){		
 			$data[] = array(
 					"id_konfig_cluster_aktifitas" => $itemcluster->kcar_id,
@@ -330,7 +332,7 @@ class PICController extends Controller
 		join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
 		left join transaksi_aktifitas ta on  ta.ta_kcar_id = kc.kcar_id and (ta.ta_date >= ? and ta.ta_date <= ? ) and ta.ta_tpmd_id = ?
 		where  kc.kcar_mcr_id = ? and kc.kcar_ag_id = 4  
-		order by kc.kcar_mcar_id asc, mcar.mcar_name asc", [ $startdate, $enddate,$id_perimeter_cluster,$id_cluster]);	
+		order by mcar.mcar_name asc", [ $startdate, $enddate,$id_perimeter_cluster,$id_cluster]);	
 
 		
 		foreach($cluster as $itemcluster){	
@@ -533,7 +535,7 @@ class PICController extends Controller
 					join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id and tpd.tpmd_cek=true
 					join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
 					where mpl.mpml_id = ?
-					order by mpm.mpm_name asc, mpk.mpmk_name asc, mpl.mpml_name asc", [$id]);				
+					order by mcr.mcr_name asc, tpmd_order asc", [$id]);				
 			foreach($perimeter as $itemperimeter){
 				$data_aktifitas_cluster = array();
 				$aktifitas = KonfigurasiCAR::join('master_car','master_car.mcar_id','konfigurasi_car.kcar_mcar_id')
@@ -618,7 +620,7 @@ class PICController extends Controller
 					join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id and tpd.tpmd_cek=true
 					join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
 					where mpl.mpml_id = ?
-					order by mpm.mpm_name asc, mpk.mpmk_name asc, mpl.mpml_name asc", [$id_perimeter_level]);				
+					order by mpm.mpm_name asc,mpl.mpml_name asc, mcr.mcr_name asc, tpmd_order asc", [$id_perimeter_level]);				
 			foreach($perimeter as $itemperimeter){
 				$data_aktifitas_cluster = array();
 				$aktifitas = KonfigurasiCAR::join('master_car','master_car.mcar_id','konfigurasi_car.kcar_mcar_id')
