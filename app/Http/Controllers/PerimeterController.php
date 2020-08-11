@@ -51,15 +51,21 @@ class PerimeterController extends Controller
 	//Jumlah Perimeter
 	public function getCountPerimeter($id){
 		$data = array();
-		$region = Region::where('mr_mc_id',$id)->count();
-		$user = User::join('app_users_groups','app_users_groups.user_id','app_users.id')
-					->where('app_users.mc_id',$id)
-					->where('app_users_groups.group_id','3')
-					->count();
-		$perimeter = Perimeter::join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
+		$region =  Cache::remember("count_region_by_company_id_". $id, 30 * 60, function()use($id) {
+			return Region::where('mr_mc_id',$id)->count();
+		});
+		$user =  Cache::remember("count_userpic_by_company_id_". $id, 30 * 60, function()use($id) {
+			return count(DB::select('select au.username from app_users au
+					join master_perimeter_level mpl on mpl.mpml_pic_nik = au.username
+					where au.mc_id = ?
+					group by au.username',[$id]));
+		});				
+		$perimeter = Cache::remember("count_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
+			return Perimeter::join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
 					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('master_region.mr_mc_id',$id)	
 					->count();
+		});			
 				
 			$data[] = array(
 					"jml_perimeter" => $perimeter,
