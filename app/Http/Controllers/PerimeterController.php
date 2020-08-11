@@ -112,6 +112,9 @@ class PerimeterController extends Controller
 					->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
 					->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id')
 					->where('master_region.mr_mc_id',$id)	
+					->orderBy('master_region.mr_name', 'asc')
+					->orderBy('master_perimeter.mpm_name', 'asc')
+					->orderBy('master_perimeter_level.mpml_name', 'asc')
 					->get();
 		
 		});
@@ -160,7 +163,10 @@ class PerimeterController extends Controller
 					->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
 					->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
 					->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id')
-					->where('master_region.mr_id',$id)	
+					->where('master_region.mr_id',$id)
+					->orderBy('master_region.mr_name', 'asc')
+					->orderBy('master_perimeter.mpm_name', 'asc')
+					->orderBy('master_perimeter_level.mpml_name', 'asc')					
 					->get();
 		foreach($perimeter as $itemperimeter){		
 			$data[] = array(
@@ -193,7 +199,7 @@ class PerimeterController extends Controller
 					join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id and tpd.tpmd_cek=true
 					join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
 					where mpl.mpml_id = ?
-					order by mpm.mpm_name asc, mpk.mpmk_name asc, mpl.mpml_name asc", [$id]);				
+					order by mcr.mcr_name asc, tpmd_order asc", [$id]);				
 			foreach($perimeter as $itemperimeter){
 
 	
