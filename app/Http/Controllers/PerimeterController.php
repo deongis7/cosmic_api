@@ -101,9 +101,11 @@ class PerimeterController extends Controller
 
 	//Get Perimeter by Kode Perusahaan
 	public function getPerimeter($id){
+		$datacache = Cache::remember("get_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
 		$data = array();
-		$perimeter =   Cache::remember("get_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
-			return Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
+		  
+			//Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
+			$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
 		    'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
 		    'master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket',
 		    'master_perimeter_kategori.mpmk_name','userpic.username as nik_pic',
@@ -123,7 +125,7 @@ class PerimeterController extends Controller
 					->orderBy('master_perimeter_level.mpml_name', 'asc')
 					->get();
 		
-		});
+		//});
 			
 		foreach($perimeter as $itemperimeter){		
 			$cluster = TblPerimeterDetail::where('tpmd_mpml_id',$itemperimeter->mpml_id)->where('tpmd_cek',true)->count();
@@ -148,7 +150,9 @@ class PerimeterController extends Controller
 			        "kabupaten" => $itemperimeter->mkab_name,
 				);
 		}
-		return response()->json(['status' => 200,'data' => $data]);
+		return $data;
+		});
+		return response()->json(['status' => 200,'data' =>$datacache]);
 
 	}
 	
@@ -373,14 +377,13 @@ class PerimeterController extends Controller
 		$enddate = $weeks['endweek'];
 		
 			
-		$clustertrans[] =  Cache::remember("get_status_monitoring_by_perimeter_level_". $id_perimeter_level."_cluster_". $cluster, 30 * 60, function()use($id_perimeter_level, $startdate, $enddate) {
-			return DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+		$clustertrans[] = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 			join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 			join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 			join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 			where ta.ta_status = 1 and tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
 			group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
-		});	
+		
 		//dd($clustertrans );
 			if ($cluster <= count($clustertrans)) {
 				//return true;
