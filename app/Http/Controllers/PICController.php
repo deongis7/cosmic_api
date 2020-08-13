@@ -371,6 +371,26 @@ class PICController extends Controller
 		return $data;
 	}	
 	
+	//Get File Tolak
+	private function getFileTolak($id_aktifitas,$id_perusahaan){
+		$data =[];
+		if ($id_aktifitas != null){
+		$transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
+						->where("ta_status", "=", "2")
+						->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
+				
+			foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){	
+			
+				$data[] = array(
+						"id_file" => $itemtransaksi_aktifitas_file->taf_id,
+						"file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
+						"file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
+					);
+			}
+		}
+		return $data;
+	}	
+	
 	//Get File ID
 	public function getFileByID($id_file){
 		$data =[];
@@ -724,7 +744,7 @@ class PICController extends Controller
 					"id_aktifitas" => $itemnotif->ta_id,
 					"status" => $itemnotif->ta_status,
 					"ket_tolak" => $itemnotif->ta_ket_tolak,
-					"file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id )
+					"file" => $this->getFileTolak($itemnotif->ta_id,$itemnotif->mpm_mc_id )
 
 				);
 		}
