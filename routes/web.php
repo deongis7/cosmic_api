@@ -93,6 +93,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/monitoring_detail/file/{id_file}', 'PICController@getFileByID');
 	$router->get('/notif/{nik}', 'PICController@getNotifFO');
 	
+	
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
 	Route::group(['middleware' => 'auth:api'], function () {
@@ -101,6 +102,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::post('/user/detail/{id}', 'UserController@updateDetailUser');
 		Route::post('/user/change_password', 'UserController@change_password');
 		Route::post('/user/logout', 'UserController@logout');
+		Route::post('/user/detail_first/{id}', 'UserController@updateFirstDetailUser');
 	});
 	
 

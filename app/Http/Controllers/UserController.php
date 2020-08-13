@@ -70,14 +70,12 @@ class UserController extends Controller
 	}
 	
 	//Ubah User
-	public function updateDetailUser(Request $request,$id)
-    {
+	public function updateDetailUser(Request $request,$id) {
 		$this->validate($request, [
             'name' => 'required',
         ]);
 		
-		$user = User::find($id);	
-		$user->first_name = $request->name;
+		$user = User::find($id);
 		$user->email = $request->email;
 		$user->no_hp = $request->no_hp;
 		$user->divisi = $request->divisi;
@@ -87,13 +85,9 @@ class UserController extends Controller
 		} else {
 			return response()->json(['status' => 500,'message' => 'Gagal Menyimpan'])->setStatusCode(500);	
 		}
-	
 	}	
-	
 
-	
-	public function change_password(Request $request)
-	{
+	public function change_password(Request $request) {
 		$input = $request->all();
 		$userid = Auth::guard('api')->user()->id;
 		$rules = array(
@@ -140,4 +134,50 @@ class UserController extends Controller
 		}
 	}
 	
+	public function updateFirstDetailUser(Request $request, $id) {
+	    $input = $request->all();
+	    $user = User::find($id);
+	    $user->email = $request->email;
+	    $user->no_hp = $request->no_hp;
+	    $user->divisi = $request->divisi; 
+
+        if(($request->new_password!='') or ($request->old_password!='') 
+            or ((Hash::check('P@ssw0rd', Auth::user()->password)) == true)){
+            $rules = array(
+                'old_password' => 'required',
+                'new_password' => 'required|min:6'
+            );
+            $validator = Validator::make($input, $rules);
+            if ($validator->fails()) {
+                $arr = array("status" => 400, "message" => $validator->errors()->first());
+            } else {
+                try {
+                    if ((Hash::check($request->old_password, Auth::user()->password)) == false) {
+                        $arr = array("status" => 400, "message" => "Check your old password.");
+                    } else if ((Hash::check($request->new_password, Auth::user()->password)) == true) {
+                        $arr = array("status" => 400, "message" => "Please enter a password which is not similar then current password.");
+                    } else {
+                        $user->password = Hash::make($input['new_password']);
+                        $user->save();
+                        $arr = array("status" => 200, "message" => "Profile & Password updated successfully.");
+                    }
+                } catch (\Exception $ex) {
+                    if (isset($ex->errorInfo[2])) {
+                        $msg = $ex->errorInfo[2];
+                    } else {
+                        $msg = $ex->getMessage();
+                    }
+                    $arr = array("status" => 400, "message" => $msg);
+                }
+            }
+        }else{
+            if($user->save()){
+                $arr = array("status" => 200, "message" => "Profile updated successfully.");
+            }else{
+                $arr = array("status" => 500, "message" => "Profile not updated.");
+            }
+        }
+
+        return response()->json($arr)->setStatusCode($arr['status']);	    
+	}
 }
