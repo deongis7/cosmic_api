@@ -61,6 +61,9 @@ $app->singleton(
 $app->configure('app');
 //untuk auth
 $app->configure('auth');
+$app->configure('redis');
+$app->configure('swagger-lume'); 
+
 
 /*
 |--------------------------------------------------------------------------
@@ -101,6 +104,8 @@ $app->register(Maatwebsite\Excel\ExcelServiceProvider::class);
 $app->register(Laravel\Passport\PassportServiceProvider::class);
 $app->register(Dusterio\LumenPassport\PassportServiceProvider::class);
 $app->register(Intervention\Image\ImageServiceProvider::class);
+$app->register(Illuminate\Redis\RedisServiceProvider::class);
+$app->register(\SwaggerLume\ServiceProvider::class);
 
 Dusterio\LumenPassport\LumenPassport::routes($app->router, ['prefix' => 'api/v1/oauth'] );
 /*
@@ -116,6 +121,9 @@ Dusterio\LumenPassport\LumenPassport::routes($app->router, ['prefix' => 'api/v1/
 $app->alias('Excel', Maatwebsite\Excel\Facades\Excel::class);
 $app->alias('Image', Intervention\Image\Facades\Image::class);
 
+if (!class_exists('Redis')) {
+    class_alias('Illuminate\Support\Facades\Redis', 'Redis');
+}
 /*
 /*
 |--------------------------------------------------------------------------

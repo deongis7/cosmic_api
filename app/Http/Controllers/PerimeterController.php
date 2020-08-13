@@ -18,6 +18,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Http\File;
+use Illuminate\Support\Facades\Cache;
 
 use DB;
 
@@ -50,15 +51,21 @@ class PerimeterController extends Controller
 	//Jumlah Perimeter
 	public function getCountPerimeter($id){
 		$data = array();
-		$region = Region::where('mr_mc_id',$id)->count();
-		$user = User::join('app_users_groups','app_users_groups.user_id','app_users.id')
-					->where('app_users.mc_id',$id)
-					->where('app_users_groups.group_id','3')
-					->count();
-		$perimeter = Perimeter::join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
+		$region =  Cache::remember("count_region_by_company_id_". $id, 30 * 60, function()use($id) {
+			return Region::where('mr_mc_id',$id)->count();
+		});
+		$user =  Cache::remember("count_userpic_by_company_id_". $id, 30 * 60, function()use($id) {
+			return count(DB::select('select au.username from app_users au
+					join master_perimeter_level mpl on mpl.mpml_pic_nik = au.username
+					where au.mc_id = ?
+					group by au.username',[$id]));
+		});				
+		$perimeter = Cache::remember("count_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
+			return Perimeter::join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
 					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('master_region.mr_mc_id',$id)	
 					->count();
+		});			
 				
 			$data[] = array(
 					"jml_perimeter" => $perimeter,
@@ -94,8 +101,11 @@ class PerimeterController extends Controller
 
 	//Get Perimeter by Kode Perusahaan
 	public function getPerimeter($id){
+		$datacache = Cache::remember("get_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
 		$data = array();
-		$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
+		  
+			//Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
+			$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
 		    'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
 		    'master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket',
 		    'master_perimeter_kategori.mpmk_name','userpic.username as nik_pic',
@@ -110,7 +120,13 @@ class PerimeterController extends Controller
 					->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
 					->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id')
 					->where('master_region.mr_mc_id',$id)	
+					->orderBy('master_region.mr_name', 'asc')
+					->orderBy('master_perimeter.mpm_name', 'asc')
+					->orderBy('master_perimeter_level.mpml_name', 'asc')
 					->get();
+		
+		//});
+			
 		foreach($perimeter as $itemperimeter){		
 			$cluster = TblPerimeterDetail::where('tpmd_mpml_id',$itemperimeter->mpml_id)->where('tpmd_cek',true)->count();
 		
@@ -134,7 +150,9 @@ class PerimeterController extends Controller
 			        "kabupaten" => $itemperimeter->mkab_name,
 				);
 		}
-		return response()->json(['status' => 200,'data' => $data]);
+		return $data;
+		});
+		return response()->json(['status' => 200,'data' =>$datacache]);
 
 	}
 	
@@ -155,7 +173,10 @@ class PerimeterController extends Controller
 					->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
 					->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
 					->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id')
-					->where('master_region.mr_id',$id)	
+					->where('master_region.mr_id',$id)
+					->orderBy('master_region.mr_name', 'asc')
+					->orderBy('master_perimeter.mpm_name', 'asc')
+					->orderBy('master_perimeter_level.mpml_name', 'asc')					
 					->get();
 		foreach($perimeter as $itemperimeter){		
 			$data[] = array(
@@ -188,7 +209,7 @@ class PerimeterController extends Controller
 					join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id and tpd.tpmd_cek=true
 					join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
 					where mpl.mpml_id = ?
-					order by mpm.mpm_name asc, mpk.mpmk_name asc, mpl.mpml_name asc", [$id]);				
+					order by mcr.mcr_name asc, tpmd_order asc", [$id]);				
 			foreach($perimeter as $itemperimeter){
 
 	
@@ -356,25 +377,26 @@ class PerimeterController extends Controller
 		$enddate = $weeks['endweek'];
 		
 			
-		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
-		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
-		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
-		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-		where ta.ta_status = 1 and tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
-		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
+		$clustertrans[] = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+			join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+			join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+			join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+			where ta.ta_status = 1 and tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
+			group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
 		
-		
-		if ($cluster <= count($clustertrans)) {
-			//return true;
-			return array(
-							"status" => true,
-							"percentage" => 1);
-		} else {
-			//return false;
-			return array(
-							"status" => false,
-							"percentage" => round((count($clustertrans)/$cluster),2));
-		}	
+		//dd($clustertrans );
+			if ($cluster <= count($clustertrans)) {
+				//return true;
+				return array(
+								"status" => true,
+								"percentage" => 1);
+			} else {
+				//return false;
+				return array(
+								"status" => false,
+								"percentage" => round((count($clustertrans)/$cluster),2));
+			}	
+	
 
 	}
 }

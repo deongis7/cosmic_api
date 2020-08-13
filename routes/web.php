@@ -12,12 +12,17 @@
 */
 use Intervention\Image\ImageManagerStatic as Image;
 
+use Illuminate\Support\Facades\Cache;
+
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
 
 
+$router->get('/redis', function () {
+	Cache::flush();
+});
 $router->get('/todo', 'todoController@index');
 $router->get('/key', 'todoController@apikey');
 $router->get('/todo/{id}', 'todoController@show');
@@ -79,11 +84,14 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
+	$router->post('/monitoring/file','PICController@updateMonitoringFile');
 	$router->post('/validasi_monitoring', 'PICController@validasiMonitoring');
 	$router->get('/monitoring/{nik}/{id_perimeter_cluster}', 'PICController@getAktifitasbyCluster');
 	$router->get('/monitoring/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeter');
 	$router->get('/monitoring_detail/{id_aktifitas}', 'PICController@getMonitoringDetail');
+	$router->get('/monitoring_detail/file/{id_file}', 'PICController@getFileByID');
 	$router->get('/notif/{nik}', 'PICController@getNotifFO');
+	
 	
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
@@ -93,6 +101,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::post('/user/detail/{id}', 'UserController@updateDetailUser');
 		Route::post('/user/change_password', 'UserController@change_password');
 		Route::post('/user/logout', 'UserController@logout');
+		Route::post('/user/detail_first/{id}', 'UserController@updateFirstDetailUser');
 	});
 	
 

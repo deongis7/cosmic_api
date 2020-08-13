@@ -1,0 +1,30 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "My First API",
+        "version": "0.1"
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "description": "Home page",
+                "responses": {
+                    "default": {
+                        "description": "Welcome page"
+                    }
+                }
+            }
+        },
+        "/monitoring": {
+            "post": {
+                "description": "Monitoring",
+                "operationId": "App\\Http\\Controllers\\PICController::updateDailyMonitoring",
+                "responses": {
+                    "default": {
+                        "description": "Daily Monitoring"
+                    }
+                }
+            }
+        }
+    }
+}
