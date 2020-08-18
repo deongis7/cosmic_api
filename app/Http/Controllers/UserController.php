@@ -154,7 +154,6 @@ class UserController extends Controller
             $rules = array(
                 'old_password' => 'required',
                 'new_password' => 'required|min:6',
-                'confirm_password' => 'required|same:new_password',
             );
             $validator = Validator::make($input, $rules);
             if ($validator->fails()) {
