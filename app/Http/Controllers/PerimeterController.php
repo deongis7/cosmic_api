@@ -317,7 +317,7 @@ class PerimeterController extends Controller
 		$param[] = $id;
 		
 		//cek kota
-		if(isset($request->id_kota) && $request->id_kota <> 'null'){
+		if(isset($request->id_kota) && $request->id_kota <> 'null'&& $request->id_kota <> ''){
 			$query = $query . " and (a1.mkab_id=? or a2.mkab_id=?) ";
 			$param[] = $request->id_kota;
 			$param[] = $request->id_kota;
