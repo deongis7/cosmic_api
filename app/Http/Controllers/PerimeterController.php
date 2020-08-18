@@ -201,9 +201,10 @@ class PerimeterController extends Controller
 	//Get Perimeter by Kota
 	public function getPerimeterbyKota($id_kota){
 		$data = array();
-		$perimeter = Perimeter::select('master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude')
-					->where('master_perimeter.mpm_mkab_id',$id_kota)	
-					->get();
+		$perimeter = Perimeter::select('master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude');
+		if($id_kota != 0){
+				$perimeter = $perimeter->where('master_perimeter.mpm_mkab_id',$id_kota);}	
+		$perimeter = $perimeter->get();
 		foreach($perimeter as $itemperimeter){		
 			$data[] = array(
 					"id_perimeter" => $itemperimeter->mpm_id,
@@ -304,6 +305,7 @@ class PerimeterController extends Controller
 				left join master_kabupaten mkab2 on mkab2.mkab_id = mp2.mpm_mkab_id) a2 on a2.mpml_me_nik = app.username
 		join app_users_groups aup on aup.user_id = app.id ";
 		//cek role
+		//dd($request->id_kota);
 		if(isset($request->id_role)){
 			$query = $query . " and aup.group_id=?";
 			$param[] = $request->id_role;
@@ -315,7 +317,7 @@ class PerimeterController extends Controller
 		$param[] = $id;
 		
 		//cek kota
-		if(isset($request->id_kota)){
+		if(isset($request->id_kota) && $request->id_kota <> 'null'){
 			$query = $query . " and (a1.mkab_id=? or a2.mkab_id=?) ";
 			$param[] = $request->id_kota;
 			$param[] = $request->id_kota;
