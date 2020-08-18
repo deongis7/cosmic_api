@@ -198,6 +198,44 @@ class PerimeterController extends Controller
 
 	}
 
+	//Get Perimeter by Kota
+	public function getPerimeterbyKota($id_kota){
+		$data = array();
+		$perimeter = Perimeter::select('master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude')
+					->where('master_perimeter.mpm_mkab_id',$id_kota)	
+					->get();
+		foreach($perimeter as $itemperimeter){		
+			$data[] = array(
+					"id_perimeter" => $itemperimeter->mpm_id,
+					"nama_perimeter" => $itemperimeter->mpm_name,
+					"alamat" => $itemperimeter->mpm_alamat,	
+					"longitude" => str_replace("'","",$itemperimeter->mpm_longitude),
+					"latitude" => str_replace("'","",$itemperimeter->mpm_latitude),
+				);
+		}
+		return response()->json(['status' => 200,'data' => $data]);
+
+	}
+
+	//Get Level/Lantai by Perimeter 
+	public function getLevelbyPerimeter($id_perimeter){
+		$data = array();
+		$perimeter = PerimeterLevel::join('master_perimeter','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')	
+					->where('mpml_mpm_id',$id_perimeter)	
+					->get();
+		foreach($perimeter as $itemperimeter){		
+			$data[] = array(
+					"id_perimeter" => $itemperimeter->mpml_mpm_id,
+					"nama_perimeter" => $itemperimeter->mpm_name,
+					"id_perimeter_level" => $itemperimeter->mpml_id,
+					"level" => 'Lantai '.$itemperimeter->mpml_name,
+					
+				);
+		}
+		return response()->json(['status' => 200,'data' => $data]);
+
+	}
+	
 	//Get Cluster per Perimeter Level
 	public function getClusterbyPerimeter($id){
 		
@@ -251,22 +289,43 @@ class PerimeterController extends Controller
 	}
 	
 	//Get Task Force per Region
-	public function getTaskForce($id){
-		$data = array();
-		$taskforce = DB::select( "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
-			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end) as mr_name,app.mc_id
+	public function getTaskForce($id,Request $request){
+		$param = [];
+		$query = "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
+			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end) as mr_name,app.mc_id,aug.name
 		from app_users app
-		left JOIN (select mp1.mpm_mr_id , mr1.mr_name, mpl1.mpml_pic_nik from master_perimeter_level mpl1 
-				join master_perimeter mp1  on mpl1.mpml_mpm_id = mp1.mpm_id
-				join master_region mr1 on mr1.mr_id = mp1.mpm_mr_id) a1 on a1.mpml_pic_nik = app.username
-		left JOIN (select mp2.mpm_mr_id, mr2.mr_name, mpl2.mpml_me_nik from master_perimeter_level mpl2 
+		left JOIN (select mp1.mpm_mr_id , mr1.mr_name, mpl1.mpml_pic_nik, mkab1.mkab_id,mkab1.mkab_name from master_perimeter_level mpl1 
+				join master_perimeter mp1 on mpl1.mpml_mpm_id = mp1.mpm_id
+				join master_region mr1 on mr1.mr_id = mp1.mpm_mr_id
+				left join master_kabupaten mkab1 on mkab1.mkab_id = mp1.mpm_mkab_id) a1 on a1.mpml_pic_nik = app.username
+		left JOIN (select mp2.mpm_mr_id, mr2.mr_name, mpl2.mpml_me_nik, mkab2.mkab_id,mkab2.mkab_name from master_perimeter_level mpl2 
 				join master_perimeter mp2  on mpl2.mpml_mpm_id = mp2.mpm_id
-				join master_region mr2 on mr2.mr_id = mp2.mpm_mr_id) a2 on a2.mpml_me_nik = app.username
-		join app_users_groups aup on aup.user_id = app.id and (aup.group_id=3 or aup.group_id=4)
-		where app.mc_id = ?
-		GROUP BY app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) ,
-			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end),app.mc_id
-		order by mpm_mr_id asc,app.first_name asc", [$id]);
+				join master_region mr2 on mr2.mr_id = mp2.mpm_mr_id
+				left join master_kabupaten mkab2 on mkab2.mkab_id = mp2.mpm_mkab_id) a2 on a2.mpml_me_nik = app.username
+		join app_users_groups aup on aup.user_id = app.id ";
+		//cek role
+		if(isset($request->id_role)){
+			$query = $query . " and aup.group_id=?";
+			$param[] = $request->id_role;
+		} else {
+			$query = $query . " and (aup.group_id=3 or aup.group_id=4)";
+		}
+		//klausul where
+		$query = $query .  " join  app_groups aug on aup.group_id = aug.id  where app.mc_id = ?";
+		$param[] = $id;
+		
+		//cek kota
+		if(isset($request->id_kota)){
+			$query = $query . " and (a1.mkab_id=? or a2.mkab_id=?) ";
+			$param[] = $request->id_kota;
+			$param[] = $request->id_kota;
+		}
+		
+		$query=$query ." GROUP BY app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) ,
+			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end),app.mc_id,aug.name
+		order by mpm_mr_id asc,app.first_name asc";
+		$data = array();
+		$taskforce = DB::select( $query , $param);
 		
 		foreach($taskforce as $itemtaskforce){			
 			$data[] = array(
@@ -274,7 +333,9 @@ class PerimeterController extends Controller
 					"kd_region" => $itemtaskforce->mpm_mr_id,
 					"region" => $itemtaskforce->mr_name,
 					"nik" => $itemtaskforce->username,
+					"username" => $itemtaskforce->username,
 					"nama" => $itemtaskforce->first_name,			
+					"role" => $itemtaskforce->name,			
 					);
 		}
 		
@@ -312,6 +373,38 @@ class PerimeterController extends Controller
 		
 		return response()->json(['status' => 200,'data' => $data]);
 
+	}
+	
+	//Update Primeter
+	public function addTaskForce(Request $request){
+		$this->validate($request, [
+            'username' => 'required',
+            'name' => 'required',
+            'kd_perusahaan' => 'required',
+            'id_role' => 'required'
+        ]);
+			
+		$username = $request->username;
+		
+		$user= User::where(DB::raw("TRIM(username)"),'=',trim($username))->first();
+		if($user == null){
+			$user = new User();
+			$user->username = $username;
+			$user->first_name = $request->name;
+			$user->mc_id = $request->kd_perusahaan;
+			$user->password =  Hash::make('P@ssw0rd');
+			$user->active = 1;
+			
+			if($user->save()) {
+				$usergroup= UserGroup::updateOrCreate(['user_id' =>$user->id],['group_id' => $request->id_role]);
+				return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+			} else {
+				return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+			}
+		} else {
+			return response()->json(['status' => 403,'message' => 'Data Username Sudah Ada'])->setStatusCode(403);
+		}	
+		   		
 	}
 	
 	//Get Status Monitoring per Cluster
@@ -399,4 +492,128 @@ class PerimeterController extends Controller
 	
 
 	}
+	
+	//Get Task Force Detail
+	public function getTaskForceDetail($nik){
+		$data = array();
+		$taskforce = User::select("app_users.username","app_users.first_name","app_groups.name","app_users_groups.group_id")
+					->join("app_users_groups","app_users.id","app_users_groups.user_id")
+					->join("app_groups","app_groups.id","app_users_groups.group_id")
+					->where(DB::raw("TRIM(app_users.username)"),'=',trim($nik))->first();
+		if ($taskforce != null){			
+			$perimeter = Perimeter::select('master_perimeter_level.mpml_id','master_perimeter.mpm_name',
+				'master_perimeter_level.mpml_name', 'master_perimeter_level.mpml_ket','master_perimeter_level.mpml_me_nik', 'master_perimeter_level.mpml_pic_nik')
+				->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id');
+			if($taskforce->group_id==3){
+				$perimeter = $perimeter->where(DB::raw("TRIM(master_perimeter_level.mpml_pic_nik)"),'=',trim($nik));
+			} else 	{
+				$perimeter = $perimeter->where(DB::raw("TRIM(master_perimeter_level.mpml_me_nik)"),'=',trim($nik));
+			}
+			$perimeter = $perimeter->orderBy('master_perimeter.mpm_name','asc')
+						->orderBy('master_perimeter_level.mpml_name','asc')->get();
+			$dataperimeter = array();
+			
+			foreach($perimeter as $itemperimeter){			
+			$dataperimeter[] = array(
+					"id_perimeter_level" => $itemperimeter->mpml_id,
+					"nama_perimeter" => $itemperimeter->mpm_name,
+					"level" => $itemperimeter->mpml_name,		
+					"keterangan" => $itemperimeter->mpml_ket		
+					
+					);
+			}					
+		
+			$data = array (
+							"username"=>$taskforce->username,
+							"name"=> $taskforce->first_name,
+							"role"=>  $taskforce->name,
+							"task" =>$dataperimeter
+			);
+			return response()->json(['status' => 200,'data' => $data]);
+		} else {
+			return response()->json(['status' => 404,'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
+		}		
+		
+
+	}
+	
+	//Get Perimeter Detail
+	public function getDetailPerimeter($id_perimeter_level){
+		$data = array();
+		$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
+		    'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
+		    'master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket',
+		    'master_perimeter_kategori.mpmk_name','userpic.username as nik_pic',
+		    'userpic.first_name as pic','userfo.username as nik_fo','userfo.first_name as fo',
+		    'master_provinsi.mpro_name', 'master_kabupaten.mkab_name','master_provinsi.mpro_id', 'master_kabupaten.mkab_id'
+		    )
+					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
+					->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
+					->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
+					->leftjoin('app_users as userpic','userpic.username','master_perimeter_level.mpml_pic_nik')
+					->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
+					->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
+					->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id')
+					->where('master_perimeter_level.mpml_id',$id_perimeter_level)	
+					->first();
+						
+		if ($perimeter != null){			
+			
+		
+			$data = array (
+					"id_region" => $perimeter->mr_id,
+					"region" => $perimeter->mr_name,
+					"id_perimeter_level" => $perimeter->mpml_id,
+					"nama_perimeter" => $perimeter->mpm_name.' - '.$perimeter->mpml_name,
+					"level" => $perimeter->mpml_name,
+					"keterangan" => $perimeter->mpml_ket,
+					"alamat" => $perimeter->mpm_name,
+					"kategori" => $perimeter->mpmk_name,
+					"nik_pic" => $perimeter->nik_pic,
+					"pic" => $perimeter->pic,
+					"nik_fo" => $perimeter->nik_fo,
+					"fo" => $perimeter->fo,
+			        "id_provinsi" => $perimeter->mpro_id,
+			        "provinsi" => $perimeter->mpro_name,
+			        "id_kota" => $perimeter->mkab_id,
+			        "kabupaten" => $perimeter->mkab_name,
+			);
+			return response()->json(['status' => 200,'data' => $data]);
+		} else {
+			return response()->json(['status' => 404,'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
+		}		
+		
+
+	}
+	
+	//Update Primeter
+	public function updateDetailPerimeterLevel(Request $request){
+		$this->validate($request, [
+            'id_perimeter_level' => 'required'
+        ]);
+			
+		$id_perimeter_level = $request->id_perimeter_level;
+		
+		$perimeter_level= PerimeterLevel::find($id_perimeter_level);
+		if($perimeter_level != null){
+			
+			if(isset($request->nik_pic)){
+				$perimeter_level->mpml_pic_nik = $request->nik_pic;
+			}
+			if(isset($request->nik_fo)){
+				$perimeter_level->mpml_me_nik = $request->nik_fo;
+			}
+			
+			if($perimeter_level->save()) {
+				return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+			} else {
+				return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+			}
+		} else {
+			return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+		}	
+		   		
+	}
+	
+	
 }

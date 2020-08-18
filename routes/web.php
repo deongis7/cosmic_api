@@ -13,6 +13,7 @@
 use Intervention\Image\ImageManagerStatic as Image;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Request;
 
 $router->get('/', function () use ($router) {
     return $router->app->version();
@@ -40,11 +41,19 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/perimeter/{id}', 'PerimeterController@getPerimeter');
 	$router->get('/perimeter/region/{id}', 'PerimeterController@getPerimeterbyRegion');
 	$router->get('/perimeter/user/{nik}', 'PICController@getPerimeterbyUser');
+	$router->get('/perimeter/detail/{id_perimeter_level}', 'PerimeterController@getDetailPerimeter');
+	$router->get('/perimeter/kota/{id_kota}', 'PerimeterController@getPerimeterbyKota');
+	$router->get('/perimeter_level/perimeter/{id_perimeter}', 'PerimeterController@getLevelbyPerimeter');
+	$router->post('/perimeter_level/update', 'PerimeterController@updateDetailPerimeterLevel');
 	
 	//TaskForce
 	$router->get('/taskforce/count/{id}', 'PerimeterController@getCountTaskForce');
 	$router->get('/taskforce/{id}', 'PerimeterController@getTaskForce');
 	$router->get('/taskforce/region/{id}', 'PerimeterController@getTaskForcebyRegion');
+	$router->get('/taskforce/detail/{nik}', 'PerimeterController@getTaskForceDetail');
+	$router->post('/taskforce/add', 'PerimeterController@addTaskForce');
+	
+	
 	
 	//Cluster Ruangan
 	$router->get('/cluster/perimeter/{id}', 'PerimeterController@getClusterbyPerimeter');
@@ -91,6 +100,12 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/monitoring_detail/{id_aktifitas}', 'PICController@getMonitoringDetail');
 	$router->get('/monitoring_detail/file/{id_file}', 'PICController@getFileByID');
 	$router->get('/notif/{nik}', 'PICController@getNotifFO');
+
+	//Kota
+	$router->get('/kota', 'MasterController@getAllKota');
+	$router->get('/kota/{id_provinsi}', 'MasterController@getKotaByProvinsi');
+	$router->get('/provinsi', 'MasterController@getAllProvinsi');
+
 	
 	
 	//Execution
