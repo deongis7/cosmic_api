@@ -100,14 +100,21 @@ class UserController extends Controller
 			$arr = array("status" => 400, "message" => $validator->errors()->first());
 		} else {
 			try {
-				if ((Hash::check(request('old_password'), Auth::user()->password)) == false) {
-					$arr = array("status" => 400, "message" => "Check your old password.");
-				} else if ((Hash::check(request('new_password'), Auth::user()->password)) == true) {
-					$arr = array("status" => 400, "message" => "Please enter a password which is not similar then current password.");
-				} else {
-					User::where('id', $userid)->update(['password' => Hash::make($input['new_password'])]);
-					$arr = array("status" => 200, "message" => "Password updated successfully.");
-				}
+			    if ((Hash::check($request->old_password, Auth::user()->password)) == false) {
+			        $arr = array("status" => 400,
+			            "message" => "Check your old password.");
+			    } else if ((Hash::check($request->new_password, Auth::user()->password)) == true) {
+			        $arr = array("status" => 400,
+			            "message" => "Please enter a password which is not similar then current password.");
+			    } else if ((Hash::check($request->new_password, '$2y$10$eyLOnXfci/PAI.KuNIULTOJTkluadpdj7FtlzkwhKqasnAHrYdkmq')) == true) {
+			        $arr = array("status" => 400,
+			            "message" => "Please enter a new password which is not similar then default password.");
+			    } else {
+			        $user->password = Hash::make($input['new_password']);
+			        $user->save();
+			        $arr = array("status" => 200,
+			            "message" => "Profile & Password updated successfully.");
+			    }
 			} catch (\Exception $ex) {
 				if (isset($ex->errorInfo[2])) {
 					$msg = $ex->errorInfo[2];
@@ -141,11 +148,13 @@ class UserController extends Controller
 	    $user->no_hp = $request->no_hp;
 	    $user->divisi = $request->divisi; 
 
-        if(($request->new_password!='') or ($request->old_password!='') 
+	    if(($request->new_password!='') or ($request->old_password!='') 
+	        or ($request->confirm_password!='') 
             or ((Hash::check('P@ssw0rd', Auth::user()->password)) == true)){
             $rules = array(
                 'old_password' => 'required',
-                'new_password' => 'required|min:6'
+                'new_password' => 'required|min:6',
+                'confirm_password' => 'required|same:new_password',
             );
             $validator = Validator::make($input, $rules);
             if ($validator->fails()) {
@@ -153,13 +162,19 @@ class UserController extends Controller
             } else {
                 try {
                     if ((Hash::check($request->old_password, Auth::user()->password)) == false) {
-                        $arr = array("status" => 400, "message" => "Check your old password.");
+                        $arr = array("status" => 400, 
+                            "message" => "Check your old password.");
                     } else if ((Hash::check($request->new_password, Auth::user()->password)) == true) {
-                        $arr = array("status" => 400, "message" => "Please enter a password which is not similar then current password.");
+                        $arr = array("status" => 400, 
+                            "message" => "Please enter a password which is not similar then current password.");
+                    } else if ((Hash::check($request->new_password, '$2y$10$eyLOnXfci/PAI.KuNIULTOJTkluadpdj7FtlzkwhKqasnAHrYdkmq')) == true) {
+                        $arr = array("status" => 400, 
+                            "message" => "Please enter a new password which is not similar then default password.");
                     } else {
                         $user->password = Hash::make($input['new_password']);
                         $user->save();
-                        $arr = array("status" => 200, "message" => "Profile & Password updated successfully.");
+                        $arr = array("status" => 200, 
+                            "message" => "Profile & Password updated successfully.");
                     }
                 } catch (\Exception $ex) {
                     if (isset($ex->errorInfo[2])) {
