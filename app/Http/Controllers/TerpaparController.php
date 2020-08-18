@@ -42,10 +42,15 @@ class TerpaparController extends Controller {
                     CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
                     FROM master_status_kasus msk
                     LEFT JOIN (
-                    SELECT tk_msk_id, count(tk_msk_id) jml 
-                    from transaksi_kasus
-                    where tk_mc_id=?
-                    group by tk_msk_id) tk on tk.tk_msk_id=msk.msk_id",[$id]);
+                        SELECT tk_msk_id, COUNT(tk_msk_id) jml 
+                        FROM transaksi_kasus
+                        WHERE tk_mc_id='$id' AND tk_msk_id!=3
+                        GROUP BY tk_msk_id
+                        UNION ALL
+                        SELECT 3, COUNT(tk_msk_id) jml 
+                        FROM transaksi_kasus
+                        WHERE tk_mc_id='$id' AND tk_msk_id IN (3,4,5)
+                    ) tk on tk.tk_msk_id=msk.msk_id");
 
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
