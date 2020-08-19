@@ -103,6 +103,7 @@ class PerimeterController extends Controller
 	//Get Perimeter by Kode Perusahaan
 	public function getPerimeter($id){
 		$datacache = Cache::remember("get_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
+		$dashboard = array("total_perimeter"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
 		$data = array();
 		  
 			//Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
@@ -127,6 +128,8 @@ class PerimeterController extends Controller
 					->get();
 		
 		//});
+			$totalperimeter = $perimeter->count();
+			$totalpmmonitoring = 0;	
 			
 		foreach($perimeter as $itemperimeter){		
 			$cluster = TblPerimeterDetail::where('tpmd_mpml_id',$itemperimeter->mpml_id)->where('tpmd_cek',true)->count();
@@ -150,10 +153,17 @@ class PerimeterController extends Controller
 			        "provinsi" => $itemperimeter->mpro_name,
 			        "kabupaten" => $itemperimeter->mkab_name,
 				);
+			if ($status['status'] == true ){ $totalpmmonitoring++; }	
 		}
-		return $data;
+		//dashboard
+				$dashboard = array (
+							"total_perimeter"=> $totalperimeter,
+							"sudah_dimonitor"=> $totalpmmonitoring,
+							"belum_dimonitor"=> $totalperimeter - $totalpmmonitoring
+							);
+		return array('status' => 200,'data_dashboard' => $dashboard ,'data' => $data);
 		});
-		return response()->json(['status' => 200,'data' =>$datacache]);
+		return response()->json($datacache);
 
 	}
 	
