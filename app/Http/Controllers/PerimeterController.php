@@ -52,8 +52,9 @@ class PerimeterController extends Controller
 	public function getCountPerimeter($id){
 		$data = array();
 		$region =  Cache::remember("count_region_by_company_id_". $id, 30 * 60, function()use($id) {
-			return Region::where('mr_mc_id',$id)->count();
+			return count(Region::select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')->where('mr_mc_id',$id)->groupBy('mr_id')->get());
 		});
+		//$region =count(Region::select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')->where('mr_mc_id',$id)->groupBy('mr_id')->get());
 		$user =  Cache::remember("count_userpic_by_company_id_". $id, 30 * 60, function()use($id) {
 			return count(DB::select('select au.username from app_users au
 					join master_perimeter_level mpl on mpl.mpml_pic_nik = au.username
