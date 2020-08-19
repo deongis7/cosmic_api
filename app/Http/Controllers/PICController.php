@@ -441,17 +441,24 @@ class PICController extends Controller
 		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
 		}
 		
-		if ($cluster <= count($clustertrans)) {
-			//return true;
-			return array(
-							"status" => true,
-							"percentage" => 1);
+		if ($cluster <> 0){
+			if (($cluster <= count($clustertrans))) {
+				//return true;
+				return array(
+								"status" => true,
+								"percentage" => 1);
+			} else {
+				//return false;
+				return array(
+								"status" => false,
+								"percentage" => round((count($clustertrans)/$cluster),2));
+			}	
 		} else {
 			//return false;
 			return array(
 							"status" => false,
-							"percentage" => round((count($clustertrans)/$cluster),2));
-		}	
+							"percentage" => 0);
+		}
 
 	}
 	

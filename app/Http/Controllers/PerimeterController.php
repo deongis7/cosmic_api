@@ -491,7 +491,10 @@ class PerimeterController extends Controller
 			group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
 		
 		//dd($clustertrans );
-			if ($cluster <= count($clustertrans)) {
+
+			
+		if ($cluster <> 0){
+			if (($cluster <= count($clustertrans))) {
 				//return true;
 				return array(
 								"status" => true,
@@ -502,6 +505,12 @@ class PerimeterController extends Controller
 								"status" => false,
 								"percentage" => round((count($clustertrans)/$cluster),2));
 			}	
+		} else {
+			//return false;
+			return array(
+							"status" => false,
+							"percentage" => 0);
+		}	
 	
 
 	}
