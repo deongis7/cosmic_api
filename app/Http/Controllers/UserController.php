@@ -45,7 +45,9 @@ class UserController extends Controller
 	public function getDetailUser(){
 		$data = array();
 		$id = Auth::guard('api')->user()->id;
-		$user = User::select('app_users.id','app_users.username','app_users.first_name','master_company.mc_id','master_company.mc_name','app_groups.name')
+		$user = User::select('app_users.id','app_users.username','app_users.first_name',
+		    'master_company.mc_id','master_company.mc_name','app_groups.name',
+		    'app_users.no_hp','app_users.divisi','app_users.email')
 					->join('master_company','master_company.mc_id','app_users.mc_id')
 					->join('app_users_groups','app_users_groups.user_id','app_users.id')
 					->join('app_groups','app_users_groups.group_id','app_groups.id')
@@ -59,8 +61,10 @@ class UserController extends Controller
 					"name" => $user->first_name,
 					"kd_perusahaan" => $user->mc_id,
 					"nm_perusahaan" => $user->mc_name,
-					"role" => $user->name,
-					
+			        "role" => $user->name,
+    			    "no_hp" => $user->no_hp,
+    			    "divisi" => $user->divisi,
+    			    "email" => $user->email,
 					);
 			return response()->json(['status' => 200,'data' => $data]);			
 		} else {
