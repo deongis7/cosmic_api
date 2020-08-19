@@ -61,6 +61,7 @@ class UserController extends Controller
 					"name" => $user->first_name,
 					"kd_perusahaan" => $user->mc_id,
 					"nm_perusahaan" => $user->mc_name,
+			        "role" => $user->name,
     			    "no_hp" => $user->no_hp,
     			    "divisi" => $user->divisi,
     			    "email" => $user->email,
