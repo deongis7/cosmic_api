@@ -16,6 +16,7 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Cache;
 
 use DB;
+use App\Company;
 
 
 class MasterController extends Controller
@@ -98,7 +99,44 @@ class MasterController extends Controller
 		return response()->json(['status' => 200,'data' => $datacache]);
 	}
 
-
+	public function getAllCompany(){
+	    $Path = storage_path().'/app/public/foto_bumn/';
+	    
+	    $datacache = Cache::remember("get_all_company", 360 * 60, function() {
+	        $company = Company::all();
+	        
+	        foreach($company as $com){
+	            $data[] = array(
+	                "id_perusahaan" => $com->mc_id,
+	                "kd_perusahaan" => $com->mc_code,
+	                "nm_perusahaan" => $com->mc_name,
+	                "foto" => $Path.$com->mc_foto
+	            );
+	        }
+	        return $data;
+	    });
+	    
+	    return response()->json(['status' => 200,'data' => $datacache]);
+	}
 	
-	
+	public function getDetailCompany($id) {
+	    $Path = storage_path().'/app/public/foto_bumn/';
+	    
+	    $datacache = Cache::remember("get_company_by_mcid_".$id, 360 * 60, function() use ($id) {
+	        $company = Company::join('master_sektor','ms_id','mc_msc_id')
+	        ->where('mc_id',$id)->where('ms_type','CCOVID')->get();
+	        
+	        foreach($company as $com){
+	            $data[] = array(
+	                "id_perusahaan" => $com->mc_id,
+	                "kd_perusahaan" => $com->mc_code,
+	                "nm_perusahaan" => $com->mc_name,
+	                "foto" => $Path.$com->mc_foto,
+	                "sektor" => $com->ms_name
+	            );
+	        }
+	        return $data;
+	    });
+	        return response()->json(['status' => 200,'data' => $datacache]);
+	}
 }
