@@ -43,7 +43,7 @@ class UserController extends Controller
 
 	//Detail User
 	public function getDetailUser(){
-	    $Path = '/sosialisasi/';
+	    $Path = '/profile/';
 		$data = array();
 		$id = Auth::guard('api')->user()->id;
 		$user = User::select('app_users.id','app_users.username','app_users.first_name',
