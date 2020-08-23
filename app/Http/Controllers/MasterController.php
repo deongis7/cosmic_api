@@ -100,7 +100,7 @@ class MasterController extends Controller
 	}
 
 	public function getAllCompany(){
-	    $Path = storage_path().'/app/public/foto_bumn/';
+	    $Path = '/foto_bumn/';
 	    
 	    $datacache = Cache::remember("get_all_company", 360 * 60, function() {
 	        $company = Company::all();
@@ -120,7 +120,7 @@ class MasterController extends Controller
 	}
 	
 	public function getDetailCompany($id) {
-	    $Path = storage_path().'/app/public/foto_bumn/';
+	    $Path = '/foto_bumn/';
 	    
 	    $datacache = Cache::remember("get_company_by_mcid_".$id, 360 * 60, function() use ($id) {
 	        $company = Company::join('master_sektor','ms_id','mc_msc_id')
