@@ -354,6 +354,7 @@ class PICController extends Controller
 	//Get File
 	private function getFile($id_aktifitas,$id_perusahaan){
 		$data =[];
+		
 		if ($id_aktifitas != null){
 		$transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
 						->where("ta_status", "<>", "2")
@@ -368,6 +369,8 @@ class PICController extends Controller
 					);
 			}
 		}
+		
+		
 		return $data;
 	}	
 	
@@ -441,17 +444,24 @@ class PICController extends Controller
 		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
 		}
 		
-		if ($cluster <= count($clustertrans)) {
-			//return true;
-			return array(
-							"status" => true,
-							"percentage" => 1);
+		if ($cluster <> 0){
+			if (($cluster <= count($clustertrans))) {
+				//return true;
+				return array(
+								"status" => true,
+								"percentage" => 1);
+			} else {
+				//return false;
+				return array(
+								"status" => false,
+								"percentage" => round((count($clustertrans)/$cluster),2));
+			}	
 		} else {
 			//return false;
 			return array(
 							"status" => false,
-							"percentage" => round((count($clustertrans)/$cluster),2));
-		}	
+							"percentage" => 0);
+		}
 
 	}
 	
@@ -510,7 +520,7 @@ class PICController extends Controller
 		$enddate = $weeks['endweek'];
 		
 		$clustertrans = DB::select( "select tpd.tpmd_id,kc.kcar_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,ta.ta_id,taf.taf_id,taf.taf_file ,taf.taf_file_tumb , taf.taf_date from transaksi_aktifitas_file taf
-		join transaksi_aktifitas ta on ta.ta_id = taf.taf_ta_id
+		join transaksi_aktifitas ta on ta.ta_id = taf.taf_ta_id and ta.ta_status <> 2
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
