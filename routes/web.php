@@ -106,7 +106,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/kota/{id_provinsi}', 'MasterController@getKotaByProvinsi');
 	$router->get('/provinsi', 'MasterController@getAllProvinsi');
 
-	
+	//Company
+	$router->get('/company', 'MasterController@getAllCompany');
+	$router->get('/company/detail/{id}', 'MasterController@getDetailCompany');
 	
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
