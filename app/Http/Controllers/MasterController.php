@@ -143,7 +143,7 @@ class MasterController extends Controller
 	}
 	
 	public function getAllStsKasus(){
-        $datacache = Cache::remember("get_all_msk", 360 * 60, function() {
+        $datacache = Cache::remember("get_all_mskasus", 360 * 60, function() {
             $mststskasus = MstStsKasus::all();
             
             foreach($mststskasus as $msk){
@@ -159,7 +159,8 @@ class MasterController extends Controller
     }
     
     public function getAllStsPegawai(){
-        $datacache = Cache::remember("get_all_msp", 360 * 60, function() {
+        //var_dump();die;
+        $datacache = Cache::remember("get_all_mspegawai", 360 * 60, function() {
             $mststspegawai = MstStsPegawai::all();
             
             foreach($mststspegawai as $msp){
