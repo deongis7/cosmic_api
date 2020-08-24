@@ -34,7 +34,6 @@ $router->get('/storage/{jenis}/{kd_perusahaan}/{tgl}/{filename}', function ($jen
 	});
 
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
-	
 	//Perimeter
 	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
@@ -52,14 +51,11 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/taskforce/region/{id}', 'PerimeterController@getTaskForcebyRegion');
 	$router->get('/taskforce/detail/{nik}', 'PerimeterController@getTaskForceDetail');
 	$router->post('/taskforce/add', 'PerimeterController@addTaskForce');
-	
-	
-	
+
 	//Cluster Ruangan
 	$router->get('/cluster/perimeter/{id}', 'PerimeterController@getClusterbyPerimeter');
 	$router->get('/cluster/perimeter/{id}/{nik}', 'PICController@getClusterbyPerimeter');
 
-	
 	//Protokol
 	$router->get('/protokol/{id}', 'ProtokolController@protokol');
 	$router->post('/protokol/upload', 'ProtokolController@uploadProtokol');
@@ -74,8 +70,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Data_detail
 	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
 	$router->get('/terpapar/laporan_detail/{id}/{page}', 'TerpaparController@getDatadetail');
-	
-	
+	$router->get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
 	
 	//Cluster Aktifitas Ruangan
 	$router->get('/cluster_aktfiktas_ruangan/getall/', 'CARuanganController@getAll');
@@ -105,7 +100,11 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/kota', 'MasterController@getAllKota');
 	$router->get('/kota/{id_provinsi}', 'MasterController@getKotaByProvinsi');
 	$router->get('/provinsi', 'MasterController@getAllProvinsi');
-
+    
+    //Master
+	$router->get('/stskasus', 'MasterController@getAllStsKasus');
+	$router->get('/stspegawai', 'MasterController@getAllStsPegawai');
+	
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
 	$router->get('/company/detail/{id}', 'MasterController@getDetailCompany');
@@ -119,6 +118,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::post('/user/change_password', 'UserController@change_password');
 		Route::post('/user/logout', 'UserController@logout');
 		Route::post('/user/detail_first/{id}', 'UserController@updateFirstDetailUser');
+		
+		Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
+		Route::post('/terpapar/update/{id}', 'TerpaparController@UpdateKasus');
 	});
 	
 
