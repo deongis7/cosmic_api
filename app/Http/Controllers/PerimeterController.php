@@ -483,14 +483,14 @@ class PerimeterController extends Controller
 		$enddate = $weeks['endweek'];
 		
 			
-		$clustertrans[] = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 			join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 			join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 			join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 			where ta.ta_status = 1 and tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
 			group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
 		
-		//dd($clustertrans );
+		//dd(count($clustertrans));
 
 			
 		if ($cluster <> 0){
