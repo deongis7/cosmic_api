@@ -51,17 +51,17 @@ class PerimeterController extends Controller
 	//Jumlah Perimeter
 	public function getCountPerimeter($id){
 		$data = array();
-		$region =  Cache::remember("count_region_by_company_id_". $id, 30 * 60, function()use($id) {
+		$region =  Cache::remember("count_region_by_company_id_". $id, 10 * 60, function()use($id) {
 			return count(Region::select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')->where('mr_mc_id',$id)->groupBy('mr_id')->get());
 		});
 		//$region =count(Region::select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')->where('mr_mc_id',$id)->groupBy('mr_id')->get());
-		$user =  Cache::remember("count_userpic_by_company_id_". $id, 30 * 60, function()use($id) {
+		$user =  Cache::remember("count_userpic_by_company_id_". $id, 10 * 60, function()use($id) {
 			return count(DB::select('select au.username from app_users au
 					join master_perimeter_level mpl on mpl.mpml_pic_nik = au.username
 					where au.mc_id = ?
 					group by au.username',[$id]));
 		});				
-		$perimeter = Cache::remember("count_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
+		$perimeter = Cache::remember("count_perimeter_by_company_id_". $id, 10 * 60, function()use($id) {
 			return Perimeter::join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
 					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('master_region.mr_mc_id',$id)	
@@ -102,7 +102,7 @@ class PerimeterController extends Controller
 
 	//Get Perimeter by Kode Perusahaan
 	public function getPerimeter($id){
-		$datacache = Cache::remember("get_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
+		$datacache = Cache::remember("get_perimeter_by_company_id_". $id, 10 * 60, function()use($id) {
 		$dashboard = array("total_perimeter"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
 		$data = array();
 		  
@@ -303,8 +303,10 @@ class PerimeterController extends Controller
 	//Get Task Force per Region
 	public function getTaskForce($id,Request $request){
 		$param = [];
+		$querycache = "get_taskforce_by_company_id_". $id;
 		$query = "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
-			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end) as mr_name,app.mc_id,aug.name
+			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end) as mr_name,app.mc_id,aug.name,
+			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) AS unassigned 
 		from app_users app
 		left JOIN (select mp1.mpm_mr_id , mr1.mr_name, mpl1.mpml_pic_nik, mkab1.mkab_id,mkab1.mkab_name from master_perimeter_level mpl1 
 				join master_perimeter mp1 on mpl1.mpml_mpm_id = mp1.mpm_id
@@ -318,6 +320,7 @@ class PerimeterController extends Controller
 		//cek role
 		//dd($request->id_kota);
 		if(isset($request->id_role)){
+			$querycache = $querycache ."_role_". $request->id_role;
 			$query = $query . " and aup.group_id=?";
 			$param[] = $request->id_role;
 		} else {
@@ -329,30 +332,38 @@ class PerimeterController extends Controller
 		
 		//cek kota
 		if(isset($request->id_kota) && $request->id_kota <> 'null'&& $request->id_kota <> ''){
+			$querycache = $querycache ."_kota_". $request->id_kota;
 			$query = $query . " and (a1.mkab_id=? or a2.mkab_id=?) ";
 			$param[] = $request->id_kota;
 			$param[] = $request->id_kota;
 		}
 		
 		$query=$query ." GROUP BY app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) ,
-			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end),app.mc_id,aug.name
-		order by mpm_mr_id asc,app.first_name asc";
-		$data = array();
-		$taskforce = DB::select( $query , $param);
+			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end),app.mc_id,aug.name,
+			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) 
+			order by 
+			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) desc, aug.name desc,app.first_name asc";
 		
-		foreach($taskforce as $itemtaskforce){			
-			$data[] = array(
-					"kd_perusahaan" => $itemtaskforce->mc_id,
-					"kd_region" => $itemtaskforce->mpm_mr_id,
-					"region" => $itemtaskforce->mr_name,
-					"nik" => $itemtaskforce->username,
-					"username" => $itemtaskforce->username,
-					"nama" => $itemtaskforce->first_name,			
-					"role" => $itemtaskforce->name,			
-					);
-		}
-		
-		return response()->json(['status' => 200,'data' => $data]);
+		$datacache = Cache::remember($querycache, 2 * 60, function()use($query,$param) {	
+			$data = array();
+			$taskforce = DB::select( $query , $param);
+			
+			foreach($taskforce as $itemtaskforce){			
+				$data[] = array(
+						"kd_perusahaan" => $itemtaskforce->mc_id,
+						"kd_region" => $itemtaskforce->mpm_mr_id,
+						"region" => $itemtaskforce->mr_name,
+						"nik" => $itemtaskforce->username,
+						"username" => $itemtaskforce->username,
+						"nama" => $itemtaskforce->first_name,			
+						"role" => $itemtaskforce->name,		
+						"unassigned" => $itemtaskforce->unassigned,		
+						
+						);
+			}
+			return $data;
+		});
+		return response()->json(['status' => 200,'data' => $datacache]);
 
 	}
 	
@@ -445,33 +456,35 @@ class PerimeterController extends Controller
 	
 
 	public function getExecutionReport($id){
-	    $data = array();
-	    $execution = DB::select("  
-                    SELECT *, CASE 
-                    WHEN v_persen>=100 THEN '#33cc33' 
-                    WHEN v_persen<50 THEN '#cc2900' 
-                    ELSE '#ff9933' END as v_color
-                    FROM (
-                    	SELECT v_id, v_judul, v_desc, CAST(v_jml as int) v_persen 
-                    	FROM execution_report('$id')
-                    	UNION ALL 
-                    	SELECT 0, 'COSMIC INDEX', 'Impelemetasi Leading Indikator', 
-                    	(SELECT SUM((CAST(v_jml as int))*(CAST(v_bobot as int))/100) 
-                    	FROM execution_report('$id'))
-                    ) z
-                        ");
-	 
-	    foreach($execution as $exec){
-	        $data[] = array(
-	            "id" => $exec->v_id,
-	            "judul" => $exec->v_judul,
-	            "desc" => $exec->v_desc,
-	            "color" => $exec->v_color,
-	            "persen" => $exec->v_persen
-	        );
-	    }
-	   
-	    return response()->json(['status' => 200,'data' => $data]);
+		$datacache =  Cache::remember("get_exec_report_". $id, 20 * 60, function()use($id) {
+			$data = array();
+			$execution = DB::select("  
+						SELECT *, CASE 
+						WHEN v_persen>=100 THEN '#33cc33' 
+						WHEN v_persen<50 THEN '#cc2900' 
+						ELSE '#ff9933' END as v_color
+						FROM (
+							SELECT v_id, v_judul, v_desc, CAST(v_jml as int) v_persen 
+							FROM execution_report('$id')
+							UNION ALL 
+							SELECT 0, 'COSMIC INDEX', 'Impelemetasi Leading Indikator', 
+							(SELECT SUM((CAST(v_jml as int))*(CAST(v_bobot as int))/100) 
+							FROM execution_report('$id'))
+						) z
+							");
+		 
+			foreach($execution as $exec){
+				$data[] = array(
+					"id" => $exec->v_id,
+					"judul" => $exec->v_judul,
+					"desc" => $exec->v_desc,
+					"color" => $exec->v_color,
+					"persen" => $exec->v_persen
+				);
+			}
+			return $data;
+	    });
+	    return response()->json(['status' => 200,'data' => $datacache]);
 	}
 	
 	//Get Status Monitoring
