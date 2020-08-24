@@ -94,14 +94,14 @@ class ProtokolController extends Controller
 		$user_id = $request->user_id;
 	
 		if ($request->file_protokol != null || $request->file_protokol != '') {
-						$timestamp = str_replace([' ', ':'], '', Carbon::now()->toDateTimeString());
-						//$name = $timestamp . '-'.  $request->nama_file_jaminan->getClientOriginalName();
-						$name = round(microtime(true) * 1000).'.pdf';
-						
-						$request->file_protokol->move(storage_path() . '/app/public/protokol/'.$kd_perusahaan.'/', $name);
+			$timestamp = str_replace([' ', ':'], '', Carbon::now()->toDateTimeString());
+			//$name = $timestamp . '-'.  $request->nama_file_jaminan->getClientOriginalName();
+			$name = round(microtime(true) * 1000).'.pdf';
+			
+			$request->file_protokol->move(storage_path() . '/app/public/protokol/'.$kd_perusahaan.'/', $name);
 
-						$filename_protokol = $name;
-					}
+			$filename_protokol = $name;
+		}
 		$dataProtokol= TblProtokol::updateOrCreate(['tbpt_mpt_id' => $protokol, 'tbpt_mc_id' => $kd_perusahaan],['tbpt_filename' => $filename_protokol, 'tbpt_user_insert' => $user_id]);	
 
 		if($dataProtokol) {

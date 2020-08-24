@@ -50,10 +50,12 @@ class TerpaparController extends Controller {
                         SELECT 3, COUNT(tk_msk_id) jml 
                         FROM transaksi_kasus
                         WHERE tk_mc_id='$id' AND tk_msk_id IN (3,4,5)
-                    ) tk on tk.tk_msk_id=msk.msk_id");
+                    ) tk on tk.tk_msk_id=msk.msk_id
+                    ORDER BY msk_id");
 
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
+	            "id_kasus" => $tpp->msk_id,
 	            "jenis_kasus" => $tpp->msk_name2,
 	            "jumlah" => $tpp->jml
 	        );
