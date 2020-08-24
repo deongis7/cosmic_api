@@ -165,7 +165,7 @@ class MasterController extends Controller
             foreach($mststspegawai as $msp){
                 $data[] = array(
                     "id" => $msp->msp_id,
-                    "name" => $msk->msp_id,
+                    "name" => $msp->msp_id,
                 );
             }
             return $data;
