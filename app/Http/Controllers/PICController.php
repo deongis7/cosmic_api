@@ -443,7 +443,7 @@ class PICController extends Controller
 		where ta.ta_status = 1 and tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
 		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
 		}
-		
+		//dd($cluster);
 		if ($cluster <> 0){
 			if (($cluster <= count($clustertrans))) {
 				//return true;

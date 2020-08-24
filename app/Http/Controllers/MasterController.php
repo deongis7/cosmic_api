@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Cache;
 
 use DB;
 use App\Company;
+use App\MstStsKasus;
+use App\MstStsPegawai;
 
 
 class MasterController extends Controller
@@ -137,6 +139,37 @@ class MasterController extends Controller
 	        }
 	        return $data;
 	    });
-	        return response()->json(['status' => 200,'data' => $datacache]);
+        return response()->json(['status' => 200,'data' => $datacache]);
 	}
+	
+	public function getAllStsKasus(){
+        $datacache = Cache::remember("get_all_msk", 360 * 60, function() {
+            $mststskasus = MstStsKasus::all();
+            
+            foreach($mststskasus as $msk){
+                $data[] = array(
+                    "id" => $msk->msk_id,
+                    "name" => $msk->msk_name,
+                    "name2" => $msk->msk_name2,
+                );
+            }
+            return $data;
+        });
+        return response()->json(['status' => 200,'data' => $datacache]);
+    }
+    
+    public function getAllStsPegawai(){
+        $datacache = Cache::remember("get_all_msp", 360 * 60, function() {
+            $mststspegawai = MstStsPegawai::all();
+            
+            foreach($mststspegawai as $msp){
+                $data[] = array(
+                    "id" => $msp->msp_id,
+                    "name" => $msk->msp_id,
+                );
+            }
+            return $data;
+        });
+        return response()->json(['status' => 200,'data' => $datacache]);
+    }
 }
