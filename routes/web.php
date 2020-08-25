@@ -80,11 +80,11 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/cluster_aktfiktas_ruangan/delete/{id}', 'CARuanganController@DeleteCARuangan');
 	
 	//Sosialisasi
-	$router->get('/sosialisasi/get_bymcid/{id}', 'SosialisasiController@getDataByMcid');
+	$router->get('/sosialisasi/get_bymcid/{id}/{page}', 'SosialisasiController@getDataByMcid');
 	$router->get('/sosialisasi/get_byid/{id}', 'SosialisasiController@getDataById');
-	$router->post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
-	$router->get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
-	$router->post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
+	$router->post('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
+	$router->get('/sosialisasi/get_last2/{id}', 'SosialisasiController@getDataLast2ByMcid');
+	
 	
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
@@ -121,6 +121,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		
 		Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
 		Route::post('/terpapar/update/{id}', 'TerpaparController@UpdateKasus');
+		
+		Route::post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
+		Route::post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
 	});
 	
 
