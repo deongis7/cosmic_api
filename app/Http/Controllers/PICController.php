@@ -245,7 +245,7 @@ class PICController extends Controller
 					$perimeter = $perimeter->where('userfo.username',$nik);
 				}	
 
-				$perimeter = $perimeter->orderBy('master_region.mr_name', 'asc')
+				$perimeter = $perimeter->where('master_perimeter.mpm_mc_id',$user->mc_id)->orderBy('master_region.mr_name', 'asc')
 					->orderBy('master_perimeter.mpm_name', 'asc')
 					->orderBy('master_perimeter_level.mpml_name', 'asc')->get();
 				$totalperimeter = $perimeter->count();
