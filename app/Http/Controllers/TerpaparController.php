@@ -227,7 +227,8 @@ class TerpaparController extends Controller {
 	
 	public function getDataByid($id) {
 	    $terpapar = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
-                    msp_name, mpro_name, mkab_name, tk_tempat_perawatan
+                    msp_name, mpro_name, mkab_name, tk_tempat_perawatan,
+                    tk_date_meninggal, tk_date_sembuh, tk_date_positif
                     FROM transaksi_kasus tk
                     INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
                     INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
