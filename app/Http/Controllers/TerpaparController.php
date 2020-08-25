@@ -249,6 +249,9 @@ class TerpaparController extends Controller {
 	                "provinsi" => $tpp->mpro_name,
 	                "kabupaten" => $tpp->mkab_name,
 	                "tempat_perawatan" => $tpp->tk_tempat_perawatan,
+	                "date_meninggal" => $tpp->tk_date_meninggal,
+	                "date_sembuh" => $tpp->tk_date_sembuh,
+	                "date_positif" => $tpp->tk_date_positif
 	            );
 	        }
 	        return response()->json(['status' => 200,'data' => $data]);
