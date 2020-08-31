@@ -113,7 +113,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/cosmicindex', 'DashboardController@getCosmicIndexAll');
 	$router->get('/dashboard/perimeter_bykategori_all', 'DashboardController@getPerimeterbyKategoriAll');
 	$router->get('/dashboard/perimeter_byprovinsi_all', 'DashboardController@getPerimeterbyProvinsiAll');
-	
+	$router->get('/dashboard/dashboardhead', 'DashboardController@getDashboardHead');
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
 	Route::group(['middleware' => 'auth:api'], function () {
