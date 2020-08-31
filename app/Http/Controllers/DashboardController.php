@@ -51,22 +51,6 @@ class DashboardController extends Controller
 	        }
 	        return $data;
 	    });
-	    return response()->json(['status' => 200,'data' => $datacache]);
-	}
-
-	public function getCosmicIndexAll(){
-	    $datacache =  Cache::remember("get_cosmicindex_all", 20 * 60, function()use($id) {
-	        $data = array();
-	        $cosmicindex_all = DB::select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
-	        
-	        foreach($cosmicindex_all as $cia){
-	            $data[] = array(
-	                "v_judul" => $cia->v_judul,
-	                "v_jml" => $cia->v_jml
-	            );
-	        }
-	        return $data;
-	    });
         return response()->json(['status' => 200,'data' => $datacache]);
 	}
 	
