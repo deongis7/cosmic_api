@@ -39,7 +39,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getCosmicIndexAll(){
-	    $datacache =  Cache::remember("get_cosmicindex_all", 20 * 60, function() {
+	    $datacache =  Cache::remember("get_cosmicindex_all", 60 * 60, function() {
 	        $data = array();
 	        $cosmicindex_all = DB::select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
 	        
