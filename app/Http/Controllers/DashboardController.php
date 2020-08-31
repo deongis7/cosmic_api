@@ -39,7 +39,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getCosmicIndexAll(){
-	    $datacache =  Cache::remember("get_cosmicindex_all", 60 * 60, function() {
+	    $datacache =  Cache::remember("get_cosmicindex_all", 30 * 60, function() {
 	        $data = array();
 	        $cosmicindex_all = DB::select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
 	        
@@ -55,7 +55,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getPerimeterbyKategoriAll(){
-	    $datacache =  Cache::remember("get_perimeter_bykategori_all", 20 * 60, function(){
+	    $datacache =  Cache::remember("get_perimeter_bykategori_all", 10 * 60, function(){
 	        $data = array();
 	        $perimeter_bykategori_all = DB::select("SELECT * FROM dashboard_perimeter_bykategori()");
 	        
@@ -71,7 +71,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getPerimeterbyProvinsiAll(){
-	    $datacache =  Cache::remember("get_perimeter_byprovinsi_all", 20 * 60, function() {
+	    $datacache =  Cache::remember("get_perimeter_byprovinsi_all", 10 * 60, function() {
 	        $data = array();
 	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM dashboard_perimeter_byprovinsi()");
 	        
