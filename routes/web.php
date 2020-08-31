@@ -110,7 +110,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/company/detail/{id}', 'MasterController@getDetailCompany');
 	
 	//Dashboard
-	$router->get('/dashboard/cosmicindex', 'DashboardController@getAllCompany');
+	$router->get('/dashboard/cosmicindex', 'DashboardController@getCosmicIndexAll');
 	$router->get('/dashboard/perimeter_bykategori_all', 'DashboardController@getPerimeterbyKategoriAll');
 	$router->get('/dashboard/perimeter_byprovinsi_all', 'DashboardController@getPerimeterbyProvinsiAll');
 	
