@@ -65,6 +65,28 @@ class TerpaparController extends Controller {
 	        'data' => $data]);
 	}
 	
+	public function getDataHomeAll() {
+	    $terpapar = DB::select("SELECT msk_id, msk_name2,
+                    CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
+                    FROM master_status_kasus msk
+                    LEFT JOIN (
+                        SELECT tk_msk_id, COUNT(tk_msk_id) jml
+                        FROM transaksi_kasus
+                        GROUP BY tk_msk_id
+                    ) tk on tk.tk_msk_id=msk.msk_id
+                    ORDER BY msk_id");
+	    
+	    foreach($terpapar as $tpp){
+	        $data[] = array(
+	            "id_kasus" => $tpp->msk_id,
+	            "jenis_kasus" => $tpp->msk_name2,
+	            "jumlah" => $tpp->jml
+	        );
+	    }
+	    return response()->json(['status' => 200,
+	        'data' => $data]);
+	}
+	
 	public function getDatadetail($id, $page) {
 	    if($page > 0){
 	        $page=$page-1;
