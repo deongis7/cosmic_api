@@ -156,7 +156,7 @@ class TerpaparController extends Controller {
 	    
 	    $row = 10;
 	    $pageq = $page*$row;
-	    if($search='all'){
+	    if($search=='all'){
 	        $search='';
 	    }
 	    $terpaparall = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
