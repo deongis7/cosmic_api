@@ -92,7 +92,62 @@ class TerpaparController extends Controller {
 	        'data' => $data]);
 	}
 	
-	public function getDatadetail($id, $page) {
+// 	public function getDatadetail($id, $page) {
+// 	    if($page > 0){
+// 	        $page=$page-1;
+// 	    }else{
+// 	        $page=0;
+// 	    }
+	    
+// 	    $row = 10;
+// 	    $pageq = $page*$row;
+	    
+// 	    $terpaparall = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2, 
+//                     msp_name, mpro_name, mkab_name, tk_tempat_perawatan
+//                     FROM transaksi_kasus tk
+//                     INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
+//                     INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
+//                     LEFT JOIN master_status_pegawai msp ON msp.msp_id=tk.tk_msp_id
+//                     LEFT JOIN master_provinsi mpro ON mpro.mpro_id=tk.tk_mpro_id
+//                     LEFT JOIN master_kabupaten mkab ON mkab.mkab_id=tk.tk_mkab_id AND mkab.mkab_mpro_id=mpro.mpro_id
+//                     WHERE tk_mc_id='$id' ORDER BY tk_id");
+	    
+// 	    $terpapar = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2, 
+//                     msp_name, mpro_name, mkab_name, tk_tempat_perawatan
+//                     FROM transaksi_kasus tk
+//                     INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
+//                     INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
+//                     LEFT JOIN master_status_pegawai msp ON msp.msp_id=tk.tk_msp_id
+//                     LEFT JOIN master_provinsi mpro ON mpro.mpro_id=tk.tk_mpro_id
+//                     LEFT JOIN master_kabupaten mkab ON mkab.mkab_id=tk.tk_mkab_id AND mkab.mkab_mpro_id=mpro.mpro_id
+//                     WHERE tk_mc_id='$id' ORDER BY tk_id
+// 					OFFSET $pageq LIMIT $row");
+	    
+// 	    $cntterpaparall = count($terpaparall);
+//         $pageend = ceil($cntterpaparall/$row);
+	
+// 	    if (count($terpapar) > 0){
+//     	    foreach($terpapar as $tpp){
+//     	        $data[] = array(
+//     	            "id" => $tpp->tk_id,
+//     	            "kd_perusahaan" => $tpp->tk_mc_id,
+//     	            "perusahaan" => $tpp->mc_name,
+//     	            "nama_pasien" => $tpp->tk_nama,
+//     	            "jenis_kasus" => $tpp->msk_name2,
+//     	            "jenis_kasus2" => $tpp->msk_name,
+//     	            "status_pegawai" => $tpp->msp_name,
+//     	            "provinsi" => $tpp->mpro_name,
+//     	            "kabupaten" => $tpp->mkab_name,
+//     	            "tempat_perawatan" => $tpp->tk_tempat_perawatan,
+//     	        );
+//     	    }
+// 	    }else{
+// 	        $data = array();
+// 	    }
+// 	    return response()->json(['status' => 200, 'page_end'=>$pageend, 'data' => $data]);
+// 	}
+	
+	public function getDatadetail($id, $page, $search) {
 	    if($page > 0){
 	        $page=$page-1;
 	    }else{
@@ -102,7 +157,7 @@ class TerpaparController extends Controller {
 	    $row = 10;
 	    $pageq = $page*$row;
 	    
-	    $terpaparall = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2, 
+	    $terpaparall = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
                     msp_name, mpro_name, mkab_name, tk_tempat_perawatan
                     FROM transaksi_kasus tk
                     INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
@@ -110,9 +165,10 @@ class TerpaparController extends Controller {
                     LEFT JOIN master_status_pegawai msp ON msp.msp_id=tk.tk_msp_id
                     LEFT JOIN master_provinsi mpro ON mpro.mpro_id=tk.tk_mpro_id
                     LEFT JOIN master_kabupaten mkab ON mkab.mkab_id=tk.tk_mkab_id AND mkab.mkab_mpro_id=mpro.mpro_id
-                    WHERE tk_mc_id='$id' ORDER BY tk_id");
+                    WHERE tk_mc_id='$id' AND LOWER(tk_nama) LIKE LOWER('%$search%')
+                    ORDER BY tk_id");
 	    
-	    $terpapar = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2, 
+	    $terpapar = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
                     msp_name, mpro_name, mkab_name, tk_tempat_perawatan
                     FROM transaksi_kasus tk
                     INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
@@ -120,27 +176,28 @@ class TerpaparController extends Controller {
                     LEFT JOIN master_status_pegawai msp ON msp.msp_id=tk.tk_msp_id
                     LEFT JOIN master_provinsi mpro ON mpro.mpro_id=tk.tk_mpro_id
                     LEFT JOIN master_kabupaten mkab ON mkab.mkab_id=tk.tk_mkab_id AND mkab.mkab_mpro_id=mpro.mpro_id
-                    WHERE tk_mc_id='$id' ORDER BY tk_id
+                    WHERE tk_mc_id='$id' AND LOWER(tk_nama) LIKE LOWER('%$search%')
+                    ORDER BY tk_id
 					OFFSET $pageq LIMIT $row");
 	    
 	    $cntterpaparall = count($terpaparall);
-        $pageend = ceil($cntterpaparall/$row);
-	
+	    $pageend = ceil($cntterpaparall/$row);
+	    
 	    if (count($terpapar) > 0){
-    	    foreach($terpapar as $tpp){
-    	        $data[] = array(
-    	            "id" => $tpp->tk_id,
-    	            "kd_perusahaan" => $tpp->tk_mc_id,
-    	            "perusahaan" => $tpp->mc_name,
-    	            "nama_pasien" => $tpp->tk_nama,
-    	            "jenis_kasus" => $tpp->msk_name2,
-    	            "jenis_kasus2" => $tpp->msk_name,
-    	            "status_pegawai" => $tpp->msp_name,
-    	            "provinsi" => $tpp->mpro_name,
-    	            "kabupaten" => $tpp->mkab_name,
-    	            "tempat_perawatan" => $tpp->tk_tempat_perawatan,
-    	        );
-    	    }
+	        foreach($terpapar as $tpp){
+	            $data[] = array(
+	                "id" => $tpp->tk_id,
+	                "kd_perusahaan" => $tpp->tk_mc_id,
+	                "perusahaan" => $tpp->mc_name,
+	                "nama_pasien" => $tpp->tk_nama,
+	                "jenis_kasus" => $tpp->msk_name2,
+	                "jenis_kasus2" => $tpp->msk_name,
+	                "status_pegawai" => $tpp->msp_name,
+	                "provinsi" => $tpp->mpro_name,
+	                "kabupaten" => $tpp->mkab_name,
+	                "tempat_perawatan" => $tpp->tk_tempat_perawatan,
+	            );
+	        }
 	    }else{
 	        $data = array();
 	    }
