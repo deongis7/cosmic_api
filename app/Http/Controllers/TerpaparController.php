@@ -346,4 +346,18 @@ class TerpaparController extends Controller {
 	        return response()->json(['status' => 404,'message' => 'Tidak ada data'])->setStatusCode(404);
 	    }	
 	}
+	
+	public function getDashboardCompanybyMskid($id) {
+	    $terpapar = DB::select("SELECT * FROM allkasus_bymskid($id)");
+	    
+	    foreach($terpapar as $tpp){
+	        $data[] = array(
+	            "mc_id" => $tpp->x_mc_id,
+	            "mc_name" => $tpp->x_mc_name,
+	            "jumlah" => $tpp->x_jml
+	        );
+	    }
+	    return response()->json(['status' => 200,
+	        'data' => $data]);
+	}
 }
