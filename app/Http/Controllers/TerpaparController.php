@@ -65,14 +65,18 @@ class TerpaparController extends Controller {
 	        'data' => $data]);
 	}
 	
-	public function getDataHomeAll() {
-	    $terpapar = DB::select("SELECT msk_id, msk_name2,
+	pub$terpapar = DB::select("SELECT msk_id, msk_name2,
                     CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
                     FROM master_status_kasus msk
                     LEFT JOIN (
                         SELECT tk_msk_id, COUNT(tk_msk_id) jml
                         FROM transaksi_kasus
+                        WHERE tk_msk_id!=3
                         GROUP BY tk_msk_id
+                        UNION ALL
+                        SELECT 3, COUNT(tk_msk_id) jml
+                        FROM transaksi_kasus
+                        WHERE tk_msk_id IN (3,4,5)
                     ) tk on tk.tk_msk_id=msk.msk_id
                     ORDER BY msk_id");
 	    
