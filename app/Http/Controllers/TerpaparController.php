@@ -65,7 +65,7 @@ class TerpaparController extends Controller {
 	        'data' => $data]);
 	}
 	
-	public function getDataHomeAll($id) {
+	public function getDataHomeAll() {
 	   $terpapar = DB::select("SELECT msk_id, msk_name2,
                     CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
                     FROM master_status_kasus msk
