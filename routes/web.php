@@ -69,7 +69,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	
 	//Data_detail
 	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
-	$router->get('/terpapar/laporan_detail/{id}/{page}', 'TerpaparController@getDatadetail');
+	$router->get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
 	$router->get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
 	$router->get('/terpapar/laporan_home_all', 'TerpaparController@getDataHomeAll');
 	

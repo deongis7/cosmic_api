@@ -156,7 +156,9 @@ class TerpaparController extends Controller {
 	    
 	    $row = 10;
 	    $pageq = $page*$row;
-	    
+	    if($search='all'){
+	        $search='';
+	    }
 	    $terpaparall = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
                     msp_name, mpro_name, mkab_name, tk_tempat_perawatan
                     FROM transaksi_kasus tk
@@ -165,7 +167,7 @@ class TerpaparController extends Controller {
                     LEFT JOIN master_status_pegawai msp ON msp.msp_id=tk.tk_msp_id
                     LEFT JOIN master_provinsi mpro ON mpro.mpro_id=tk.tk_mpro_id
                     LEFT JOIN master_kabupaten mkab ON mkab.mkab_id=tk.tk_mkab_id AND mkab.mkab_mpro_id=mpro.mpro_id
-                    WHERE tk_mc_id='$id' AND LOWER(tk_nama) LIKE LOWER('%$search%')
+                    WHERE tk_mc_id='$id' AND LOWER(tk_nama) LIKE LOWER('%$search%') 
                     ORDER BY tk_id");
 	    
 	    $terpapar = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
