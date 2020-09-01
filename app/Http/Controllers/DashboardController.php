@@ -45,8 +45,8 @@ class DashboardController extends Controller
 	        
 	        foreach($cosmicindex_all as $cia){
 	            $data[] = array(
-	                "v_judul" => $cia->v_judul,
-	                "v_jml" => $cia->v_jml
+	                "v_judul" => $cia->z_judul,
+	                "v_jml" => $cia->z_jml
 	            );
 	        }
 	        return $data;
