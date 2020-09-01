@@ -72,6 +72,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
 	$router->get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
 	$router->get('/terpapar/laporan_home_all', 'TerpaparController@getDataHomeAll');
+	$router->get('/terpapar/dashkasus_company_bymskid/{id}', 'TerpaparController@getDashboardCompanybyMskid');
+	
+	
 	
 	//Cluster Aktifitas Ruangan
 	$router->get('/cluster_aktfiktas_ruangan/getall/', 'CARuanganController@getAll');
