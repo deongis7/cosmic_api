@@ -69,8 +69,15 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 	//Data_detail
 	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
-	$router->get('/terpapar/laporan_detail/{id}/{page}', 'TerpaparController@getDatadetail');
+	$router->get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
 	$router->get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
+
+	$router->get('/terpapar/laporan_home_all', 'TerpaparController@getDataHomeAll');
+	$router->get('/terpapar/dashkasus_company_bymskid/{id}', 'TerpaparController@getDashboardCompanybyMskid');
+	$router->get('/terpapar/dashkasus_provinsi_bymskid/{id}', 'TerpaparController@getDashboardProvinsibyMskid');
+	$router->get('/terpapar/dashkasus_kabupaten_bymskid/{id}', 'TerpaparController@getDashboardKabupatenbyMskid');
+
+
 
 	//Cluster Aktifitas Ruangan
 	$router->get('/cluster_aktfiktas_ruangan/getall/', 'CARuanganController@getAll');
@@ -80,11 +87,14 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/cluster_aktfiktas_ruangan/delete/{id}', 'CARuanganController@DeleteCARuangan');
 
 	//Sosialisasi
-	$router->get('/sosialisasi/get_bymcid/{id}', 'SosialisasiController@getDataByMcid');
+	$router->get('/sosialisasi/get_bymcid/{id}/{page}', 'SosialisasiController@getDataByMcid');
 	$router->get('/sosialisasi/get_byid/{id}', 'SosialisasiController@getDataById');
+
 	$router->post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
 	$router->get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
 	$router->post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
+	$router->get('/sosialisasi/get_last2/{id}', 'SosialisasiController@getDataLast2ByMcid');
+
 
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
@@ -112,6 +122,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/company', 'MasterController@getAllCompany');
 	$router->get('/company/detail/{id}', 'MasterController@getDetailCompany');
 
+
+	//Dashboard
+	$router->get('/dashboard/cosmicindex', 'DashboardController@getCosmicIndexAll');
+	$router->get('/dashboard/perimeter_bykategori_all', 'DashboardController@getPerimeterbyKategoriAll');
+	$router->get('/dashboard/perimeter_byprovinsi_all', 'DashboardController@getPerimeterbyProvinsiAll');
+	$router->get('/dashboard/dashboardhead', 'DashboardController@getDashboardHead');
+
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
 	Route::group(['middleware' => 'auth:api'], function () {
@@ -124,6 +141,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 		Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
 		Route::post('/terpapar/update/{id}', 'TerpaparController@UpdateKasus');
+
+		Route::post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
+		Route::post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
 	});
 
 
