@@ -73,7 +73,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
 	$router->get('/terpapar/laporan_home_all', 'TerpaparController@getDataHomeAll');
 	$router->get('/terpapar/dashkasus_company_bymskid/{id}', 'TerpaparController@getDashboardCompanybyMskid');
-	
+	$router->get('/terpapar/dashkasus_provinsi_bymskid/{id}', 'TerpaparController@getDashboardProvinsibyMskid');
+	$router->get('/terpapar/dashkasus_kabupaten_bymskid/{id}', 'TerpaparController@getDashboardKabupatenbyMskid');
 	
 	
 	//Cluster Aktifitas Ruangan
