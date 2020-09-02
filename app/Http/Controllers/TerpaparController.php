@@ -225,10 +225,13 @@ class TerpaparController extends Controller {
 	       
 	        if($request->jenis_kasus==5){
                 $data->tk_date_meninggal = $tanggal;
+                $data->tk_date = $tanggal;
 	        }else if($request->jenis_kasus==4){
 	            $data->tk_date_sembuh = $tanggal;
+	            $data->tk_date = $tanggal;
 	        }else if($request->jenis_kasus==3){
 	            $data->tk_date_positif = $tanggal;
+	            $data->tk_date = $tanggal;
 	        }
 	    }else{
 	        $this->validate($request, [
@@ -277,10 +280,13 @@ class TerpaparController extends Controller {
 	        
 	        if($request->jenis_kasus==5){
 	            $data->tk_date_meninggal = $tanggal;
+	            $data->tk_date = $tanggal;
 	        }else if($request->jenis_kasus==4){
 	            $data->tk_date_sembuh = $tanggal;
+	            $data->tk_date = $tanggal;
 	        }else if($request->jenis_kasus==3){
 	            $data->tk_date_positif = $tanggal;
+	            $data->tk_date = $tanggal;
 	        }
 	    }else{
 	        $this->validate($request, [
