@@ -360,4 +360,46 @@ class TerpaparController extends Controller {
 	    return response()->json(['status' => 200,
 	        'data' => $data]);
 	}
+	
+	public function getDashboardCompanybyMskid($id) {
+	    $terpapar = DB::select("SELECT * FROM allkasus_company_bymskid($id)");
+	    
+	    foreach($terpapar as $tpp){
+	        $data[] = array(
+	            "mc_id" => $tpp->x_mc_id,
+	            "mc_name" => $tpp->x_mc_name,
+	            "jumlah" => $tpp->x_jml
+	        );
+	    }
+	    return response()->json(['status' => 200,
+	        'data' => $data]);
+	}
+	
+	public function getDashboardProvinsibyMskid($id) {
+	    $terpapar = DB::select("SELECT * FROM allkasus_provinsi_bymskid($id)");
+	    
+	    foreach($terpapar as $tpp){
+	        $data[] = array(
+	            "mpro_id" => $tpp->x_mpro_id,
+	            "mpro_name" => $tpp->x_mpro_name,
+	            "jumlah" => $tpp->x_jml
+	        );
+	    }
+	    return response()->json(['status' => 200,
+	        'data' => $data]);
+	}
+	
+	public function getDashboardKabupatenbyMskid($id) {
+	    $terpapar = DB::select("SELECT * FROM allkasus_kabupaten_bymskid($id)");
+	    
+	    foreach($terpapar as $tpp){
+	        $data[] = array(
+	            "mkab_id" => $tpp->x_mkab_id,
+	            "mkab_name" => $tpp->x_mkab_name,
+	            "jumlah" => $tpp->x_jml
+	        );
+	    }
+	    return response()->json(['status' => 200,
+	        'data' => $data]);
+	}
 }
