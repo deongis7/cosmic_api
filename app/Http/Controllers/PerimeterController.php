@@ -646,9 +646,6 @@ class PerimeterController extends Controller
 			}
 		} else {
 			return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
-		}	
-		   		
+		}		
 	}
-	
-	
 }
