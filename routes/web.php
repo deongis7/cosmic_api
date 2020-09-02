@@ -41,10 +41,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/perimeter/region/{id}', 'PerimeterController@getPerimeterbyRegion');
 	$router->get('/perimeter/user/{nik}', 'PICController@getPerimeterbyUser');
 	$router->get('/perimeter/detail/{id_perimeter_level}', 'PerimeterController@getDetailPerimeter');
-	$router->get('/perimeter/kota/{id_kota}', 'PerimeterController@getPerimeterbyKota');
+	$router->get('/perimeter/{kd_perusahaan}/kota/{id_kota}', 'PerimeterController@getPerimeterbyKota');
 	$router->get('/perimeter_level/perimeter/{id_perimeter}', 'PerimeterController@getLevelbyPerimeter');
 	$router->post('/perimeter_level/update', 'PerimeterController@updateDetailPerimeterLevel');
-	
+
 	//TaskForce
 	$router->get('/taskforce/count/{id}', 'PerimeterController@getCountTaskForce');
 	$router->get('/taskforce/{id}', 'PerimeterController@getTaskForce');
@@ -61,31 +61,31 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->post('/protokol/upload', 'ProtokolController@uploadProtokol');
 	$router->post('/protokol/upload_json', 'ProtokolController@uploadProtokolJSON');
 	$router->get('/protokol/download/{kd_perusahaan}/{id_protokol}', 'ProtokolController@getDownloadFileProtokol');
-	
+
 	//Temporary Perimeter
     $router->get('/tmp_perimeter', 'TmpPerimeterController@index');
     $router->get('/parsingperimeter', 'TmpPerimeterController@parsingPerimeter');
 	$router->post('/import', 'ImportController@import');
-	
+
 	//Data_detail
 	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
 	$router->get('/terpapar/laporan_detail/{id}/{page}', 'TerpaparController@getDatadetail');
 	$router->get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
-	
+
 	//Cluster Aktifitas Ruangan
 	$router->get('/cluster_aktfiktas_ruangan/getall/', 'CARuanganController@getAll');
 	$router->get('/cluster_aktfiktas_ruangan/getbyid/{id}', 'CARuanganController@getById');
 	$router->get('/cluster_aktfiktas_ruangan/create/', 'CARuanganController@CreateCARuangan');
 	$router->get('/cluster_aktfiktas_ruangan/update/{id}', 'CARuanganController@UpdateCARuangan');
 	$router->get('/cluster_aktfiktas_ruangan/delete/{id}', 'CARuanganController@DeleteCARuangan');
-	
+
 	//Sosialisasi
 	$router->get('/sosialisasi/get_bymcid/{id}', 'SosialisasiController@getDataByMcid');
 	$router->get('/sosialisasi/get_byid/{id}', 'SosialisasiController@getDataById');
 	$router->post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
 	$router->get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
 	$router->post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
-	
+
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
 	$router->post('/monitoring/file','PICController@updateMonitoringFile');
@@ -96,19 +96,22 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/monitoring_detail/file/{id_file}', 'PICController@getFileByID');
 	$router->get('/notif/{nik}', 'PICController@getNotifFO');
 
+	//PerimeterList
+    $router->get('/list_perimeter_level/perimeter/{id_perimeter}', 'PerimeterListController@getPerimeterLevelListbyPerimeter');
+
 	//Kota
 	$router->get('/kota', 'MasterController@getAllKota');
 	$router->get('/kota/{id_provinsi}', 'MasterController@getKotaByProvinsi');
 	$router->get('/provinsi', 'MasterController@getAllProvinsi');
-    
+
     //Master
 	$router->get('/stskasus', 'MasterController@getAllStsKasus');
 	$router->get('/stspegawai', 'MasterController@getAllStsPegawai');
-	
+
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
 	$router->get('/company/detail/{id}', 'MasterController@getDetailCompany');
-	
+
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
 	Route::group(['middleware' => 'auth:api'], function () {
@@ -118,11 +121,11 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::post('/user/change_password', 'UserController@change_password');
 		Route::post('/user/logout', 'UserController@logout');
 		Route::post('/user/detail_first/{id}', 'UserController@updateFirstDetailUser');
-		
+
 		Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
 		Route::post('/terpapar/update/{id}', 'TerpaparController@UpdateKasus');
 	});
-	
 
-	   
+
+
 });
