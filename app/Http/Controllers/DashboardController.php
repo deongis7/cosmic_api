@@ -122,7 +122,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getMonitoring_ByMcidWeek($id, $tgl){
-	    $datacache =  Cache::remember("get_week", 10 * 60, function() {
+	    $datacache = Cache::remember("getmonitoring_bymcidweek_".$id."_".$tgl, 10 * 60, function()use($id, $tgl) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * pemenuhan_monitoring_bymcidweek($id,$tgl)");
 	        
