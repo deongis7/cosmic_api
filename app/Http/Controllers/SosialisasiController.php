@@ -140,11 +140,18 @@ class SosialisasiController extends Controller {
                     $filesos2_tumb = NULL;
                 }
                 
+                if(($filesos1==NULL && $filesos2==NULL) || ($filesos1=='' && $filesos2=='')){
+                    $flag_foto = false;
+                }else{
+                    $flag_foto = true;
+                }
+                
                 $data = array(
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
                     "jenis_kegiatan" => $sos->ts_jenis_kegiatan,
                     "deskripsi" => $sos->ts_deskripsi,
                     "tanggal" => $sos->ts_tanggal,
+                    "flag_foto" => $sos->ts_tanggal,
                     "file_1" => $filesos1,
                     "file_1_tumb" => $filesos1_tumb,
                     "file_2" => $filesos2,
