@@ -118,4 +118,38 @@ class DashboardController extends Controller
 	    });
         return response()->json(['status' => 200,'data' => $datacache]);
 	}
+	
+	public function getWeekList(){
+	    $datacache =  Cache::remember("get_week", 60 * 60, function() {
+	        $data = array();
+	        $dashboard_head = DB::select("SELECT * FROM list_aktivitas_week()");
+	        
+	        foreach($dashboard_head as $dh){
+	            $data[] = array(
+	                "v_no" => $dh->v_rownum,
+	                "v_week" => $dh->v_week,
+	                "v_awal" => $dh->v_awal,
+	                "v_akhir" => $dh->v_akhir,
+	            );
+	        }
+	        return $data;
+	    });
+	        return response()->json(['status' => 200,'data' => $datacache]);
+	}
+	
+	public function getMonitoring_ByMcidWeek($mc_id, $week){
+	    $datacache =  Cache::remember("get_week", 10 * 60, function() {
+	        $data = array();
+	        $dashboard_head = DB::select("SELECT * pemenuhan_monitoring_bymcidweek('$mc_id','$week')");
+	        
+	        foreach($dashboard_head as $dh){
+	            $data[] = array(
+	                "v_monitoring" => $dh->v_monitoring,
+	            );
+	        }
+	        return $data;
+	    });
+	        return response()->json(['status' => 200,'data' => $datacache]);
+	}
+	
 }

@@ -131,7 +131,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/perimeter_bykategori_all', 'DashboardController@getPerimeterbyKategoriAll');
 	$router->get('/dashboard/perimeter_byprovinsi_all', 'DashboardController@getPerimeterbyProvinsiAll');
 	$router->get('/dashboard/dashboardhead', 'DashboardController@getDashboardHead');
-
+	$router->get('/dashboard/list_week', 'DashboardController@getWeekList');
+	$router->get('/dashboard/monitoring_bymciddate/{id}/{tgl}', 'DashboardController@getMonitoring_ByMcidWeek');
+	
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
 	Route::group(['middleware' => 'auth:api'], function () {
