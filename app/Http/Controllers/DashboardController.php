@@ -121,10 +121,10 @@ class DashboardController extends Controller
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 	
-	public function getMonitoring_ByMcidWeek($mc_id, $week){
+	public function getMonitoring_ByMcidWeek($id, $tgl){
 	    $datacache =  Cache::remember("get_week", 10 * 60, function() {
 	        $data = array();
-	        $dashboard_head = DB::select("SELECT * pemenuhan_monitoring_bymcidweek('$mc_id','$week')");
+	        $dashboard_head = DB::select("SELECT * pemenuhan_monitoring_bymcidweek('$id','$tgl')");
 	        
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
