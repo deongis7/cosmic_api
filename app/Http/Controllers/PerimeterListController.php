@@ -92,7 +92,7 @@ class PerimeterListController extends Controller
             }
 
             $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan)
-                ->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
+                ->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                     'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
                 ->orderBy('master_perimeter.mpm_name', 'asc')->get();
             $totalperimeter = $perimeter->count();
