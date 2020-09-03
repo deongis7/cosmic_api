@@ -157,7 +157,7 @@ class PerimeterListController extends Controller
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
 
-            $perimeter = Perimeter::select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id', 'master_perimeter.mpm_name',
+            $perimeter = Perimeter::select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id', 'master_perimeter_level.mpml_name','master_perimeter.mpm_name',
                         'master_perimeter_level.mpml_ket', 'userpic.username as nik_pic', 'userpic.first_name as pic', 'userfo.username as nik_fo',
                         'userfo.first_name as fo')
                         ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
