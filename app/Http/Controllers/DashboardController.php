@@ -111,22 +111,6 @@ class DashboardController extends Controller
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
 	                "v_no" => $dh->v_rownum,
-	                "v_week" => $dh->v_week
-	            );
-	        }
-	        return $data;
-	    });
-        return response()->json(['status' => 200,'data' => $datacache]);
-	}
-	
-	public function getWeekList(){
-	    $datacache =  Cache::remember("get_week", 60 * 60, function() {
-	        $data = array();
-	        $dashboard_head = DB::select("SELECT * FROM list_aktivitas_week()");
-	        
-	        foreach($dashboard_head as $dh){
-	            $data[] = array(
-	                "v_no" => $dh->v_rownum,
 	                "v_week" => $dh->v_week,
 	                "v_awal" => $dh->v_awal,
 	                "v_akhir" => $dh->v_akhir,
