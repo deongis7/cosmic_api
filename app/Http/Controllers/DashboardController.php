@@ -136,4 +136,28 @@ class DashboardController extends Controller
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 	
+	public function getListMonitoring_ByMcidWeek($id, $tgl){
+	    $datacache = Cache::remember("getlistmonitoring_bymcidweek_".$id."_".$tgl, 10 * 60, function()use($id, $tgl) {
+	        $data = array();
+	        $dashboard_head = DB::select("SELECT a.v_mpm_name, a.v_mpml_name, a.v_mpmk_name, 
+                    a.v_pic, a.v_fo, a.v_cek, b.persen_det
+                    FROM week_historymonitoring_level('$id','$tgl') a
+                    INNER JOIN week_aktivitas_cnt_bymcid_weekdet_pic('$id','$tgl') b 
+                    ON a.v_mpm_id=b.v_mpm_id;");
+	        
+	        foreach($dashboard_head as $dh){
+	            $data[] = array(
+	                "v_mpm_name" => $dh->v_mpm_name,
+	                "v_mpml_name" => $dh->v_mpml_name,
+	                "v_mpmk_name" => $dh->v_mpmk_name,
+	                "v_pic" => $dh->v_pic,
+	                "v_fo" => $dh->v_fo,
+	                "v_cek" => $dh->v_cek,
+	                "persen_det" => $dh->persen_det,
+	            );
+	        }
+	        return $data;
+	    });
+	        return response()->json(['status' => 200,'data' => $datacache]);
+	}
 }

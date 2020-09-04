@@ -133,7 +133,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/dashboardhead', 'DashboardController@getDashboardHead');
 	$router->get('/dashboard/list_week', 'DashboardController@getWeekList');
 	$router->get('/dashboard/monitoring_bymciddate/{id}/{tgl}', 'DashboardController@getMonitoring_ByMcidWeek');
-	
+	$router->get('/dashboard/listmonitoring_bymciddate/{id}/{tgl}', 'DashboardController@getListMonitoring_ByMcidWeek');
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
 	Route::group(['middleware' => 'auth:api'], function () {

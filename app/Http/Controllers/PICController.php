@@ -755,8 +755,7 @@ class PICController extends Controller
 					"id_aktifitas" => $itemnotif->ta_id,
 					"status" => $itemnotif->ta_status,
 					"ket_tolak" => $itemnotif->ta_ket_tolak,
-					"file" => $this->getFileTolak($itemnotif->ta_id,$itemnotif->mpm_mc_id )
-
+					"file" => $this->getFileTolak($itemnotif->ta_id,$itemnotif->mpm_mc_id)
 				);
 		}
 		return response()->json(['status' => 200,'data' => $data]);
