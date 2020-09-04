@@ -538,7 +538,7 @@ class PerimeterListController extends Controller
                     "nama_perimeter" => $perimeter->mpm_name,
                     "file" => null,
                     "file_tumb" => null,
-                    "alamat" => $perimeter->mpm_name,
+                    "alamat" => $perimeter->mpm_alamat,
                     "kategori" => $perimeter->mpmk_name,
                     "longitude" => $perimeter->mpm_longitude,
                     "latitude" => $perimeter->mpm_latitude,
