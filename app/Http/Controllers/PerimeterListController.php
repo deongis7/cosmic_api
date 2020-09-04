@@ -125,13 +125,13 @@ class PerimeterListController extends Controller
             }
 
             //dashboard
-            //$dashboard = array(
-            //    "total_perimeter" => $totalperimeter,
-            //    "sudah_dimonitor" => $totalpmmonitoring,
-            //    "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
-            //);
+            $dashboard = array(
+               "total_perimeter" => $totalperimeter,
+               "sudah_dimonitor" => $totalpmmonitoring,
+               "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
+            );
 
-            return array('status' => 200, 'data' => $data);
+            return array('status' => 200, 'data_dashboard' => $dashboard, 'data' => $data);
 
         });
         return response()->json($datacache);

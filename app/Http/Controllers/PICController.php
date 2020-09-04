@@ -748,14 +748,14 @@ class PICController extends Controller
 					"id_perimeter_level" => $itemnotif->mpml_id,
 					"id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
 					"id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
-					"perimeter" => $itemnotif->mpm_name. " lantai ". $itemnotif->mpml_name,
+					"perimeter" => $itemnotif->mpm_name,
+			        "level" => $itemnotif->mpml_name,
 					"cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
 					"aktifitas" => $itemnotif->mcar_name,
 					"id_aktifitas" => $itemnotif->ta_id,
 					"status" => $itemnotif->ta_status,
 					"ket_tolak" => $itemnotif->ta_ket_tolak,
-					"file" => $this->getFileTolak($itemnotif->ta_id,$itemnotif->mpm_mc_id )
-
+					"file" => $this->getFileTolak($itemnotif->ta_id,$itemnotif->mpm_mc_id)
 				);
 		}
 		return response()->json(['status' => 200,'data' => $data]);
