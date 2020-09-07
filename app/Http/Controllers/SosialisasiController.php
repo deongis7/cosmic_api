@@ -85,6 +85,26 @@ class SosialisasiController extends Controller {
                     $filesos2 = NULL;
                     $filesos2_tumb = NULL;
                 }
+     
+                if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1))) {
+                    $path_file1 = '/404/img404.jpg';
+                    $filesos1 = $path_file1;
+                }
+                    
+                if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1_tumb))) {
+                    $path_file1 = '/404/img404.jpg';
+                    $filesos1 = $filesos1_tumb;
+                }
+                
+                if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2))) {
+                    $path_file2 = '/404/img404.jpg';
+                    $filesos2 = $path_file2;
+                }
+                
+                if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2_tumb))) {
+                    $path_file2 = '/404/img404.jpg';
+                    $filesos2 = $filesos2_tumb;
+                }
                 
                 $data[] = array(
 		            "id" => $sos->ts_id,
@@ -144,6 +164,26 @@ class SosialisasiController extends Controller {
                     $flag_foto = false;
                 }else{
                     $flag_foto = true;
+                }
+                
+                if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1))) {
+                    $path_file1 = '/404/img404.jpg';
+                    $filesos1 = $path_file1;
+                }
+                
+                if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1_tumb))) {
+                    $path_file1 = '/404/img404.jpg';
+                    $filesos1 = $filesos1_tumb;
+                }
+                
+                if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2))) {
+                    $path_file2 = '/404/img404.jpg';
+                    $filesos2 = $path_file2;
+                }
+                
+                if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2_tumb))) {
+                    $path_file2 = '/404/img404.jpg';
+                    $filesos2 = $filesos2_tumb;
                 }
                 
                 $data = array(
