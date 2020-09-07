@@ -353,7 +353,7 @@ class PerimeterListController extends Controller
                 "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
             );
 
-            return array('status' => 200, 'data' => $data);
+            return $data;
 
         });
         return ($datacache);
