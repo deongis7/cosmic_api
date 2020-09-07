@@ -112,7 +112,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//PerimeterList
     $router->get('/list_perimeter_level/perimeter/{id_perimeter}', 'PerimeterListController@getPerimeterLevelListbyPerimeter');
     $router->get('/list_perimeter/{kd_perusahaan}', 'PerimeterListController@getPerimeterList');
-    $router->get('/list_perimeter_level/count/{kd_perusahaan}', 'PerimeterListController@getJumlahPerimeterLevel');
+    //$router->get('/list_perimeter_level/count/{kd_perusahaan}', 'PerimeterListController@getJumlahPerimeterLevel');
     $router->get('/list_perimeter/detail/{id_perimeter}', 'PerimeterListController@getPerimeterDetail');
 
 	//Kota
@@ -123,7 +123,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //Master
 	$router->get('/stskasus', 'MasterController@getAllStsKasus');
 	$router->get('/stspegawai', 'MasterController@getAllStsPegawai');
-
+	$router->get('/sosialisasikategori', 'MasterController@getAllSosialisasiKategori');
+	
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
 	$router->get('/company/detail/{id}', 'MasterController@getDetailCompany');
