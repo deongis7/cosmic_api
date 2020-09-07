@@ -18,6 +18,9 @@ use Illuminate\Http\Request;
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+$router->get('/version', function () use ($router) {
+    return  response()->json(['app' => env('APP_NAME', '1.0'),'version' => env('APP_VERSION', '1.0')]);;
+});
 
 
 
