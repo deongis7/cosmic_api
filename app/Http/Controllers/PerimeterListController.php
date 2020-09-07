@@ -55,6 +55,8 @@ class PerimeterListController extends Controller
 
         $user = null;
         $role_id = null;
+        $limit = null;
+        $page = null;
         $nik = $request->nik;
         $str = "get_perimeterlist_by_perusahaan_". $kd_perusahaan;
 
@@ -63,13 +65,21 @@ class PerimeterListController extends Controller
             $user = User::where('username', $nik)->first();
             $str_fnc[]=$nik;
         }
+        if(isset($request->limit)){
+            $str = $str.'_limit_'. $request->limit;
+            $limit=$request->limit;
+            if(isset($request->page)){
+                $str = $str.'_page_'. $request->page;
+                $page=$request->page;
+            }
+        }
         //dd($str_fnc);
-        $datacache = Cache::remember($str, 2 * 60, function()use($kd_perusahaan,$nik,$user,$role_id) {
+        $datacache = Cache::remember($str, 2 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page) {
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
 
-            $perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name',
+            $perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
                 'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                 'master_perimeter_kategori.mpmk_name',
                 'master_provinsi.mpro_name', 'master_kabupaten.mkab_name'
@@ -92,9 +102,19 @@ class PerimeterListController extends Controller
             }
 
             $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan)
-                ->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
+                ->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_name','master_perimeter.mpm_id','master_perimeter.mpm_alamat',
                     'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
-                ->orderBy('master_perimeter.mpm_name', 'asc')->get();
+                ->orderBy('master_perimeter.mpm_name', 'asc');
+            //dd($limit);
+            if(isset($limit)) {
+                $perimeter = $perimeter->limit($limit);
+
+                if (isset($page)) {
+                    $offset = ((int)$page -1) * (int)$limit;
+                    $perimeter = $perimeter->offset($offset);
+                }
+            }
+            $perimeter = $perimeter->get();
             $totalperimeter = $perimeter->count();
             $totalpmmonitoring = 0;
 
