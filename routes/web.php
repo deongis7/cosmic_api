@@ -123,7 +123,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //Master
 	$router->get('/stskasus', 'MasterController@getAllStsKasus');
 	$router->get('/stspegawai', 'MasterController@getAllStsPegawai');
-
+	$router->get('/sosialisasikategori', 'MasterController@getAllSosialisasiKategori');
+	
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
 	$router->get('/company/detail/{id}', 'MasterController@getDetailCompany');
