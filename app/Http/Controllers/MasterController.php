@@ -19,6 +19,7 @@ use DB;
 use App\Company;
 use App\MstStsKasus;
 use App\MstStsPegawai;
+use App\MstSosialisasiKategori;
 
 
 class MasterController extends Controller
@@ -172,5 +173,20 @@ class MasterController extends Controller
             return $data;
         });
         return response()->json(['status' => 200,'data' => $datacache]);
+    }
+    
+    public function getAllSosialisasiKategori(){
+        $datacache = Cache::remember("get_all_sosialisasikategori", 360 * 60, function() {
+            $mstsosialisasikategori = MstSosialisasiKategori::all();
+            
+            foreach($mstsosialisasikategori as $mslk){
+                $data[] = array(
+                    "id" => $mslk->mslk_id,
+                    "name" => $mslk->mslk_name,
+                );
+            }
+            return $data;
+        });
+            return response()->json(['status' => 200,'data' => $datacache]);
     }
 }
