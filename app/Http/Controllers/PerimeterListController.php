@@ -102,7 +102,8 @@ class PerimeterListController extends Controller
             }
 
             $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan)
-                ->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_name','master_perimeter.mpm_id','master_perimeter.mpm_alamat',
+
+                ->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                     'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
                 ->orderBy('master_perimeter.mpm_name', 'asc');
             //dd($limit);
@@ -145,13 +146,13 @@ class PerimeterListController extends Controller
             }
 
             //dashboard
-            //$dashboard = array(
-            //    "total_perimeter" => $totalperimeter,
-            //    "sudah_dimonitor" => $totalpmmonitoring,
-            //    "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
-            //);
+            $dashboard = array(
+               "total_perimeter" => $totalperimeter,
+               "sudah_dimonitor" => $totalpmmonitoring,
+               "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
+            );
 
-            return array('status' => 200, 'data' => $data);
+            return array('status' => 200, 'data_dashboard' => $dashboard, 'data' => $data);
 
         });
         return response()->json($datacache);
@@ -177,7 +178,7 @@ class PerimeterListController extends Controller
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
 
-            $perimeter = Perimeter::select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id', 'master_perimeter.mpm_name',
+            $perimeter = Perimeter::select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id', 'master_perimeter_level.mpml_name','master_perimeter.mpm_name',
                         'master_perimeter_level.mpml_ket', 'userpic.username as nik_pic', 'userpic.first_name as pic', 'userfo.username as nik_fo',
                         'userfo.first_name as fo')
                         ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
@@ -558,7 +559,7 @@ class PerimeterListController extends Controller
                     "nama_perimeter" => $perimeter->mpm_name,
                     "file" => null,
                     "file_tumb" => null,
-                    "alamat" => $perimeter->mpm_name,
+                    "alamat" => $perimeter->mpm_alamat,
                     "kategori" => $perimeter->mpmk_name,
                     "longitude" => $perimeter->mpm_longitude,
                     "latitude" => $perimeter->mpm_latitude,
