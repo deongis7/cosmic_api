@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use App\UserGroup;
+use App\Helpers\AppHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +25,7 @@ class UserController extends Controller
      * @return void
      */
 
-	 
+
     public function __construct()
     {
         //
@@ -36,7 +37,7 @@ class UserController extends Controller
 	public function show($id){
 
 	}
-	
+
 	public function store (Request $request){
 
 	}
@@ -53,9 +54,9 @@ class UserController extends Controller
 					->join('master_company','master_company.mc_id','app_users.mc_id')
 					->join('app_users_groups','app_users_groups.user_id','app_users.id')
 					->join('app_groups','app_users_groups.group_id','app_groups.id')
-					->where('app_users.id',$id)	
+					->where('app_users.id',$id)
 					->first();
-					
+
 		if($user->count()>0){
 			$data[] = array(
 					"id" => $user->id,
@@ -70,29 +71,29 @@ class UserController extends Controller
 			        "foto" => $Path.$user->foto,
 			        "foto_bumn" => $PathCompany.$user->mc_foto,
 					);
-			return response()->json(['status' => 200,'data' => $data]);			
+			return response()->json(['status' => 200,'data' => $data]);
 		} else {
-			return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);	
-		}	
+			return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+		}
 	}
-	
+
 	//Ubah User
 	public function updateDetailUser(Request $request,$id) {
 		$this->validate($request, [
             'name' => 'required',
         ]);
-		
+
 		$user = User::find($id);
 		$user->email = $request->email;
 		$user->no_hp = $request->no_hp;
 		$user->divisi = $request->divisi;
-		
+
 		if($user->save()){
-			return response()->json(['status' => 200,'data' => $user]);	
+			return response()->json(['status' => 200,'data' => $user]);
 		} else {
-			return response()->json(['status' => 500,'message' => 'Gagal Menyimpan'])->setStatusCode(500);	
+			return response()->json(['status' => 500,'message' => 'Gagal Menyimpan'])->setStatusCode(500);
 		}
-	}	
+	}
 
 	public function change_password(Request $request) {
 		$input = $request->all();
@@ -134,29 +135,29 @@ class UserController extends Controller
 		//dd($arr['status']);
 		return response()->json($arr)->setStatusCode($arr['status']);
 	}
-	
+
 	public function logout()
-	{ 
+	{
 		if (Auth::check()) {
 		   $user = Auth::user()->AauthAcessToken();
-		   
+
 			if($user->delete()){
-				return response()->json(['status' => 200,'message' => 'Berhasil Logout']);	
+				return response()->json(['status' => 200,'message' => 'Berhasil Logout']);
 			} else {
-				return response()->json(['status' => 500,'message' => 'Gagal Logout'])->setStatusCode(500);	
+				return response()->json(['status' => 500,'message' => 'Gagal Logout'])->setStatusCode(500);
 			}
 		}
 	}
-	
+
 	public function updateFirstDetailUser(Request $request, $id) {
 	    $input = $request->all();
 	    $user = User::find($id);
 	    $user->email = $request->email;
 	    $user->no_hp = $request->no_hp;
-	    $user->divisi = $request->divisi; 
+	    $user->divisi = $request->divisi;
 
-	    if(($request->new_password!='') or ($request->old_password!='') 
-	        or ($request->confirm_password!='') 
+	    if(($request->new_password!='') or ($request->old_password!='')
+	        or ($request->confirm_password!='')
             or ((Hash::check('P@ssw0rd', Auth::user()->password)) == true)){
             $rules = array(
                 'old_password' => 'required',
@@ -168,18 +169,18 @@ class UserController extends Controller
             } else {
                 try {
                     if ((Hash::check($request->old_password, Auth::user()->password)) == false) {
-                        $arr = array("status" => 400, 
+                        $arr = array("status" => 400,
                             "message" => "Check your old password.");
                     } else if ((Hash::check($request->new_password, Auth::user()->password)) == true) {
-                        $arr = array("status" => 400, 
+                        $arr = array("status" => 400,
                             "message" => "Please enter a password which is not similar then current password.");
                     } else if ((Hash::check($request->new_password, '$2y$10$eyLOnXfci/PAI.KuNIULTOJTkluadpdj7FtlzkwhKqasnAHrYdkmq')) == true) {
-                        $arr = array("status" => 400, 
+                        $arr = array("status" => 400,
                             "message" => "Please enter a new password which is not similar then default password.");
                     } else {
                         $user->password = Hash::make($input['new_password']);
                         $user->save();
-                        $arr = array("status" => 200, 
+                        $arr = array("status" => 200,
                             "message" => "Profile & Password updated successfully.");
                     }
                 } catch (\Exception $ex) {
@@ -199,6 +200,23 @@ class UserController extends Controller
             }
         }
 
-        return response()->json($arr)->setStatusCode($arr['status']);	    
+        return response()->json($arr)->setStatusCode($arr['status']);
 	}
+
+    public function setActivityLog(Request $request){
+        //dd($request);
+        $modul = $request->modul;
+        $modul_id = $request->modul_id;
+        $action = $request->action;
+        $description = $request->description;
+        $username = $request->username;
+        //dd($username);
+        $helper= AppHelper::setActivityLog($modul, $modul_id, $action, $description, $username);
+//dd($tes);
+        if($helper){
+            return response()->json(['status' => 200,'message' => 'Data Tersimpan']);
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Gagal Tersimpan'])->setStatusCode(500);
+        }
+    }
 }
