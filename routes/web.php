@@ -124,7 +124,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/stskasus', 'MasterController@getAllStsKasus');
 	$router->get('/stspegawai', 'MasterController@getAllStsPegawai');
 	$router->get('/sosialisasikategori', 'MasterController@getAllSosialisasiKategori');
-	
+
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
 	$router->get('/company/detail/{id}', 'MasterController@getDetailCompany');
@@ -140,6 +140,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/listmonitoring_bymciddate/{id}/{tgl}', 'DashboardController@getListMonitoring_ByMcidWeek');
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
+
+    //Log
+    $router->get('/log_activity', 'UserController@setActivityLog');
+
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
 		Route::get('/user/detail', 'UserController@getDetailUser');
