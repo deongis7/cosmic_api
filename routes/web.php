@@ -112,7 +112,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//PerimeterList
     $router->get('/list_perimeter_level/perimeter/{id_perimeter}', 'PerimeterListController@getPerimeterLevelListbyPerimeter');
     $router->get('/list_perimeter/{kd_perusahaan}', 'PerimeterListController@getPerimeterList');
-    $router->get('/list_perimeter_level/count/{kd_perusahaan}', 'PerimeterListController@getJumlahPerimeterLevel');
+    //$router->get('/list_perimeter_level/count/{kd_perusahaan}', 'PerimeterListController@getJumlahPerimeterLevel');
     $router->get('/list_perimeter/detail/{id_perimeter}', 'PerimeterListController@getPerimeterDetail');
 
 	//Kota

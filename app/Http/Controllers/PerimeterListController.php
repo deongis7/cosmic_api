@@ -116,8 +116,8 @@ class PerimeterListController extends Controller
                 }
             }
             $perimeter = $perimeter->get();
-            $totalperimeter = $perimeter->count();
-            $totalpmmonitoring = 0;
+            //$totalperimeter = $perimeter->count();
+            //$totalpmmonitoring = 0;
 
             foreach ($perimeter as $itemperimeter) {
                 $cluster = PerimeterLevel::join('table_perimeter_detail','table_perimeter_detail.tpmd_mpml_id', 'master_perimeter_level.mpml_id')
@@ -146,16 +146,18 @@ class PerimeterListController extends Controller
             }
 
             //dashboard
-            $dashboard = array(
-               "total_perimeter" => $totalperimeter,
-               "sudah_dimonitor" => $totalpmmonitoring,
-               "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
-            );
+            //$dashboard = array(
+            //   "total_perimeter" => $totalperimeter,
+            //   "sudah_dimonitor" => $totalpmmonitoring,
+             //  "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
+            //);
 
-            return array('status' => 200, 'data_dashboard' => $dashboard, 'data' => $data);
+            return  $data;
 
         });
-        return response()->json($datacache);
+
+        $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+        return response()->json(['status' => 200, 'data_dashboard' => $status_dashboard, 'data' => $datacache]);
 
     }
 
@@ -299,11 +301,11 @@ class PerimeterListController extends Controller
     */
 
     //Get Jumlah Perimeter List
-    public function getJumlahPerimeterLevel($kd_perusahaan,Request $request){
+    private function getJumlahPerimeterLevel($kd_perusahaan,$nik){
 
         $user = null;
         $role_id = null;
-        $nik = $request->nik;
+        $nik = $nik;
         $str = "get_jumlah_perimeterlevellist_by_perimeter_". $kd_perusahaan;
 
         if(isset($nik)){
@@ -312,7 +314,7 @@ class PerimeterListController extends Controller
             $str_fnc[]=$nik;
         }
         //dd($str_fnc);
-        $datacache = Cache::remember($str, 10 * 60, function()use($kd_perusahaan,$nik,$user,$role_id) {
+        $datacache = Cache::remember($str, 40 * 60, function()use($kd_perusahaan,$nik,$user,$role_id) {
 
 
             $data = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
@@ -351,10 +353,10 @@ class PerimeterListController extends Controller
                 "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
             );
 
-            return array('status' => 200, 'data' => $data);
+            return $data;
 
         });
-        return response()->json($datacache);
+        return ($datacache);
 
     }
 
