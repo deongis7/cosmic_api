@@ -74,7 +74,7 @@ class PerimeterListController extends Controller
             }
         }
         //dd($str_fnc);
-        $datacache = Cache::remember($str, 2 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page) {
+        $datacache = Cache::remember($str, 15 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page) {
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
@@ -175,7 +175,7 @@ class PerimeterListController extends Controller
             $str_fnc[]=$nik;
         }
         //dd($str_fnc);
-        $datacache = Cache::remember($str, 2 * 60, function()use($id_perimeter,$nik,$user,$role_id) {
+        $datacache = Cache::remember($str, 5 * 60, function()use($id_perimeter,$nik,$user,$role_id) {
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
