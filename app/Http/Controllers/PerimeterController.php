@@ -654,7 +654,7 @@ class PerimeterController extends Controller
     public function resetPasswordTaskForce($nik) {
 
         $user= User::where('username',$nik)->first();
-        $user->password = Hash::make('Passw0rd');
+        $user->password = Hash::make('P@ssw0rd');
         if($user->save()) {
             return response()->json(['status' => 200,'message' => 'Password telah Direset']);
         } else {
