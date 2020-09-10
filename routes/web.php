@@ -53,7 +53,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/taskforce/{id}', 'PerimeterController@getTaskForce');
 	$router->get('/taskforce/region/{id}', 'PerimeterController@getTaskForcebyRegion');
 	$router->get('/taskforce/detail/{nik}', 'PerimeterController@getTaskForceDetail');
+	$router->get('/taskforce/detail_user/{nik}', 'PerimeterController@getTaskForceDetailUser');
 	$router->post('/taskforce/add', 'PerimeterController@addTaskForce');
+	$router->post('/taskforce/change_password/{nik}', 'PerimeterController@changePasswordTaskForce');
+	$router->get('/taskforce/reset_password/{nik}', 'PerimeterController@resetPasswordTaskForce');
 
 	//Cluster Ruangan
 	$router->get('/cluster/perimeter/{id}', 'PerimeterController@getClusterbyPerimeter');
