@@ -336,7 +336,7 @@ class TerpaparController extends Controller {
 	
 	public function getDashboardKabupatenbyMskid($id) {
 	    $terpapar = DB::select("SELECT * FROM allkasus_kabupaten_bymskid($id)");
-	    
+	   // var_dump($terpapar);die;
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
 	            "mkab_id" => $tpp->x_mkab_id,
