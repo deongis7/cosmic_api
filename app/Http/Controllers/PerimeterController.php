@@ -51,17 +51,17 @@ class PerimeterController extends Controller
 	//Jumlah Perimeter
 	public function getCountPerimeter($id){
 		$data = array();
-		$region =  Cache::remember("count_region_by_company_id_". $id, 10 * 60, function()use($id) {
+		$region =  Cache::remember("count_region_by_company_id_". $id, 30 * 60, function()use($id) {
 			return count(Region::select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')->where('mr_mc_id',$id)->groupBy('mr_id')->get());
 		});
 		//$region =count(Region::select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')->where('mr_mc_id',$id)->groupBy('mr_id')->get());
-		$user =  Cache::remember("count_userpic_by_company_id_". $id, 10 * 60, function()use($id) {
+		$user =  Cache::remember("count_userpic_by_company_id_". $id, 30 * 60, function()use($id) {
 			return count(DB::select('select au.username from app_users au
 					join master_perimeter_level mpl on mpl.mpml_pic_nik = au.username
 					where au.mc_id = ?
 					group by au.username',[$id]));
 		});
-		$perimeter = Cache::remember("count_perimeter_by_company_id_". $id, 10 * 60, function()use($id) {
+		$perimeter = Cache::remember("count_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
 			return Perimeter::join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
 					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('master_region.mr_mc_id',$id)
@@ -458,7 +458,7 @@ class PerimeterController extends Controller
 
 
 	public function getExecutionReport($id){
-		$datacache =  Cache::remember("get_exec_report_". $id, 20 * 60, function()use($id) {
+		$datacache =  Cache::remember("get_exec_report_". $id, 30 * 60, function()use($id) {
 			$data = array();
 			$execution = DB::select("
 						SELECT *, CASE
