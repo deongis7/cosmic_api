@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Cache;
-
+use Validator;
 use DB;
 
 
@@ -573,6 +573,95 @@ class PerimeterController extends Controller
 
 
 	}
+
+    //Detail User
+    public function getTaskForceDetailUser($nik){
+        $Path = '/profile/';
+        $PathCompany = '/foto_bumn/';
+        $data = array();
+
+        $user = User::select('app_users.id','app_users.username','app_users.first_name',
+            'master_company.mc_id','master_company.mc_name','app_groups.name',
+            'app_users.no_hp','app_users.divisi','app_users.email','app_users.foto','master_company.mc_foto')
+            ->join('master_company','master_company.mc_id','app_users.mc_id')
+            ->join('app_users_groups','app_users_groups.user_id','app_users.id')
+            ->join('app_groups','app_users_groups.group_id','app_groups.id')
+            ->where('app_users.username','=',$nik)
+            ->first();
+
+
+        if($user!=null){
+            $data[] = array(
+                "id" => $user->id,
+                "username" => $user->username,
+                "name" => $user->first_name,
+                "kd_perusahaan" => $user->mc_id,
+                "nm_perusahaan" => $user->mc_name,
+                "role" => $user->name,
+                "no_hp" => $user->no_hp,
+                "divisi" => $user->divisi,
+                "email" => $user->email,
+                "foto" => ($user->foto==null)?null:$Path.$user->foto,
+                "foto_bumn" => ($user->mc_foto==null)?null:$PathCompany.$user->mc_foto,
+            );
+            return response()->json(['status' => 200,'data' => $data]);
+        } else {
+            return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+        }
+    }
+
+    public function changePasswordTaskForce($nik,Request $request) {
+        $input = $request->all();
+        $user= User::where('username',$nik)->first();
+        $rules = array(
+            'old_password' => 'required',
+            'new_password' => 'required|min:6',
+            'confirm_password' => 'required|same:new_password',
+        );
+        $validator = Validator::make($input, $rules);
+        if ($validator->fails()) {
+            $arr = array("status" => 400, "message" => $validator->errors()->first());
+        } else {
+            try {
+                if ((Hash::check($request->old_password, $user->password)) == false) {
+                    $arr = array("status" => 400,
+                        "message" => "Check your old password.");
+                } else if ((Hash::check($request->new_password, $user->password)) == true) {
+                    $arr = array("status" => 400,
+                        "message" => "Please enter a password which is not similar then current password.");
+                } else if ((Hash::check($request->new_password, '$2y$10$eyLOnXfci/PAI.KuNIULTOJTkluadpdj7FtlzkwhKqasnAHrYdkmq')) == true) {
+                    $arr = array("status" => 400,
+                        "message" => "Please enter a new password which is not similar then default password.");
+                } else {
+                    $user->password = Hash::make($input['new_password']);
+                    $user->save();
+                    $arr = array("status" => 200,
+                        "message" => "Profile & Password telah diupdate.");
+                }
+            } catch (\Exception $ex) {
+                if (isset($ex->errorInfo[2])) {
+                    $msg = $ex->errorInfo[2];
+                } else {
+                    $msg = $ex->getMessage();
+                }
+                $arr = array("status" => 400, "message" => $msg);
+            }
+        }
+        //dd($arr['status']);
+        return response()->json($arr)->setStatusCode($arr['status']);
+    }
+
+    public function resetPasswordTaskForce($nik) {
+
+        $user= User::where('username',$nik)->first();
+        $user->password = Hash::make('Passw0rd');
+        if($user->save()) {
+            return response()->json(['status' => 200,'message' => 'Password telah Direset']);
+        } else {
+            return response()->json(['status' => 500,'message' => 'Password gagal Direset'])->setStatusCode(500);
+        }
+    }
+
 
 	//Get Perimeter Detail
 	public function getDetailPerimeter($id_perimeter_level){
