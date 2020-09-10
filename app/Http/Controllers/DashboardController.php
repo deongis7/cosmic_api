@@ -39,7 +39,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getCosmicIndexAll(){
-	    $datacache =  Cache::remember("get_cosmicindex_all", 30 * 60, function() {
+	    $datacache =  Cache::remember("get_cosmicindex_all", 360 * 60, function() {
 	        $data = array();
 	        $cosmicindex_all = DB::select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
 	        
@@ -55,7 +55,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getPerimeterbyKategoriAll(){
-	    $datacache =  Cache::remember("get_perimeter_bykategori_all", 10 * 60, function(){
+	    $datacache =  Cache::remember("get_perimeter_bykategori_all", 360 * 60, function(){
 	        $data = array();
 	        $perimeter_bykategori_all = DB::select("SELECT * FROM dashboard_perimeter_bykategori()");
 	        
@@ -71,7 +71,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getPerimeterbyProvinsiAll(){
-	    $datacache =  Cache::remember("get_perimeter_byprovinsi_all", 10 * 60, function() {
+	    $datacache =  Cache::remember("get_perimeter_byprovinsi_all", 360 * 60, function() {
 	        $data = array();
 	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM dashboard_perimeter_byprovinsi()");
 	        
@@ -87,7 +87,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getDashboardHead(){
-	    $datacache =  Cache::remember("get_dashboard_head", 10 * 60, function() {
+	    $datacache =  Cache::remember("get_dashboard_head", 360 * 60, function() {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM dashboard_head()");
 	        
@@ -104,7 +104,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getWeekList(){
-	    $datacache =  Cache::remember("get_week", 60 * 60, function() {
+	    $datacache =  Cache::remember("get_week", 360 * 60, function() {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM list_aktivitas_week()");
 	        
@@ -122,7 +122,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getMonitoring_ByMcidWeek($id, $tgl){
-	    $datacache = Cache::remember("getmonitoring_bymcidweek_".$id."_".$tgl, 10 * 60, function()use($id, $tgl) {
+	    $datacache = Cache::remember("getmonitoring_bymcidweek_".$id."_".$tgl, 360 * 60, function()use($id, $tgl) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM pemenuhan_monitoring_bymcidweek('$id','$tgl')");
 	        
@@ -137,7 +137,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getListMonitoring_ByMcidWeek($id, $tgl){
-	    $datacache = Cache::remember("getlistmonitoring_bymcidweek_".$id."_".$tgl, 10 * 60, function()use($id, $tgl) {
+	    $datacache = Cache::remember("getlistmonitoring_bymcidweek_".$id."_".$tgl, 360 * 60, function()use($id, $tgl) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT a.v_mpm_name, a.v_mpml_name, a.v_mpmk_name, 
                     a.v_pic, a.v_fo, a.v_cek, b.persen_det
