@@ -305,6 +305,14 @@ class PerimeterController extends Controller
 	//Get Task Force per Region
 	public function getTaskForce($id,Request $request){
 		$param = [];
+        $limit = null;
+        $page = null;
+        if(isset($request->limit)){
+            $limit=$request->limit;
+            if(isset($request->page)){
+                $page=$request->page;
+            }
+        }
 		$querycache = "get_taskforce_by_company_id_". $id;
 		$query = "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
 			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end) as mr_name,app.mc_id,aug.name,
@@ -344,9 +352,17 @@ class PerimeterController extends Controller
 			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end),app.mc_id,aug.name,
 			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END )
 			order by
-			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) desc, aug.name desc,app.first_name asc";
+			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) desc, aug.name desc,app.first_name asc ";
+        if(isset($limit)) {
+           $query=$query ." limit ". $limit;
 
-		$datacache = Cache::remember($querycache, 1 * 60, function()use($query,$param) {
+            if (isset($page)) {
+                $offset = ((int)$page -1) * (int)$limit;
+                $query=$query ." offset ". $offset;
+
+            }
+        }
+		//$datacache = Cache::remember($querycache, 1 * 60, function()use($query,$param) {
 			$data = array();
 			$taskforce = DB::select( $query , $param);
 
@@ -364,8 +380,8 @@ class PerimeterController extends Controller
 						);
 			}
 			return $data;
-		});
-		return response()->json(['status' => 200,'data' => $datacache]);
+		//});
+		return response()->json(['status' => 200,'data' => $data]);
 
 	}
 
