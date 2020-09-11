@@ -372,7 +372,7 @@ class SosialisasiController extends Controller {
         }
         
 	    $dataSosialisasi->ts_nama_kegiatan = $r_nama_kegiatan;
-	    $dataSosialisasi->ts_mslk_id = $jenis_kegiatan;
+	    $dataSosialisasi->ts_mslk_id = $r_jenis_kegiatan;
 	    $dataSosialisasi->ts_deskripsi = $r_deskripsi;
 	    $dataSosialisasi->ts_tanggal = $r_tanggal;
         $dataSosialisasi->ts_file1 = $name1;
