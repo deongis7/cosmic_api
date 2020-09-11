@@ -379,7 +379,8 @@ class PerimeterController extends Controller
 
 						);
 			}
-			return $data;
+			 $data;
+			//return $data;
 		//});
 		return response()->json(['status' => 200,'data' => $data]);
 
