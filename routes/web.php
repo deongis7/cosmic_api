@@ -146,7 +146,11 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
     //Log
     $router->get('/log_activity', 'UserController@setActivityLog');
-
+    
+    //Sosialisasi Web
+    Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
+    Route::post('/sosialisasi/webupdate_json/{user_id}/{id}', 'SosialisasiController@WebupdateSosialisasiJSON');
+    
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
 		Route::get('/user/detail', 'UserController@getDetailUser');
