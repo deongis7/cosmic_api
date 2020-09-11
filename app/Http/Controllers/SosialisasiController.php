@@ -85,9 +85,9 @@ class SosialisasiController extends Controller {
                 $data[] = array(
                     "id" => $sos->ts_id,
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
-                    "jenis_kegiatan" => $sos->ts_jenis_kegiatan,
-                    //"jenis_kegiatan" => $sos->mslk_name,
-                    //"jenis_kegiatan_id" => $sos->ts_mslk_id,
+                    //"jenis_kegiatan" => $sos->ts_jenis_kegiatan,
+                    "jenis_kegiatan" => $sos->mslk_name,
+                    "jenis_kegiatan_id" => $sos->ts_mslk_id,
                     "deskripsi" => $sos->ts_deskripsi,
                     "tanggal" => $sos->ts_tanggal,
                     "file_1" => $filesos1,
@@ -152,9 +152,9 @@ class SosialisasiController extends Controller {
                 
                 $data = array(
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
-                    "jenis_kegiatan" => $sos->ts_jenis_kegiatan,
-                    //"jenis_kegiatan" => $sos->mslk_name,
-                    //"jenis_kegiatan_id" => $sos->ts_mslk_id,
+                    //"jenis_kegiatan" => $sos->ts_jenis_kegiatan,
+                    "jenis_kegiatan" => $sos->mslk_name,
+                    "jenis_kegiatan_id" => $sos->ts_mslk_id,
                     "deskripsi" => $sos->ts_deskripsi,
                     "tanggal" => $sos->ts_tanggal,
                     "flag_foto" => $sos->ts_tanggal,
@@ -185,7 +185,7 @@ class SosialisasiController extends Controller {
         $kd_perusahaan = $request->kd_perusahaan;
         $nama_kegiatan = $request->nama_kegiatan;
         //$dataSosialisasi->ts_mslk_id = $jenis_kegiatan;
-        $dataSosialisasi->ts_jenis_kegiatan = $jenis_kegiatan;
+        $jenis_kegiatan = $request->jenis_kegiatan;
         $deskripsi = $request->deskripsi;
         $tgl = strtotime($request->tanggal);
         $tanggal = date('Y-m-d',$tgl);
@@ -372,8 +372,7 @@ class SosialisasiController extends Controller {
         }
         
 	    $dataSosialisasi->ts_nama_kegiatan = $r_nama_kegiatan;
-	    //$dataSosialisasi->ts_mslk_id = $jenis_kegiatan;
-	    $dataSosialisasi->ts_jenis_kegiatan = $jenis_kegiatan;
+	    $dataSosialisasi->ts_mslk_id = $jenis_kegiatan;
 	    $dataSosialisasi->ts_deskripsi = $r_deskripsi;
 	    $dataSosialisasi->ts_tanggal = $r_tanggal;
         $dataSosialisasi->ts_file1 = $name1;
@@ -561,8 +560,7 @@ class SosialisasiController extends Controller {
         }
         
         $dataSosialisasi->ts_nama_kegiatan = $r_nama_kegiatan;
-        //$dataSosialisasi->ts_mslk_id = $jenis_kegiatan;
-        $dataSosialisasi->ts_jenis_kegiatan = $jenis_kegiatan;
+        $dataSosialisasi->ts_mslk_id = $r_jenis_kegiatan;
         $dataSosialisasi->ts_deskripsi = $r_deskripsi;
         $dataSosialisasi->ts_tanggal = $r_tanggal;
         $dataSosialisasi->ts_file1 = $name1;
