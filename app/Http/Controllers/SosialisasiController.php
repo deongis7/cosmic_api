@@ -12,97 +12,11 @@ class SosialisasiController extends Controller {
     public function __construct() {
     }
     
-//     public function getDataByMcid($id, $page) {
-//         $sosialisasiweek = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
-//                 ts_jenis_kegiatan, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb
-//                 FROM transaksi_sosialisasi
-//                 WHERE ts_mc_id='$id' 
-//                 AND ts_tanggal IN (
-// 					SELECT 
-// 					CAST(date_trunc('week', CURRENT_DATE) AS DATE) + i
-// 					FROM generate_series(0,4) i
-// 				)");
-        
-//         if(count($sosialisasiweek) > 0){  $week = true; }else{ $week = false; }
-//         if($page > 0){   $page=$page-1; }else{ $page=0; }
-        
-//         $row = 10;
-//         $pageq = $page*$row;
-        
-//         $sosialisasiall = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
-//                 ts_jenis_kegiatan, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb
-//                 FROM transaksi_sosialisasi
-//                 WHERE ts_mc_id='$id' 
-//     	        ORDER BY ts_tanggal DESC");
-        
-//         $sosialisasi = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
-//                 ts_jenis_kegiatan, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb
-//                 FROM transaksi_sosialisasi
-//                 WHERE ts_mc_id='$id' 
-//     	        ORDER BY ts_tanggal DESC
-//                 OFFSET $pageq LIMIT $row");
-        
-//         $cntsosialisasiall = count($sosialisasiall);
-//         $pageend = ceil($cntsosialisasiall/$row);
-        
-//         if (count($sosialisasi) > 0){
-//             foreach($sosialisasi as $sos){
-//                 if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
-//                     if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1))) {
-//                         $path_file404 = '/404/img404.jpg';
-//                         $filesos1 = $path_file404;
-//                         $filesos1_tumb = $path_file404;
-//                     }else{
-//                         $path_file1 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1;
-//                         $path_file1_tumb =  '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1_tumb;
-//                         $filesos1 = $path_file1;
-//                         $filesos1_tumb = $path_file1_tumb;
-//                     }
-//                 }else{
-//                     $filesos1 = '/404/img404.jpg';
-//                     $filesos1_tumb = '/404/img404.jpg';
-//                 }
-                
-//                 if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
-//                     if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2))) {
-//                         $path_file404 = '/404/img404.jpg';
-//                         $filesos2 = $path_file404;
-//                         $filesos2_tumb = $path_file404;
-//                     }else{
-//                         $path_file2 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2;
-//                         $path_file2_tumb = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2_tumb;
-//                         $filesos2 = $path_file2;
-//                         $filesos2_tumb = $path_file2_tumb;
-//                     }
-//                 }else{
-//                     $filesos2 = '/404/img404.jpg';
-//                     $filesos2_tumb ='/404/img404.jpg';
-//                 }
-                
-//                 $data[] = array(
-// 		            "id" => $sos->ts_id,
-//                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
-//                     "jenis_kegiatan" => $sos->ts_jenis_kegiatan,
-//                     "deskripsi" => $sos->ts_deskripsi,
-//                     "tanggal" => $sos->ts_tanggal,
-//                     "file_1" => $filesos1,
-//                     "file_1_tumb" => $filesos1_tumb,
-//                     "file_2" => $filesos2,
-//                     "file_2_tumb" => $filesos2_tumb
-//                 );
-//             }
-//         }else{
-//             $data = array();
-//         }
-//         return response()->json(['status' => 200, 'page_end'=> $pageend, 
-//             'week' => $week, 'data' => $data]);
-//     }
-    
     public function getDataByMcid($id, $page) {
         $sosialisasiweek = DB::select("SELECT ts.ts_id, ts.ts_mc_id, ts.ts_nama_kegiatan, ts.ts_tanggal,
                 ts.ts_mslk_id,  mslk.mslk_name, ts.ts_deskripsi, ts.ts_file1, ts.ts_file1_tumb, ts.ts_file2, ts.ts_file2_tumb
                 FROM transaksi_sosialisasi ts
-                INNER JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
+                LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id='$id' 
                 AND ts_tanggal IN (
                 	SELECT 
@@ -119,14 +33,14 @@ class SosialisasiController extends Controller {
         $sosialisasiall = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
                 ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb
                 FROM transaksi_sosialisasi ts
-                INNER JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
+                LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id='$id'
     	        ORDER BY ts_tanggal DESC");
         
         $sosialisasi = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
                ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb
                 FROM transaksi_sosialisasi ts
-                INNER JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
+                LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id='$id'
     	        ORDER BY ts_tanggal DESC
                 OFFSET $pageq LIMIT $row");
@@ -171,8 +85,9 @@ class SosialisasiController extends Controller {
                 $data[] = array(
                     "id" => $sos->ts_id,
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
-                    "jenis_kegiatan" => $sos->mslk_name,
-                    "jenis_kegiatan_id" => $sos->ts_mslk_id,
+                    "jenis_kegiatan" => $sos->ts_jenis_kegiatan,
+                    //"jenis_kegiatan" => $sos->mslk_name,
+                    //"jenis_kegiatan_id" => $sos->ts_mslk_id,
                     "deskripsi" => $sos->ts_deskripsi,
                     "tanggal" => $sos->ts_tanggal,
                     "file_1" => $filesos1,
@@ -188,72 +103,11 @@ class SosialisasiController extends Controller {
             'week' => $week, 'data' => $data]);
     }
     
-//     public function getDataById($id) {
-//         $sosialisasi = Sosialisasi::where('ts_id',$id)->get();
-       
-//         if(count($sosialisasi) > 0) {
-//             foreach($sosialisasi as $sos){
-//                 if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
-//     		        if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1))) {
-//     		            $path_file404 = '/404/img404.jpg';
-//     		            $filesos1 = $path_file404;
-//     		            $filesos1_tumb = $path_file404;
-//     		        }else{
-//     		            $path_file1 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1;
-//     		            $path_file1_tumb =  '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1_tumb;
-//     		            $filesos1 = $path_file1;
-//     		            $filesos1_tumb = $path_file1_tumb;
-//     		        }
-//                 }else{
-//                     $filesos1 = '/404/img404.jpg';
-//                     $filesos1_tumb = '/404/img404.jpg';
-//                 }
-    
-//                 if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
-//                     if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2))) {
-//                         $path_file404 = '/404/img404.jpg';
-//                         $filesos2 = $path_file404;
-//                         $filesos2_tumb = $path_file404;
-//                     }else{
-//                         $path_file2 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2;
-//                         $path_file2_tumb = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2_tumb;
-//                         $filesos2 = $path_file2;
-//                         $filesos2_tumb = $path_file2_tumb;
-//                     }
-//                 }else{
-//                     $filesos2 = '/404/img404.jpg';
-//                     $filesos2_tumb ='/404/img404.jpg';
-//                 }
-                
-//                 if(($filesos1==NULL && $filesos2==NULL) || ($filesos1=='' && $filesos2=='')){
-//                     $flag_foto = false;
-//                 }else{
-//                     $flag_foto = true;
-//                 }
-
-//                 $data = array(
-//                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
-//                     "jenis_kegiatan" => $sos->ts_jenis_kegiatan,
-//                     "deskripsi" => $sos->ts_deskripsi,
-//                     "tanggal" => $sos->ts_tanggal,
-//                     "flag_foto" => $sos->ts_tanggal,
-//                     "file_1" => $filesos1,
-//                     "file_1_tumb" => $filesos1_tumb,
-//                     "file_2" => $filesos2,
-//                     "file_2_tumb" => $filesos2_tumb
-//                 );
-//             }
-//         }else{
-//             $data = array();
-//         }
-//         return response()->json(['status' => 200,'data' => $data]);
-//     }
-    
     public function getDataById($id) {
         $sosialisasi = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
                 ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb
                 FROM transaksi_sosialisasi ts
-                INNER JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
+                LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_id='$id'");
         
         if(count($sosialisasi) > 0) {
@@ -298,8 +152,9 @@ class SosialisasiController extends Controller {
                 
                 $data = array(
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
-                    "jenis_kegiatan" => $sos->mslk_name,
-                    "jenis_kegiatan_id" => $sos->ts_mslk_id,
+                    "jenis_kegiatan" => $sos->ts_jenis_kegiatan,
+                    //"jenis_kegiatan" => $sos->mslk_name,
+                    //"jenis_kegiatan_id" => $sos->ts_mslk_id,
                     "deskripsi" => $sos->ts_deskripsi,
                     "tanggal" => $sos->ts_tanggal,
                     "flag_foto" => $sos->ts_tanggal,
@@ -329,7 +184,8 @@ class SosialisasiController extends Controller {
         $file1 = $request->file_sosialisasi1;
         $kd_perusahaan = $request->kd_perusahaan;
         $nama_kegiatan = $request->nama_kegiatan;
-        $jenis_kegiatan = $request->jenis_kegiatan;
+        //$dataSosialisasi->ts_mslk_id = $jenis_kegiatan;
+        $dataSosialisasi->ts_jenis_kegiatan = $jenis_kegiatan;
         $deskripsi = $request->deskripsi;
         $tgl = strtotime($request->tanggal);
         $tanggal = date('Y-m-d',$tgl);
@@ -385,7 +241,8 @@ class SosialisasiController extends Controller {
         $dataSosialisasi = new Sosialisasi();
         $dataSosialisasi->ts_mc_id = $kd_perusahaan;
         $dataSosialisasi->ts_nama_kegiatan = $nama_kegiatan;
-        $dataSosialisasi->ts_mslk_id = $jenis_kegiatan;
+        //$dataSosialisasi->ts_mslk_id = $jenis_kegiatan;
+        $dataSosialisasi->ts_jenis_kegiatan = $jenis_kegiatan;
         $dataSosialisasi->ts_deskripsi = $deskripsi;
         $dataSosialisasi->ts_tanggal = $tanggal;
         $dataSosialisasi->ts_file1 = $name1;
@@ -397,7 +254,7 @@ class SosialisasiController extends Controller {
         if($dataSosialisasi->save()) {
             return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diImport']);
         } else {
-            return response()->json(['status' => 500,'message' => 'Data Sosialisasi  Gagal diImport'])->setStatusCode(500);
+            return response()->json(['status' => 500,'message' => 'Data Sosialisasi Gagal diImport'])->setStatusCode(500);
         }
     }
     
@@ -512,7 +369,8 @@ class SosialisasiController extends Controller {
         }
         
 	    $dataSosialisasi->ts_nama_kegiatan = $r_nama_kegiatan;
-	    $dataSosialisasi->ts_mslk_id = $r_jenis_kegiatan;
+	    //$dataSosialisasi->ts_mslk_id = $jenis_kegiatan;
+	    $dataSosialisasi->ts_jenis_kegiatan = $jenis_kegiatan;
 	    $dataSosialisasi->ts_deskripsi = $r_deskripsi;
 	    $dataSosialisasi->ts_tanggal = $r_tanggal;
         $dataSosialisasi->ts_file1 = $name1;
