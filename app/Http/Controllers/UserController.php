@@ -98,11 +98,13 @@ class UserController extends Controller
 	public function change_password(Request $request) {
 		$input = $request->all();
 		$userid = Auth::guard('api')->user()->id;
+        $user= Auth::guard('api')->user();
 		$rules = array(
 			'old_password' => 'required',
 			'new_password' => 'required|min:6',
 			'confirm_password' => 'required|same:new_password',
 		);
+		//dd($input);
 		$validator = Validator::make($input, $rules);
 		if ($validator->fails()) {
 			$arr = array("status" => 400, "message" => $validator->errors()->first());
