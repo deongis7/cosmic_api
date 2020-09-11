@@ -30,7 +30,7 @@ class MasterController extends Controller
      * @return void
      */
 
-	 
+
     public function __construct()
     {
         //
@@ -42,7 +42,7 @@ class MasterController extends Controller
 	public function show($id){
 
 	}
-	
+
 	public function store (Request $request){
 
 	}
@@ -50,7 +50,7 @@ class MasterController extends Controller
 	public function getAllKota(){
 		$datacache = Cache::remember("get_all_kota", 360 * 60, function() {
 			$kota = Kota::join('master_provinsi','mpro_id','mkab_mpro_id')->orderBy('mkab_name','asc')->get();
-			
+
 			foreach($kota as $itemkota){
 				$data[] = array(
 					"id_kota" => $itemkota->mkab_id,
@@ -70,7 +70,7 @@ class MasterController extends Controller
 			$kota = Kota::join('master_provinsi','mpro_id','mkab_mpro_id')
 							->where('mkab_mpro_id',$id_provinsi)
 							->orderBy('mkab_name','asc')->get();
-			
+
 			foreach($kota as $itemkota){
 				$data[] = array(
 					"id_kota" => $itemkota->mkab_id,
@@ -84,14 +84,14 @@ class MasterController extends Controller
 		});
 		return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function getAllProvinsi(){
 		$datacache = Cache::remember("get_all_prov", 360 * 60, function() {
-			$prov = Provinsi::all();
-			
+			$prov = Provinsi::orderBy('mpro_name','asc')->get();
+
 			foreach($prov as $itemprov){
 				$data[] = array(
-				   
+
 					"id_provinsi" => $itemprov->mpro_id,
 					"provinsi" => $itemprov->mpro_name,
 
@@ -104,10 +104,10 @@ class MasterController extends Controller
 
 	public function getAllCompany(){
 	    $Path = '/foto_bumn/';
-	    
+
 	    $datacache = Cache::remember("get_all_company", 360 * 60, function() {
 	        $company = Company::all();
-	        
+
 	        foreach($company as $com){
 	            $data[] = array(
 	                "id_perusahaan" => $com->mc_id,
@@ -118,17 +118,17 @@ class MasterController extends Controller
 	        }
 	        return $data;
 	    });
-	    
+
 	    return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function getDetailCompany($id) {
 	    $Path = '/foto_bumn/';
-	    
+
 	    $datacache = Cache::remember("get_company_by_mcid_".$id, 360 * 60, function() use ($id) {
 	        $company = Company::join('master_sektor','ms_id','mc_msc_id')
 	        ->where('mc_id',$id)->where('ms_type','CCOVID')->get();
-	        
+
 	        foreach($company as $com){
 	            $data[] = array(
 	                "id_perusahaan" => $com->mc_id,
@@ -142,11 +142,11 @@ class MasterController extends Controller
 	    });
         return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function getAllStsKasus(){
         $datacache = Cache::remember("get_all_mskasus", 360 * 60, function() {
             $mststskasus = MstStsKasus::all();
-            
+
             foreach($mststskasus as $msk){
                 $data[] = array(
                     "id" => $msk->msk_id,
@@ -158,12 +158,12 @@ class MasterController extends Controller
         });
         return response()->json(['status' => 200,'data' => $datacache]);
     }
-    
+
     public function getAllStsPegawai(){
         //var_dump();die;
         $datacache = Cache::remember("get_all_mspegawai", 360 * 60, function() {
             $mststspegawai = MstStsPegawai::all();
-            
+
             foreach($mststspegawai as $msp){
                 $data[] = array(
                     "id" => $msp->msp_id,
@@ -174,11 +174,11 @@ class MasterController extends Controller
         });
         return response()->json(['status' => 200,'data' => $datacache]);
     }
-    
+
     public function getAllSosialisasiKategori(){
         $datacache = Cache::remember("get_all_sosialisasikategori", 360 * 60, function() {
             $mstsosialisasikategori = MstSosialisasiKategori::all();
-            
+
             foreach($mstsosialisasikategori as $mslk){
                 $data[] = array(
                     "id" => $mslk->mslk_id,
