@@ -221,12 +221,11 @@ class SosialisasiController extends Controller {
         $name2 = NULL;
         $name2_tumb = NULL;
         if(isset($request->file_sosialisasi2)){
-            $file2 = $request->file_sosialisasi2;
             if ($request->file_sosialisasi2 != null || $request->file_sosialisasi2 != '') {
                 $img2 = explode(',', $file2);
-                $image2 = $img1[1];
+                $image2 = $img2[1];
                 $filedecode2 = base64_decode($image2);
-                $name2 = round(microtime(true)*1000).'.jpg';
+                $name2 = round(microtime(true) * 1000).'.jpg';
                 $name2_tumb = round(microtime(true) * 1000).'_tumb.jpg';
                 
                 Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
@@ -351,17 +350,11 @@ class SosialisasiController extends Controller {
         $name2 = NULL;
         $name2_tumb = NULL;
         if(isset($request->file_sosialisasi2)){
-            if($filex2!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex2)){
-                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex2);
-            }
-            if($filex2_tumb!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex2_tumb)){
-                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex2_tumb);
-            }
             if ($request->file_sosialisasi2 != null || $request->file_sosialisasi2 != '') {
-                $img2 = explode(',', $r_file2);
-                $image2 = $img1[1];
+                $img2 = explode(',', $file2);
+                $image2 = $img2[1];
                 $filedecode2 = base64_decode($image2);
-                $name2 = round(microtime(true)*1000).'.jpg';
+                $name2 = round(microtime(true) * 1000).'.jpg';
                 $name2_tumb = round(microtime(true) * 1000).'_tumb.jpg';
                 
                 Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
@@ -441,12 +434,11 @@ class SosialisasiController extends Controller {
         $name2 = NULL;
         $name2_tumb = NULL;
         if(isset($request->file_sosialisasi2)){
-            $file2 = $request->file_sosialisasi2;
             if ($request->file_sosialisasi2 != null || $request->file_sosialisasi2 != '') {
                 $img2 = explode(',', $file2);
-                $image2 = $img1[1];
+                $image2 = $img2[1];
                 $filedecode2 = base64_decode($image2);
-                $name2 = round(microtime(true)*1000).'.jpg';
+                $name2 = round(microtime(true) * 1000).'.jpg';
                 $name2_tumb = round(microtime(true) * 1000).'_tumb.jpg';
                 
                 Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
@@ -542,17 +534,11 @@ class SosialisasiController extends Controller {
         $name2 = NULL;
         $name2_tumb = NULL;
         if(isset($request->file_sosialisasi2)){
-            if($filex2!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex2)){
-                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex2);
-            }
-            if($filex2_tumb!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex2_tumb)){
-                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex2_tumb);
-            }
             if ($request->file_sosialisasi2 != null || $request->file_sosialisasi2 != '') {
-                $img2 = explode(',', $r_file2);
-                $image2 = $img1[1];
+                $img2 = explode(',', $file2);
+                $image2 = $img2[1];
                 $filedecode2 = base64_decode($image2);
-                $name2 = round(microtime(true)*1000).'.jpg';
+                $name2 = round(microtime(true) * 1000).'.jpg';
                 $name2_tumb = round(microtime(true) * 1000).'_tumb.jpg';
                 
                 Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
