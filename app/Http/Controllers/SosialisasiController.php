@@ -182,6 +182,7 @@ class SosialisasiController extends Controller {
         ]);
         
         $file1 = $request->file_sosialisasi1;
+        $file2 = $request->file_sosialisasi2;
         $kd_perusahaan = $request->kd_perusahaan;
         $nama_kegiatan = $request->nama_kegiatan;
         //$dataSosialisasi->ts_mslk_id = $jenis_kegiatan;
@@ -246,7 +247,9 @@ class SosialisasiController extends Controller {
         $dataSosialisasi->ts_deskripsi = $deskripsi;
         $dataSosialisasi->ts_tanggal = $tanggal;
         $dataSosialisasi->ts_file1 = $name1;
+        $dataSosialisasi->ts_file2 = $name2;
         $dataSosialisasi->ts_file1_tumb = $name1_tumb;
+        $dataSosialisasi->ts_file2_tumb = $name2_tumb;
         $dataSosialisasi->ts_date_insert = date('Y-m-d H:i:s');
         $dataSosialisasi->ts_user_insert = Auth::guard('api')->user()->id;
         $dataSosialisasi->save();
@@ -402,6 +405,7 @@ class SosialisasiController extends Controller {
         ]);
         
         $file1 = $request->file_sosialisasi1;
+        $file2 = $request->file_sosialisasi2;
         $kd_perusahaan = $request->kd_perusahaan;
         $nama_kegiatan = $request->nama_kegiatan;
         $jenis_kegiatan = $request->jenis_kegiatan;
@@ -462,7 +466,9 @@ class SosialisasiController extends Controller {
         $dataSosialisasi->ts_deskripsi = $deskripsi;
         $dataSosialisasi->ts_tanggal = $tanggal;
         $dataSosialisasi->ts_file1 = $name1;
+        $dataSosialisasi->ts_file2 = $name2;
         $dataSosialisasi->ts_file1_tumb = $name1_tumb;
+        $dataSosialisasi->ts_file2_tumb = $name2_tumb;
         $dataSosialisasi->ts_date_insert = date('Y-m-d H:i:s');
         $dataSosialisasi->ts_user_insert = $user_id;
         $dataSosialisasi->save();
