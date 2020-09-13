@@ -9,6 +9,7 @@ use App\Provinsi;
 use App\Helpers\AppHelper;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -20,6 +21,7 @@ use App\Company;
 use App\MstStsKasus;
 use App\MstStsPegawai;
 use App\MstSosialisasiKategori;
+use Intervention\Image\ImageManagerStatic as Image;
 
 
 class MasterController extends Controller
@@ -105,7 +107,7 @@ class MasterController extends Controller
 	public function getAllCompany(){
 	    $Path = '/foto_bumn/';
 
-	    $datacache = Cache::remember("get_all_company", 360 * 60, function() {
+	    $datacache = Cache::remember("get_all_company", 360 * 60, function() use($Path) {
 	        $company = Company::all();
 
 	        foreach($company as $com){
@@ -125,7 +127,7 @@ class MasterController extends Controller
 	public function getDetailCompany($id) {
 	    $Path = '/foto_bumn/';
 
-	    $datacache = Cache::remember("get_company_by_mcid_".$id, 360 * 60, function() use ($id) {
+	    $datacache = Cache::remember("get_company_by_mcid_".$id, 360 * 60, function() use ($id,$Path) {
 	        $company = Company::join('master_sektor','ms_id','mc_msc_id')
 	        ->where('mc_id',$id)->where('ms_type','CCOVID')->get();
 
@@ -143,7 +145,56 @@ class MasterController extends Controller
         return response()->json(['status' => 200,'data' => $datacache]);
 	}
 
-	public function getAllStsKasus(){
+    //Upload Foto
+    public function uploadFotoBUMN(Request $request){
+        $this->validate($request, [
+            'kd_perusahaan' => 'required',
+            'file_foto' => 'required',
+        ]);
+
+
+        $company = Company::where('mc_id','=',($request->kd_perusahaan))->first();
+        if($company==null){
+            return response()->json(['status' => 404,'message' => 'Data Perusahaan Tidak Ditemukan'])->setStatusCode(404);
+        }
+        $kd_perusahaan = $company->mc_id;
+        $file = $request->file_foto;
+
+        $user_id = $request->user_id;
+        $tanggal= Carbon::now()->format('Y-m-d');
+
+
+        if(!Storage::exists('/public/foto_bumn')) {
+            Storage::disk('public')->makeDirectory('/foto_bumn');
+        }
+
+        //$destinationPath = base_path("storage\app\public\aktifitas/").$kd_perusahaan.'/'.$tanggal;
+        $destinationPath = storage_path().'/app/public/foto_bumn';
+        $name1 = round(microtime(true) * 1000).'.jpg';
+
+
+        if ($file != null || $file != '') {
+            $img1 = explode(',', $file);
+            $image1 = $img1[1];
+            $filedecode1 = base64_decode($image1);
+
+
+            Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($destinationPath.'/'.$name1);
+
+        }
+        $company->mc_foto = $name1;
+        $company->save();
+
+        if($company) {
+            return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+        }
+    }
+
+    public function getAllStsKasus(){
         $datacache = Cache::remember("get_all_mskasus", 360 * 60, function() {
             $mststskasus = MstStsKasus::all();
 
