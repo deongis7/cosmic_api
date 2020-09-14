@@ -25,30 +25,30 @@ class TerpaparController extends Controller {
 	public function index() {
 
 	}
-	
+
 	public function show($id) {
 
 	}
-	
+
 	public function store (Request $request) {
 
 	}
 
 	public function getCountData() {
 
-	}	
-	
+	}
+
 	public function getDataHome($id) {
 	    $terpapar = DB::select("SELECT msk_id, msk_name2,
                     CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
                     FROM master_status_kasus msk
                     LEFT JOIN (
-                        SELECT tk_msk_id, COUNT(tk_msk_id) jml 
+                        SELECT tk_msk_id, COUNT(tk_msk_id) jml
                         FROM transaksi_kasus
                         WHERE tk_mc_id='$id' AND tk_msk_id!=3
                         GROUP BY tk_msk_id
                         UNION ALL
-                        SELECT 3, COUNT(tk_msk_id) jml 
+                        SELECT 3, COUNT(tk_msk_id) jml
                         FROM transaksi_kasus
                         WHERE tk_mc_id='$id' AND tk_msk_id IN (3,4,5)
                     ) tk on tk.tk_msk_id=msk.msk_id
@@ -64,7 +64,7 @@ class TerpaparController extends Controller {
 	    return response()->json(['status' => 200,
 	        'data' => $data]);
 	}
-	
+
 	public function getDataHomeAll() {
 	   $terpapar = DB::select("SELECT msk_id, msk_name2,
                     CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
@@ -80,7 +80,7 @@ class TerpaparController extends Controller {
                         WHERE tk_msk_id IN (3,4,5)
                     ) tk on tk.tk_msk_id=msk.msk_id
                     ORDER BY msk_id");
-	    
+
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
 	            "id_kasus" => $tpp->msk_id,
@@ -91,14 +91,14 @@ class TerpaparController extends Controller {
 	    return response()->json(['status' => 200,
 	        'data' => $data]);
 	}
-	
+
 	public function getDatadetail($id, $page, $search) {
 	    if($page > 0){
 	        $page=$page-1;
 	    }else{
 	        $page=0;
 	    }
-	    
+
 	    $row = 10;
 	    $pageq = $page*$row;
 	    if($search=='all'){
@@ -112,9 +112,9 @@ class TerpaparController extends Controller {
                     LEFT JOIN master_status_pegawai msp ON msp.msp_id=tk.tk_msp_id
                     LEFT JOIN master_provinsi mpro ON mpro.mpro_id=tk.tk_mpro_id
                     LEFT JOIN master_kabupaten mkab ON mkab.mkab_id=tk.tk_mkab_id AND mkab.mkab_mpro_id=mpro.mpro_id
-                    WHERE tk_mc_id='$id' AND LOWER(tk_nama) LIKE LOWER('%$search%') 
+                    WHERE tk_mc_id='$id' AND LOWER(tk_nama) LIKE LOWER('%$search%')
                     ORDER BY tk_id");
-	    
+
 	    $terpapar = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
                     msp_name, mpro_name, mkab_name, tk_tempat_perawatan, tk_tindakan
                     FROM transaksi_kasus tk
@@ -126,10 +126,10 @@ class TerpaparController extends Controller {
                     WHERE tk_mc_id='$id' AND LOWER(tk_nama) LIKE LOWER('%$search%')
                     ORDER BY tk_id
 					OFFSET $pageq LIMIT $row");
-	    
+
 	    $cntterpaparall = count($terpaparall);
 	    $pageend = ceil($cntterpaparall/$row);
-	    
+
 	    if (count($terpapar) > 0){
 	        foreach($terpapar as $tpp){
 	            $data[] = array(
@@ -151,7 +151,7 @@ class TerpaparController extends Controller {
 	    }
 	    return response()->json(['status' => 200, 'page_end'=>$pageend, 'data' => $data]);
 	}
-	
+
 	public function InsertKasus(Request $request) {
 	    $data = new TrnKasus();
 
@@ -166,10 +166,10 @@ class TerpaparController extends Controller {
 	            'tindakan' => 'required',
 	            'tanggal' => 'required',
 	        ]);
-	        
+
 	        $tgl = strtotime($request->tanggal);
 	        $tanggal = date('Y-m-d',$tgl);
-	       
+
 	        if($request->jenis_kasus==5){
                 $data->tk_date_meninggal = $tanggal;
                 $data->tk_date = $tanggal;
@@ -210,7 +210,7 @@ class TerpaparController extends Controller {
 	        return response()->json(['status' => 500,'message' => 'Data Kasus Pegawai diSimpan'])->setStatusCode(500);
 	    }
 	}
-	
+
 	public function UpdateKasus(Request $request, $id){
 	    $data = TrnKasus::where('tk_id',$id)->first();
 	    if($request->jenis_kasus > 2){
@@ -224,10 +224,10 @@ class TerpaparController extends Controller {
 	            'tindakan' => 'required',
 	            'tanggal' => 'required'
 	        ]);
-	        
+
 	        $tgl = strtotime($request->tanggal);
 	        $tanggal = date('Y-m-d',$tgl);
-	        
+
 	        if($request->jenis_kasus==5){
 	            $data->tk_date_meninggal = $tanggal;
 	            $data->tk_date = $tanggal;
@@ -249,7 +249,7 @@ class TerpaparController extends Controller {
 	            'tindakan' => 'required',
 	        ]);
 	    }
-	    
+
 	    $data->tk_mc_id = $request->kd_perusahaan;
 	    $data->tk_nama = $request->nama_pasien;
 	    $data->tk_msk_id = $request->jenis_kasus;
@@ -261,14 +261,14 @@ class TerpaparController extends Controller {
 	    $data->tk_user_update = Auth::guard('api')->user()->id;
 	    $data->tk_date_update = date('d-m-Y H:i:s');
 	    $data->save();
-	    
+
 	    if($data->save()){
 	        return response()->json(['status' => 200,'message' => 'Data Kasus Pegawai Berhasil diUpdate']);
 	    } else {
 	        return response()->json(['status' => 500,'message' => 'Data Kasus Pegawai diUpdate'])->setStatusCode(500);
 	    }
 	}
-	
+
 	public function getDataByid($id) {
 	    $terpapar = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
                     msp_name, mpro_name, mkab_name, tk_tempat_perawatan, tk_tindakan,
@@ -280,7 +280,7 @@ class TerpaparController extends Controller {
                     LEFT JOIN master_provinsi mpro ON mpro.mpro_id=tk.tk_mpro_id
                     LEFT JOIN master_kabupaten mkab ON mkab.mkab_id=tk.tk_mkab_id AND mkab.mkab_mpro_id=mpro.mpro_id
                     WHERE tk_id=$id");
-	    
+
 	    if (count($terpapar) > 0){
 	        foreach($terpapar as $tpp){
 	            $data[] = array(
@@ -303,12 +303,25 @@ class TerpaparController extends Controller {
 	        return response()->json(['status' => 200,'data' => $data]);
 	    }else{
 	        return response()->json(['status' => 404,'message' => 'Tidak ada data'])->setStatusCode(404);
-	    }	
+	    }
 	}
+
+    public function deleteKasus($id_kasus) {
+        $data = TrnKasus::where('tk_id',$id_kasus)->delete();
+
+        if ($data){
+            return response()->json(['status' => 200,'message' => 'Data Berhasil DiHapus']);
+        }  else if($data==null){
+            return response()->json(['status' => 404,'message' => 'Data Perusahaan Tidak Ditemukan'])->setStatusCode(404);
+        }
+        else{
+            return response()->json(['status' => 500,'message' => 'Data Gagal Dihapus'])->setStatusCode(500);
+        }
+    }
 
 	public function getDashboardCompanybyMskid($id) {
 	    $terpapar = DB::select("SELECT * FROM allkasus_company_bymskid($id)");
-	    
+
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
 	            "mc_id" => $tpp->x_mc_id,
@@ -319,10 +332,10 @@ class TerpaparController extends Controller {
 	    return response()->json(['status' => 200,
 	        'data' => $data]);
 	}
-	
+
 	public function getDashboardProvinsibyMskid($id) {
 	    $terpapar = DB::select("SELECT * FROM allkasus_provinsi_bymskid($id)");
-	    
+
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
 	            "mpro_id" => $tpp->x_mpro_id,
@@ -333,7 +346,7 @@ class TerpaparController extends Controller {
 	    return response()->json(['status' => 200,
 	        'data' => $data]);
 	}
-	
+
 	public function getDashboardKabupatenbyMskid($id) {
 	    $terpapar = DB::select("SELECT * FROM allkasus_kabupaten_bymskid($id)");
 	   // var_dump($terpapar);die;

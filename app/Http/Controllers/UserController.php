@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 
+use App\TrnAktifitasFile;
 use App\User;
 use App\UserGroup;
 use App\Helpers\AppHelper;
