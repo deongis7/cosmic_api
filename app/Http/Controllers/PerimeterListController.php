@@ -57,6 +57,7 @@ class PerimeterListController extends Controller
         $role_id = null;
         $limit = null;
         $page = null;
+        $monitoring = null;
         $nik = $request->nik;
         $str = "get_perimeterlist_by_perusahaan_". $kd_perusahaan;
 
@@ -64,6 +65,10 @@ class PerimeterListController extends Controller
             $str = $str.'_nik_'. $nik;
             $user = User::where('username', $nik)->first();
             $str_fnc[]=$nik;
+        }
+        if(isset($monitoring)){
+            $str = $str.'_monitoring_'. $monitoring;
+            $str_fnc[]=$monitoring;
         }
         if(isset($request->limit)){
             $str = $str.'_limit_'. $request->limit;
@@ -74,7 +79,7 @@ class PerimeterListController extends Controller
             }
         }
         //dd($str_fnc);
-        $datacache = Cache::remember($str, 15 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page) {
+        $datacache = Cache::remember($str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring) {
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
@@ -127,19 +132,52 @@ class PerimeterListController extends Controller
 
 
                 //dd($status['status']);
-                $data[] = array(
-                    "id_region" => $itemperimeter->mr_id,
-                    "region" => $itemperimeter->mr_name,
-                    "id_perimeter" => $itemperimeter->mpm_id,
-                    "nama_perimeter" => $itemperimeter->mpm_name,
-                    "alamat" => $itemperimeter->mpm_name,
-                    "kategori" => $itemperimeter->mpmk_name,
-                    "status_monitoring" => ($status['status']),
-                    "percentage" => ($status['percentage']),
-                    "provinsi" => $itemperimeter->mpro_name,
-                    "kabupaten" => $itemperimeter->mkab_name,
+                if(isset($monitoring)){
+                    if($monitoring==true && $status['status']==true){
+                        $data[] = array(
+                            "id_region" => $itemperimeter->mr_id,
+                            "region" => $itemperimeter->mr_name,
+                            "id_perimeter" => $itemperimeter->mpm_id,
+                            "nama_perimeter" => $itemperimeter->mpm_name,
+                            "alamat" => $itemperimeter->mpm_name,
+                            "kategori" => $itemperimeter->mpmk_name,
+                            "status_monitoring" => ($status['status']),
+                            "percentage" => ($status['percentage']),
+                            "provinsi" => $itemperimeter->mpro_name,
+                            "kabupaten" => $itemperimeter->mkab_name,
 
-                );
+                        );
+                    } else if ($monitoring==false && $status['status']==false){
+                        $data[] = array(
+                            "id_region" => $itemperimeter->mr_id,
+                            "region" => $itemperimeter->mr_name,
+                            "id_perimeter" => $itemperimeter->mpm_id,
+                            "nama_perimeter" => $itemperimeter->mpm_name,
+                            "alamat" => $itemperimeter->mpm_name,
+                            "kategori" => $itemperimeter->mpmk_name,
+                            "status_monitoring" => ($status['status']),
+                            "percentage" => ($status['percentage']),
+                            "provinsi" => $itemperimeter->mpro_name,
+                            "kabupaten" => $itemperimeter->mkab_name,
+
+                        );
+                    }
+                } else {
+                    $data[] = array(
+                        "id_region" => $itemperimeter->mr_id,
+                        "region" => $itemperimeter->mr_name,
+                        "id_perimeter" => $itemperimeter->mpm_id,
+                        "nama_perimeter" => $itemperimeter->mpm_name,
+                        "alamat" => $itemperimeter->mpm_name,
+                        "kategori" => $itemperimeter->mpmk_name,
+                        "status_monitoring" => ($status['status']),
+                        "percentage" => ($status['percentage']),
+                        "provinsi" => $itemperimeter->mpro_name,
+                        "kabupaten" => $itemperimeter->mkab_name,
+
+                    );
+                }
+
                 //if ($status['status'] == true) {
                   //  $totalpmmonitoring++;
                 //}
