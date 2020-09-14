@@ -351,7 +351,7 @@ class SosialisasiController extends Controller {
         $name2_tumb = NULL;
         if(isset($request->file_sosialisasi2)){
             if ($request->file_sosialisasi2 != null || $request->file_sosialisasi2 != '') {
-                $img2 = explode(',', $file2);
+                $img2 = explode(',', $r_file2);
                 $image2 = $img2[1];
                 $filedecode2 = base64_decode($image2);
                 $name2 = round(microtime(true) * 1000).'.jpg';
@@ -535,7 +535,7 @@ class SosialisasiController extends Controller {
         $name2_tumb = NULL;
         if(isset($request->file_sosialisasi2)){
             if ($request->file_sosialisasi2 != null || $request->file_sosialisasi2 != '') {
-                $img2 = explode(',', $file2);
+                $img2 = explode(',', $r_file2);
                 $image2 = $img2[1];
                 $filedecode2 = base64_decode($image2);
                 $name2 = round(microtime(true) * 1000).'.jpg';
