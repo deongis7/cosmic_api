@@ -155,7 +155,7 @@ class TerpaparController extends Controller {
 	public function InsertKasus(Request $request) {
 	    $data = new TrnKasus();
 
-	    if($request->jenis_kasus > 2){
+	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
 	        $this->validate($request, [
 	            'kd_perusahaan' => 'required',
 	            'nama_pasien' => 'required',
@@ -213,7 +213,7 @@ class TerpaparController extends Controller {
 
 	public function UpdateKasus(Request $request, $id){
 	    $data = TrnKasus::where('tk_id',$id)->first();
-	    if($request->jenis_kasus > 2){
+	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
 	        $this->validate($request, [
 	            'kd_perusahaan' => 'required',
 	            'nama_pasien' => 'required',
@@ -309,6 +309,7 @@ class TerpaparController extends Controller {
     public function deleteKasus($id_kasus) {
         $data = TrnKasus::where('tk_id',$id_kasus)->delete();
 
+        
         if ($data){
             return response()->json(['status' => 200,'message' => 'Data Berhasil DiHapus']);
         }  else if($data==null){
