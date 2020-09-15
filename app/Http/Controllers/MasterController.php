@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Kota;
+use App\PerimeterKategori;
 use App\Provinsi;
 
 use App\Helpers\AppHelper;
@@ -106,7 +107,7 @@ class MasterController extends Controller
 
 	public function getAllCompany(){
 	    $Path = '/foto_bumn/';
-
+        $data=[];
 	    $datacache = Cache::remember("get_all_company", 360 * 60, function() use($Path) {
 	        $company = Company::all();
 
@@ -128,9 +129,9 @@ class MasterController extends Controller
 	    $Path = '/foto_bumn/';
 
 	    $datacache = Cache::remember("get_company_by_mcid_".$id, 360 * 60, function() use ($id,$Path) {
-	        $company = Company::join('master_sektor','ms_id','mc_msc_id')
+	        $company = Company::leftJoin('master_sektor','ms_id','mc_msc_id')
 	        ->where('mc_id',$id)->where('ms_type','CCOVID')->get();
-
+            $data=[];
 	        foreach($company as $com){
 	            $data[] = array(
 	                "id_perusahaan" => $com->mc_id,
@@ -239,5 +240,24 @@ class MasterController extends Controller
             return $data;
         });
             return response()->json(['status' => 200,'data' => $datacache]);
+    }
+
+    public function getKategoriPerimeter(){
+
+        $data=[];
+        $datacache = Cache::remember("get_all_perimeter_kategori", 360 * 60, function()  {
+            $kat = PerimeterKategori::orderBy("mpmk_name","asc")->get();
+
+            foreach($kat as $itemkat){
+                $data[] = array(
+                    "id_kategori_perimeter" => $itemkat->mpmk_id,
+                    "nama_kategori_perimeter" => $itemkat->mpmk_name,
+
+                );
+            }
+            return $data;
+        });
+
+        return response()->json(['status' => 200,'data' => $datacache]);
     }
 }

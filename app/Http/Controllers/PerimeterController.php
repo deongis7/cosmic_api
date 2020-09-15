@@ -168,44 +168,67 @@ class PerimeterController extends Controller
 	}
 
 	//Get Perimeter per Region
-	public function getPerimeterbyRegion($id){
-		$data = array();
-		$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name',
-		    'master_perimeter_level.mpml_id','master_perimeter.mpm_name',
-		    'master_perimeter.mpm_alamat','master_perimeter_level.mpml_name',
-		    'master_perimeter_level.mpml_ket','master_perimeter_kategori.mpmk_name',
-		    'userpic.username as nik_pic','userpic.first_name as pic',
-		    'userfo.username as nik_fo','userfo.first_name as fo',
-		    'master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
-					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
-					->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
-					->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
-					->leftjoin('app_users as userpic','userpic.username','master_perimeter_level.mpml_pic_nik')
-					->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
-					->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
-					->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id')
-					->where('master_region.mr_id',$id)
-					->orderBy('master_region.mr_name', 'asc')
-					->orderBy('master_perimeter.mpm_name', 'asc')
-					->orderBy('master_perimeter_level.mpml_name', 'asc')
-					->get();
-		foreach($perimeter as $itemperimeter){
-			$data[] = array(
-					"id_perimeter_level" => $itemperimeter->mpml_id,
-					"nama_perimeter" => $itemperimeter->mpm_name.' - '.$itemperimeter->mpml_name,
-					"level" => $itemperimeter->mpml_name,
-					"keterangan" => $itemperimeter->mpml_ket,
-					"alamat" => $itemperimeter->mpm_name,
-					"kategori" => $itemperimeter->mpmk_name,
-					"nik_pic" => $itemperimeter->nik_pic,
-					"pic" => $itemperimeter->pic,
-					"nik_fo" => $itemperimeter->nik_fo,
-					"fo" => $itemperimeter->fo,
-			        "provinsi" => $itemperimeter->mpro_name,
-			        "kabupaten" => $itemperimeter->mkab_name,
-				);
-		}
-		return response()->json(['status' => 200,'data' => $data]);
+	public function getPerimeterbyRegion($id,Request $request){
+        $limit = null;
+        $page = null;
+        $str = "get_perimeter_by_region_". $id;
+        if(isset($request->limit)){
+            $str = $str.'_limit_'. $request->limit;
+            $limit=$request->limit;
+            if(isset($request->page)){
+                $str = $str.'_page_'. $request->page;
+                $page=$request->page;
+            }
+        }
+
+        $datacache = Cache::remember($str, 10 * 60, function()use($id,$limit,$page) {
+            $data = array();
+            $perimeter = Perimeter::select('master_region.mr_id', 'master_region.mr_name',
+                'master_perimeter_level.mpml_id', 'master_perimeter.mpm_name',
+                'master_perimeter.mpm_alamat', 'master_perimeter_level.mpml_name',
+                'master_perimeter_level.mpml_ket', 'master_perimeter_kategori.mpmk_name',
+                'userpic.username as nik_pic', 'userpic.first_name as pic',
+                'userfo.username as nik_fo', 'userfo.first_name as fo',
+                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
+                ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
+                ->join('master_region', 'master_region.mr_id', 'master_perimeter.mpm_mr_id')
+                ->join('master_perimeter_kategori', 'master_perimeter_kategori.mpmk_id', 'master_perimeter.mpm_mpmk_id')
+                ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
+                ->leftjoin('app_users as userfo', 'userfo.username', 'master_perimeter_level.mpml_me_nik')
+                ->leftjoin('master_provinsi', 'master_provinsi.mpro_id', 'master_perimeter.mpm_mpro_id')
+                ->leftjoin('master_kabupaten', 'master_kabupaten.mkab_id', 'master_perimeter.mpm_mkab_id')
+                ->where('master_region.mr_id', $id)
+                ->orderBy('master_perimeter.mpm_name', 'asc')
+                ->orderBy('master_perimeter_level.mpml_name', 'asc');
+            if(isset($limit)) {
+                $perimeter = $perimeter->limit($limit);
+
+                if (isset($page)) {
+                    $offset = ((int)$page -1) * (int)$limit;
+                    $perimeter = $perimeter->offset($offset);
+                }
+            }
+            $perimeter =$perimeter->get();
+
+            foreach ($perimeter as $itemperimeter) {
+                $data[] = array(
+                    "id_perimeter_level" => $itemperimeter->mpml_id,
+                    "nama_perimeter" => $itemperimeter->mpm_name . ' - ' . $itemperimeter->mpml_name,
+                    "level" => $itemperimeter->mpml_name,
+                    "keterangan" => $itemperimeter->mpml_ket,
+                    "alamat" => $itemperimeter->mpm_name,
+                    "kategori" => $itemperimeter->mpmk_name,
+                    "nik_pic" => $itemperimeter->nik_pic,
+                    "pic" => $itemperimeter->pic,
+                    "nik_fo" => $itemperimeter->nik_fo,
+                    "fo" => $itemperimeter->fo,
+                    "provinsi" => $itemperimeter->mpro_name,
+                    "kabupaten" => $itemperimeter->mkab_name,
+                );
+            }
+            return $data;
+        });
+		return response()->json(['status' => 200,'data' => $datacache]);
 
 	}
 

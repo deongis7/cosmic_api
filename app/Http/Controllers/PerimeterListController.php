@@ -57,6 +57,8 @@ class PerimeterListController extends Controller
         $role_id = null;
         $limit = null;
         $page = null;
+        $monitoring = $request->monitoring;
+
         $nik = $request->nik;
         $str = "get_perimeterlist_by_perusahaan_". $kd_perusahaan;
 
@@ -64,6 +66,10 @@ class PerimeterListController extends Controller
             $str = $str.'_nik_'. $nik;
             $user = User::where('username', $nik)->first();
             $str_fnc[]=$nik;
+        }
+        if(isset($monitoring)){
+            $str = $str.'_monitoring_'. $monitoring;
+            $str_fnc[]=$monitoring;
         }
         if(isset($request->limit)){
             $str = $str.'_limit_'. $request->limit;
@@ -73,9 +79,8 @@ class PerimeterListController extends Controller
                 $page=$request->page;
             }
         }
-        //dd($str_fnc);
-        $datacache = Cache::remember($str, 15 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page) {
-
+        //dd($str);
+        $datacache = Cache::remember($str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
 
@@ -125,21 +130,63 @@ class PerimeterListController extends Controller
                     ->where('master_perimeter_level.mpml_mpm_id',$itemperimeter->mpm_id)->count();
                 $status = $this->getStatusMonitoringPerimeter($itemperimeter->mpm_id, $role_id, $cluster);
 
+$status_monitoring = ($status['status']);
 
-                //dd($status['status']);
-                $data[] = array(
-                    "id_region" => $itemperimeter->mr_id,
-                    "region" => $itemperimeter->mr_name,
-                    "id_perimeter" => $itemperimeter->mpm_id,
-                    "nama_perimeter" => $itemperimeter->mpm_name,
-                    "alamat" => $itemperimeter->mpm_name,
-                    "kategori" => $itemperimeter->mpmk_name,
-                    "status_monitoring" => ($status['status']),
-                    "percentage" => ($status['percentage']),
-                    "provinsi" => $itemperimeter->mpro_name,
-                    "kabupaten" => $itemperimeter->mkab_name,
+                if(isset($monitoring)) {
+                    //dd('tes1');
+                    if ($monitoring == 'true') {
+                        if ($status['status'] == true) {
+                            $data[] = array(
+                                "id_region" => $itemperimeter->mr_id,
+                                "region" => $itemperimeter->mr_name,
+                                "id_perimeter" => $itemperimeter->mpm_id,
+                                "nama_perimeter" => $itemperimeter->mpm_name,
+                                "alamat" => $itemperimeter->mpm_name,
+                                "kategori" => $itemperimeter->mpmk_name,
+                                "status_monitoring" => ($status['status']),
+                                "percentage" => ($status['percentage']),
+                                "provinsi" => $itemperimeter->mpro_name,
+                                "kabupaten" => $itemperimeter->mkab_name,
 
-                );
+                            );
+                        }
+
+                    } else if ($monitoring == 'false') {
+
+                        if ($status['status'] == false) {
+                            //dd('tes');
+                            $data[] = array(
+                                "id_region" => $itemperimeter->mr_id,
+                                "region" => $itemperimeter->mr_name,
+                                "id_perimeter" => $itemperimeter->mpm_id,
+                                "nama_perimeter" => $itemperimeter->mpm_name,
+                                "alamat" => $itemperimeter->mpm_name,
+                                "kategori" => $itemperimeter->mpmk_name,
+                                "status_monitoring" => ($status['status']),
+                                "percentage" => ($status['percentage']),
+                                "provinsi" => $itemperimeter->mpro_name,
+                                "kabupaten" => $itemperimeter->mkab_name,
+
+                            );
+                        }
+                    }
+                } else {
+                    //dd('tesa');
+                    $data[] = array(
+                        "id_region" => $itemperimeter->mr_id,
+                        "region" => $itemperimeter->mr_name,
+                        "id_perimeter" => $itemperimeter->mpm_id,
+                        "nama_perimeter" => $itemperimeter->mpm_name,
+                        "alamat" => $itemperimeter->mpm_name,
+                        "kategori" => $itemperimeter->mpmk_name,
+                        "status_monitoring" => ($status['status']),
+                        "percentage" => ($status['percentage']),
+                        "provinsi" => $itemperimeter->mpro_name,
+                        "kabupaten" => $itemperimeter->mkab_name,
+
+                    );
+                }
+
                 //if ($status['status'] == true) {
                   //  $totalpmmonitoring++;
                 //}
@@ -164,6 +211,8 @@ class PerimeterListController extends Controller
     //Get Perimeter Level by Perimeter
     public function getPerimeterLevelListbyPerimeter($id_perimeter,Request $request){
 
+        $limit = null;
+        $page = null;
         $user = null;
         $role_id = null;
         $nik = $request->nik;
@@ -174,8 +223,17 @@ class PerimeterListController extends Controller
             $user = User::where('username', $nik)->first();
             $str_fnc[]=$nik;
         }
+        if(isset($request->limit)){
+            $str = $str.'_limit_'. $request->limit;
+            $limit=$request->limit;
+            if(isset($request->page)){
+                $str = $str.'_page_'. $request->page;
+                $page=$request->page;
+            }
+        }
+        //dd($str);
         //dd($str_fnc);
-        $datacache = Cache::remember($str, 5 * 60, function()use($id_perimeter,$nik,$user,$role_id) {
+        $datacache = Cache::remember($str, 5 * 60, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page) {
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
@@ -198,7 +256,16 @@ class PerimeterListController extends Controller
 
             $perimeter = $perimeter->where('master_perimeter.mpm_id', $id_perimeter)
                 ->orderBy('master_perimeter.mpm_name', 'asc')
-                ->orderBy('master_perimeter_level.mpml_name', 'asc')->get();
+                ->orderBy('master_perimeter_level.mpml_name', 'asc');
+            if(isset($limit)) {
+                $perimeter = $perimeter->limit($limit);
+
+                if (isset($page)) {
+                    $offset = ((int)$page -1) * (int)$limit;
+                    $perimeter = $perimeter->offset($offset);
+                }
+            }
+            $perimeter = $perimeter->get();
             $totalperimeter = $perimeter->count();
             $totalpmmonitoring = 0;
 
@@ -234,6 +301,53 @@ class PerimeterListController extends Controller
             );
 
             return array('status' => 200, 'data_dashboard' => $dashboard, 'data' => $data);
+
+        });
+        return response()->json($datacache);
+
+    }
+
+    //Get Region
+    public function getRegionList($kd_perusahaan,Request $request){
+//dd($kd_perusahaaan);
+        $limit = null;
+        $page = null;
+        $str = "get_regionlist_". $kd_perusahaan;
+        if(isset($request->limit)){
+            $str = $str.'_limit_'. $request->limit;
+            $limit=$request->limit;
+            if(isset($request->page)){
+                $str = $str.'_page_'. $request->page;
+                $page=$request->page;
+            }
+        }
+        //dd($str);
+        $datacache = Cache::remember($str, 50 * 60, function()use($kd_perusahaan,$page,$limit) {
+
+            $data = array();
+
+            $region = Region::where( 'mr_mc_id', '=', $kd_perusahaan)->orderBy('mr_name','asc');
+
+            if(isset($limit)) {
+                $region = $region->limit($limit);
+
+                     if (isset($page)) {
+                         $offset = ((int)$page -1) * (int)$limit;
+                         $region = $region->offset($offset);
+                     }
+            }
+            $region = $region->get();
+
+            foreach ($region as $itemregion) {
+
+                //dd($status['status']);
+                $data[] = array(
+                    "id_region" => $itemregion->mr_id,
+                    "nama_region" => $itemregion->mr_name,
+                );
+            }
+
+            return array('status' => 200,  'data' => $data);
 
         });
         return response()->json($datacache);
@@ -357,6 +471,15 @@ class PerimeterListController extends Controller
 
         });
         return ($datacache);
+
+    }
+
+    //Get Jumlah Perimeter List
+    public function getStatusPerimeterLevel($kd_perusahaan, Request $request){
+
+        $nik = $request->nik;
+       $data = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+        return response()->json(['status' => 200 ,'data' => $data]);
 
     }
 
@@ -573,6 +696,51 @@ class PerimeterListController extends Controller
                 return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
 
             }
+
+
+
+
+    }
+
+    //Get Perimeter Detail
+    public function updateDetailPerimeter(Request $request){
+        $this->validate($request, [
+            'id_perimeter_level' => 'required',
+            'nik_fo' => 'required',
+            'nik_pic' => 'required',
+            'id_kategori_perimeter' => 'required'
+        ]);
+
+        $data = array();
+
+        //Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
+        $perimeterlevel = PerimeterLevel::where('mpml_id',$request->id_perimeter_level)->first();
+
+
+        if ($perimeterlevel!= null){
+            $perimeter = Perimeter::where('mpm_id',$perimeterlevel->mpml_mpm_id)->first();
+            if ($perimeter!= null){
+                $perimeterlevel->mpml_ket = $request->keterangan;
+                $perimeterlevel->mpml_me_nik = $request->nik_fo;
+                $perimeterlevel->mpml_pic_nik = $request->nik_pic;
+                $perimeter->mpm_mpmk_id = $request->id_kategori_perimeter;
+                if($perimeter->save()){
+                    $perimeterlevel->save();
+                    return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+
+                } else {
+                    return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+                }
+
+            } else {
+                return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+
+            }
+        } else {
+            return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+        }
+
+
 
 
 

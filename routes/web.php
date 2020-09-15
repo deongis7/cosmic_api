@@ -47,6 +47,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/perimeter/{kd_perusahaan}/kota/{id_kota}', 'PerimeterController@getPerimeterbyKota');
 	$router->get('/perimeter_level/perimeter/{id_perimeter}', 'PerimeterController@getLevelbyPerimeter');
 	$router->post('/perimeter_level/update', 'PerimeterController@updateDetailPerimeterLevel');
+	$router->post('/perimeter/update', 'PerimeterListController@updateDetailPerimeter');
+
+
 
 	//TaskForce
 	$router->get('/taskforce/count/{id}', 'PerimeterController@getCountTaskForce');
@@ -115,8 +118,11 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//PerimeterList
     $router->get('/list_perimeter_level/perimeter/{id_perimeter}', 'PerimeterListController@getPerimeterLevelListbyPerimeter');
     $router->get('/list_perimeter/{kd_perusahaan}', 'PerimeterListController@getPerimeterList');
-    //$router->get('/list_perimeter_level/count/{kd_perusahaan}', 'PerimeterListController@getJumlahPerimeterLevel');
+    $router->get('/list_perimeter_level/count/{kd_perusahaan}', 'PerimeterListController@getStatusPerimeterLevel');
     $router->get('/list_perimeter/detail/{id_perimeter}', 'PerimeterListController@getPerimeterDetail');
+
+    //Region
+    $router->get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
 
 	//Kota
 	$router->get('/kota', 'MasterController@getAllKota');
@@ -127,6 +133,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/stskasus', 'MasterController@getAllStsKasus');
 	$router->get('/stspegawai', 'MasterController@getAllStsPegawai');
 	$router->get('/sosialisasikategori', 'MasterController@getAllSosialisasiKategori');
+	$router->get('/perimeterkategori', 'MasterController@getKategoriPerimeter');
 
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
