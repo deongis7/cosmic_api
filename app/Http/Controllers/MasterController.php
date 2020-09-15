@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Kota;
+use App\PerimeterKategori;
 use App\Provinsi;
 
 use App\Helpers\AppHelper;
@@ -239,5 +240,24 @@ class MasterController extends Controller
             return $data;
         });
             return response()->json(['status' => 200,'data' => $datacache]);
+    }
+
+    public function getKategoriPerimeter(){
+
+        $data=[];
+        $datacache = Cache::remember("get_all_perimeter_kategori", 360 * 60, function()  {
+            $kat = PerimeterKategori::orderBy("mpmk_name","asc")->get();
+
+            foreach($kat as $itemkat){
+                $data[] = array(
+                    "id_kategori_perimeter" => $itemkat->mpmk_id,
+                    "nama_kategori_perimeter" => $itemkat->mpmk_name,
+
+                );
+            }
+            return $data;
+        });
+
+        return response()->json(['status' => 200,'data' => $datacache]);
     }
 }
