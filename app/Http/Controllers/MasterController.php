@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\ClusterRuangan;
 use App\Kota;
 use App\PerimeterKategori;
 use App\Provinsi;
@@ -252,6 +253,25 @@ class MasterController extends Controller
                 $data[] = array(
                     "id_kategori_perimeter" => $itemkat->mpmk_id,
                     "nama_kategori_perimeter" => $itemkat->mpmk_name,
+
+                );
+            }
+            return $data;
+        });
+
+        return response()->json(['status' => 200,'data' => $datacache]);
+    }
+
+    public function getClusterRuangan(){
+
+        $data=[];
+        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_cluster_ruangan", 360 * 60, function()  {
+            $mcr = ClusterRuangan::orderBy("mcr_name","asc")->get();
+
+            foreach($mcr as $itemmcr){
+                $data[] = array(
+                    "id_cluster_ruangan" => $itemmcr->mcr_id,
+                    "cluster_ruangan" => $itemmcr->mcr_name,
 
                 );
             }

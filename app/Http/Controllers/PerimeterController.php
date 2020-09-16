@@ -706,6 +706,7 @@ class PerimeterController extends Controller
 	//Get Perimeter Detail
 	public function getDetailPerimeter($id_perimeter_level){
 		$data = array();
+        $datacluster=[];
 		$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
 		    'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
 		    'master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket',
@@ -724,7 +725,20 @@ class PerimeterController extends Controller
 					->first();
 
 		if ($perimeter != null){
+            $cluster = DB::select( "SELECT tpd.tpmd_mpml_id,mcr.mcr_id, mcr.mcr_name,count(tpd.tpmd_order) as jumlah FROM  master_cluster_ruangan mcr
+                    inner join table_perimeter_detail tpd on tpd.tpmd_mcr_id =mcr.mcr_id and tpd.tpmd_cek=true
+                    where tpd.tpmd_mpml_id = ?
+                    group by tpd.tpmd_mpml_id,mcr.mcr_id, mcr.mcr_name
+                    order by tpd.tpmd_mpml_id asc, mcr.mcr_name asc", [$id_perimeter_level]);
 
+            foreach($cluster as $itemcluster){
+                $datacluster[] = array (
+                    "id_perimeter_level" => $id_perimeter_level,
+                    "id_cluster_ruangan" => $itemcluster->mcr_id,
+                    "cluster_ruangan" => $itemcluster->mcr_name,
+                    "jumlah" => $itemcluster->jumlah,
+                );
+            }
 
 			$data = array (
 					"id_region" => $perimeter->mr_id,
@@ -743,6 +757,7 @@ class PerimeterController extends Controller
 			        "provinsi" => $perimeter->mpro_name,
 			        "id_kota" => $perimeter->mkab_id,
 			        "kabupaten" => $perimeter->mkab_name,
+			        "cluster" => $datacluster
 			);
 			return response()->json(['status' => 200,'data' => $data]);
 		} else {

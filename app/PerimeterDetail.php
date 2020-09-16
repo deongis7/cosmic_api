@@ -12,6 +12,6 @@ class PerimeterDetail extends Model
 	protected $primaryKey = 'tpmd_id';
 	public $timestamps = false;
 	protected $fillable = [
-        'tpmd_mpml_id', 'tpmd_mcr_id','tpmd_cek','tpmd_jml'
+        'tpmd_mpml_id', 'tpmd_mcr_id','tpmd_cek','tpmd_order'
     ];
 }
