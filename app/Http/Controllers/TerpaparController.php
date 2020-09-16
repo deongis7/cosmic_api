@@ -114,7 +114,10 @@ class TerpaparController extends Controller {
                     LEFT JOIN master_kabupaten mkab ON mkab.mkab_id=tk.tk_mkab_id AND mkab.mkab_mpro_id=mpro.mpro_id
                     WHERE tk_mc_id='$id' AND LOWER(tk_nama) LIKE LOWER('%$search%') ";
         if(isset($request->status_kasus)){
-            $query = $query . " and tk_msk_id = " .$request->status_kasus;
+            if(($request->status_kasus != 'null' && $request->status_kasus != 'undefined')){
+                $query = $query . " and tk_msk_id = " .$request->status_kasus;
+            }
+
         }
 	    $query = $query . " ORDER BY tk_id ";
 	    $terpaparall = DB::select($query);
