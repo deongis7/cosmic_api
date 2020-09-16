@@ -60,7 +60,7 @@ class PerimeterListController extends Controller
         $monitoring = $request->monitoring;
 
         $nik = $request->nik;
-        $str = "get_perimeterlist_by_perusahaan_". $kd_perusahaan;
+        $str = "_get_perimeterlist_by_perusahaan_". $kd_perusahaan;
 
         if(isset($nik)){
             $str = $str.'_nik_'. $nik;
@@ -80,7 +80,7 @@ class PerimeterListController extends Controller
             }
         }
         //dd($str);
-        $datacache = Cache::remember($str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
 
@@ -216,7 +216,7 @@ $status_monitoring = ($status['status']);
         $user = null;
         $role_id = null;
         $nik = $request->nik;
-        $str = "get_perimeterlevellist_by_perimeter_". $id_perimeter;
+        $str = "_get_perimeterlevellist_by_perimeter_". $id_perimeter;
 
         if(isset($nik)){
             $str = $str.'_nik_'. $nik;
@@ -233,7 +233,7 @@ $status_monitoring = ($status['status']);
         }
         //dd($str);
         //dd($str_fnc);
-        $datacache = Cache::remember($str, 5 * 60, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page) {
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
@@ -312,7 +312,7 @@ $status_monitoring = ($status['status']);
 //dd($kd_perusahaaan);
         $limit = null;
         $page = null;
-        $str = "get_regionlist_". $kd_perusahaan;
+        $str = "_get_regionlist_". $kd_perusahaan;
         if(isset($request->limit)){
             $str = $str.'_limit_'. $request->limit;
             $limit=$request->limit;
@@ -322,7 +322,7 @@ $status_monitoring = ($status['status']);
             }
         }
         //dd($str);
-        $datacache = Cache::remember($str, 50 * 60, function()use($kd_perusahaan,$page,$limit) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 50 * 60, function()use($kd_perusahaan,$page,$limit) {
 
             $data = array();
 
@@ -420,7 +420,7 @@ $status_monitoring = ($status['status']);
         $user = null;
         $role_id = null;
         $nik = $nik;
-        $str = "get_jumlah_perimeterlevellist_by_perimeter_". $kd_perusahaan;
+        $str = "_get_jumlah_perimeterlevellist_by_perimeter_". $kd_perusahaan;
 
         if(isset($nik)){
             $str = $str.'_nik_'. $nik;
@@ -428,7 +428,7 @@ $status_monitoring = ($status['status']);
             $str_fnc[]=$nik;
         }
         //dd($str_fnc);
-        $datacache = Cache::remember($str, 40 * 60, function()use($kd_perusahaan,$nik,$user,$role_id) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 40 * 60, function()use($kd_perusahaan,$nik,$user,$role_id) {
 
 
             $data = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
