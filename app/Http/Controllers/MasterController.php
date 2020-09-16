@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Kota;
+use App\PerimeterKategori;
 use App\Provinsi;
 
 use App\Helpers\AppHelper;
@@ -50,7 +51,7 @@ class MasterController extends Controller
 	}
 
 	public function getAllKota(){
-		$datacache = Cache::remember("get_all_kota", 360 * 60, function() {
+		$datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_kota", 360 * 60, function() {
 			$kota = Kota::join('master_provinsi','mpro_id','mkab_mpro_id')->orderBy('mkab_name','asc')->get();
 
 			foreach($kota as $itemkota){
@@ -68,7 +69,7 @@ class MasterController extends Controller
 	}
 
 	public function getKotaByProvinsi($id_provinsi){
-		$datacache = Cache::remember("get_kota_by_prov_".$id_provinsi, 360 * 60, function() use ($id_provinsi) {
+		$datacache = Cache::remember(env('APP_ENV', 'dev')."_get_kota_by_prov_".$id_provinsi, 360 * 60, function() use ($id_provinsi) {
 			$kota = Kota::join('master_provinsi','mpro_id','mkab_mpro_id')
 							->where('mkab_mpro_id',$id_provinsi)
 							->orderBy('mkab_name','asc')->get();
@@ -88,7 +89,7 @@ class MasterController extends Controller
 	}
 
 	public function getAllProvinsi(){
-		$datacache = Cache::remember("get_all_prov", 360 * 60, function() {
+		$datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_prov", 360 * 60, function() {
 			$prov = Provinsi::orderBy('mpro_name','asc')->get();
 
 			foreach($prov as $itemprov){
@@ -107,7 +108,7 @@ class MasterController extends Controller
 	public function getAllCompany(){
 	    $Path = '/foto_bumn/';
         $data=[];
-	    $datacache = Cache::remember("get_all_company", 360 * 60, function() use($Path) {
+	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_company", 360 * 60, function() use($Path) {
 	        $company = Company::all();
 
 	        foreach($company as $com){
@@ -127,7 +128,7 @@ class MasterController extends Controller
 	public function getDetailCompany($id) {
 	    $Path = '/foto_bumn/';
 
-	    $datacache = Cache::remember("get_company_by_mcid_".$id, 360 * 60, function() use ($id,$Path) {
+	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_company_by_mcid_".$id, 360 * 60, function() use ($id,$Path) {
 	        $company = Company::leftJoin('master_sektor','ms_id','mc_msc_id')
 	        ->where('mc_id',$id)->where('ms_type','CCOVID')->get();
             $data=[];
@@ -195,7 +196,7 @@ class MasterController extends Controller
     }
 
     public function getAllStsKasus(){
-        $datacache = Cache::remember("get_all_mskasus", 360 * 60, function() {
+        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mskasus", 360 * 60, function() {
             $mststskasus = MstStsKasus::all();
 
             foreach($mststskasus as $msk){
@@ -212,7 +213,7 @@ class MasterController extends Controller
 
     public function getAllStsPegawai(){
         //var_dump();die;
-        $datacache = Cache::remember("get_all_mspegawai", 360 * 60, function() {
+        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai", 360 * 60, function() {
             $mststspegawai = MstStsPegawai::all();
 
             foreach($mststspegawai as $msp){
@@ -227,7 +228,7 @@ class MasterController extends Controller
     }
 
     public function getAllSosialisasiKategori(){
-        $datacache = Cache::remember("get_all_sosialisasikategori", 360 * 60, function() {
+        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_sosialisasikategori", 360 * 60, function() {
             $mstsosialisasikategori = MstSosialisasiKategori::all();
 
             foreach($mstsosialisasikategori as $mslk){
@@ -239,5 +240,24 @@ class MasterController extends Controller
             return $data;
         });
             return response()->json(['status' => 200,'data' => $datacache]);
+    }
+
+    public function getKategoriPerimeter(){
+
+        $data=[];
+        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_perimeter_kategori", 360 * 60, function()  {
+            $kat = PerimeterKategori::orderBy("mpmk_name","asc")->get();
+
+            foreach($kat as $itemkat){
+                $data[] = array(
+                    "id_kategori_perimeter" => $itemkat->mpmk_id,
+                    "nama_kategori_perimeter" => $itemkat->mpmk_name,
+
+                );
+            }
+            return $data;
+        });
+
+        return response()->json(['status' => 200,'data' => $datacache]);
     }
 }

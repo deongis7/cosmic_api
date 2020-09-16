@@ -21,7 +21,7 @@ class DashboardController extends Controller
      * @return void
      */
 
-	 
+
     public function __construct()
     {
         //
@@ -33,16 +33,16 @@ class DashboardController extends Controller
 	public function show($id){
 
 	}
-	
+
 	public function store (Request $request){
 
 	}
-	
+
 	public function getCosmicIndexAll(){
-	    $datacache =  Cache::remember("get_cosmicindex_all", 360 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_cosmicindex_all", 360 * 60, function() {
 	        $data = array();
 	        $cosmicindex_all = DB::select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
-	        
+
 	        foreach($cosmicindex_all as $cia){
 	            $data[] = array(
 	                "v_judul" => $cia->z_judul,
@@ -53,12 +53,12 @@ class DashboardController extends Controller
 	    });
         return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function getPerimeterbyKategoriAll(){
-	    $datacache =  Cache::remember("get_perimeter_bykategori_all", 360 * 60, function(){
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategori_all", 360 * 60, function(){
 	        $data = array();
 	        $perimeter_bykategori_all = DB::select("SELECT * FROM dashboard_perimeter_bykategori()");
-	        
+
 	        foreach($perimeter_bykategori_all as $pka){
 	            $data[] = array(
 	                "v_judul" => $pka->v_judul,
@@ -69,12 +69,12 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function getPerimeterbyProvinsiAll(){
-	    $datacache =  Cache::remember("get_perimeter_byprovinsi_all", 360 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_byprovinsi_all", 360 * 60, function() {
 	        $data = array();
 	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM dashboard_perimeter_byprovinsi()");
-	        
+
 	        foreach($perimeter_byprovinsi_all as $ppa){
 	            $data[] = array(
 	                "v_judul" => $ppa->v_judul,
@@ -85,12 +85,12 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function getDashboardHead(){
-	    $datacache =  Cache::remember("get_dashboard_head", 360 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashboard_head", 360 * 60, function() {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM dashboard_head()");
-	        
+
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
 	                "v_id" => $dh->x_id,
@@ -102,12 +102,12 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function getWeekList(){
-	    $datacache =  Cache::remember("get_week", 360 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_week", 360 * 60, function() {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM list_aktivitas_week()");
-	        
+
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
 	                "v_no" => $dh->v_rownum,
@@ -120,12 +120,12 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function getMonitoring_ByMcidWeek($id, $tgl){
-	    $datacache = Cache::remember("getmonitoring_bymcidweek_".$id."_".$tgl, 360 * 60, function()use($id, $tgl) {
+	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_getmonitoring_bymcidweek_".$id."_".$tgl, 360 * 60, function()use($id, $tgl) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM pemenuhan_monitoring_bymcidweek('$id','$tgl')");
-	        
+
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
 	                "v_monitoring" => $dh->v_monitoring,
@@ -135,16 +135,16 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function getListMonitoring_ByMcidWeek($id, $tgl){
-	    $datacache = Cache::remember("getlistmonitoring_bymcidweek_".$id."_".$tgl, 360 * 60, function()use($id, $tgl) {
+	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_getlistmonitoring_bymcidweek_".$id."_".$tgl, 360 * 60, function()use($id, $tgl) {
 	        $data = array();
-	        $dashboard_head = DB::select("SELECT a.v_mpm_name, a.v_mpml_name, a.v_mpmk_name, 
+	        $dashboard_head = DB::select("SELECT a.v_mpm_name, a.v_mpml_name, a.v_mpmk_name,
                     a.v_pic, a.v_fo, a.v_cek, b.persen_det
                     FROM week_historymonitoring_level('$id','$tgl') a
-                    INNER JOIN week_aktivitas_cnt_bymcid_weekdet_pic('$id','$tgl') b 
+                    INNER JOIN week_aktivitas_cnt_bymcid_weekdet_pic('$id','$tgl') b
                     ON a.v_mpm_id=b.v_mpm_id;");
-	        
+
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
 	                "v_mpm_name" => $dh->v_mpm_name,
