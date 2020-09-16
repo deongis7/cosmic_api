@@ -488,6 +488,7 @@ class SosialisasiController extends Controller {
         $r_file2 = $request->file_sosialisasi2;
         $r_tgl = strtotime($request->tanggal);
         $r_tanggal = date('Y-m-d',$r_tgl);
+        $r_kd_perusahaan = $request->kd_perusahaan;
         
         $dataSosialisasi = Sosialisasi::find($id);
         //var_dump($dataSosialisasi);die;
@@ -551,6 +552,7 @@ class SosialisasiController extends Controller {
             }
         }
         
+        $dataSosialisasi->ts_mc_id = $r_kd_perusahaan;
         $dataSosialisasi->ts_nama_kegiatan = $r_nama_kegiatan;
         $dataSosialisasi->ts_mslk_id = $r_jenis_kegiatan;
         $dataSosialisasi->ts_deskripsi = $r_deskripsi;
