@@ -305,6 +305,7 @@ class SosialisasiController extends Controller {
         $r_file2 = $request->file_sosialisasi2;
         $r_tgl = strtotime($request->tanggal);
         $r_tanggal = date('Y-m-d',$r_tgl);
+        $r_kd_perusahaan = $request->kd_perusahaan;
         
         $dataSosialisasi = Sosialisasi::find($id);
         //var_dump($dataSosialisasi);die;
@@ -315,14 +316,15 @@ class SosialisasiController extends Controller {
         $filex2 = $dataSosialisasi->ts_file2;
         $filex2_tumb = $dataSosialisasi->ts_file2_tumb;
         
+        
         if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal)) {
             Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan.'/'.$tanggal);
         }
         //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
         $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal;
- 
-        $name1 = NULL;
-        $name1_tumb = NULL;
+        
+        $name1 = $filex1;
+        $name1_tumb = $filex1_tumb;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {
             if($filex1!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1)){
                 unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1);
@@ -347,8 +349,8 @@ class SosialisasiController extends Controller {
             })->save($destinationPath.'/'.$name1_tumb);
         }
         
-        $name2 = NULL;
-        $name2_tumb = NULL;
+        $name2 = $filex2;
+        $name2_tumb = $filex2_tumb;
         if(isset($request->file_sosialisasi2)){
             if ($request->file_sosialisasi2 != null || $request->file_sosialisasi2 != '') {
                 $img2 = explode(',', $r_file2);
@@ -367,10 +369,11 @@ class SosialisasiController extends Controller {
             }
         }
         
-	    $dataSosialisasi->ts_nama_kegiatan = $r_nama_kegiatan;
-	    $dataSosialisasi->ts_mslk_id = $r_jenis_kegiatan;
-	    $dataSosialisasi->ts_deskripsi = $r_deskripsi;
-	    $dataSosialisasi->ts_tanggal = $r_tanggal;
+        $dataSosialisasi->ts_mc_id = $r_kd_perusahaan;
+        $dataSosialisasi->ts_nama_kegiatan = $r_nama_kegiatan;
+        $dataSosialisasi->ts_mslk_id = $r_jenis_kegiatan;
+        $dataSosialisasi->ts_deskripsi = $r_deskripsi;
+        $dataSosialisasi->ts_tanggal = $r_tanggal;
         $dataSosialisasi->ts_file1 = $name1;
         $dataSosialisasi->ts_file2 = $name2;
         $dataSosialisasi->ts_file1_tumb = $name1_tumb;
@@ -488,6 +491,7 @@ class SosialisasiController extends Controller {
         $r_file2 = $request->file_sosialisasi2;
         $r_tgl = strtotime($request->tanggal);
         $r_tanggal = date('Y-m-d',$r_tgl);
+        $r_kd_perusahaan = $request->kd_perusahaan;
         
         $dataSosialisasi = Sosialisasi::find($id);
         //var_dump($dataSosialisasi);die;
@@ -505,8 +509,8 @@ class SosialisasiController extends Controller {
         //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
         $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal;
         
-        $name1 = NULL;
-        $name1_tumb = NULL;
+        $name1 = $filex1;
+        $name1_tumb = $filex1_tumb;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {
             if($filex1!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1)){
                 unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1);
@@ -531,8 +535,8 @@ class SosialisasiController extends Controller {
             })->save($destinationPath.'/'.$name1_tumb);
         }
         
-        $name2 = NULL;
-        $name2_tumb = NULL;
+        $name2 = $filex2;
+        $name2_tumb = $filex2_tumb;
         if(isset($request->file_sosialisasi2)){
             if ($request->file_sosialisasi2 != null || $request->file_sosialisasi2 != '') {
                 $img2 = explode(',', $r_file2);
@@ -551,6 +555,7 @@ class SosialisasiController extends Controller {
             }
         }
         
+        $dataSosialisasi->ts_mc_id = $r_kd_perusahaan;
         $dataSosialisasi->ts_nama_kegiatan = $r_nama_kegiatan;
         $dataSosialisasi->ts_mslk_id = $r_jenis_kegiatan;
         $dataSosialisasi->ts_deskripsi = $r_deskripsi;
