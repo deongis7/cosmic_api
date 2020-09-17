@@ -762,4 +762,72 @@ $status_monitoring = ($status['status']);
 
 
     }
+
+    //Get Perimeter per Region
+    public function getPerimeterListbyRegion($id,Request $request){
+        $limit = null;
+        $page = null;
+        $search = null;
+        $endpage = 1;
+        $str = "_get_perimeter_by_region_". $id;
+        if(isset($request->limit)){
+            $str = $str.'_limit_'. $request->limit;
+            $limit=$request->limit;
+            if(isset($request->page)){
+                $str = $str.'_page_'. $request->page;
+                $page=$request->page;
+            }
+        }
+        //dd(str_replace(' ','_',$request->search));
+        if(isset($request->search)){
+            $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+            $search=$request->search;
+        }
+
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10 * 60, function()use($id,$limit,$page, $endpage,$search) {
+            $data = array();
+            $perimeter = Perimeter::select('master_region.mr_id', 'master_region.mr_name',
+                'master_perimeter.mpm_id', 'master_perimeter.mpm_name',
+                'master_perimeter.mpm_alamat', 'master_perimeter_kategori.mpmk_name',
+                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
+                ->join('master_region', 'master_region.mr_id', 'master_perimeter.mpm_mr_id')
+                ->join('master_perimeter_kategori', 'master_perimeter_kategori.mpmk_id', 'master_perimeter.mpm_mpmk_id')
+                ->leftjoin('master_provinsi', 'master_provinsi.mpro_id', 'master_perimeter.mpm_mpro_id')
+                ->leftjoin('master_kabupaten', 'master_kabupaten.mkab_id', 'master_perimeter.mpm_mkab_id')
+                ->where('master_region.mr_id', $id);
+            if(isset($search)) {
+                $perimeter = $perimeter->where(DB::raw("lower(TRIM(mpm_name))"),'like','%'.strtolower(trim($search)).'%');
+            }
+            $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc');
+
+            //total_jumlah
+            $jmltotal=($perimeter->count());
+            if(isset($limit)) {
+                $perimeter = $perimeter->limit($limit);
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                if (isset($page)) {
+                    $offset = ((int)$page -1) * (int)$limit;
+                    $perimeter = $perimeter->offset($offset);
+                }
+            }
+            $perimeter =$perimeter->get();
+
+            foreach ($perimeter as $itemperimeter) {
+                $data[] = array(
+                    "id_perimeter" => $itemperimeter->mpm_id,
+                    "nama_perimeter" => $itemperimeter->mpm_name,
+
+                    "alamat" => $itemperimeter->mpm_name,
+                    "kategori" => $itemperimeter->mpmk_name,
+
+                    "provinsi" => $itemperimeter->mpro_name,
+                    "kabupaten" => $itemperimeter->mkab_name,
+                );
+            }
+            return array('status' => 200,'page_end' => $endpage,'data' => $data);
+        });
+        return response()->json($datacache);
+
+    }
 }

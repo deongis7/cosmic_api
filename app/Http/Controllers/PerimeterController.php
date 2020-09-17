@@ -232,6 +232,8 @@ class PerimeterController extends Controller
 
 	}
 
+
+
 	//Get Perimeter by Kota
 	public function getPerimeterbyKota($kd_perusahaan,$id_kota){
 
