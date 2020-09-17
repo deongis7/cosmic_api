@@ -171,6 +171,8 @@ class PerimeterController extends Controller
 	public function getPerimeterbyRegion($id,Request $request){
         $limit = null;
         $page = null;
+        $search = null;
+        $endpage = 1;
         $str = "_get_perimeter_by_region_". $id;
         if(isset($request->limit)){
             $str = $str.'_limit_'. $request->limit;
@@ -180,8 +182,12 @@ class PerimeterController extends Controller
                 $page=$request->page;
             }
         }
+        if(isset($request->search)){
+            $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+            $search=$request->search;
+        }
 
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10 * 60, function()use($id,$limit,$page) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10 * 60, function()use($id,$limit,$page,$endpage,$search) {
             $data = array();
             $perimeter = Perimeter::select('master_region.mr_id', 'master_region.mr_name',
                 'master_perimeter_level.mpml_id', 'master_perimeter.mpm_name',
@@ -197,12 +203,16 @@ class PerimeterController extends Controller
                 ->leftjoin('app_users as userfo', 'userfo.username', 'master_perimeter_level.mpml_me_nik')
                 ->leftjoin('master_provinsi', 'master_provinsi.mpro_id', 'master_perimeter.mpm_mpro_id')
                 ->leftjoin('master_kabupaten', 'master_kabupaten.mkab_id', 'master_perimeter.mpm_mkab_id')
-                ->where('master_region.mr_id', $id)
-                ->orderBy('master_perimeter.mpm_name', 'asc')
+                ->where('master_region.mr_id', $id);
+            if(isset($search)) {
+                $perimeter = $perimeter->where(DB::raw("lower(TRIM(mpm_name))"),'like','%'.strtolower(trim($search)).'%');
+            }
+            $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc')
                 ->orderBy('master_perimeter_level.mpml_name', 'asc');
+            $jmltotal=($perimeter->count());
             if(isset($limit)) {
                 $perimeter = $perimeter->limit($limit);
-
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
                 if (isset($page)) {
                     $offset = ((int)$page -1) * (int)$limit;
                     $perimeter = $perimeter->offset($offset);
@@ -226,9 +236,9 @@ class PerimeterController extends Controller
                     "kabupaten" => $itemperimeter->mkab_name,
                 );
             }
-            return $data;
+            return array('page_end' => $endpage,'data' => $data);
         });
-		return response()->json(['status' => 200,'data' => $datacache]);
+		return response()->json(['status' => 200,'page_end' => $datacache['page_end'],'data' => $datacache['data']]);
 
 	}
 
@@ -332,11 +342,17 @@ class PerimeterController extends Controller
 		$param = [];
         $limit = null;
         $page = null;
+        $search = null;
+        $endpage = 1;
         if(isset($request->limit)){
             $limit=$request->limit;
             if(isset($request->page)){
                 $page=$request->page;
             }
+        }
+        if(isset($request->search)){
+
+            $search=$request->search;
         }
 		$querycache = "_get_taskforce_by_company_id_". $id;
 		$query = "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
@@ -372,14 +388,24 @@ class PerimeterController extends Controller
 			$param[] = $request->id_kota;
 			$param[] = $request->id_kota;
 		}
+        if(isset($search)) {
+            $querycache = $querycache.'_searh_'. str_replace(' ','_',$request->search);
+            $query = $query ." and (lower(TRIM(app.username)) like ? or lower(TRIM(app.first_name)) like ?) ";
+            $param[] = '%'.strtolower(trim($search)).'%';
+            $param[] = '%'.strtolower(trim($search)).'%';
+
+        }
 
 		$query=$query ." GROUP BY app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) ,
 			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end),app.mc_id,aug.name,
 			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END )
 			order by
 			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) desc, aug.name desc,app.first_name asc ";
+        $jmltotal=count(DB::select( $query , $param));
+
         if(isset($limit)) {
            $query=$query ." limit ". $limit;
+           $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
 
             if (isset($page)) {
                 $offset = ((int)$page -1) * (int)$limit;
@@ -407,7 +433,7 @@ class PerimeterController extends Controller
 			 $data;
 			//return $data;
 		//});
-		return response()->json(['status' => 200,'data' => $data]);
+		return response()->json(['status' => 200,'page_end' => $endpage,'data' => $data]);
 
 	}
 

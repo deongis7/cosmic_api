@@ -57,6 +57,8 @@ class PerimeterListController extends Controller
         $role_id = null;
         $limit = null;
         $page = null;
+        $search = null;
+        $endpage = 1;
         $monitoring = $request->monitoring;
 
         $nik = $request->nik;
@@ -79,8 +81,12 @@ class PerimeterListController extends Controller
                 $page=$request->page;
             }
         }
+        if(isset($request->search)){
+            $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+            $search=$request->search;
+        }
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
 
@@ -106,14 +112,20 @@ class PerimeterListController extends Controller
                 }
             }
 
-            $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan)
+            $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan);
 
-                ->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
+            if(isset($search)) {
+                $perimeter = $perimeter->where(DB::raw("lower(TRIM(master_perimeter.mpm_name))"),'like','%'.strtolower(trim($search)).'%');
+            }
+
+            $perimeter = $perimeter->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                     'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
                 ->orderBy('master_perimeter.mpm_name', 'asc');
-            //dd($limit);
+            //dd(count($perimeter->get()) );
+            $jmltotal=(count($perimeter->get()));
             if(isset($limit)) {
                 $perimeter = $perimeter->limit($limit);
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
 
                 if (isset($page)) {
                     $offset = ((int)$page -1) * (int)$limit;
@@ -199,12 +211,12 @@ $status_monitoring = ($status['status']);
              //  "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
             //);
 
-            return  $data;
-
+            //return  $data;
+            return array('page_end' => $endpage, 'data' => $data);
         });
 
         $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
-        return response()->json(['status' => 200, 'data_dashboard' => $status_dashboard, 'data' => $datacache]);
+        return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
 
     }
 
@@ -213,6 +225,8 @@ $status_monitoring = ($status['status']);
 
         $limit = null;
         $page = null;
+        $search = null;
+        $endpage = 1;
         $user = null;
         $role_id = null;
         $nik = $request->nik;
@@ -231,9 +245,13 @@ $status_monitoring = ($status['status']);
                 $page=$request->page;
             }
         }
+        if(isset($request->search)){
+            $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+            $search=$request->search;
+        }
         //dd($str);
         //dd($str_fnc);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search) {
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
@@ -254,11 +272,17 @@ $status_monitoring = ($status['status']);
                 }
             }
 
+            if(isset($search)) {
+                $perimeter = $perimeter->where(DB::raw("lower(TRIM(mpml_name))"),'like','%'.strtolower(trim($search)).'%');
+            }
+
             $perimeter = $perimeter->where('master_perimeter.mpm_id', $id_perimeter)
                 ->orderBy('master_perimeter.mpm_name', 'asc')
                 ->orderBy('master_perimeter_level.mpml_name', 'asc');
+            $jmltotal=($perimeter->count());
             if(isset($limit)) {
                 $perimeter = $perimeter->limit($limit);
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
 
                 if (isset($page)) {
                     $offset = ((int)$page -1) * (int)$limit;
@@ -300,7 +324,7 @@ $status_monitoring = ($status['status']);
                 "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
             );
 
-            return array('status' => 200, 'data_dashboard' => $dashboard, 'data' => $data);
+            return array('status' => 200, 'page_end' => $endpage,'data_dashboard' => $dashboard, 'data' => $data);
 
         });
         return response()->json($datacache);
@@ -312,6 +336,8 @@ $status_monitoring = ($status['status']);
 //dd($kd_perusahaaan);
         $limit = null;
         $page = null;
+        $search = null;
+        $endpage = 1;
         $str = "_get_regionlist_". $kd_perusahaan;
         if(isset($request->limit)){
             $str = $str.'_limit_'. $request->limit;
@@ -321,16 +347,24 @@ $status_monitoring = ($status['status']);
                 $page=$request->page;
             }
         }
+        if(isset($request->search)){
+            $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+            $search=$request->search;
+        }
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 50 * 60, function()use($kd_perusahaan,$page,$limit) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 50 * 60, function()use($kd_perusahaan,$page,$limit,$endpage,$search) {
 
             $data = array();
 
-            $region = Region::where( 'mr_mc_id', '=', $kd_perusahaan)->orderBy('mr_name','asc');
-
+            $region = Region::where( 'mr_mc_id', '=', $kd_perusahaan);
+            if(isset($search)) {
+                $region = $region->where(DB::raw("lower(TRIM(mr_name))"),'like','%'.strtolower(trim($search)).'%');
+            }
+            $region = $region->orderBy('mr_name','asc');
+            $jmltotal=($region->count());
             if(isset($limit)) {
                 $region = $region->limit($limit);
-
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
                      if (isset($page)) {
                          $offset = ((int)$page -1) * (int)$limit;
                          $region = $region->offset($offset);
@@ -347,7 +381,7 @@ $status_monitoring = ($status['status']);
                 );
             }
 
-            return array('status' => 200,  'data' => $data);
+            return array('status' => 200, 'page_end' => $endpage, 'data' => $data);
 
         });
         return response()->json($datacache);
@@ -755,11 +789,6 @@ $status_monitoring = ($status['status']);
         } else {
             return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
         }
-
-
-
-
-
 
     }
 
