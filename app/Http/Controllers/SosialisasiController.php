@@ -241,8 +241,8 @@ class SosialisasiController extends Controller {
         $dataSosialisasi = new Sosialisasi();
         $dataSosialisasi->ts_mc_id = $kd_perusahaan;
         $dataSosialisasi->ts_nama_kegiatan = $nama_kegiatan;
-        //$dataSosialisasi->ts_mslk_id = $jenis_kegiatan;
-        $dataSosialisasi->ts_jenis_kegiatan = $jenis_kegiatan;
+        $dataSosialisasi->ts_mslk_id = $jenis_kegiatan;
+        //$dataSosialisasi->ts_jenis_kegiatan = $jenis_kegiatan;
         $dataSosialisasi->ts_deskripsi = $deskripsi;
         $dataSosialisasi->ts_tanggal = $tanggal;
         $dataSosialisasi->ts_file1 = $name1;
