@@ -473,6 +473,13 @@ class PICController extends Controller
 		$startdate = $weeks['startweek'];
 		$enddate = $weeks['endweek'];
 
+        $konfirmasi = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id,max(ta.ta_date_update) from transaksi_aktifitas ta
+		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+		where  ta.ta_status = 1 and  tpd.tpmd_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id order by max(ta.ta_date_update) desc", [$id_perimeter_cluster, $startdate, $enddate]);
+
 		if($id_role == 4){
 		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id,max(ta.ta_date_update) from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
@@ -481,28 +488,33 @@ class PICController extends Controller
 		where  tpd.tpmd_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
 		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id order by max(ta.ta_date_update) desc", [$id_perimeter_cluster, $startdate, $enddate]);
 		} else {
-		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id,max(ta.ta_date_update) from transaksi_aktifitas ta
-		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
-		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
-		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-		where  ta.ta_status = 1 and  tpd.tpmd_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
-		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id order by max(ta.ta_date_update) desc", [$id_perimeter_cluster, $startdate, $enddate]);
+		$clustertrans = $konfirmasi;
 		}
+        if( $aktifitas <= count($konfirmasi)){
+            $sts_mnt = 2;
+        } else {
+            if ( $aktifitas <= count($clustertrans)) {
+                $sts_mnt = 1;
+            } else {
+                $sts_mnt = 0;
+            }
+        }
 
 		if (count($clustertrans) > 0) {
 			if ( $aktifitas <= count($clustertrans)) {
 				return array(
-								"status" => true,
+								"status_konfirmasi" => $sts_mnt,
+                                "status" => true,
 								"last_date" =>$clustertrans[0]->max);
-
 			} else {
 				return array(
+                                "status_konfirmasi" => $sts_mnt,
 								"status" => false,
 								"last_date" =>$clustertrans[0]->max);
 
 			}
 		} else {
-			return array(
+			return array(       "status_konfirmasi" => $sts_mnt,
 								"status" => false,
 								"last_date" => null);
 		}
@@ -672,6 +684,7 @@ class PICController extends Controller
 						"id_cluster" => $itemperimeter->mcr_id,
 						"cluster_ruangan" => (($itemperimeter->tpmd_order > 1)? ($itemperimeter->mcr_name.' - '.$itemperimeter->tpmd_order) :$itemperimeter->mcr_name),
 						"order" => $itemperimeter->tpmd_order,
+						"status_konfirmasi" => $status['status_konfirmasi'],
 						"status" => $status['status'],
 						"last_update" => $status['last_date'],
 						"aktifitas" => $data_aktifitas_cluster,
