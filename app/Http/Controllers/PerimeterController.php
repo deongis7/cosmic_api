@@ -737,7 +737,7 @@ class PerimeterController extends Controller
         $datacluster=[];
 		$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
 		    'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
-		    'master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket',
+		    'master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket','master_perimeter_kategori.mpmk_id',
 		    'master_perimeter_kategori.mpmk_name','userpic.username as nik_pic',
 		    'userpic.first_name as pic','userfo.username as nik_fo','userfo.first_name as fo',
 		    'master_provinsi.mpro_name', 'master_kabupaten.mkab_name','master_provinsi.mpro_id', 'master_kabupaten.mkab_id'
@@ -776,6 +776,7 @@ class PerimeterController extends Controller
 					"level" => $perimeter->mpml_name,
 					"keterangan" => $perimeter->mpml_ket,
 					"alamat" => $perimeter->mpm_name,
+					"id_kategori" => $perimeter->mpmk_id,
 					"kategori" => $perimeter->mpmk_name,
 					"nik_pic" => $perimeter->nik_pic,
 					"pic" => $perimeter->pic,
