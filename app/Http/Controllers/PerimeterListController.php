@@ -530,7 +530,7 @@ $status_monitoring = ($status['status']);
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-		where tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
+		where tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4 and ta.ta_status <> 2
 		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
         } else {
             $clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
@@ -576,7 +576,7 @@ $status_monitoring = ($status['status']);
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join master_perimeter mp on mpl.mpml_mpm_id = mp.mpm_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-		where  mpl.mpml_mpm_id= ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
+		where  mpl.mpml_mpm_id= ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4 and ta.ta_status <> 2
 		group by tpd.tpmd_id,  mpl.mpml_mpm_id,tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter, $startdate, $enddate]);
         } else {
             $clustertrans = DB::select( "select tpd.tpmd_id,  mpl.mpml_mpm_id,tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
