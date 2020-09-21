@@ -35,6 +35,10 @@ $router->get('/storage/{jenis}/{kd_perusahaan}/{tgl}/{filename}', function ($jen
 	{
 		return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/' .$tgl.'/'. $filename))->response();
 	});
+$router->get('/storage/{jenis}/{filename}', function ($jenis,$filename)
+{
+    return Image::make(storage_path('app/public/'.$jenis.'/'. $filename))->response();
+});
 
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Perimeter
