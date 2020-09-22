@@ -95,7 +95,9 @@ class DashboardController extends Controller
 	            $data[] = array(
 	                "v_id" => $dh->x_id,
 	                "v_judul" => $dh->x_judul,
-	                "v_jml" => $dh->x_jml
+	                "v_jml" => $dh->x_jml,
+	                "v_flag_link" => $dh->x_flag_link,
+	                "v_link" => $dh->x_link
 	            );
 	        }
 	        return $data;
