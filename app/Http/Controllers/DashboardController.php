@@ -87,7 +87,7 @@ class DashboardController extends Controller
 	}
 
 	public function getDashboardHead(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashboard_head", 360 * 60, function() {
+	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashboard_head", 360 * 60, function() {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM dashboard_head()");
 
@@ -101,7 +101,7 @@ class DashboardController extends Controller
 	            );
 	        }
 	        return $data;
-	    });
+	    //});
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 
