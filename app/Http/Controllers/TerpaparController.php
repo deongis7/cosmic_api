@@ -115,7 +115,12 @@ class TerpaparController extends Controller {
                     WHERE tk_mc_id='$id' AND LOWER(tk_nama) LIKE LOWER('%$search%') ";
         if(isset($request->status_kasus)){
             if(($request->status_kasus != 'null' && $request->status_kasus != 'undefined')){
-                $query = $query . " and tk_msk_id = " .$request->status_kasus;
+                if ($request->status_kasus == '3'){
+                    $query = $query . " and (tk_msk_id = '3' or tk_msk_id = '4' or tk_msk_id = '5') " ;
+                } else {
+                    $query = $query . " and tk_msk_id = " .$request->status_kasus;
+                }
+
             }
 
         }
@@ -290,7 +295,7 @@ class TerpaparController extends Controller {
 	                "status_pegawai" => $tpp->msp_name,
 	                "provinsi_id" => $tpp->mpro_id,
 	                "provinsi" => $tpp->mpro_name,
-	                "kabupaten_id" => $tpp->mkab_id,          
+	                "kabupaten_id" => $tpp->mkab_id,
 	                "kabupaten" => $tpp->mkab_name,
 	                "tempat_perawatan" => $tpp->tk_tempat_perawatan,
 	                "tindakan" => $tpp->tk_tindakan,
