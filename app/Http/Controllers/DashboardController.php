@@ -164,7 +164,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getDashboardHeadBUMN($kd_perusahaan){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$kd_perusahaan, 360 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$kd_perusahaan, 360 * 60, function()use($kd_perusahaan) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM dashboardbumn_head('$kd_perusahaan')");
 	        
