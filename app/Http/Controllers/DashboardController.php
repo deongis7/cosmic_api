@@ -87,7 +87,7 @@ class DashboardController extends Controller
 	}
 
 	public function getDashboardHead(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashboard_head", 360 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmin_head", 360 * 60, function() {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM dashboard_head()");
 
@@ -95,7 +95,9 @@ class DashboardController extends Controller
 	            $data[] = array(
 	                "v_id" => $dh->x_id,
 	                "v_judul" => $dh->x_judul,
-	                "v_jml" => $dh->x_jml
+	                "v_jml" => $dh->x_jml,
+	                "v_flag_link" => $dh->x_flag_link,
+	                "v_link" => $dh->x_link
 	            );
 	        }
 	        return $data;
