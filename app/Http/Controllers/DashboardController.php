@@ -162,4 +162,21 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
+	
+	public function getDashboardHeadBUMN($kd_perusahaan){
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$kd_perusahaan, 360 * 60, function() {
+	        $data = array();
+	        $dashboard_head = DB::select("SELECT * FROM dashboardbumn_head('$kd_perusahaan')");
+	        
+	        foreach($dashboard_head as $dh){
+	            $data[] = array(
+	                "v_id" => $dh->x_id,
+	                "v_judul" => $dh->x_judul,
+	                "v_jml" => $dh->x_jml
+	            );
+	        }
+	        return $data;
+	    });
+	        return response()->json(['status' => 200,'data' => $datacache]);
+	}
 }

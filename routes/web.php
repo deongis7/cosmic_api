@@ -157,7 +157,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/listmonitoring_bymciddate/{id}/{tgl}', 'DashboardController@getListMonitoring_ByMcidWeek');
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
-
+	$router->get('/dashboard/dashboardhead_bumn', 'DashboardController@getDashboardHeadBUMN');
     //Log
     $router->get('/log_activity', 'UserController@setActivityLog');
 
