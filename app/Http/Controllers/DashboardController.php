@@ -200,7 +200,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getDashboardMrMpmBUMN($id){
-        datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmrmpmbumn_head_".$id, 15 * 60, function()use($id) {
+       $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmrmpmbumn_head_".$id, 15 * 60, function()use($id) {
     	    $data = array();
     	    $dashboard_head = DB::select("SELECT mr_name, COUNT(mpm_id) cnt
                         FROM master_region mr
