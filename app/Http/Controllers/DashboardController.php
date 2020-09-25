@@ -184,7 +184,7 @@ class DashboardController extends Controller
         $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_head_".$id, 15 * 60, function()use($id) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT v_mpt_id, v_mpt_name,
-                        CASE WHEN v_tbpt_id IS NULL THEN 'x' ELSE 'v' END AS v_upload
+                        CASE WHEN v_tbpt_id IS NULL THEN 'Terupload' ELSE 'Belum Terupload' END AS v_upload
                         FROM protokol_bymc('$id')");
 	        
 	        foreach($dashboard_head as $dh){
@@ -213,7 +213,7 @@ class DashboardController extends Controller
     	    foreach($dashboard_head as $dh){
     	        $data[] = array(
     	            "v_id" => $dh->mr_name,
-    	            "v_name" => $dh->cnt
+    	            "v_cnt" => $dh->cnt
     	        );
     	    }
     	    return $data;
