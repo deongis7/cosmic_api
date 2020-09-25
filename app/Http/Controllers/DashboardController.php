@@ -181,7 +181,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getDashboardProtokolBUMN($id){
-        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_head_".$id, 15 * 60, function()use($id) {
+        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_head_".$id, 15 * 60, function()use($id) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT v_mpt_id, v_mpt_name,
                         CASE WHEN v_tbpt_id IS NULL THEN 'Terupload' ELSE 'Belum Terupload' END AS v_upload
@@ -195,12 +195,12 @@ class DashboardController extends Controller
 	            );
 	        }
 	        return $data;
-	    //});
+	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 	
 	public function getDashboardMrMpmBUMN($id){
-        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmrmpmbumn_head_".$id, 15 * 60, function()use($id) {
+        datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmrmpmbumn_head_".$id, 15 * 60, function()use($id) {
     	    $data = array();
     	    $dashboard_head = DB::select("SELECT mr_name, COUNT(mpm_id) cnt
                         FROM master_region mr
@@ -212,12 +212,12 @@ class DashboardController extends Controller
     	    
     	    foreach($dashboard_head as $dh){
     	        $data[] = array(
-    	            "v_id" => $dh->mr_name,
+    	            "v_region_name" => $dh->mr_name,
     	            "v_cnt" => $dh->cnt
     	        );
     	    }
     	    return $data;
-	    //});
+	    });
 	    return response()->json(['status' => 200,'data' => $datacache]);
 	}
 }
