@@ -359,14 +359,14 @@ class PerimeterController extends Controller
 			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end) as mr_name,app.mc_id,aug.name,
 			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) AS unassigned
 		from app_users app
-		left JOIN (select mp1.mpm_mr_id , mr1.mr_name, mpl1.mpml_pic_nik, mkab1.mkab_id,mkab1.mkab_name from master_perimeter_level mpl1
+		left JOIN (select mp1.mpm_mr_id , mr1.mr_name, mpl1.mpml_pic_nik, mkab1.mkab_id,mkab1.mkab_name,mp1.mpm_mc_id  from master_perimeter_level mpl1
 				join master_perimeter mp1 on mpl1.mpml_mpm_id = mp1.mpm_id
 				join master_region mr1 on mr1.mr_id = mp1.mpm_mr_id
-				left join master_kabupaten mkab1 on mkab1.mkab_id = mp1.mpm_mkab_id) a1 on a1.mpml_pic_nik = app.username
-		left JOIN (select mp2.mpm_mr_id, mr2.mr_name, mpl2.mpml_me_nik, mkab2.mkab_id,mkab2.mkab_name from master_perimeter_level mpl2
+				left join master_kabupaten mkab1 on mkab1.mkab_id = mp1.mpm_mkab_id) a1 on a1.mpml_pic_nik = app.username and a1.mpm_mc_id = app.mc_id
+		left JOIN (select mp2.mpm_mr_id, mr2.mr_name, mpl2.mpml_me_nik, mkab2.mkab_id,mkab2.mkab_name,mp2.mpm_mc_id from master_perimeter_level mpl2
 				join master_perimeter mp2  on mpl2.mpml_mpm_id = mp2.mpm_id
 				join master_region mr2 on mr2.mr_id = mp2.mpm_mr_id
-				left join master_kabupaten mkab2 on mkab2.mkab_id = mp2.mpm_mkab_id) a2 on a2.mpml_me_nik = app.username
+				left join master_kabupaten mkab2 on mkab2.mkab_id = mp2.mpm_mkab_id) a2 on a2.mpml_me_nik = app.username and a2.mpm_mc_id = app.mc_id
 		join app_users_groups aup on aup.user_id = app.id ";
 		//cek role
 		//dd($request->id_kota);
