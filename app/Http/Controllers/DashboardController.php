@@ -181,7 +181,7 @@ class DashboardController extends Controller
 	}
 	
 	public function getDashboardProtokolBUMN($id){
-        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_".$id, 15 * 60, function()use($id) {
+       // $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_".$id, 15 * 60, function()use($id) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT v_mpt_id, v_mpt_name,
                         CASE WHEN v_tbpt_id > 0 THEN 'Terupload' ELSE 'Belum Terupload' END AS v_upload
@@ -195,7 +195,7 @@ class DashboardController extends Controller
 	            );
 	        }
 	        return $data;
-	    });
+	   // });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 	
