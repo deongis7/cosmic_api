@@ -162,4 +162,62 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
+	
+	public function getDashboardHeadBUMN($id){
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$id, 360 * 60, function()use($id) {
+	        $data = array();
+	        $dashboard_head = DB::select("SELECT * FROM dashboardbumn_head('$id')");
+	        
+	        foreach($dashboard_head as $dh){
+	            $data[] = array(
+	                "v_id" => $dh->x_id,
+	                "v_judul" => $dh->x_judul,
+	                "v_jml" => $dh->x_jml
+	            );
+	        }
+	        return $data;
+	    });
+	        return response()->json(['status' => 200,'data' => $datacache]);
+	}
+	
+	public function getDashboardProtokolBUMN($id){
+        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_".$id, 30 * 60, function()use($id) {
+	        $data = array();
+	        $dashboard_head = DB::select("SELECT v_mpt_id, v_mpt_name,
+                        CASE WHEN v_tbpt_id > 0 THEN 'Terupload' ELSE 'Belum Terupload' END AS v_upload
+                        FROM protokol_bymc('$id')");
+	        
+	        foreach($dashboard_head as $dh){
+	            $data[] = array(
+	                "v_id" => $dh->v_mpt_id,
+	                "v_name" => $dh->v_mpt_name,
+	                "v_status" => $dh->v_upload
+	            );
+	        }
+	        return $data;
+	    });
+	        return response()->json(['status' => 200,'data' => $datacache]);
+	}
+	
+	public function getDashboardMrMpmBUMN($id){
+       $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmrmpmbumn_".$id, 15 * 60, function()use($id) {
+    	    $data = array();
+    	    $dashboard_head = DB::select("SELECT mr_name, COUNT(mpm_id) cnt
+                        FROM master_region mr
+                        INNER JOIN master_perimeter mpm ON mpm_mr_id=mr.mr_id
+                        WHERE mpm_id in (SELECT mpml_mpm_id FROM master_perimeter_level mpml)
+                        AND mr.mr_mc_id='$id'
+                        GROUP BY mr_name
+                        ORDER BY mr_name");
+    	    
+    	    foreach($dashboard_head as $dh){
+    	        $data[] = array(
+    	            "v_region_name" => $dh->mr_name,
+    	            "v_cnt" => $dh->cnt
+    	        );
+    	    }
+    	    return $data;
+	    });
+	    return response()->json(['status' => 200,'data' => $datacache]);
+	}
 }
