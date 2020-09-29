@@ -220,4 +220,9 @@ class DashboardController extends Controller
 	    });
 	    return response()->json(['status' => 200,'data' => $datacache]);
 	}
+	
+	public function RefreshMvRangkumanAll(){
+        $dashboard_head = DB::select("REFRESH MATERIALIZED VIEW mv_rangkuman_all");
+        return $dashboard_head
+	}
 }
