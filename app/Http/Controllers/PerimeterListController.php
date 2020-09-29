@@ -927,6 +927,7 @@ $status_monitoring = ($status['status']);
         if ($closed != null){
             $closed->tbpc_approval= $request->nik;
             $closed->tbpc_status = $request->status;
+            $closed->alasan = $request->alasan;
         } else {
             return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
         }
