@@ -14,6 +14,7 @@ use App\User;
 use App\UserGroup;
 use App\Helpers\AppHelper;
 use App\TblPerimeterDetail;
+use App\TblPerimeterClosed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -22,6 +23,7 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Cache;
 
 use DB;
+use function Complex\negative;
 
 
 class PerimeterListController extends Controller
@@ -232,6 +234,7 @@ $status_monitoring = ($status['status']);
         $nik = $request->nik;
         $str = "_get_perimeterlevellist_by_perimeter_". $id_perimeter;
 
+
         if(isset($nik)){
             $str = $str.'_nik_'. $nik;
             $user = User::where('username', $nik)->first();
@@ -251,18 +254,24 @@ $status_monitoring = ($status['status']);
         }
         //dd($str);
         //dd($str_fnc);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 1 * 5, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search) {
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
 
-            $perimeter = Perimeter::select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id', 'master_perimeter_level.mpml_name','master_perimeter.mpm_name',
-                        'master_perimeter_level.mpml_ket', 'userpic.username as nik_pic', 'userpic.first_name as pic', 'userfo.username as nik_fo',
-                        'userfo.first_name as fo')
-                        ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
-                        ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
-                        ->leftjoin('app_users as userfo', 'userfo.username', 'master_perimeter_level.mpml_me_nik');
+            $perimeter = Perimeter::select( "master_perimeter.mpm_id", "master_perimeter_level.mpml_id", "master_perimeter_level.mpml_name","master_perimeter.mpm_name",
+                        "master_perimeter_level.mpml_ket", "userpic.username as nik_pic", "userpic.first_name as pic", "userfo.username as nik_fo",
+                        "userfo.first_name as fo",DB::raw("(CASE WHEN tpc.tbpc_status is null THEN 0 ELSE tpc.tbpc_status END) AS status_perimeter"),"tpc.tbpc_alasan")
+                        ->join("master_perimeter_level", "master_perimeter_level.mpml_mpm_id", "master_perimeter.mpm_id")
+                        ->leftjoin("app_users as userpic", "userpic.username", "master_perimeter_level.mpml_pic_nik")
+                        ->leftjoin("app_users as userfo", "userfo.username", "master_perimeter_level.mpml_me_nik")
+                        ->leftjoin("table_perimeter_closed as tpc", function($join)
+                        {
+                            $join->on("tpc.tbpc_mpml_id","=", "master_perimeter_level.mpml_id");
+                            $join->on("tpc.tbpc_startdate","<=",DB::raw("'".Carbon::now()->format("Y-m-d")."'"));
+                            $join->on("tpc.tbpc_enddate",">=",DB::raw("'".Carbon::now()->format("Y-m-d")."'"));
 
+                        });
             if(isset($nik) && ($user != null)) {
                 $role_id = $user->roles()->first()->id;
                 if ($role_id == 3) {
@@ -309,6 +318,8 @@ $status_monitoring = ($status['status']);
                             "nik_fo" => $itemperimeter->nik_fo,
                             "fo" => $itemperimeter->fo,
                             "status_monitoring" => ($status['status']),
+                            "status_perimeter" => $itemperimeter->status_perimeter,
+                            "alasan" => $itemperimeter->tbpc_alasan,
                             "percentage" => ($status['percentage']),
 
                     );
@@ -857,6 +868,75 @@ $status_monitoring = ($status['status']);
             return array('status' => 200,'page_end' => $endpage,'data' => $data);
         });
         return response()->json($datacache);
+
+    }
+
+    //Post Perimeter Closed
+    public function addClosedPerimeter(Request $request){
+        $this->validate($request, [
+            'id_perimeter_level' => 'required',
+            'alasan' => 'required'
+        ]);
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+
+        $closed = TblPerimeterClosed::where('tbpc_mpml_id', $request->id_perimeter_level)
+            ->where('tbpc_startdate', $startdate)
+            ->where('tbpc_enddate', $enddate)->first();
+
+        if ($closed == null){
+            $closed= New TblPerimeterClosed();
+            $closed->tbpc_mpml_id = $request->id_perimeter_level;
+            $closed->tbpc_alasan = $request->alasan;
+            $closed->tbpc_requestor = $request->nik;
+            $closed->tbpc_startdate = $startdate;
+            $closed->tbpc_enddate = $enddate;
+            $closed->tbpc_status = 1;
+        } else {
+            $closed->tbpc_alasan = $request->alasan;
+            $closed->tbpc_requestor = $request->nik;
+            $closed->tbpc_startdate = $startdate;
+            $closed->tbpc_enddate = $enddate;
+            $closed->tbpc_status = 1;
+        }
+        if($closed->save()) {
+            return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
+        }
+         else {
+             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+         }
+
+    }
+
+    //Post Perimeter Closed
+    public function validasiClosedPerimeter(Request $request){
+        $this->validate($request, [
+            'id_perimeter_level' => 'required',
+            'status' => 'required'
+        ]);
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+
+        $closed = TblPerimeterClosed::where('tbpc_mpml_id', $request->id_perimeter_level)
+            ->where('tbpc_startdate', $startdate)
+            ->where('tbpc_enddate', $enddate)
+            ->where('tbpc_status', 1)->first();
+
+        if ($closed != null){
+            $closed->tbpc_approval= $request->nik;
+            $closed->tbpc_status = $request->status;
+            $closed->tbpc_alasan = $request->alasan;
+        } else {
+            return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+        }
+        if($closed->save()) {
+            return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
+        }
+        else {
+            return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+        }
 
     }
 }

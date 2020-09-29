@@ -740,7 +740,8 @@ class PerimeterController extends Controller
 		    'master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket','master_perimeter_kategori.mpmk_id',
 		    'master_perimeter_kategori.mpmk_name','userpic.username as nik_pic',
 		    'userpic.first_name as pic','userfo.username as nik_fo','userfo.first_name as fo',
-		    'master_provinsi.mpro_name', 'master_kabupaten.mkab_name','master_provinsi.mpro_id', 'master_kabupaten.mkab_id'
+		    'master_provinsi.mpro_name', 'master_kabupaten.mkab_name','master_provinsi.mpro_id', 'master_kabupaten.mkab_id',
+            DB::raw("(CASE WHEN tpc.tbpc_status is null THEN 0 ELSE tpc.tbpc_status END) AS status_perimeter"),"tpc.tbpc_alasan"
 		    )
 					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
@@ -749,7 +750,14 @@ class PerimeterController extends Controller
 					->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
 					->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
 					->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id')
-					->where('master_perimeter_level.mpml_id',$id_perimeter_level)
+                    ->leftjoin("table_perimeter_closed as tpc", function($join)
+                    {
+                        $join->on("tpc.tbpc_mpml_id","=", "master_perimeter_level.mpml_id");
+                        $join->on("tpc.tbpc_startdate","<=",DB::raw("'".Carbon::now()->format("Y-m-d")."'"));
+                        $join->on("tpc.tbpc_enddate",">=",DB::raw("'".Carbon::now()->format("Y-m-d")."'"));
+
+                    })
+                    ->where('master_perimeter_level.mpml_id',$id_perimeter_level)
 					->first();
 
 		if ($perimeter != null){
@@ -786,6 +794,8 @@ class PerimeterController extends Controller
 			        "provinsi" => $perimeter->mpro_name,
 			        "id_kota" => $perimeter->mkab_id,
 			        "kabupaten" => $perimeter->mkab_name,
+			        "status_perimeter" => $perimeter->status_perimeter,
+			        "alasan" => $perimeter->tbpc_alasan,
 			        "cluster" => $datacluster
 			);
 			return response()->json(['status' => 200,'data' => $data]);
