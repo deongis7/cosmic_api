@@ -223,6 +223,6 @@ class DashboardController extends Controller
 	
 	public function RefreshMvRangkumanAll(){
         $dashboard_head = DB::select("REFRESH MATERIALIZED VIEW mv_rangkuman_all");
-        return $dashboard_head
+        return $dashboard_head;
 	}
 }
