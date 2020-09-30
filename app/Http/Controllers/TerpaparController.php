@@ -53,7 +53,7 @@ class TerpaparController extends Controller {
                         WHERE tk_mc_id='$id' AND tk_msk_id IN (3,4,5)
                     ) tk on tk.tk_msk_id=msk.msk_id
                     ORDER BY msk_id");
-
+	    $data=array();
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
 	            "id_kasus" => $tpp->msk_id,
@@ -80,7 +80,7 @@ class TerpaparController extends Controller {
                         WHERE tk_msk_id IN (3,4,5)
                     ) tk on tk.tk_msk_id=msk.msk_id
                     ORDER BY msk_id");
-
+	    $data = array();
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
 	            "id_kasus" => $tpp->msk_id,
@@ -326,7 +326,7 @@ class TerpaparController extends Controller {
 
 	public function getDashboardCompanybyMskid($id) {
 	    $terpapar = DB::select("SELECT * FROM allkasus_company_bymskid($id)");
-
+	    $data = array();
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
 	            "mc_id" => $tpp->x_mc_id,
@@ -340,7 +340,7 @@ class TerpaparController extends Controller {
 
 	public function getDashboardProvinsibyMskid($id) {
 	    $terpapar = DB::select("SELECT * FROM allkasus_provinsi_bymskid($id)");
-
+	    $data = array();
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
 	            "mpro_id" => $tpp->x_mpro_id,
@@ -355,6 +355,7 @@ class TerpaparController extends Controller {
 	public function getDashboardKabupatenbyMskid($id) {
 	    $terpapar = DB::select("SELECT * FROM allkasus_kabupaten_bymskid($id)");
 	   // var_dump($terpapar);die;
+	    $data = array();
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
 	            "mkab_id" => $tpp->x_mkab_id,
