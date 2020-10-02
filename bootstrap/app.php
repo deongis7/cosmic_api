@@ -61,8 +61,9 @@ $app->singleton(
 $app->configure('app');
 //untuk auth
 $app->configure('auth');
+//$app->configure('database');
 $app->configure('redis');
-$app->configure('swagger-lume'); 
+$app->configure('swagger-lume');
 
 
 /*
