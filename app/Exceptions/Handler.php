@@ -54,22 +54,22 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
 		if ($exception instanceof QueryException) {
-        
+
 			return response()->json([
 							'status' => '500',
 							//'message' => 'Data Mengalami Kesalahan.'
 							'message' => 'Internal Service Error. '.$exception->getMessage()
 						])->setStatusCode(500);
-		}		
+		}
 		if ($exception instanceof NotFoundHttpException) {
-        
+
 			return response()->json([
 							'status' => '404',
 							'message' => 'Data Tidak Ditemukan. '
 						])->setStatusCode(404);
 		}
 		if ($exception instanceof NotReadableException) {
-        
+
 			return response()->json([
 							'status' => '404',
 							'message' => 'Data Tidak Ditemukan. '
@@ -77,6 +77,6 @@ class Handler extends ExceptionHandler
 		}
 
         return parent::render($request, $exception);
-		
+
     }
 }

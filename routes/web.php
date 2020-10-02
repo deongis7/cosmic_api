@@ -157,10 +157,11 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/list_week', 'DashboardController@getWeekList');
 	$router->get('/dashboard/monitoring_bymciddate/{id}/{tgl}', 'DashboardController@getMonitoring_ByMcidWeek');
 	$router->get('/dashboard/listmonitoring_bymciddate/{id}/{tgl}', 'DashboardController@getListMonitoring_ByMcidWeek');
-	
+	$router->get('/dashboard/cosmic_index_report', 'DashboardController@getCosmicIndexReport');
+
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
-	
+
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
 	$router->get('/dashboard/dashboardhead_bumn/{id}', 'DashboardController@getDashboardHeadBUMN');
