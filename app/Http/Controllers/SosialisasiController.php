@@ -51,13 +51,13 @@ class SosialisasiController extends Controller {
         if (count($sosialisasi) > 0){
             foreach($sosialisasi as $sos){
                 if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
-                    if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1))) {
+                    if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file1))) {
                         $path_file404 = '/404/img404.jpg';
                         $filesos1 = $path_file404;
                         $filesos1_tumb = $path_file404;
                     }else{
-                        $path_file1 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1;
-                        $path_file1_tumb =  '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1_tumb;
+                        $path_file1 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file1;
+                        $path_file1_tumb =  '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file1_tumb;
                         $filesos1 = $path_file1;
                         $filesos1_tumb = $path_file1_tumb;
                     }
@@ -67,13 +67,13 @@ class SosialisasiController extends Controller {
                 }
                 
                 if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
-                    if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2))) {
+                    if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file2))) {
                         $path_file404 = '/404/img404.jpg';
                         $filesos2 = $path_file404;
                         $filesos2_tumb = $path_file404;
                     }else{
-                        $path_file2 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2;
-                        $path_file2_tumb = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2_tumb;
+                        $path_file2 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file2;
+                        $path_file2_tumb = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file2_tumb;
                         $filesos2 = $path_file2;
                         $filesos2_tumb = $path_file2_tumb;
                     }
@@ -113,13 +113,13 @@ class SosialisasiController extends Controller {
         if(count($sosialisasi) > 0) {
             foreach($sosialisasi as $sos){
                 if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
-                    if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1))) {
+                    if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file1))) {
                         $path_file404 = '/404/img404.jpg';
                         $filesos1 = $path_file404;
                         $filesos1_tumb = $path_file404;
                     }else{
-                        $path_file1 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1;
-                        $path_file1_tumb =  '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file1_tumb;
+                        $path_file1 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file1;
+                        $path_file1_tumb =  '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file1_tumb;
                         $filesos1 = $path_file1;
                         $filesos1_tumb = $path_file1_tumb;
                     }
@@ -129,13 +129,13 @@ class SosialisasiController extends Controller {
                 }
                 
                 if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
-                    if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2))) {
+                    if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file2))) {
                         $path_file404 = '/404/img404.jpg';
                         $filesos2 = $path_file404;
                         $filesos2_tumb = $path_file404;
                     }else{
-                        $path_file2 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2;
-                        $path_file2_tumb = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_tanggal.'/'.$sos->ts_file2_tumb;
+                        $path_file2 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file2;
+                        $path_file2_tumb = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file2_tumb;
                         $filesos2 = $path_file2;
                         $filesos2_tumb = $path_file2_tumb;
                     }
@@ -193,12 +193,12 @@ class SosialisasiController extends Controller {
         $user_id = $request->user_id;    
         //var_dump($tanggal);die;
         
-        if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal)) {
-            Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan.'/'.$tanggal);
+        if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan)) {
+            Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan);
         }
       
         //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
-        $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal;
+        $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan;
       
         $name1 = NULL;
         $name1_tumb = NULL;
@@ -265,22 +265,22 @@ class SosialisasiController extends Controller {
         $data->delete();
         
         if($data->delete()===NULL){
-            $file1 = storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_tanggal.'/'.$data->ts_file1);
+            $file1 = storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file1);
             if(is_file($file1)){
-                unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_tanggal.'/'.$data->ts_file1));
+                unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file1));
             }
-            $file1_tumb = storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_tanggal.'/'.$data->ts_file1_tumb);
+            $file1_tumb = storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file1_tumb);
             if(is_file($file1_tumb)){
-                unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_tanggal.'/'.$data->ts_file1_tumb));
+                unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file1_tumb));
             }
             
-            $file2 = storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_tanggal.'/'.$data->ts_file2);
+            $file2 = storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file2);
             if(is_file($file2)){
-                unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_tanggal.'/'.$data->ts_file2));
+                unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file2));
             }
-            $file2_tumb = storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_tanggal.'/'.$data->ts_file2_tumb);
+            $file2_tumb = storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file2_tumb);
             if(is_file($file2_tumb)){
-                unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_tanggal.'/'.$data->ts_file2_tumb));
+                unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file2_tumb));
             }
             
             return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diDelete']);
@@ -317,21 +317,21 @@ class SosialisasiController extends Controller {
         $filex2_tumb = $dataSosialisasi->ts_file2_tumb;
         
         
-        if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal)) {
-            Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan.'/'.$tanggal);
+        if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan)) {
+            Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan);
         }
         //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
-        $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal;
+        $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan;
         
         $name1 = $filex1;
         $name1_tumb = $filex1_tumb;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {
-            if($filex1!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1)){
-                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1);
+            if($filex1!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1)){
+                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1);
             }
             
-            if($filex1_tumb!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1_tumb)){
-                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1_tumb);
+            if($filex1_tumb!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1_tumb)){
+                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1_tumb);
             }
             
             $img1 = explode(',', $r_file1);
@@ -410,11 +410,11 @@ class SosialisasiController extends Controller {
         $tanggal = date('Y-m-d',$tgl);
         $user_id = $request->user_id;
         
-        if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal)) {
-            Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan.'/'.$tanggal);
+        if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan)) {
+            Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan);
         }
 
-        $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal;
+        $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan;
         
         $name1 = NULL;
         $name1_tumb = NULL;
@@ -503,21 +503,21 @@ class SosialisasiController extends Controller {
         $filex2_tumb = $dataSosialisasi->ts_file2_tumb;
         
         
-        if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan.'/'.$tanggal)) {
-            Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan.'/'.$tanggal);
+        if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan)) {
+            Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan);
         }
         //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
-        $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal;
+        $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan;
         
         $name1 = $filex1;
         $name1_tumb = $filex1_tumb;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {
-            if($filex1!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1)){
-                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1);
+            if($filex1!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1)){
+                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1);
             }
             
-            if($filex1_tumb!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1_tumb)){
-                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$tanggal.'/'.$filex1_tumb);
+            if($filex1_tumb!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1_tumb)){
+                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1_tumb);
             }
             
             $img1 = explode(',', $r_file1);
