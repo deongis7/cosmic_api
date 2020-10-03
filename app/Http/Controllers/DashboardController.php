@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Company;
 use App\Helpers\AppHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -162,12 +163,12 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function getDashboardHeadBUMN($id){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$id, 360 * 60, function()use($id) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM dashboardbumn_head('$id')");
-	        
+
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
 	                "v_id" => $dh->x_id,
@@ -179,14 +180,14 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function getDashboardProtokolBUMN($id){
         $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_".$id, 30 * 60, function()use($id) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT v_mpt_id, v_mpt_name,
                         CASE WHEN v_tbpt_id > 0 THEN 'Terupload' ELSE 'Belum Terupload' END AS v_upload
                         FROM protokol_bymc('$id')");
-	        
+
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
 	                "v_id" => $dh->v_mpt_id,
@@ -198,7 +199,7 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function getDashboardMrMpmBUMN($id){
        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmrmpmbumn_".$id, 15 * 60, function()use($id) {
     	    $data = array();
@@ -209,7 +210,7 @@ class DashboardController extends Controller
                         AND mr.mr_mc_id='$id'
                         GROUP BY mr_name
                         ORDER BY mr_name");
-    	    
+
     	    foreach($dashboard_head as $dh){
     	        $data[] = array(
     	            "v_region_name" => $dh->mr_name,
@@ -220,9 +221,105 @@ class DashboardController extends Controller
 	    });
 	    return response()->json(['status' => 200,'data' => $datacache]);
 	}
-	
+
 	public function RefreshMvRangkumanAll(){
         $dashboard_head = DB::select("REFRESH MATERIALIZED VIEW mv_rangkuman_all");
         return $dashboard_head;
 	}
+
+    public function getCosmicIndexReport(Request $request){
+        $str = 'get_cosmic_index_report';
+        if(isset($request->date)){
+            $strdate =  Carbon::parse($request->date);
+            //  dd($date);
+            $startdate = $strdate->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
+            $enddate = $strdate->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
+            $str = $str."_".$startdate."_".$enddate;
+        } else {
+            $crweeks = AppHelper::Weeks();
+            $startdate = $crweeks['startweek'];
+            $enddate = $crweeks['endweek'];
+            $str = $str."_".$startdate."_".$enddate;
+        }
+
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 60 * 60, function()use($startdate,$enddate) {
+            $data = array();
+            $weeks = AppHelper::Weeks();
+            $startdatenow = $weeks['startweek'];
+            $enddatenow = $weeks['endweek'];
+
+            $week = $startdate ."-".$enddate;
+            $weeknow = $startdatenow ."-".$enddatenow;
+            $data=[];
+            if ($week==$weeknow){
+                $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
+
+                foreach($company as $itemcompany) {
+
+                    $company_id = (string)$itemcompany->mc_id;
+                    //dd($itemcompany->mc_id);
+                    $sql = "SELECT
+                        a.v_mc_id,
+                        a.v_mc_name,
+                        a.v_ms_id,
+                        a.v_ms_name,
+                        a.v_cosmic_index,
+                        a.v_pemenuhan_protokol,
+                        a.v_pemenuhan_ceklist_monitoring,
+                        a.v_pemenuhan_eviden
+                        FROM week_cosmic_index(?, ?) a
+                        GROUP BY
+                        a.v_mc_id,
+                        a.v_mc_name,
+                        a.v_ms_id,
+                        a.v_ms_name,
+                        a.v_cosmic_index,
+                        a.v_pemenuhan_protokol,
+                        a.v_pemenuhan_ceklist_monitoring,
+                        a.v_pemenuhan_eviden
+                        ";
+                    //echo $sql;die;
+                    $result = DB::select($sql, [(string)$company_id, (string)$enddate]);
+                    //dd($result);
+                    foreach ($result as $value) {
+                        $data[] = array(
+                            "week" =>  $week,
+                            "mc_id" => $value->v_mc_id,
+                            "mc_name" => $value->v_mc_name,
+                            "ms_id" => $value->v_ms_id,
+                            "ms_name" => $value->v_ms_name,
+                            "cosmic_index" => $value->v_cosmic_index,
+                            "pemenuhan_protokol" => $value->v_pemenuhan_protokol,
+                            "pemenuhan_ceklist_monitoring" => $value->v_pemenuhan_ceklist_monitoring,
+                            "pemenuhan_eviden" => $value->v_pemenuhan_eviden
+
+                        );
+                    }
+                }
+            } else {
+                $rpi = DB::select("SELECT *
+                        FROM report_cosmic_index rpi
+                        WHERE rci_week = ?
+                        ORDER BY rci_mc_name",[(string)$week]);
+
+                foreach($rpi as $itemrpi){
+                    $data[] = array(
+                        "week" =>  $week,
+                        "mc_id" => $itemrpi->rci_mc_id,
+                        "mc_name" => $itemrpi->rci_mc_name,
+                        "ms_id" => $itemrpi->rci_ms_id,
+                        "ms_name" => $itemrpi->rci_ms_name,
+                        "cosmic_index" => $itemrpi->rci_cosmic_index,
+                        "pemenuhan_protokol" => $itemrpi->rci_pemenuhan_protokol,
+                        "pemenuhan_ceklist_monitoring" => $itemrpi->rci_pemenuhan_ceklist_monitoring,
+                        "pemenuhan_eviden" => $itemrpi->rci_pemenuhan_eviden,
+
+                    );
+                }
+            }
+
+            return $data;
+        });
+        return response()->json(['status' => 200,'data' => $datacache]);
+    }
 }
