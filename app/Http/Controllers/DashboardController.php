@@ -322,4 +322,99 @@ class DashboardController extends Controller
         });
         return response()->json(['status' => 200,'data' => $datacache]);
     }
+
+    public function getCosmicIndexbyCompanyAndDate($kd_perusahaan,Request $request){
+        $str = 'get_cosmic_index_'.$kd_perusahaan;
+        $mc_id = $kd_perusahaan;
+        if(isset($request->date)){
+            $strdate =  Carbon::parse($request->date);
+            //  dd($date);
+            $startdate = $strdate->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
+            $enddate = $strdate->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
+            $str = $str."_".$startdate."_".$enddate;
+        } else {
+            $crweeks = AppHelper::Weeks();
+            $startdate = $crweeks['startweek'];
+            $enddate = $crweeks['endweek'];
+            $str = $str."_".$startdate."_".$enddate;
+        }
+
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 60 * 60, function()use($startdate,$enddate,$mc_id) {
+            $data = array();
+            $weeks = AppHelper::Weeks();
+            $startdatenow = $weeks['startweek'];
+            $enddatenow = $weeks['endweek'];
+
+            $week = $startdate ."-".$enddate;
+            $weeknow = $startdatenow ."-".$enddatenow;
+            $data=[];
+            $company_id = $mc_id;
+            if ($week==$weeknow){
+
+
+                    //dd($itemcompany->mc_id);
+                    $sql = "SELECT
+                        a.v_mc_id,
+                        a.v_mc_name,
+                        a.v_ms_id,
+                        a.v_ms_name,
+                        a.v_cosmic_index,
+                        a.v_pemenuhan_protokol,
+                        a.v_pemenuhan_ceklist_monitoring,
+                        a.v_pemenuhan_eviden
+                        FROM week_cosmic_index(?, ?) a
+                        GROUP BY
+                        a.v_mc_id,
+                        a.v_mc_name,
+                        a.v_ms_id,
+                        a.v_ms_name,
+                        a.v_cosmic_index,
+                        a.v_pemenuhan_protokol,
+                        a.v_pemenuhan_ceklist_monitoring,
+                        a.v_pemenuhan_eviden
+                        ";
+                    //echo $sql;die;
+                    $result = DB::select($sql, [(string)$company_id, (string)$enddate]);
+                    //dd($result);
+                    foreach ($result as $value) {
+                        $data = array(
+                            "week" =>  $week,
+                            "mc_id" => $value->v_mc_id,
+                            "mc_name" => $value->v_mc_name,
+                            "ms_id" => $value->v_ms_id,
+                            "ms_name" => $value->v_ms_name,
+                            "cosmic_index" => $value->v_cosmic_index,
+                            "pemenuhan_protokol" => $value->v_pemenuhan_protokol,
+                            "pemenuhan_ceklist_monitoring" => $value->v_pemenuhan_ceklist_monitoring,
+                            "pemenuhan_eviden" => $value->v_pemenuhan_eviden
+
+                        );
+                    }
+
+            } else {
+                $rpi = DB::select("SELECT *
+                        FROM report_cosmic_index rpi
+                        WHERE rci_week = ? and rci_mc_id = ?
+                        ORDER BY rci_id limit 1",[(string)$week,(string)$company_id]);
+
+                foreach($rpi as $itemrpi){
+                    $data = array(
+                        "week" =>  $week,
+                        "mc_id" => $itemrpi->rci_mc_id,
+                        "mc_name" => $itemrpi->rci_mc_name,
+                        "ms_id" => $itemrpi->rci_ms_id,
+                        "ms_name" => $itemrpi->rci_ms_name,
+                        "cosmic_index" => $itemrpi->rci_cosmic_index,
+                        "pemenuhan_protokol" => $itemrpi->rci_pemenuhan_protokol,
+                        "pemenuhan_ceklist_monitoring" => $itemrpi->rci_pemenuhan_ceklist_monitoring,
+                        "pemenuhan_eviden" => $itemrpi->rci_pemenuhan_eviden,
+
+                    );
+                }
+            }
+
+            return $data;
+        });
+        return response()->json(['status' => 200,'data' => $datacache]);
+    }
 }
