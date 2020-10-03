@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TblPerimeterClosed extends Model
 {
+    //protected $connection = 'pgsql';
     protected $table = 'table_perimeter_closed';
 	protected $primaryKey = 'tbpc_id';
     const CREATED_AT = 'tbpc_date_insert';
