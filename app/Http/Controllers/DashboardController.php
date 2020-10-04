@@ -324,7 +324,7 @@ class DashboardController extends Controller
     }
 
     public function getCosmicIndexbyCompanyAndDate($kd_perusahaan,Request $request){
-        $str = 'get_cosmic_index_'.$kd_perusahaan;
+        $str = '_get_cosmic_index_'.$kd_perusahaan;
         $mc_id = $kd_perusahaan;
         if(isset($request->date)){
             $strdate =  Carbon::parse($request->date);
@@ -339,7 +339,7 @@ class DashboardController extends Controller
             $str = $str."_".$startdate."_".$enddate;
         }
 
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 60 * 60, function()use($startdate,$enddate,$mc_id) {
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 360 * 60, function()use($startdate,$enddate,$mc_id) {
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdatenow = $weeks['startweek'];
@@ -412,6 +412,104 @@ class DashboardController extends Controller
                     );
                 }
             }
+
+            return $data;
+        });
+        return response()->json(['status' => 200,'data' => $datacache]);
+    }
+
+    public function getCosmicIndexListbyCompany($kd_perusahaan){
+        $str = '_get_cosmic_index_detail_list_'.$kd_perusahaan;
+        $mc_id = $kd_perusahaan;
+
+
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 360 * 60, function()use($mc_id) {
+            $data = array();
+            $weeks = AppHelper::Weeks();
+            $startdatenow = $weeks['startweek'];
+            $enddatenow = $weeks['endweek'];
+
+            $weeknow = $startdatenow ."-".$enddatenow;
+            $data=[];
+
+
+              $company_id = $mc_id;
+              $perimeter = DB::select('select * from master_perimeter_level mpml
+              join master_perimeter mpm on mpm.mpm_id = mpml.mpml_mpm_id
+              where mpm.mpm_mc_id = ? and mpml.mpml_id in (select tpmd_mpml_id from table_perimeter_detail)',[$company_id]);
+              $jml = count($perimeter);
+
+              $ceknow = DB::select("SELECT *
+                      FROM report_cosmic_index rpi
+                      WHERE rci_week = ? and rci_mc_id = ?
+                      ORDER BY rci_week desc limit 1 ",[(string)$weeknow,(string)$company_id]);
+
+              if ($ceknow==null){
+
+                      $sql = "SELECT
+                          a.v_mc_id,
+                          a.v_mc_name,
+                          a.v_ms_id,
+                          a.v_ms_name,
+                          a.v_cosmic_index,
+                          a.v_pemenuhan_protokol,
+                          a.v_pemenuhan_ceklist_monitoring,
+                          a.v_pemenuhan_eviden
+                          FROM week_cosmic_index(?, ?) a
+                          GROUP BY
+                          a.v_mc_id,
+                          a.v_mc_name,
+                          a.v_ms_id,
+                          a.v_ms_name,
+                          a.v_cosmic_index,
+                          a.v_pemenuhan_protokol,
+                          a.v_pemenuhan_ceklist_monitoring,
+                          a.v_pemenuhan_eviden
+                          ";
+                      //echo $sql;die;
+                      $result = DB::select($sql, [(string)$company_id, (string)$enddatenow]);
+                      //dd($result);
+                      foreach ($result as $value) {
+                          $data[] = array(
+                              "week" =>  $weeknow,
+                              "mc_id" => $value->v_mc_id,
+                              "mc_name" => $value->v_mc_name,
+                              "ms_id" => $value->v_ms_id,
+                              "ms_name" => $value->v_ms_name,
+                              "cosmic_index" => $value->v_cosmic_index,
+                              "pemenuhan_protokol" => $value->v_pemenuhan_protokol,
+                              "pemenuhan_ceklist_monitoring" => $value->v_pemenuhan_ceklist_monitoring,
+                              "pemenuhan_eviden" => $value->v_pemenuhan_eviden,
+                              "jumlah_perimeter" => $jml
+
+                          );
+                      }
+
+              }
+
+
+              $rpi = DB::select("SELECT *
+                      FROM report_cosmic_index rpi
+                      WHERE rci_mc_id = ?
+                      ORDER BY rci_week desc ",[(string)$company_id]);
+
+              foreach($rpi as $itemrpi){
+                  $data[] = array(
+                      "week" =>  $itemrpi->rci_week,
+                      "mc_id" => $itemrpi->rci_mc_id,
+                      "mc_name" => $itemrpi->rci_mc_name,
+                      "ms_id" => $itemrpi->rci_ms_id,
+                      "ms_name" => $itemrpi->rci_ms_name,
+                      "cosmic_index" => $itemrpi->rci_cosmic_index,
+                      "pemenuhan_protokol" => $itemrpi->rci_pemenuhan_protokol,
+                      "pemenuhan_ceklist_monitoring" => $itemrpi->rci_pemenuhan_ceklist_monitoring,
+                      "pemenuhan_eviden" => $itemrpi->rci_pemenuhan_eviden,
+                      "jumlah_perimeter" => $itemrpi->rci_jml_perimeter,
+
+                  );
+              }
+            
+
 
             return $data;
         });
