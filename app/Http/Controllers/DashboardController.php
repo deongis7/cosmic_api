@@ -444,8 +444,35 @@ class DashboardController extends Controller
               $ceknow = DB::select("SELECT *
                       FROM report_cosmic_index rpi
                       WHERE rci_week = ? and rci_mc_id = ?
-                      ORDER BY rci_week desc limit 1 ",[(string)$weeknow,(string)$company_id]);
+                      ORDER BY rci_week asc limit 1 ",[(string)$weeknow,(string)$company_id]);
 
+
+              $rpi = DB::select("SELECT *
+                      FROM report_cosmic_index rpi
+                      WHERE rci_mc_id = ?
+                      ORDER BY rci_week asc ",[(string)$company_id]);
+
+              foreach($rpi as $itemrpi){
+                foreach ($weeksday as $itemweeksday){
+                  if($itemweeksday->v_week==$itemrpi->rci_week){
+                    $data[] = array(
+                        "week" =>  $itemrpi->rci_week,
+                          "weekname" =>  "Week ".$itemweeksday->v_rownum." ( ".$itemweeksday->tgl." )",
+                        "mc_id" => $itemrpi->rci_mc_id,
+                        "mc_name" => $itemrpi->rci_mc_name,
+                        "ms_id" => $itemrpi->rci_ms_id,
+                        "ms_name" => $itemrpi->rci_ms_name,
+                        "cosmic_index" => $itemrpi->rci_cosmic_index,
+                        "pemenuhan_protokol" => $itemrpi->rci_pemenuhan_protokol,
+                        "pemenuhan_ceklist_monitoring" => $itemrpi->rci_pemenuhan_ceklist_monitoring,
+                        "pemenuhan_eviden" => $itemrpi->rci_pemenuhan_eviden,
+                        "jumlah_perimeter" => $itemrpi->rci_jml_perimeter,
+
+                    );
+                  }
+                }
+
+              }
               if ($ceknow==null){
 
                       $sql = "SELECT
@@ -492,34 +519,6 @@ class DashboardController extends Controller
                         }
 
                       }
-
-              }
-
-
-              $rpi = DB::select("SELECT *
-                      FROM report_cosmic_index rpi
-                      WHERE rci_mc_id = ?
-                      ORDER BY rci_week desc ",[(string)$company_id]);
-
-              foreach($rpi as $itemrpi){
-                foreach ($weeksday as $itemweeksday){
-                  if($itemweeksday->v_week==$itemrpi->rci_week){
-                    $data[] = array(
-                        "week" =>  $itemrpi->rci_week,
-                          "weekname" =>  "Week ".$itemweeksday->v_rownum." ( ".$itemweeksday->tgl." )",
-                        "mc_id" => $itemrpi->rci_mc_id,
-                        "mc_name" => $itemrpi->rci_mc_name,
-                        "ms_id" => $itemrpi->rci_ms_id,
-                        "ms_name" => $itemrpi->rci_ms_name,
-                        "cosmic_index" => $itemrpi->rci_cosmic_index,
-                        "pemenuhan_protokol" => $itemrpi->rci_pemenuhan_protokol,
-                        "pemenuhan_ceklist_monitoring" => $itemrpi->rci_pemenuhan_ceklist_monitoring,
-                        "pemenuhan_eviden" => $itemrpi->rci_pemenuhan_eviden,
-                        "jumlah_perimeter" => $itemrpi->rci_jml_perimeter,
-
-                    );
-                  }
-                }
 
               }
 
