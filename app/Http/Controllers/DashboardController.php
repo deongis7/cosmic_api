@@ -431,7 +431,9 @@ class DashboardController extends Controller
 
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
-
+            $weeksday =  DB::select("SELECT * , CONCAT(v_awal,' s/d ', v_akhir) tgl
+                  FROM list_aktivitas_week()
+                  ORDER BY v_rownum DESC");
 
               $company_id = $mc_id;
               $perimeter = DB::select('select * from master_perimeter_level mpml
@@ -470,19 +472,25 @@ class DashboardController extends Controller
                       $result = DB::select($sql, [(string)$company_id, (string)$enddatenow]);
                       //dd($result);
                       foreach ($result as $value) {
-                          $data[] = array(
-                              "week" =>  $weeknow,
-                              "mc_id" => $value->v_mc_id,
-                              "mc_name" => $value->v_mc_name,
-                              "ms_id" => $value->v_ms_id,
-                              "ms_name" => $value->v_ms_name,
-                              "cosmic_index" => $value->v_cosmic_index,
-                              "pemenuhan_protokol" => $value->v_pemenuhan_protokol,
-                              "pemenuhan_ceklist_monitoring" => $value->v_pemenuhan_ceklist_monitoring,
-                              "pemenuhan_eviden" => $value->v_pemenuhan_eviden,
-                              "jumlah_perimeter" => $jml
+                        foreach ($weeksday as $itemweeksday){
+                          if($itemweeksday->v_week==$weeknow){
+                            $data[] = array(
+                                "week" =>  $weeknow,
+                                "weekname" =>  "Week ".$itemweeksday->v_rownum." ( ".$itemweeksday->tgl." )",
+                                "mc_id" => $value->v_mc_id,
+                                "mc_name" => $value->v_mc_name,
+                                "ms_id" => $value->v_ms_id,
+                                "ms_name" => $value->v_ms_name,
+                                "cosmic_index" => $value->v_cosmic_index,
+                                "pemenuhan_protokol" => $value->v_pemenuhan_protokol,
+                                "pemenuhan_ceklist_monitoring" => $value->v_pemenuhan_ceklist_monitoring,
+                                "pemenuhan_eviden" => $value->v_pemenuhan_eviden,
+                                "jumlah_perimeter" => $jml
 
-                          );
+                            );
+                          }
+                        }
+
                       }
 
               }
@@ -494,21 +502,27 @@ class DashboardController extends Controller
                       ORDER BY rci_week desc ",[(string)$company_id]);
 
               foreach($rpi as $itemrpi){
-                  $data[] = array(
-                      "week" =>  $itemrpi->rci_week,
-                      "mc_id" => $itemrpi->rci_mc_id,
-                      "mc_name" => $itemrpi->rci_mc_name,
-                      "ms_id" => $itemrpi->rci_ms_id,
-                      "ms_name" => $itemrpi->rci_ms_name,
-                      "cosmic_index" => $itemrpi->rci_cosmic_index,
-                      "pemenuhan_protokol" => $itemrpi->rci_pemenuhan_protokol,
-                      "pemenuhan_ceklist_monitoring" => $itemrpi->rci_pemenuhan_ceklist_monitoring,
-                      "pemenuhan_eviden" => $itemrpi->rci_pemenuhan_eviden,
-                      "jumlah_perimeter" => $itemrpi->rci_jml_perimeter,
+                foreach ($weeksday as $itemweeksday){
+                  if($itemweeksday->v_week==$itemrpi->rci_week){
+                    $data[] = array(
+                        "week" =>  $itemrpi->rci_week,
+                          "weekname" =>  "Week ".$itemweeksday->v_rownum." ( ".$itemweeksday->tgl." )",
+                        "mc_id" => $itemrpi->rci_mc_id,
+                        "mc_name" => $itemrpi->rci_mc_name,
+                        "ms_id" => $itemrpi->rci_ms_id,
+                        "ms_name" => $itemrpi->rci_ms_name,
+                        "cosmic_index" => $itemrpi->rci_cosmic_index,
+                        "pemenuhan_protokol" => $itemrpi->rci_pemenuhan_protokol,
+                        "pemenuhan_ceklist_monitoring" => $itemrpi->rci_pemenuhan_ceklist_monitoring,
+                        "pemenuhan_eviden" => $itemrpi->rci_pemenuhan_eviden,
+                        "jumlah_perimeter" => $itemrpi->rci_jml_perimeter,
 
-                  );
+                    );
+                  }
+                }
+
               }
-            
+
 
 
             return $data;
