@@ -159,7 +159,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/listmonitoring_bymciddate/{id}/{tgl}', 'DashboardController@getListMonitoring_ByMcidWeek');
 	$router->get('/dashboard/cosmic_index_report', 'DashboardController@getCosmicIndexReport');
 	//sprint16
-	$router->get('/dashboard/perimeter_bykategoriperusahaan/{data}', 'DashboardController@getPerimeter_bykategoriperusahaan');
+	$router->get('/dashboard/perimeter_bykategoriperusahaan/{name}', 'DashboardController@getPerimeter_bykategoriperusahaan');
 
 	$router->get('/dashboard/cosmic_index_detail/{kd_perusahaan}', 'DashboardController@getCosmicIndexbyCompanyAndDate');
 	$router->get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
