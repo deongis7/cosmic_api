@@ -39,10 +39,10 @@ class DashClusterController extends Controller
 
 	}
 
-	public function getClusterDashboardHead(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterdashmin_head", 360 * 60, function() {
+	public function getClusterDashboardHead($id){
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterdashmin_head".$id, 360 * 60, function()use($id){
 	        $data = array();
-	        $dashboard_head = DB::select("SELECT * FROM cluster_dashboard_head()");
+	        $dashboard_head = DB::select("SELECT * FROM cluster_dashboard_head('$id')");
 
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
