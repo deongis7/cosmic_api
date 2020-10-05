@@ -72,7 +72,7 @@ class DashboardController extends Controller
 	}
 
 	public function getPerimeter_bykategoriperusahaan($name){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan", 360 * 60, function(){
+		$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan_".$name, 360 * 60, function()use($name){
 	        $data = array();
 	        $perimeter_bykategori_all = DB::select("SELECT * FROM dashboard_perimeterbyperusahaan('$name')");
 
