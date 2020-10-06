@@ -91,7 +91,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/terpapar/dashkasus_company_bymskid/{id}', 'TerpaparController@getDashboardCompanybyMskid');
 	$router->get('/terpapar/dashkasus_provinsi_bymskid/{id}', 'TerpaparController@getDashboardProvinsibyMskid');
 	$router->get('/terpapar/dashkasus_kabupaten_bymskid/{id}', 'TerpaparController@getDashboardKabupatenbyMskid');
-
+	$router->get('/terpapar/cluster_laporan_home_all/{id}', 'TerpaparController@getClusterDataHomeAll');
 
 
 	//Cluster Aktifitas Ruangan
@@ -184,6 +184,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
     Route::post('/sosialisasi/webupdate_json/{user_id}/{id}', 'SosialisasiController@WebupdateSosialisasiJSON');
 
+    Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
 		Route::get('/user/detail', 'UserController@getDetailUser');
@@ -192,7 +193,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::post('/user/logout', 'UserController@logout');
 		Route::post('/user/detail_first/{id}', 'UserController@updateFirstDetailUser');
 
-		Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
+		//Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
 		Route::post('/terpapar/update/{id}', 'TerpaparController@UpdateKasus');
         Route::delete('/terpapar/delete/{id_kasus}', 'TerpaparController@deleteKasus');
 

@@ -66,26 +66,29 @@ class TerpaparController extends Controller {
 	}
 
 	public function getDataHomeAll() {
-	   $terpapar = DB::select("SELECT msk_id, msk_name2,
-                    CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
-                    FROM master_status_kasus msk
-                    LEFT JOIN (
-                        SELECT tk_msk_id, COUNT(tk_msk_id) jml
-                        FROM transaksi_kasus
-                        WHERE tk_msk_id!=3
-                        GROUP BY tk_msk_id
-                        UNION ALL
-                        SELECT 3, COUNT(tk_msk_id) jml
-                        FROM transaksi_kasus
-                        WHERE tk_msk_id IN (3,4,5)
-                    ) tk on tk.tk_msk_id=msk.msk_id
-                    ORDER BY msk_id");
+	   $terpapar = DB::select("SELECT * FROM dashboard_kasus()");
 	    $data = array();
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
-	            "id_kasus" => $tpp->msk_id,
-	            "jenis_kasus" => $tpp->msk_name2,
-	            "jumlah" => $tpp->jml
+	            "id_kasus" => $tpp->v_msk_id,
+	            "jenis_kasus" => $tpp->v_msk_name2,
+	            "jenis_kasus2" => $tpp->v_msk_name,
+	            "jumlah" => $tpp->v_cnt
+	        );
+	    }
+	    return response()->json(['status' => 200,
+	        'data' => $data]);
+	}
+	
+	public function getClusterDataHomeAll($id) {
+	    $terpapar = DB::select("SELECT * FROM cluster_dashboard_kasus('$id')");
+	    $data = array();
+	    foreach($terpapar as $tpp){
+	        $data[] = array(
+	            "id_kasus" => $tpp->v_msk_id,
+	            "jenis_kasus" => $tpp->v_msk_name2,
+	            "jenis_kasus2" => $tpp->v_msk_name,
+	            "jumlah" => $tpp->v_cnt
 	        );
 	    }
 	    return response()->json(['status' => 200,
@@ -156,43 +159,36 @@ class TerpaparController extends Controller {
 
 	public function InsertKasus(Request $request) {
 	    $data = new TrnKasus();
-
+	    $datareq = [
+	        'kd_perusahaan' => 'required',
+	        'nama_pasien' => 'required',
+	        'jenis_kasus' => 'required',
+	        'status_pegawai' => 'required',
+	        'provinsi' => 'required',
+	        'kabupaten' => 'required',
+	        'tindakan' => 'required',
+	    ];
+	    
 	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
-	        $this->validate($request, [
-	            'kd_perusahaan' => 'required',
-	            'nama_pasien' => 'required',
-	            'jenis_kasus' => 'required',
-	            'status_pegawai' => 'required',
-	            'provinsi' => 'required',
-	            'kabupaten' => 'required',
-	            'tindakan' => 'required',
-	            'tanggal' => 'required',
-	        ]);
-
-	        $tgl = strtotime($request->tanggal);
-	        $tanggal = date('Y-m-d',$tgl);
-
-	        if($request->jenis_kasus==5){
-                $data->tk_date_meninggal = $tanggal;
-                $data->tk_date = $tanggal;
-	        }else if($request->jenis_kasus==4){
-	            $data->tk_date_sembuh = $tanggal;
-	            $data->tk_date = $tanggal;
-	        }else if($request->jenis_kasus==3){
-	            $data->tk_date_positif = $tanggal;
-	            $data->tk_date = $tanggal;
-	        }
-	    }else{
-	        $this->validate($request, [
-	            'kd_perusahaan' => 'required',
-	            'nama_pasien' => 'required',
-	            'jenis_kasus' => 'required',
-	            'status_pegawai' => 'required',
-	            'provinsi' => 'required',
-	            'kabupaten' => 'required',
-	            'tindakan' => 'required',
-	        ]);
+	        $datareq['tanggal'] = 'required';
 	    }
+
+        $this->validate($request, $datareq);
+
+        $tgl = strtotime($request->tanggal);
+        $tanggal = date('Y-m-d',$tgl);
+
+        if($request->jenis_kasus==5){
+            $data->tk_date_meninggal = $tanggal;
+            $data->tk_date = $tanggal;
+        }else if($request->jenis_kasus==4){
+            $data->tk_date_sembuh = $tanggal;
+            $data->tk_date = $tanggal;
+        }else if($request->jenis_kasus==3){
+            $data->tk_date_positif = $tanggal;
+            $data->tk_date = $tanggal;
+        }
+
 	    date_default_timezone_set('Asia/Jakarta');
 	    $data->tk_mc_id = $request->kd_perusahaan;
 	    $data->tk_nama = $request->nama_pasien;
@@ -202,7 +198,7 @@ class TerpaparController extends Controller {
 	    $data->tk_mkab_id = $request->kabupaten;
 	    $data->tk_tempat_perawatan = $request->tempat_perawatan;
 	    $data->tk_tindakan = $request->tindakan;
-	    $data->tk_user_insert = Auth::guard('api')->user()->id;
+	    //$data->tk_user_insert = Auth::guard('api')->user()->id;
 	    $data->tk_date_insert = date('d-m-Y H:i:s');
 	    $data->save();
 
