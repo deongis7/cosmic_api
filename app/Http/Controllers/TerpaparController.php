@@ -211,42 +211,36 @@ class TerpaparController extends Controller {
 
 	public function UpdateKasus(Request $request, $id){
 	    $data = TrnKasus::where('tk_id',$id)->first();
+	    
+	    $datareq = [
+	        'kd_perusahaan' => 'required',
+	        'nama_pasien' => 'required',
+	        'jenis_kasus' => 'required',
+	        'status_pegawai' => 'required',
+	        'provinsi' => 'required',
+	        'kabupaten' => 'required',
+	        'tindakan' => 'required',
+	    ];
+	    
 	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
-	        $this->validate($request, [
-	            'kd_perusahaan' => 'required',
-	            'nama_pasien' => 'required',
-	            'jenis_kasus' => 'required',
-	            'status_pegawai' => 'required',
-	            'provinsi' => 'required',
-	            'kabupaten' => 'required',
-	            'tindakan' => 'required',
-	            'tanggal' => 'required'
-	        ]);
-
-	        $tgl = strtotime($request->tanggal);
-	        $tanggal = date('Y-m-d',$tgl);
-
-	        if($request->jenis_kasus==5){
-	            $data->tk_date_meninggal = $tanggal;
-	            $data->tk_date = $tanggal;
-	        }else if($request->jenis_kasus==4){
-	            $data->tk_date_sembuh = $tanggal;
-	            $data->tk_date = $tanggal;
-	        }else if($request->jenis_kasus==3){
-	            $data->tk_date_positif = $tanggal;
-	            $data->tk_date = $tanggal;
-	        }
-	    }else{
-	        $this->validate($request, [
-	            'kd_perusahaan' => 'required',
-	            'nama_pasien' => 'required',
-	            'jenis_kasus' => 'required',
-	            'status_pegawai' => 'required',
-	            'provinsi' => 'required',
-	            'kabupaten' => 'required',
-	            'tindakan' => 'required',
-	        ]);
+	        $datareq['tanggal'] = 'required';
 	    }
+	    
+	    $this->validate($request, $datareq);
+        $tgl = strtotime($request->tanggal);
+        
+        $tanggal = date('Y-m-d',$tgl);
+
+        if($request->jenis_kasus==5){
+            $data->tk_date_meninggal = $tanggal;
+            $data->tk_date = $tanggal;
+        }else if($request->jenis_kasus==4){
+            $data->tk_date_sembuh = $tanggal;
+            $data->tk_date = $tanggal;
+        }else if($request->jenis_kasus==3){
+            $data->tk_date_positif = $tanggal;
+            $data->tk_date = $tanggal;
+        }
 
 	    $data->tk_mc_id = $request->kd_perusahaan;
 	    $data->tk_nama = $request->nama_pasien;
