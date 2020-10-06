@@ -77,7 +77,7 @@ class DashClusterController extends Controller
 	public function getClusterPerimeterbyProvinsiAll($id){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_getcluster_perimeter_byprovinsi_all".$id, 360 * 60, function()use($id){
 	        $data = array();
-	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM cluster_dashboard_perimeter_byprovinsi($id)");
+	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM cluster_dashboard_perimeter_byprovinsi('$id')");
 	        
 	        foreach($perimeter_byprovinsi_all as $ppa){
 	            $data[] = array(
