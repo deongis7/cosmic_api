@@ -71,6 +71,25 @@ class DashboardController extends Controller
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 
+	public function getPerimeter_bykategoriperusahaan($name){
+		$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2_".$name, 360 * 60, function()use($name){
+	        $data = array();
+	        $perimeter_bykategori_all = DB::select("SELECT * FROM dashboard_perimeterbyperusahaan('$name')");
+
+	        foreach($perimeter_bykategori_all as $pka){
+	            $data[] = array(
+	                "v_mpm_id" => $pka->v_mpm_id,
+	                "v_name_kategori" => $pka->v_name_kategori,
+	                "v_jml" => $pka->v_jml,
+	                "v_name_perusahaan" => $pka->v_name_perusahaan,
+	                "v_name_provinsi" => $pka->v_name_provinsi
+	            );
+	        }
+	        return $data;
+	    });
+	        return response()->json(['status' => 200,'data' => $datacache]);
+	}
+
 	public function getPerimeterbyProvinsiAll(){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_byprovinsi_all", 360 * 60, function() {
 	        $data = array();
@@ -182,7 +201,7 @@ class DashboardController extends Controller
 	}
 
 	public function getDashboardProtokolBUMN($id){
-        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_".$id, 30 * 60, function()use($id) {
+       // $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_".$id, 30 * 60, function()use($id) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT v_mpt_id, v_mpt_name,
                         CASE WHEN v_tbpt_id > 0 THEN 'Terupload' ELSE 'Belum Terupload' END AS v_upload
@@ -196,7 +215,7 @@ class DashboardController extends Controller
 	            );
 	        }
 	        return $data;
-	    });
+	   // });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 
