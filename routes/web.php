@@ -95,9 +95,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/terpapar/dashkasus_company_bymskid/{id}', 'TerpaparController@getDashboardCompanybyMskid');
 	$router->get('/terpapar/dashkasus_provinsi_bymskid/{id}', 'TerpaparController@getDashboardProvinsibyMskid');
 	$router->get('/terpapar/dashkasus_kabupaten_bymskid/{id}', 'TerpaparController@getDashboardKabupatenbyMskid');
+	
 	$router->get('/terpapar/cluster_laporan_home_all/{id}', 'TerpaparController@getClusterDataHomeAll');
+	$router->get('/terpapar/dashclusterkasus_company_bymskid/{id}/{msc_id}', 'TerpaparController@getClusterDashboardCompanybyMskid');
+	$router->get('/terpapar/dashclusterkasus_provinsi_bymskid/{id}/{msc_id}', 'TerpaparController@getClusterDashboardProvinsibyMskid');
+	$router->get('/terpapar/dashclusterkasus_kabupaten_bymskid/{id}/{msc_id}', 'TerpaparController@getClusterDashboardKabupatenbyMskid');
 
-
+	
 	//Cluster Aktifitas Ruangan
 	$router->get('/cluster_aktfiktas_ruangan/getall/', 'CARuanganController@getAll');
 	$router->get('/cluster_aktfiktas_ruangan/getbyid/{id}', 'CARuanganController@getById');

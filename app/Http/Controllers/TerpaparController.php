@@ -354,4 +354,48 @@ class TerpaparController extends Controller {
 	    return response()->json(['status' => 200,
 	        'data' => $data]);
 	}
+	
+	public function getClusterDashboardCompanybyMskid($id, $msc_id) {
+	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_company_bymskid($id,'$msc_id')");
+	    $data = array();
+	    foreach($terpapar as $tpp){
+	        $data[] = array(
+	            "mc_id" => $tpp->x_mc_id,
+	            "mc_name" => $tpp->x_mc_name,
+	            "jumlah" => $tpp->x_jml
+	        );
+	    }
+	    return response()->json(['status' => 200,
+	        'data' => $data]);
+	}
+	
+	public function getClusterDashboardProvinsibyMskid($id, $msc_id) {
+	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_provinsi_bymskid($id,'$msc_id')");
+	    $data = array();
+	    foreach($terpapar as $tpp){
+	        $data[] = array(
+	            "mpro_id" => $tpp->x_mpro_id,
+	            "mpro_name" => $tpp->x_mpro_name,
+	            "jumlah" => $tpp->x_jml
+	        );
+	    }
+	    return response()->json(['status' => 200,
+	        'data' => $data]);
+	}
+	
+	public function getClusterDashboardKabupatenbyMskid($id, $msc_id) {
+	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_kabupaten_bymskid($id,'$msc_id')");
+	    // var_dump($terpapar);die;
+	    $data = array();
+	    foreach($terpapar as $tpp){
+	        $data[] = array(
+	            "mkab_id" => $tpp->x_mkab_id,
+	            "mkab_name" => $tpp->x_mkab_name,
+	            "jumlah" => $tpp->x_jml
+	        );
+	    }
+	    return response()->json(['status' => 200,
+	        'data' => $data]);
+	}
+	
 }
