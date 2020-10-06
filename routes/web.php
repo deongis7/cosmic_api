@@ -188,7 +188,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
     Route::post('/sosialisasi/webupdate_json/{user_id}/{id}', 'SosialisasiController@WebupdateSosialisasiJSON');
 
-    Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
 		Route::get('/user/detail', 'UserController@getDetailUser');
@@ -200,7 +199,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		//Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
 		Route::post('/terpapar/update/{id}', 'TerpaparController@UpdateKasus');
         Route::delete('/terpapar/delete/{id_kasus}', 'TerpaparController@deleteKasus');
-
+        Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
 
 		Route::post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
 		Route::post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');

@@ -198,7 +198,7 @@ class TerpaparController extends Controller {
 	    $data->tk_mkab_id = $request->kabupaten;
 	    $data->tk_tempat_perawatan = $request->tempat_perawatan;
 	    $data->tk_tindakan = $request->tindakan;
-	    //$data->tk_user_insert = Auth::guard('api')->user()->id;
+	    $data->tk_user_insert = Auth::guard('api')->user()->id;
 	    $data->tk_date_insert = date('d-m-Y H:i:s');
 	    $data->save();
 
