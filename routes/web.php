@@ -86,7 +86,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/parsingperimeter', 'TmpPerimeterController@parsingPerimeter');
 	$router->post('/import', 'ImportController@import');
 
-	//Data_detail
+	//Data_detail /Terpapar /Kasus
 	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
 	$router->get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
 	$router->get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');

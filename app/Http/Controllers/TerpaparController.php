@@ -71,7 +71,7 @@ class TerpaparController extends Controller {
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
 	            "id_kasus" => $tpp->v_msk_id,
-	            "jenis_kasus" => $tpp->v_msk_name2,
+	            "jenis_kasus" => $tpp->v_msk_name,
 	            "jumlah" => $tpp->v_cnt
 	        );
 	    }
@@ -85,7 +85,7 @@ class TerpaparController extends Controller {
 	    foreach($terpapar as $tpp){
 	        $data[] = array(
 	            "id_kasus" => $tpp->v_msk_id,
-	            "jenis_kasus" => $tpp->v_msk_name2,
+	            "jenis_kasus" => $tpp->v_msk_name,
 	            "jumlah" => $tpp->v_cnt
 	        );
 	    }
