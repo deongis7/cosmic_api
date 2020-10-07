@@ -86,9 +86,9 @@ class DashboardController extends Controller
 	                "v_name_provinsi" => $pka->v_name_provinsi
 	            );
 	        }
-	        return $data;
+	        //return $data;
 	    //});
-	        return response()->json(['status' => 200,'data' => $datacache]);
+	        return response()->json(['status' => 200,'data' => $data]);
 	}
 
 	public function getPerimeterbyProvinsiAll(){
