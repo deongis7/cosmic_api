@@ -92,7 +92,7 @@ class DashboardController extends Controller
 	}
 
 	public function getPerimeterbyProvinsiAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_byprovinsi_all", 360 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_byprovinsi_all2", 360 * 60, function() {
 	        $data = array();
 	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM dashboard_perimeter_byprovinsi()");
 
