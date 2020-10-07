@@ -86,7 +86,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/parsingperimeter', 'TmpPerimeterController@parsingPerimeter');
 	$router->post('/import', 'ImportController@import');
 
-	//Data_detail
+	//Data_detail /Terpapar /Kasus
 	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
 	$router->get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
 	$router->get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
@@ -95,9 +95,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/terpapar/dashkasus_company_bymskid/{id}', 'TerpaparController@getDashboardCompanybyMskid');
 	$router->get('/terpapar/dashkasus_provinsi_bymskid/{id}', 'TerpaparController@getDashboardProvinsibyMskid');
 	$router->get('/terpapar/dashkasus_kabupaten_bymskid/{id}', 'TerpaparController@getDashboardKabupatenbyMskid');
+	
+	$router->get('/terpapar/cluster_laporan_home_all/{id}', 'TerpaparController@getClusterDataHomeAll');
+	$router->get('/terpapar/dashclusterkasus_company_bymskid/{id}/{msc_id}', 'TerpaparController@getClusterDashboardCompanybyMskid');
+	$router->get('/terpapar/dashclusterkasus_provinsi_bymskid/{id}/{msc_id}', 'TerpaparController@getClusterDashboardProvinsibyMskid');
+	$router->get('/terpapar/dashclusterkasus_kabupaten_bymskid/{id}/{msc_id}', 'TerpaparController@getClusterDashboardKabupatenbyMskid');
 
-
-
+	
 	//Cluster Aktifitas Ruangan
 	$router->get('/cluster_aktfiktas_ruangan/getall/', 'CARuanganController@getAll');
 	$router->get('/cluster_aktfiktas_ruangan/getbyid/{id}', 'CARuanganController@getById');
@@ -164,6 +168,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/cosmic_index_report', 'DashboardController@getCosmicIndexReport');
 	//sprint16
 	$router->get('/dashboard/perimeter_bykategoriperusahaan/{name}', 'DashboardController@getPerimeter_bykategoriperusahaan');
+	$router->get('/dashboard/perimeter_bykategoriperusahaanProv/{id}', 'DashboardController@getPerimeter_bykategoriperusahaanProv');
 
 	$router->get('/dashboard/cosmic_index_detail/{kd_perusahaan}', 'DashboardController@getCosmicIndexbyCompanyAndDate');
 	$router->get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
@@ -196,10 +201,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::post('/user/logout', 'UserController@logout');
 		Route::post('/user/detail_first/{id}', 'UserController@updateFirstDetailUser');
 
-		Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
+		//Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
 		Route::post('/terpapar/update/{id}', 'TerpaparController@UpdateKasus');
         Route::delete('/terpapar/delete/{id_kasus}', 'TerpaparController@deleteKasus');
-
+        Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
 
 		Route::post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
 		Route::post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
