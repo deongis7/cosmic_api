@@ -73,7 +73,7 @@ class DashboardController extends Controller
 	}
 
 	public function getPerimeter_bykategoriperusahaan($name){
-		$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$name, 360 * 60, function()use($name){
+		/*$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$name, 360 * 60, function()use($name){*/
 	        $data = array();
 	        $perimeter_bykategori_all = DB::select("SELECT * FROM dashboard_perimeterbyperusahaan($name)");
 
@@ -87,7 +87,7 @@ class DashboardController extends Controller
 	            );
 	        }
 	        return $data;
-	    });
+	    //});
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 
