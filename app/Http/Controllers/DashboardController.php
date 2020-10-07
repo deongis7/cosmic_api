@@ -62,6 +62,7 @@ class DashboardController extends Controller
 
 	        foreach($perimeter_bykategori_all as $pka){
 	            $data[] = array(
+	            	"v_id" => $pka->v_id,
 	                "v_judul" => $pka->v_judul,
 	                "v_jml" => $pka->v_jml
 	            );
