@@ -98,7 +98,7 @@ class DashboardController extends Controller
 
 	        foreach($perimeter_byprovinsi_all as $ppa){
 	            $data[] = array(
-	                "v_mpro_id" => $ppa->v_mpm_id,
+	                "v_mpro_id" => $ppa->v_mpro_id,
 	                "v_judul" => $ppa->v_judul,
 	                "v_jml" => $ppa->v_jml
 	            );
