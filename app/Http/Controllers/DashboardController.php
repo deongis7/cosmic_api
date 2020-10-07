@@ -91,6 +91,25 @@ class DashboardController extends Controller
 	        return response()->json(['status' => 200,'data' => $data]);
 	}
 
+	public function getPerimeter_bykategoriperusahaanProv($id){
+		/*$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$name, 360 * 60, function()use($id){*/
+	        $data = array();
+	        $perimeter_bykategori_all = DB::select("SELECT * FROM dashboard_perimeterbyperusahaanprov($id)");
+
+	        foreach($perimeter_bykategori_all as $pka){
+	            $data[] = array(
+	                "v_mpm_id" => $pka->v_mpm_id,
+	                "v_name_kategori" => $pka->v_name_kategori,
+	                "v_jml" => $pka->v_jml,
+	                "v_name_perusahaan" => $pka->v_name_perusahaan,
+	                "v_name_provinsi" => $pka->v_name_provinsi
+	            );
+	        }
+	        //return $data;
+	    //});
+	        return response()->json(['status' => 200,'data' => $data]);
+	}
+
 	public function getPerimeterbyProvinsiAll(){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_byprovinsi_all3", 360 * 60, function() {
 	        $data = array();
