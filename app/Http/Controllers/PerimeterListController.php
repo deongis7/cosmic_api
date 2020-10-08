@@ -219,9 +219,13 @@ $status_monitoring = ($status['status']);
             //return  $data;
             return array('page_end' => $endpage, 'data' => $data);
         });
-
+            if(isset($nik) && ($user != null)) {
+              $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+            } else {
+                $status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
+            }
         //$status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
-        $status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
+        //$status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
         return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
 
     }
