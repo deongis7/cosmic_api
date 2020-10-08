@@ -52,17 +52,23 @@ class PerimeterController extends Controller
 	public function getCountPerimeter($id){
 		$data = array();
 		$region =  Cache::remember(env('APP_ENV', 'dev')."_count_region_by_company_id_". $id, 30 * 60, function()use($id) {
-			return count(Region::select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')->where('mr_mc_id',$id)->groupBy('mr_id')->get());
+      $reg = new Region;
+      $reg->setConnection('pgsql2');
+			return count($reg->select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')
+      ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
+      ->where('mr_mc_id',$id)->groupBy('mr_id')->get());
 		});
 		//$region =count(Region::select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')->where('mr_mc_id',$id)->groupBy('mr_id')->get());
 		$user =  Cache::remember(env('APP_ENV', 'dev')."_count_userpic_by_company_id_". $id, 30 * 60, function()use($id) {
-			return count(DB::select('select au.username from app_users au
+			return count(DB::connection('pgsql2')->select('select au.username from app_users au
 					join master_perimeter_level mpl on mpl.mpml_pic_nik = au.username
 					where au.mc_id = ?
 					group by au.username',[$id]));
 		});
 		$perimeter = Cache::remember(env('APP_ENV', 'dev')."_count_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
-			return Perimeter::join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
+      $prm= new Perimeter;
+      $prm->setConnection('pgsql2');
+      return $prm->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
 					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('master_region.mr_mc_id',$id)
 					->count();
@@ -82,8 +88,11 @@ class PerimeterController extends Controller
 
 	//Peta Sebaran Perimeter
 	public function getPerimeterMap($id){
+    $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_map_by_company_id_". $id, 30 * 60, function()use($id) {
 		$data = array();
-		$perimeter = Perimeter::select('master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude')
+    $perimeter = new Perimeter;
+    $perimeter->setConnection('pgsql2');
+		$perimeter = $perimeter->select('master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude')
 					->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
 					->where('master_region.mr_mc_id',$id)
 					->get();
@@ -96,7 +105,9 @@ class PerimeterController extends Controller
 					"latitude" => str_replace("'","",$itemperimeter->mpm_latitude),
 				);
 		}
-		return response()->json(['status' => 200,'data' => $data]);
+    return $data;
+  });
+		return response()->json(['status' => 200,'data' => $datacache]);
 
 	}
 
@@ -105,9 +116,10 @@ class PerimeterController extends Controller
 		$datacache = Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_by_company_id_". $id, 10 * 60, function()use($id) {
 		$dashboard = array("total_perimeter"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
 		$data = array();
-
+    $perimeter = new Perimeter;
+    $perimeter->setConnection('pgsql2');
 			//Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
-			$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
+			$perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
 		    'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
 		    'master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket',
 		    'master_perimeter_kategori.mpmk_name','userpic.username as nik_pic',
@@ -132,7 +144,9 @@ class PerimeterController extends Controller
 			$totalpmmonitoring = 0;
 
 		foreach($perimeter as $itemperimeter){
-			$cluster = TblPerimeterDetail::where('tpmd_mpml_id',$itemperimeter->mpml_id)->where('tpmd_cek',true)->count();
+      $cluster = new TblPerimeterDetail;
+      $cluster->setConnection('pgsql2');
+			$cluster = $cluster->where('tpmd_mpml_id',$itemperimeter->mpml_id)->where('tpmd_cek',true)->count();
 
 			$status = $this->getStatusMonitoring($itemperimeter->mpml_id,$cluster);
 			$data[] = array(
@@ -189,7 +203,9 @@ class PerimeterController extends Controller
 
         $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10 * 60, function()use($id,$limit,$page,$endpage,$search) {
             $data = array();
-            $perimeter = Perimeter::select('master_region.mr_id', 'master_region.mr_name',
+            $perimeter = new Perimeter;
+            $perimeter->setConnection('pgsql2');
+            $perimeter = $perimeter->select('master_region.mr_id', 'master_region.mr_name',
                 'master_perimeter_level.mpml_id', 'master_perimeter.mpm_name',
                 'master_perimeter.mpm_alamat', 'master_perimeter_level.mpml_name',
                 'master_perimeter_level.mpml_ket', 'master_perimeter_kategori.mpmk_name',
@@ -248,7 +264,9 @@ class PerimeterController extends Controller
 	public function getPerimeterbyKota($kd_perusahaan,$id_kota){
 
 		$data = array();
-		$perimeter = Perimeter::select('master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude')
+    $perimeter = new Perimeter;
+    $perimeter->setConnection('pgsql2');
+		$perimeter = $perimeter->select('master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude')
                             ->where('master_perimeter.mpm_mc_id',$kd_perusahaan);
 		if($id_kota != 0){
 				$perimeter = $perimeter->where('master_perimeter.mpm_mkab_id',$id_kota);}
@@ -269,7 +287,9 @@ class PerimeterController extends Controller
 	//Get Level/Lantai by Perimeter
 	public function getLevelbyPerimeter($id_perimeter){
 		$data = array();
-		$perimeter = PerimeterLevel::join('master_perimeter','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
+    $perimeter = new PerimeterLevel;
+    $perimeter->setConnection('pgsql2');
+		$perimeter = $perimeter->join('master_perimeter','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('mpml_mpm_id',$id_perimeter)
 					->get();
 		foreach($perimeter as $itemperimeter){
@@ -290,7 +310,7 @@ class PerimeterController extends Controller
 
 		$data = array();
 
-			$perimeter = DB::select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo from master_perimeter_level mpl
+			$perimeter = DB::connection('pgsql2')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo from master_perimeter_level mpl
 					join master_perimeter mpm on mpm.mpm_id = mpl.mpml_mpm_id
 					join master_perimeter_kategori mpk on mpk.mpmk_id = mpm.mpm_mpmk_id
 					join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id and tpd.tpmd_cek=true
@@ -319,7 +339,9 @@ class PerimeterController extends Controller
 	//Jumlah Task Force
 	public function getCountTaskForce($id){
 		$data = array();
-		$taskforce = User::join('master_company','master_company.mc_id','app_users.mc_id')
+    $taskforce = new User;
+    $taskforce->setConnection('pgsql2');
+		$taskforce = $taskforce->join('master_company','master_company.mc_id','app_users.mc_id')
 					->join('app_users_groups','app_users_groups.user_id','app_users.id')
 					->where('master_company.mc_id', '=', $id)
 					->where(function($query){
@@ -384,7 +406,7 @@ class PerimeterController extends Controller
 		//cek kota
 		if(isset($request->id_kota) && $request->id_kota <> 'null'&& $request->id_kota <> ''){
 			$querycache = $querycache ."_kota_". $request->id_kota;
-			$query = $query . " and (a1.mkab_id=? or a2.mkab_id=?) ";
+			$query = $query . " and ((a1.mkab_id=? or a2.mkab_id=?) or (( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL )))";
 			$param[] = $request->id_kota;
 			$param[] = $request->id_kota;
 		}
@@ -401,7 +423,7 @@ class PerimeterController extends Controller
 			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END )
 			order by
 			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) desc, aug.name desc,app.first_name asc ";
-        $jmltotal=count(DB::select( $query , $param));
+        $jmltotal=count(DB::connection('pgsql2')->select( $query , $param));
 
         if(isset($limit)) {
            $query=$query ." limit ". $limit;
@@ -415,7 +437,7 @@ class PerimeterController extends Controller
         }
 		//$datacache = Cache::remember($querycache, 1 * 60, function()use($query,$param) {
 			$data = array();
-			$taskforce = DB::select( $query , $param);
+			$taskforce = DB::connection('pgsql2')->select( $query , $param);
 
 			foreach($taskforce as $itemtaskforce){
 				$data[] = array(
@@ -440,7 +462,7 @@ class PerimeterController extends Controller
 		//Get Task Force per Region
 	public function getTaskForcebyRegion($id){
 		$data = array();
-		$taskforce = DB::select( "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
+		$taskforce = DB::connection('pgsql2')->select( "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
 			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end) as mr_name,app.mc_id
 		from app_users app
 		left JOIN (select mp1.mpm_mr_id , mr1.mr_name, mpl1.mpml_pic_nik from master_perimeter_level mpl1
@@ -509,7 +531,7 @@ class PerimeterController extends Controller
 		$startdate = $weeks['startweek'];
 		$enddate = $weeks['endweek'];
 
-		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+		$clustertrans = DB::connection('pgsql2')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
@@ -566,7 +588,7 @@ class PerimeterController extends Controller
 		$enddate = $weeks['endweek'];
 
 
-		$clustertrans = DB::select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+		$clustertrans = DB::connection('pgsql2')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 			join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 			join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 			join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
@@ -601,7 +623,9 @@ class PerimeterController extends Controller
 	//Get Task Force Detail
 	public function getTaskForceDetail($nik){
 		$data = array();
-		$taskforce = User::select("app_users.username","app_users.first_name","app_groups.name","app_users_groups.group_id")
+    $taskforce = new User;
+    $taskforce->setConnection('pgsql2');
+		$taskforce = $taskforce->select("app_users.username","app_users.first_name","app_groups.name","app_users_groups.group_id")
 					->join("app_users_groups","app_users.id","app_users_groups.user_id")
 					->join("app_groups","app_groups.id","app_users_groups.group_id")
 					->where(DB::raw("TRIM(app_users.username)"),'=',trim($nik))->first();
@@ -647,8 +671,9 @@ class PerimeterController extends Controller
         $Path = '/profile/';
         $PathCompany = '/foto_bumn/';
         $data = array();
-
-        $user = User::select('app_users.id','app_users.username','app_users.first_name',
+        $user = new User;
+        $user->setConnection('pgsql2');
+        $user = $user->select('app_users.id','app_users.username','app_users.first_name',
             'master_company.mc_id','master_company.mc_name','app_groups.name',
             'app_users.no_hp','app_users.divisi','app_users.email','app_users.foto','master_company.mc_foto')
             ->join('master_company','master_company.mc_id','app_users.mc_id')
@@ -735,7 +760,9 @@ class PerimeterController extends Controller
 	public function getDetailPerimeter($id_perimeter_level){
 		$data = array();
         $datacluster=[];
-		$perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
+        $perimeter = new Perimeter;
+        $perimeter->setConnection('pgsql2');
+		$perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
 		    'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
 		    'master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket','master_perimeter_kategori.mpmk_id',
 		    'master_perimeter_kategori.mpmk_name','userpic.username as nik_pic',
@@ -761,7 +788,7 @@ class PerimeterController extends Controller
 					->first();
 
 		if ($perimeter != null){
-            $cluster = DB::select( "SELECT tpd.tpmd_mpml_id,mcr.mcr_id, mcr.mcr_name,count(tpd.tpmd_order) as jumlah FROM  master_cluster_ruangan mcr
+            $cluster = DB::connection('pgsql2')->select( "SELECT tpd.tpmd_mpml_id,mcr.mcr_id, mcr.mcr_name,count(tpd.tpmd_order) as jumlah FROM  master_cluster_ruangan mcr
                     inner join table_perimeter_detail tpd on tpd.tpmd_mcr_id =mcr.mcr_id and tpd.tpmd_cek=true
                     where tpd.tpmd_mpml_id = ?
                     group by tpd.tpmd_mpml_id,mcr.mcr_id, mcr.mcr_name
