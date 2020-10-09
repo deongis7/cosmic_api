@@ -760,9 +760,9 @@ class PerimeterController extends Controller
       $user= User::where('username',$nik)->first();
       if($user!= null){
         if($user->delete()) {
-              return response()->json(['status' => 200,'message' => 'User telah Hapus']);
+              return response()->json(['status' => 200,'message' => 'User telah Dihapus']);
           } else {
-              return response()->json(['status' => 500,'message' => 'User gagal Hapus'])->setStatusCode(500);
+              return response()->json(['status' => 500,'message' => 'User gagal Dihapus'])->setStatusCode(500);
           }
       } else {
         return response()->json(['status' => 404,'message' => 'User Tidak DItemukan'])->setStatusCode(404);
