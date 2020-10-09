@@ -755,6 +755,22 @@ class PerimeterController extends Controller
         }
     }
 
+    public function deleteTaskForce($nik) {
+
+      $user= User::where('username',$nik)->first();
+      if($user!= null){
+        if($user->delete()) {
+              return response()->json(['status' => 200,'message' => 'User telah Hapus']);
+          } else {
+              return response()->json(['status' => 500,'message' => 'User gagal Hapus'])->setStatusCode(500);
+          }
+      } else {
+        return response()->json(['status' => 404,'message' => 'User Tidak DItemukan'])->setStatusCode(404);
+
+      }
+
+    }
+
 
 	//Get Perimeter Detail
 	public function getDetailPerimeter($id_perimeter_level){
