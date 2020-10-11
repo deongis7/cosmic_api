@@ -390,9 +390,6 @@ class DashboardController extends Controller
             $data=[];
             $company_id = $mc_id;
             if ($week==$weeknow){
-
-
-                    //dd($itemcompany->mc_id);
                     $sql = "SELECT
                         a.v_mc_id,
                         a.v_mc_name,
@@ -557,15 +554,14 @@ class DashboardController extends Controller
                             );
                           }
                         }
-
                       }
-
               }
-
-
-
             return $data;
         });
         return response()->json(['status' => 200,'data' => $datacache]);
+    }
+    
+    public function getAlertWeek($mc_id){
+        
     }
 }
