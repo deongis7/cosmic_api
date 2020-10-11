@@ -280,4 +280,29 @@ class MasterController extends Controller
 
         return response()->json(['status' => 200,'data' => $datacache]);
     }
+
+    public function getWeekList(){
+      $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_weeklist', 360 * 60, function() {
+
+        $weeksday =  DB::select("SELECT * , CONCAT(v_awal,' s/d ', v_akhir) tgl
+              FROM list_aktivitas_week()
+              ORDER BY v_rownum DESC");
+
+          foreach ($weeksday as $itemweeksday) {
+                $data[] = array(
+                    "week" => $itemweeksday->v_week,
+                    "week_name" => 'Week '.$itemweeksday->v_rownum.'( '.$itemweeksday->tgl.' )',
+
+                    "start_date" => $itemweeksday->v_awal,
+                    "last_date" => $itemweeksday->v_akhir,
+
+                    "rownum" => $itemweeksday->v_rownum,
+                    "range_date" => $itemweeksday->tgl,
+
+                );
+            }
+            return array('status' => 200, 'data' => $data);
+      });
+      return $datacache;
+    }
 }
