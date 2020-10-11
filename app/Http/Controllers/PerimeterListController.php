@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Cache;
+use App\TrnAktifitasFile;
 
 use DB;
 use function Complex\negative;
@@ -850,7 +851,7 @@ $status_monitoring = ($status['status']);
             $perimeter = $perimeter->select('master_region.mr_id', 'master_region.mr_name',
                 'master_perimeter.mpm_id', 'master_perimeter.mpm_name',
                 'master_perimeter.mpm_alamat', 'master_perimeter_kategori.mpmk_name',
-                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
+                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name', 'master_perimeter.mpm_mc_id')
                 ->join('master_region', 'master_region.mr_id', 'master_perimeter.mpm_mr_id')
                 ->join('master_perimeter_kategori', 'master_perimeter_kategori.mpmk_id', 'master_perimeter.mpm_mpmk_id')
                 ->leftjoin('master_provinsi', 'master_provinsi.mpro_id', 'master_perimeter.mpm_mpro_id')
@@ -884,6 +885,7 @@ $status_monitoring = ($status['status']);
 
                     "provinsi" => $itemperimeter->mpro_name,
                     "kabupaten" => $itemperimeter->mkab_name,
+                    "aktifitas" => $this->getFotoByPerimeter($itemperimeter->mpm_id, $itemperimeter->mpm_mc_id)
                 );
             }
             return array('status' => 200,'page_end' => $endpage,'data' => $data);
@@ -962,4 +964,65 @@ $status_monitoring = ($status['status']);
         }
 
     }
+
+    //Get Status Monitoring Perimeter Level
+    private function getFotoByPerimeter($id_perimeter,$mc_id){
+$datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id_perimeter, 5 * 60, function()use($id_perimeter,$mc_id) {
+        $data = array();
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+
+
+        $clustertrans = DB::connection('pgsql2')->select( "select ta.ta_id, ta.ta_date, mpl.mpml_id, mpl.mpml_name,mcr.mcr_name,mcar.mcar_name, us.username as nik_fo, us.first_name as fo from transaksi_aktifitas ta
+    		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+    		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+    		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+    		join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
+    		join master_car mcar on mcar.mcar_id = kc.kcar_mcar_id
+    		join app_users us on us.username = mpl.mpml_me_nik
+    		where ta.ta_status = 1 and mpl.mpml_mpm_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
+        order by ta.ta_date desc limit 7", [$id_perimeter, $startdate, $enddate]);
+
+        foreach ($clustertrans as $itemclustertrans) {
+            $data[] = array(
+                "id_perimeter_level" => $itemclustertrans->mpml_id,
+                "level" => 'Lantai '.$itemclustertrans->mpml_name,
+                "cluster" => $itemclustertrans->mcr_name,
+                "id_aktifitas" => $itemclustertrans->ta_id,
+                "aktifitas" => $itemclustertrans->mcar_name,
+                "nik_fo" => $itemclustertrans->nik_fo,
+                "fo" => $itemclustertrans->fo,
+                "tanggal" => $itemclustertrans->ta_date,
+                "file" => $this->getFile($itemclustertrans->ta_id,$mc_id)
+              );
+        }
+          return $data;
+      });
+      return $datacache;
+
+
+    }
+
+    private function getFile($id_aktifitas,$id_perusahaan){
+
+      $data =[];
+
+      if ($id_aktifitas != null){
+      $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
+              ->where("ta_status", "<>", "2")
+              ->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
+
+        foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){
+
+          $data[] = array(
+              "id_file" => $itemtransaksi_aktifitas_file->taf_id,
+              "file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
+              "file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
+            );
+        }
+      }
+      return $data;
+      }
+
 }
