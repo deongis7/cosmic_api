@@ -147,6 +147,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/sosialisasikategori', 'MasterController@getAllSosialisasiKategori');
 	$router->get('/perimeterkategori', 'MasterController@getKategoriPerimeter');
 	$router->get('/clusterruangan', 'MasterController@getClusterRuangan');
+	$router->get('/weeklist', 'MasterController@getWeekList');
 
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
