@@ -390,9 +390,6 @@ class DashboardController extends Controller
             $data=[];
             $company_id = $mc_id;
             if ($week==$weeknow){
-
-
-                    //dd($itemcompany->mc_id);
                     $sql = "SELECT
                         a.v_mc_id,
                         a.v_mc_name,
@@ -461,7 +458,6 @@ class DashboardController extends Controller
     public function getCosmicIndexListbyCompany($kd_perusahaan){
         $str = '_get_cosmic_index_detail_list_'.$kd_perusahaan;
         $mc_id = $kd_perusahaan;
-
 
         $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 360 * 60, function()use($mc_id) {
             $data = array();
@@ -557,15 +553,48 @@ class DashboardController extends Controller
                             );
                           }
                         }
-
                       }
-
               }
-
-
-
             return $data;
         });
         return response()->json(['status' => 200,'data' => $datacache]);
+    }
+    
+    public function getAlertWeek_byMcid($id){
+        $alert = 0;
+        $data = array();
+        $alert_kasus = DB::select("SELECT * FROM alertweek_kasus_mobile(?)",[$id]); 
+        foreach($alert_kasus as $ak){
+            $data[] = array(
+                "judul" => 'kasus',
+                "tgl" => $ak->v_tgl
+            );
+            $alert++;
+        }
+    
+        $alert_protokol = DB::select("SELECT * FROM alertweek_protokol_mobile(?)",[$id]);
+        foreach($alert_protokol as $ap){
+            $data[] = array(
+                "judul" => 'protokol',
+                "tgl" => $ap->v_tgl
+            );
+            $alert++;
+        }
+        
+        $alert_sosialisasi = DB::select("SELECT * FROM alertweek_sosialisasi_mobile(?)",[$id]);
+        foreach($alert_sosialisasi as $as){
+            $data[] = array(
+                "judul" => 'sosialisasi',
+                "tgl" => $as->v_tgl
+            );
+            $alert++;
+        }
+        
+        if($alert > 0){  $alert_tf = true; }else{ $alert_tf = false; }
+        return response()->json([
+            'status' => 200, 
+            'alert'=> $alert_tf, 
+            'data' => $data
+        ]);
     }
 }
