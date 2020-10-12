@@ -625,7 +625,7 @@ class DashboardController extends Controller
         if($alert > 0){  $alert_tf = true; }else{ $alert_tf = false; }
         return response()->json([
             'status' => 200, 
-            'path_img' => 'alert_week_mobile.png',
+            //'path_img' => 'alert_week_mobile.png',
             'alert'=> $alert_tf, 
             'data' => $data
         ]);
