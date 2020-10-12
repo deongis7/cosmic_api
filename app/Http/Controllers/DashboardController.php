@@ -567,27 +567,36 @@ class DashboardController extends Controller
         foreach($alert_kasus as $ak){
             $data[] = array(
                 "judul" => 'kasus',
+                "cnt" => $ak->v_cnt,
                 "tgl" => $ak->v_tgl
             );
-            $alert++;
+            if($ak->v_cnt > 0){
+                $alert++;
+            }
         }
     
         $alert_protokol = DB::select("SELECT * FROM alertweek_protokol_mobile(?)",[$id]);
         foreach($alert_protokol as $ap){
             $data[] = array(
                 "judul" => 'protokol',
+                "cnt" => $ap->v_cnt,
                 "tgl" => $ap->v_tgl
             );
-            $alert++;
+            if($ap->v_cnt > 0){
+                $alert++;
+            }
         }
         
         $alert_sosialisasi = DB::select("SELECT * FROM alertweek_sosialisasi_mobile(?)",[$id]);
         foreach($alert_sosialisasi as $as){
             $data[] = array(
                 "judul" => 'sosialisasi',
+                "cnt" => $as->v_cnt,
                 "tgl" => $as->v_tgl
             );
-            $alert++;
+            if($as->v_cnt > 0){
+                $alert++;
+            }
         }
         
         if($alert > 0){  $alert_tf = true; }else{ $alert_tf = false; }
