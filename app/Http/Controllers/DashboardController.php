@@ -91,13 +91,33 @@ class DashboardController extends Controller
 	        return response()->json(['status' => 200,'data' => $data]);
 	}
 
+	public function getPerimeter_bykategoriperusahaanProv($id){
+		/*$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$name, 360 * 60, function()use($id){*/
+	        $data = array();
+	        $perimeter_bykategori_all = DB::select("SELECT * FROM dashboard_perimeterbyperusahaanprov($id)");
+
+	        foreach($perimeter_bykategori_all as $pka){
+	            $data[] = array(
+	                "v_mpm_id" => $pka->v_mpm_id,
+	                "v_name_kategori" => $pka->v_name_kategori,
+	                "v_jml" => $pka->v_jml,
+	                "v_name_perusahaan" => $pka->v_name_perusahaan,
+	                "v_name_provinsi" => $pka->v_name_provinsi
+	            );
+	        }
+	        //return $data;
+	    //});
+	        return response()->json(['status' => 200,'data' => $data]);
+	}
+
 	public function getPerimeterbyProvinsiAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_byprovinsi_all", 360 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_byprovinsi_all3", 360 * 60, function() {
 	        $data = array();
 	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM dashboard_perimeter_byprovinsi()");
 
 	        foreach($perimeter_byprovinsi_all as $ppa){
 	            $data[] = array(
+	                "v_mpro_id" => $ppa->v_mpro_id,
 	                "v_judul" => $ppa->v_judul,
 	                "v_jml" => $ppa->v_jml
 	            );
@@ -202,7 +222,7 @@ class DashboardController extends Controller
 	}
 
 	public function getDashboardProtokolBUMN($id){
-       // $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_".$id, 30 * 60, function()use($id) {
+       $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_".$id, 15 * 60, function()use($id) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT v_mpt_id, v_mpt_name,
                         CASE WHEN v_tbpt_id > 0 THEN 'Terupload' ELSE 'Belum Terupload' END AS v_upload
@@ -216,7 +236,7 @@ class DashboardController extends Controller
 	            );
 	        }
 	        return $data;
-	   // });
+	   });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 

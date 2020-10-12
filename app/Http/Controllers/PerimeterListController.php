@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Cache;
+use App\TrnAktifitasFile;
 
 use DB;
 use function Complex\negative;
@@ -91,8 +92,9 @@ class PerimeterListController extends Controller
         $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
-
-            $perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
+            $perimeter = new Perimeter;
+            $perimeter->setConnection('pgsql2');
+            $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
                 'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                 'master_perimeter_kategori.mpmk_name',
                 'master_provinsi.mpro_name', 'master_kabupaten.mkab_name'
@@ -139,7 +141,9 @@ class PerimeterListController extends Controller
             //$totalpmmonitoring = 0;
 
             foreach ($perimeter as $itemperimeter) {
-                $cluster = PerimeterLevel::join('table_perimeter_detail','table_perimeter_detail.tpmd_mpml_id', 'master_perimeter_level.mpml_id')
+              $cluster = new PerimeterLevel;
+              $cluster->setConnection('pgsql2');
+                $cluster = $cluster->join('table_perimeter_detail','table_perimeter_detail.tpmd_mpml_id', 'master_perimeter_level.mpml_id')
                     ->where('table_perimeter_detail.tpmd_cek', true)
                     ->where('master_perimeter_level.mpml_mpm_id',$itemperimeter->mpm_id)->count();
                 $status = $this->getStatusMonitoringPerimeter($itemperimeter->mpm_id, $role_id, $cluster);
@@ -216,8 +220,13 @@ $status_monitoring = ($status['status']);
             //return  $data;
             return array('page_end' => $endpage, 'data' => $data);
         });
-
-        $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+            if(isset($nik) && ($user != null)) {
+              $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+            } else {
+                $status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
+            }
+        //$status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+        //$status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
         return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
 
     }
@@ -369,8 +378,9 @@ $status_monitoring = ($status['status']);
         $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 50 * 60, function()use($kd_perusahaan,$page,$limit,$endpage,$search) {
 
             $data = array();
-
-            $region = Region::where( 'mr_mc_id', '=', $kd_perusahaan);
+            $region = new Region;
+            $region->setConnection('pgsql2');
+            $region = $region->where( 'mr_mc_id', '=', $kd_perusahaan);
             if(isset($search)) {
                 $region = $region->where(DB::raw("lower(TRIM(mr_name))"),'like','%'.strtolower(trim($search)).'%');
             }
@@ -472,7 +482,9 @@ $status_monitoring = ($status['status']);
 
         if(isset($nik)){
             $str = $str.'_nik_'. $nik;
-            $user = User::where('username', $nik)->first();
+            $user = new User;
+            $user->setConnection('pgsql2');
+            $user = $user->where('username', $nik)->first();
             $str_fnc[]=$nik;
         }
         //dd($str_fnc);
@@ -481,7 +493,9 @@ $status_monitoring = ($status['status']);
 
             $data = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
 
-            $perimeter = Perimeter::select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id')
+            $perimeter = new Perimeter;
+            $perimeter->setConnection('pgsql2');
+            $perimeter = $perimeter->select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id')
                 ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
                 ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
                 ->leftjoin('app_users as userfo', 'userfo.username', 'master_perimeter_level.mpml_me_nik');
@@ -500,7 +514,9 @@ $status_monitoring = ($status['status']);
             $totalpmmonitoring = 0;
 
             foreach ($perimeter as $itemperimeter) {
-                $cluster = TblPerimeterDetail::where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
+              $cluster = new TblPerimeterDetail;
+              $cluster->setConnection('pgsql2');
+                $cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
                 $status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
 
                 if ($status['status'] == true) {
@@ -585,7 +601,7 @@ $status_monitoring = ($status['status']);
         $enddate = $weeks['endweek'];
 
         if($id_role == 4){
-            $clustertrans = DB::select( "select tpd.tpmd_id, mpl.mpml_mpm_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+            $clustertrans = DB::connection('pgsql2')->select( "select tpd.tpmd_id, mpl.mpml_mpm_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join master_perimeter mp on mpl.mpml_mpm_id = mp.mpm_id
@@ -593,7 +609,7 @@ $status_monitoring = ($status['status']);
 		where  mpl.mpml_mpm_id= ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4 and ta.ta_status <> 2
 		group by tpd.tpmd_id,  mpl.mpml_mpm_id,tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter, $startdate, $enddate]);
         } else {
-            $clustertrans = DB::select( "select tpd.tpmd_id,  mpl.mpml_mpm_id,tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+            $clustertrans = DB::connection('pgsql2')->select( "select tpd.tpmd_id,  mpl.mpml_mpm_id,tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join master_perimeter mp on mpl.mpml_mpm_id = mp.mpm_id
@@ -705,9 +721,10 @@ $status_monitoring = ($status['status']);
     public function getPerimeterDetail($id_perimeter){
 
             $data = array();
-
+            $perimeter = new Perimeter;
+            $perimeter->setConnection('pgsql2');
             //Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
-            $perimeter = Perimeter::select('master_region.mr_id','master_region.mr_name',
+            $perimeter =   $perimeter->select('master_region.mr_id','master_region.mr_name',
                 'master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                 'master_perimeter_kategori.mpmk_name','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude',
                 'master_provinsi.mpro_name', 'master_kabupaten.mkab_name'
@@ -812,7 +829,7 @@ $status_monitoring = ($status['status']);
         $page = null;
         $search = null;
         $endpage = 1;
-        $str = "_get_perimeter_by_region_". $id;
+        $str = "_get_perimeterlist_by_region_". $id;
         if(isset($request->limit)){
             $str = $str.'_limit_'. $request->limit;
             $limit=$request->limit;
@@ -829,10 +846,12 @@ $status_monitoring = ($status['status']);
 
         $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10 * 60, function()use($id,$limit,$page, $endpage,$search) {
             $data = array();
-            $perimeter = Perimeter::select('master_region.mr_id', 'master_region.mr_name',
+            $perimeter = new Perimeter;
+            $perimeter->setConnection('pgsql2');
+            $perimeter = $perimeter->select('master_region.mr_id', 'master_region.mr_name',
                 'master_perimeter.mpm_id', 'master_perimeter.mpm_name',
                 'master_perimeter.mpm_alamat', 'master_perimeter_kategori.mpmk_name',
-                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
+                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name', 'master_perimeter.mpm_mc_id')
                 ->join('master_region', 'master_region.mr_id', 'master_perimeter.mpm_mr_id')
                 ->join('master_perimeter_kategori', 'master_perimeter_kategori.mpmk_id', 'master_perimeter.mpm_mpmk_id')
                 ->leftjoin('master_provinsi', 'master_provinsi.mpro_id', 'master_perimeter.mpm_mpro_id')
@@ -866,6 +885,7 @@ $status_monitoring = ($status['status']);
 
                     "provinsi" => $itemperimeter->mpro_name,
                     "kabupaten" => $itemperimeter->mkab_name,
+                    "aktifitas" => $this->getFotoByPerimeter($itemperimeter->mpm_id, $itemperimeter->mpm_mc_id)
                 );
             }
             return array('status' => 200,'page_end' => $endpage,'data' => $data);
@@ -944,4 +964,65 @@ $status_monitoring = ($status['status']);
         }
 
     }
+
+    //Get Status Monitoring Perimeter Level
+    private function getFotoByPerimeter($id_perimeter,$mc_id){
+$datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id_perimeter, 5 * 60, function()use($id_perimeter,$mc_id) {
+        $data = array();
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+
+
+        $clustertrans = DB::connection('pgsql2')->select( "select ta.ta_id, ta.ta_date, mpl.mpml_id, mpl.mpml_name,mcr.mcr_name,mcar.mcar_name, us.username as nik_fo, us.first_name as fo from transaksi_aktifitas ta
+    		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+    		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+    		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+    		join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
+    		join master_car mcar on mcar.mcar_id = kc.kcar_mcar_id
+    		join app_users us on us.username = mpl.mpml_me_nik
+    		where ta.ta_status = 1 and mpl.mpml_mpm_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
+        order by ta.ta_date desc limit 7", [$id_perimeter, $startdate, $enddate]);
+
+        foreach ($clustertrans as $itemclustertrans) {
+            $data[] = array(
+                "id_perimeter_level" => $itemclustertrans->mpml_id,
+                "level" => 'Lantai '.$itemclustertrans->mpml_name,
+                "cluster" => $itemclustertrans->mcr_name,
+                "id_aktifitas" => $itemclustertrans->ta_id,
+                "aktifitas" => $itemclustertrans->mcar_name,
+                "nik_fo" => $itemclustertrans->nik_fo,
+                "fo" => $itemclustertrans->fo,
+                "tanggal" => $itemclustertrans->ta_date,
+                "file" => $this->getFile($itemclustertrans->ta_id,$mc_id)
+              );
+        }
+          return $data;
+      });
+      return $datacache;
+
+
+    }
+
+    private function getFile($id_aktifitas,$id_perusahaan){
+
+      $data =[];
+
+      if ($id_aktifitas != null){
+      $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
+              ->where("ta_status", "<>", "2")
+              ->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
+
+        foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){
+
+          $data[] = array(
+              "id_file" => $itemtransaksi_aktifitas_file->taf_id,
+              "file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
+              "file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
+            );
+        }
+      }
+      return $data;
+      }
+
 }
