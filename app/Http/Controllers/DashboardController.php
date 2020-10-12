@@ -560,6 +560,26 @@ class DashboardController extends Controller
         return response()->json(['status' => 200,'data' => $datacache]);
     }
     
+    private function tgl_indo($tanggal){
+        $bulan = array (
+            1 =>   'Januari',
+            'Februari',
+            'Maret',
+            'April',
+            'Mei',
+            'Juni',
+            'Juli',
+            'Agustus',
+            'September',
+            'Oktober',
+            'November',
+            'Desember'
+        );
+        $pecahkan = explode('-', $tanggal);
+      
+        return $pecahkan[2] . ' ' . $bulan[ (int)$pecahkan[1] ] . ' ' . $pecahkan[0];
+    }
+    
     public function getAlertWeek_byMcid($id){
         $alert = 0;
         $data = array();
@@ -567,8 +587,8 @@ class DashboardController extends Controller
         foreach($alert_kasus as $ak){
             if($ak->v_cnt < 1){
                 $data[] = array(
-                    "judul" => 'kasus',
-                    "tgl" => $ak->v_tgl
+                    "judul" => 'Pegawai Terdampak',
+                    "tgl" => 'Terakhir Diperbaharui :'.$this->tgl_indo($ak->v_tgl)
                 );
                 $alert++;
             }else{
@@ -580,8 +600,8 @@ class DashboardController extends Controller
         foreach($alert_protokol as $ap){
             if($ap->v_cnt < 1){
                 $data[] = array(
-                    "judul" => 'protokol',
-                    "tgl" => $ap->v_tgl
+                    "judul" => 'Protokol',
+                    "tgl" => 'Terakhir Diperbaharui :'.$this->tgl_indo($ap->v_tgl)
                 );
                 $alert++;
             }else{
@@ -593,8 +613,8 @@ class DashboardController extends Controller
         foreach($alert_sosialisasi as $as){
             if($as->v_cnt < 1){
                 $data[] = array(
-                    "judul" => 'sosialisasi',
-                    "tgl" => $as->v_tgl
+                    "judul" => 'Kegiatan / Event',
+                    "tgl" => 'Terakhir Diperbaharui :'.$this->tgl_indo($as->v_tgl)
                 );
                 $alert++;
             }else{
@@ -605,6 +625,7 @@ class DashboardController extends Controller
         if($alert > 0){  $alert_tf = true; }else{ $alert_tf = false; }
         return response()->json([
             'status' => 200, 
+            'path_img' => 'alert_week_mobile.png',
             'alert'=> $alert_tf, 
             'data' => $data
         ]);
