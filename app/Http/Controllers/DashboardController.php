@@ -565,37 +565,43 @@ class DashboardController extends Controller
         $data = array();
         $alert_kasus = DB::select("SELECT * FROM alertweek_kasus_mobile(?)",[$id]); 
         foreach($alert_kasus as $ak){
-            $data[] = array(
-                "judul" => 'kasus',
-                "cnt" => $ak->v_cnt,
-                "tgl" => $ak->v_tgl
-            );
-            if($ak->v_cnt > 0){
+            if($ak->v_cnt < 1){
+                $data[] = array(
+                    "judul" => 'kasus',
+                    "cnt" => $ak->v_cnt,
+                    "tgl" => $ak->v_tgl
+                );
                 $alert++;
+            }else{
+                $data = array();
             }
         }
     
         $alert_protokol = DB::select("SELECT * FROM alertweek_protokol_mobile(?)",[$id]);
         foreach($alert_protokol as $ap){
-            $data[] = array(
-                "judul" => 'protokol',
-                "cnt" => $ap->v_cnt,
-                "tgl" => $ap->v_tgl
-            );
-            if($ap->v_cnt > 0){
+            if($ap->v_cnt < 1){
+                $data[] = array(
+                    "judul" => 'protokol',
+                    "cnt" => $ap->v_cnt,
+                    "tgl" => $ap->v_tgl
+                );
                 $alert++;
+            }else{
+                $data = array();
             }
         }
         
         $alert_sosialisasi = DB::select("SELECT * FROM alertweek_sosialisasi_mobile(?)",[$id]);
         foreach($alert_sosialisasi as $as){
-            $data[] = array(
-                "judul" => 'sosialisasi',
-                "cnt" => $as->v_cnt,
-                "tgl" => $as->v_tgl
-            );
-            if($as->v_cnt > 0){
+            if($as->v_cnt < 1){
+                $data[] = array(
+                    "judul" => 'protokol',
+                    "cnt" => $as->v_cnt,
+                    "tgl" => $as->v_tgl
+                );
                 $alert++;
+            }else{
+                $data = array();
             }
         }
         
