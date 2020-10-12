@@ -578,7 +578,7 @@ class DashboardController extends Controller
     
         $alert_protokol = DB::select("SELECT * FROM alertweek_protokol_mobile(?)",[$id]);
         foreach($alert_protokol as $ap){
-            if($ak->v_cnt < 1){
+            if($ap->v_cnt < 1){
                 $data[] = array(
                     "judul" => 'protokol',
                     "tgl" => $ap->v_tgl
@@ -591,7 +591,7 @@ class DashboardController extends Controller
         
         $alert_sosialisasi = DB::select("SELECT * FROM alertweek_sosialisasi_mobile(?)",[$id]);
         foreach($alert_sosialisasi as $as){
-            if($ak->v_cnt < 1){
+            if($as->v_cnt < 1){
                 $data[] = array(
                     "judul" => 'sosialisasi',
                     "tgl" => $as->v_tgl
