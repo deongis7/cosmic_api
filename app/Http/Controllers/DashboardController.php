@@ -588,7 +588,7 @@ class DashboardController extends Controller
             if($ak->v_cnt < 1){
                 $data[] = array(
                     "judul" => 'Pegawai Terdampak',
-                    "tgl" => 'Terakhir Diperbaharui :'.$this->tgl_indo(date($ak->v_tgl))
+                    "tgl" => 'Terakhir Diperbaharui : '.$this->tgl_indo($ak->v_tgl)
                 );
                 $alert++;
             }else{
@@ -601,7 +601,7 @@ class DashboardController extends Controller
             if($ap->v_cnt < 1){
                 $data[] = array(
                     "judul" => 'Protokol',
-                    "tgl" => 'Terakhir Diperbaharui :'.$this->tgl_indo(date($ap->v_tgl))
+                    "tgl" => 'Terakhir Diperbaharui : '.$this->tgl_indo($ap->v_tgl)
                 );
                 $alert++;
             }else{
@@ -614,7 +614,7 @@ class DashboardController extends Controller
             if($as->v_cnt < 1){
                 $data[] = array(
                     "judul" => 'Kegiatan / Event',
-                    "tgl" => 'Terakhir Diperbaharui :'.$this->tgl_indo(date($as->v_tgl))
+                    "tgl" => 'Terakhir Diperbaharui : '.$this->tgl_indo($as->v_tgl)
                 );
                 $alert++;
             }else{
