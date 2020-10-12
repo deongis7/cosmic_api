@@ -59,8 +59,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
 	$router->post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
 
-
-
 	//TaskForce
 	$router->get('/taskforce/count/{id}', 'PerimeterController@getCountTaskForce');
 	$router->get('/taskforce/{id}', 'PerimeterController@getTaskForce');
@@ -102,7 +100,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/terpapar/dashclusterkasus_provinsi_bymskid/{id}/{msc_id}', 'TerpaparController@getClusterDashboardProvinsibyMskid');
 	$router->get('/terpapar/dashclusterkasus_kabupaten_bymskid/{id}/{msc_id}', 'TerpaparController@getClusterDashboardKabupatenbyMskid');
 
-
 	//Cluster Aktifitas Ruangan
 	$router->get('/cluster_aktfiktas_ruangan/getall/', 'CARuanganController@getAll');
 	$router->get('/cluster_aktfiktas_ruangan/getbyid/{id}', 'CARuanganController@getById');
@@ -118,7 +115,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
 	$router->post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
 	$router->get('/sosialisasi/get_last2/{id}', 'SosialisasiController@getDataLast2ByMcid');
-
 
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
@@ -157,7 +153,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/company/detail/{id}', 'MasterController@getDetailCompany');
 	$router->post('/company/upload_foto', 'MasterController@uploadFotoBUMN');
 
-
+	//Alert
+	$router->get('/dashboard/alert_week_bymcid/{id}', 'DashboardController@getAlertWeek_byMcid');
+	
 	//Dashboard
 	$router->get('/dashboard/cosmicindex', 'DashboardController@getCosmicIndexAll');
 	$router->get('/dashboard/perimeter_bykategori_all', 'DashboardController@getPerimeterbyKategoriAll');
@@ -179,6 +177,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashcluster/cluster_perimeter_bykategori_all/{id}', 'DashClusterController@getClusterPerimeterbyKategoriAll');
 	$router->get('/dashcluster/cluster_perimeter_byprovinsi_all/{id}', 'DashClusterController@getClusterPerimeterbyProvinsiAll');
 	$router->get('/dashcluster/cluster_perimeter_bycosmicindex/{id}', 'DashClusterController@getClusterCosmicIndexAll');
+	
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
 
@@ -210,7 +209,4 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
 		Route::post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
 	});
-
-
-
 });
