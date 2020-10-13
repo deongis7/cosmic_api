@@ -585,47 +585,46 @@ class DashboardController extends Controller
         $data = array();
         $alert_kasus = DB::select("SELECT * FROM alertweek_kasus_mobile(?)",[$id]); 
         foreach($alert_kasus as $ak){
-            if($ak->v_cnt < 1){
+            if($ak->v_cnt>0){
+                $data = array();
+            }else{
                 $data[] = array(
+                    //"cnt" => $ak->v_cnt,
                     "judul" => 'Pegawai Terdampak',
                     "tgl" => 'Terakhir Diperbaharui : '.$this->tgl_indo($ak->v_tgl)
                 );
                 $alert++;
-            }else{
-                $data = array();
             }
         }
+        
     
         $alert_protokol = DB::select("SELECT * FROM alertweek_protokol_mobile(?)",[$id]);
         foreach($alert_protokol as $ap){
-            if($ap->v_cnt < 1){
+            if($ap->v_cnt==0){
                 $data[] = array(
+                    //"cnt" => $ap->v_cnt,
                     "judul" => 'Protokol',
                     "tgl" => 'Terakhir Diperbaharui : '.$this->tgl_indo($ap->v_tgl)
                 );
                 $alert++;
-            }else{
-                $data = array();
             }
         }
         
         $alert_sosialisasi = DB::select("SELECT * FROM alertweek_sosialisasi_mobile(?)",[$id]);
         foreach($alert_sosialisasi as $as){
-            if($as->v_cnt < 1){
+            if($as->v_cnt==0){
                 $data[] = array(
+                    //"cnt" => $as->v_cnt,
                     "judul" => 'Kegiatan / Event',
                     "tgl" => 'Terakhir Diperbaharui : '.$this->tgl_indo($as->v_tgl)
                 );
                 $alert++;
-            }else{
-                $data = array();
             }
         }
         
         if($alert > 0){  $alert_tf = true; }else{ $alert_tf = false; }
         return response()->json([
             'status' => 200, 
-            //'path_img' => 'alert_week_mobile.png',
             'alert'=> $alert_tf, 
             'data' => $data
         ]);
