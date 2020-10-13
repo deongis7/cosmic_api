@@ -546,7 +546,6 @@ class PerimeterController extends Controller
 		}
 	}
 
-
 	public function getExecutionReport($id){
 		$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_exec_report_". $id, 30 * 60, function()use($id) {
 			$data = array();

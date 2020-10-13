@@ -292,11 +292,11 @@ class DashboardController extends Controller
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
             if ($week==$weeknow){
-                $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
+              //  $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
 
-                foreach($company as $itemcompany) {
+              //foreach($company as $itemcompany) {
 
-                    $company_id = (string)$itemcompany->mc_id;
+                    //$company_id = (string)$itemcompany->mc_id;
                     //dd($itemcompany->mc_id);
                     $sql = "SELECT
                         a.v_mc_id,
@@ -307,19 +307,11 @@ class DashboardController extends Controller
                         a.v_pemenuhan_protokol,
                         a.v_pemenuhan_ceklist_monitoring,
                         a.v_pemenuhan_eviden
-                        FROM week_cosmic_index(?, ?) a
-                        GROUP BY
-                        a.v_mc_id,
-                        a.v_mc_name,
-                        a.v_ms_id,
-                        a.v_ms_name,
-                        a.v_cosmic_index,
-                        a.v_pemenuhan_protokol,
-                        a.v_pemenuhan_ceklist_monitoring,
-                        a.v_pemenuhan_eviden
+                        FROM mv_cosmic_index_report a
+
                         ";
                     //echo $sql;die;
-                    $result = DB::select($sql, [(string)$company_id, (string)$enddate]);
+                    $result = DB::select($sql);
                     //dd($result);
                     foreach ($result as $value) {
                         $data[] = array(
@@ -334,7 +326,7 @@ class DashboardController extends Controller
                             "pemenuhan_eviden" => $value->v_pemenuhan_eviden
 
                         );
-                    }
+                  //  }
                 }
             } else {
                 $rpi = DB::select("SELECT *
@@ -390,9 +382,6 @@ class DashboardController extends Controller
             $data=[];
             $company_id = $mc_id;
             if ($week==$weeknow){
-
-
-                    //dd($itemcompany->mc_id);
                     $sql = "SELECT
                         a.v_mc_id,
                         a.v_mc_name,
@@ -402,19 +391,12 @@ class DashboardController extends Controller
                         a.v_pemenuhan_protokol,
                         a.v_pemenuhan_ceklist_monitoring,
                         a.v_pemenuhan_eviden
-                        FROM week_cosmic_index(?, ?) a
-                        GROUP BY
-                        a.v_mc_id,
-                        a.v_mc_name,
-                        a.v_ms_id,
-                        a.v_ms_name,
-                        a.v_cosmic_index,
-                        a.v_pemenuhan_protokol,
-                        a.v_pemenuhan_ceklist_monitoring,
-                        a.v_pemenuhan_eviden
+                        FROM mv_cosmic_index_report a
+                        where a.v_mc_id =?
+
                         ";
                     //echo $sql;die;
-                    $result = DB::select($sql, [(string)$company_id, (string)$enddate]);
+                    $result = DB::select($sql, [(string)$company_id]);
                     //dd($result);
                     foreach ($result as $value) {
                         $data = array(
@@ -461,7 +443,6 @@ class DashboardController extends Controller
     public function getCosmicIndexListbyCompany($kd_perusahaan){
         $str = '_get_cosmic_index_detail_list_'.$kd_perusahaan;
         $mc_id = $kd_perusahaan;
-
 
         $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 360 * 60, function()use($mc_id) {
             $data = array();
@@ -524,19 +505,11 @@ class DashboardController extends Controller
                           a.v_pemenuhan_protokol,
                           a.v_pemenuhan_ceklist_monitoring,
                           a.v_pemenuhan_eviden
-                          FROM week_cosmic_index(?, ?) a
-                          GROUP BY
-                          a.v_mc_id,
-                          a.v_mc_name,
-                          a.v_ms_id,
-                          a.v_ms_name,
-                          a.v_cosmic_index,
-                          a.v_pemenuhan_protokol,
-                          a.v_pemenuhan_ceklist_monitoring,
-                          a.v_pemenuhan_eviden
+                          FROM mv_cosmic_index_report a
+                          where a.v_mc_id =?
                           ";
                       //echo $sql;die;
-                      $result = DB::select($sql, [(string)$company_id, (string)$enddatenow]);
+                      $result = DB::select($sql, [(string)$company_id]);
                       //dd($result);
                       foreach ($result as $value) {
                         foreach ($weeksday as $itemweeksday){
@@ -557,15 +530,80 @@ class DashboardController extends Controller
                             );
                           }
                         }
-
                       }
-
               }
-
-
-
             return $data;
         });
         return response()->json(['status' => 200,'data' => $datacache]);
+    }
+    
+    private function tgl_indo($tanggal){
+        $bulan = array (
+            1 =>   'Januari',
+            'Februari',
+            'Maret',
+            'April',
+            'Mei',
+            'Juni',
+            'Juli',
+            'Agustus',
+            'September',
+            'Oktober',
+            'November',
+            'Desember'
+        );
+        $pecahkan = explode('-', $tanggal);
+      
+        return $pecahkan[2] . ' ' . $bulan[ (int)$pecahkan[1] ] . ' ' . $pecahkan[0];
+    }
+    
+    public function getAlertWeek_byMcid($id){
+        $alert = 0;
+        $data = array();
+        $alert_kasus = DB::select("SELECT * FROM alertweek_kasus_mobile(?)",[$id]); 
+        foreach($alert_kasus as $ak){
+            if($ak->v_cnt>0){
+                $data = array();
+            }else{
+                $data[] = array(
+                    //"cnt" => $ak->v_cnt,
+                    "judul" => 'Pegawai Terdampak',
+                    "tgl" => 'Terakhir Diperbaharui : '.$this->tgl_indo($ak->v_tgl)
+                );
+                $alert++;
+            }
+        }
+        
+    
+        $alert_protokol = DB::select("SELECT * FROM alertweek_protokol_mobile(?)",[$id]);
+        foreach($alert_protokol as $ap){
+            if($ap->v_cnt==0){
+                $data[] = array(
+                    //"cnt" => $ap->v_cnt,
+                    "judul" => 'Protokol',
+                    "tgl" => 'Terakhir Diperbaharui : '.$this->tgl_indo($ap->v_tgl)
+                );
+                $alert++;
+            }
+        }
+        
+        $alert_sosialisasi = DB::select("SELECT * FROM alertweek_sosialisasi_mobile(?)",[$id]);
+        foreach($alert_sosialisasi as $as){
+            if($as->v_cnt==0){
+                $data[] = array(
+                    //"cnt" => $as->v_cnt,
+                    "judul" => 'Kegiatan / Event',
+                    "tgl" => 'Terakhir Diperbaharui : '.$this->tgl_indo($as->v_tgl)
+                );
+                $alert++;
+            }
+        }
+        
+        if($alert > 0){  $alert_tf = true; }else{ $alert_tf = false; }
+        return response()->json([
+            'status' => 200, 
+            'alert'=> $alert_tf, 
+            'data' => $data
+        ]);
     }
 }
