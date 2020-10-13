@@ -292,11 +292,11 @@ class DashboardController extends Controller
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
             if ($week==$weeknow){
-                $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
+              //  $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
 
-                foreach($company as $itemcompany) {
+              //foreach($company as $itemcompany) {
 
-                    $company_id = (string)$itemcompany->mc_id;
+                    //$company_id = (string)$itemcompany->mc_id;
                     //dd($itemcompany->mc_id);
                     $sql = "SELECT
                         a.v_mc_id,
@@ -307,19 +307,11 @@ class DashboardController extends Controller
                         a.v_pemenuhan_protokol,
                         a.v_pemenuhan_ceklist_monitoring,
                         a.v_pemenuhan_eviden
-                        FROM week_cosmic_index(?, ?) a
-                        GROUP BY
-                        a.v_mc_id,
-                        a.v_mc_name,
-                        a.v_ms_id,
-                        a.v_ms_name,
-                        a.v_cosmic_index,
-                        a.v_pemenuhan_protokol,
-                        a.v_pemenuhan_ceklist_monitoring,
-                        a.v_pemenuhan_eviden
+                        FROM mv_cosmic_index_report a
+
                         ";
                     //echo $sql;die;
-                    $result = DB::select($sql, [(string)$company_id, (string)$enddate]);
+                    $result = DB::select($sql);
                     //dd($result);
                     foreach ($result as $value) {
                         $data[] = array(
@@ -334,7 +326,7 @@ class DashboardController extends Controller
                             "pemenuhan_eviden" => $value->v_pemenuhan_eviden
 
                         );
-                    }
+                  //  }
                 }
             } else {
                 $rpi = DB::select("SELECT *
@@ -402,19 +394,12 @@ class DashboardController extends Controller
                         a.v_pemenuhan_protokol,
                         a.v_pemenuhan_ceklist_monitoring,
                         a.v_pemenuhan_eviden
-                        FROM week_cosmic_index(?, ?) a
-                        GROUP BY
-                        a.v_mc_id,
-                        a.v_mc_name,
-                        a.v_ms_id,
-                        a.v_ms_name,
-                        a.v_cosmic_index,
-                        a.v_pemenuhan_protokol,
-                        a.v_pemenuhan_ceklist_monitoring,
-                        a.v_pemenuhan_eviden
+                        FROM mv_cosmic_index_report a
+                        where a.v_mc_id =?
+
                         ";
                     //echo $sql;die;
-                    $result = DB::select($sql, [(string)$company_id, (string)$enddate]);
+                    $result = DB::select($sql, [(string)$company_id]);
                     //dd($result);
                     foreach ($result as $value) {
                         $data = array(
@@ -524,19 +509,11 @@ class DashboardController extends Controller
                           a.v_pemenuhan_protokol,
                           a.v_pemenuhan_ceklist_monitoring,
                           a.v_pemenuhan_eviden
-                          FROM week_cosmic_index(?, ?) a
-                          GROUP BY
-                          a.v_mc_id,
-                          a.v_mc_name,
-                          a.v_ms_id,
-                          a.v_ms_name,
-                          a.v_cosmic_index,
-                          a.v_pemenuhan_protokol,
-                          a.v_pemenuhan_ceklist_monitoring,
-                          a.v_pemenuhan_eviden
+                          FROM mv_cosmic_index_report a
+                          where a.v_mc_id =?
                           ";
                       //echo $sql;die;
-                      $result = DB::select($sql, [(string)$company_id, (string)$enddatenow]);
+                      $result = DB::select($sql, [(string)$company_id]);
                       //dd($result);
                       foreach ($result as $value) {
                         foreach ($weeksday as $itemweeksday){

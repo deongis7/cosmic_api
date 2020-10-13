@@ -88,18 +88,10 @@ class PerimeterListController extends Controller
             $str = $str.'_searh_'. str_replace(' ','_',$request->search);
             $search=$request->search;
         }
-        if(isset($request->week)){
-            $str = $str.'_week_'. str_replace(' ','_',$request->search);
-            $week=$request->week;
-        }
         //dd($str);
         $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
-            //current week
-            $crweeks = AppHelper::Weeks();
-            $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
-
             $perimeter = new Perimeter;
             $perimeter->setConnection('pgsql2');
             $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
@@ -238,7 +230,6 @@ $status_monitoring = ($status['status']);
         return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
 
     }
-
 
     //Get Perimeter Level by Perimeter
     public function getPerimeterLevelListbyPerimeter($id_perimeter,Request $request){
