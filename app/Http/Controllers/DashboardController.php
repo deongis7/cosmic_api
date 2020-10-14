@@ -356,7 +356,7 @@ class DashboardController extends Controller
     }
 
     public function getCosmicIndexbyCompanyAndDate($kd_perusahaan,Request $request){
-        $str = '_get_cosmic_index_'.$kd_perusahaan;
+        $str = '_get_cosmic_index2_'.$kd_perusahaan;
         $mc_id = $kd_perusahaan;
         if(isset($request->date)){
             $strdate =  Carbon::parse($request->date);
