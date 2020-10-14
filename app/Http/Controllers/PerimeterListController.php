@@ -15,6 +15,8 @@ use App\UserGroup;
 use App\Helpers\AppHelper;
 use App\TblPerimeterDetail;
 use App\TblPerimeterClosed;
+use App\TrnAktifitas;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -920,7 +922,6 @@ $status_monitoring = ($status['status']);
 
         if ($closed == null){
             $closed= New TblPerimeterClosed();
-            $closed->setConnection('pgsql2');
             $closed->tbpc_mpml_id = $request->id_perimeter_level;
             $closed->tbpc_alasan = $request->alasan;
             $closed->tbpc_requestor = $request->nik;
@@ -958,7 +959,9 @@ $status_monitoring = ($status['status']);
             ->where('tbpc_enddate', $enddate)
             ->where('tbpc_status', 1)->first();
 
+
         if ($closed != null){
+            $fo_nik = $closed->tbpc_requestor;
             $closed->tbpc_approval= $request->nik;
             $closed->tbpc_status = $request->status;
             $closed->tbpc_alasan = $request->alasan;
@@ -966,11 +969,66 @@ $status_monitoring = ($status['status']);
             return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
         }
         if($closed->save()) {
+          if($request->status == 2){
+            $perimeterdet=TblPerimeterDetail::where('tpmd_mpml_id', $request->id_perimeter_level)->get();
+            foreach($perimeterdet as $itemperimeterdet){
+              $kcar=KonfigurasiCAR::JOIN('master_cluster_ruangan','master_cluster_ruangan.mcr_id','konfigurasi_car.kcar_mcr_id')
+                      ->JOIN('table_perimeter_detail','table_perimeter_detail.tpmd_mcr_id','master_cluster_ruangan.mcr_id')
+                      ->where('table_perimeter_detail.tpmd_id', $itemperimeterdet->tpmd_id)->get();
+              foreach($kcar as $itemkcar){
+                $trn_aktifitas= TrnAktifitas::updateOrCreate(
+                        ['ta_tpmd_id' => $itemperimeterdet->tpmd_id, 'ta_nik' => $fo_nik, 'ta_kcar_id' => $itemkcar->kcar_id,'ta_week' =>$weeks['weeks']],['ta_date' => $enddate, 'ta_status' => 1, 'ta_keterangan' =>'Tutup Perimeter']);
+                $trn_aktifitas->save();
+              }
+
+            }
+          }
+
             return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
         }
         else {
             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
         }
+
+    }
+
+    //Post Perimeter Closed
+    public function updateAktifitasClosedPerimeter(Request $request){
+        $this->validate($request, [
+            'id_perimeter_level' => 'required',
+            'date' => 'required'
+        ]);
+        $strdate =  Carbon::parse($request->date);
+        $startdate = $strdate->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
+        $enddate = $strdate->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
+
+        $closed = TblPerimeterClosed::where('tbpc_mpml_id', $request->id_perimeter_level)
+            ->where('tbpc_startdate', $startdate)
+            ->where('tbpc_enddate', $enddate)->first();
+
+
+        if ($closed != null){
+            $fo_nik = $closed->tbpc_requestor;
+
+                $perimeterdet=TblPerimeterDetail::where('tpmd_mpml_id', $request->id_perimeter_level)->get();
+                foreach($perimeterdet as $itemperimeterdet){
+                  $kcar=KonfigurasiCAR::JOIN('master_cluster_ruangan','master_cluster_ruangan.mcr_id','konfigurasi_car.kcar_mcr_id')
+                          ->JOIN('table_perimeter_detail','table_perimeter_detail.tpmd_mcr_id','master_cluster_ruangan.mcr_id')
+                          ->where('table_perimeter_detail.tpmd_id', $itemperimeterdet->tpmd_id)->get();
+                  foreach($kcar as $itemkcar){
+                    $trn_aktifitas= TrnAktifitas::updateOrCreate(
+                            ['ta_tpmd_id' => $itemperimeterdet->tpmd_id, 'ta_nik' => $fo_nik, 'ta_kcar_id' => $itemkcar->kcar_id,'ta_week' =>$startdate.'-'.$enddate],['ta_date' => $enddate, 'ta_status' => 1, 'ta_keterangan' =>'Tutup Perimeter']);
+                    $trn_aktifitas->save();
+                  }
+
+                }
+
+
+                return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
+        } else {
+            return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+        }
+
 
     }
 
