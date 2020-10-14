@@ -573,49 +573,59 @@ class PICController extends Controller
 
 	//Get Cluster per Perimeter Level
 	public function getClusterbyPerimeter($id,$nik){
-		$user = User::where('username',$nik)->first();
-		$data = array();
-		if ($user != null){
-			$role_id = $user->roles()->first()->id;
+    $datacache =Cache::remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 3 * 60, function()use($id,$nik) {
+
+  		$user = User::where('username',$nik)->first();
+      $total_monitoring = 0;
+  		$jml_monitoring = 0;
+  		$dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
+  		$data = array();
+  		if ($user != null){
+  			$role_id = $user->roles()->first()->id;
 
 
-			$perimeter = DB::connection('pgsql2')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo from master_perimeter_level mpl
-					join master_perimeter mpm on mpm.mpm_id = mpl.mpml_mpm_id
-					join master_perimeter_kategori mpk on mpk.mpmk_id = mpm.mpm_mpmk_id
-					join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id and tpd.tpmd_cek=true
-					join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
-					where mpl.mpml_id = ?
-					order by mcr.mcr_name asc, tpmd_order asc", [$id]);
-			foreach($perimeter as $itemperimeter){
-				$data_aktifitas_cluster = array();
-        $aktifitas = new KonfigurasiCAR;
-        $aktifitas->setConnection('pgsql2');
-				$aktifitas = $aktifitas->join('master_car','master_car.mcar_id','konfigurasi_car.kcar_mcar_id')
-							->where('konfigurasi_car.kcar_ag_id',4)->where('konfigurasi_car.kcar_mcr_id',$itemperimeter->mcr_id)
-							->where('master_car.mcar_active',true)->count();
+  			$perimeter = DB::connection('pgsql2')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo from master_perimeter_level mpl
+  					join master_perimeter mpm on mpm.mpm_id = mpl.mpml_mpm_id
+  					join master_perimeter_kategori mpk on mpk.mpmk_id = mpm.mpm_mpmk_id
+  					join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id and tpd.tpmd_cek=true
+  					join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
+  					where mpl.mpml_id = ?
+  					order by mcr.mcr_name asc, tpmd_order asc", [$id]);
+  			foreach($perimeter as $itemperimeter){
+  				$data_aktifitas_cluster = array();
+          $aktifitas = new KonfigurasiCAR;
+          $aktifitas->setConnection('pgsql2');
+  				$aktifitas = $aktifitas->join('master_car','master_car.mcar_id','konfigurasi_car.kcar_mcar_id')
+  							->where('konfigurasi_car.kcar_ag_id',4)->where('konfigurasi_car.kcar_mcr_id',$itemperimeter->mcr_id)
+  							->where('master_car.mcar_active',true)->count();
 
-				$data_aktifitas_cluster = $this->getClusterAktifitas($itemperimeter->tpmd_id,$itemperimeter->mcr_id,$role_id);
-				$status = $this->getStatusMonitoringCluster($itemperimeter->tpmd_id,$role_id,$aktifitas);
-				$data[] = array(
-						"id_perimeter_level" => $itemperimeter->mpml_id,
-						"level" => $itemperimeter->mpml_name,
-						"id_perimeter_cluster" => $itemperimeter->tpmd_id,
-						"id_cluster" => $itemperimeter->mcr_id,
-						"cluster_ruangan" => (($itemperimeter->tpmd_order > 1)? ($itemperimeter->mcr_name.' - '.$itemperimeter->tpmd_order) :$itemperimeter->mcr_name),
-						"order" => $itemperimeter->tpmd_order,
-						"status" => $status['status'],
-						"last_update" => $status['last_date'],
-						"aktifitas" => $data_aktifitas_cluster,
+  				//$data_aktifitas_cluster = $this->getClusterAktifitas($itemperimeter->tpmd_id,$itemperimeter->mcr_id,$role_id);
+  				$status = $this->getStatusMonitoringCluster($itemperimeter->tpmd_id,$role_id,$aktifitas);
+          $total_monitoring = $total_monitoring + 1;
+  				$jml_monitoring = $jml_monitoring + ($status['status']==true?1:0);
+  				$data[] = array(
+  						"id_perimeter_level" => $itemperimeter->mpml_id,
+  						"level" => $itemperimeter->mpml_name,
+  						"id_perimeter_cluster" => $itemperimeter->tpmd_id,
+  						"id_cluster" => $itemperimeter->mcr_id,
+  						"cluster_ruangan" => (($itemperimeter->tpmd_order > 1)? ($itemperimeter->mcr_name.' - '.$itemperimeter->tpmd_order) :$itemperimeter->mcr_name),
+  						"order" => $itemperimeter->tpmd_order,
+              "status_konfirmasi" => $status['status_konfirmasi'],
+  						"status" => $status['status'],
+  						"last_update" => $status['last_date'],
+  						"aktifitas" => null,
 
-
-
-					);
-			}
-			return response()->json(['status' => 200,'data' => $data]);
-		} else {
-			return response()->json(['status' => 200,'data' => $data]);
-		}
-
+  					);
+            $dataprogress = array("total_monitor"=> $total_monitoring,
+                    "sudah_dimonitor"=> $jml_monitoring,
+                    "belum_dimonitor"=> $total_monitoring - $jml_monitoring );
+  			}
+  			return array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
+  		} else {
+  			return  array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
+  		}
+    });
+    return response()->json($datacache);
 	}
 
 	//Get Cluster per Perimeter Level
