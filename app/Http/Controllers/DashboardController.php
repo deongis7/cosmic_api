@@ -40,7 +40,7 @@ class DashboardController extends Controller
 	}
 
 	public function getCosmicIndexAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_cosmicindex_all", 360 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_cosmicindex_all", 15 * 60, function() {
 	        $data = array();
 	        $cosmicindex_all = DB::select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
 
@@ -56,7 +56,7 @@ class DashboardController extends Controller
 	}
 
 	public function getPerimeterbyKategoriAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategori_allx", 360 * 60, function(){
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategori_allx", 15 * 60, function(){
 	        $data = array();
 	        $perimeter_bykategori_all = DB::select("SELECT * FROM dashboard_perimeter_bykategori()");
 
@@ -73,7 +73,7 @@ class DashboardController extends Controller
 	}
 
 	public function getPerimeter_bykategoriperusahaan($name){
-		/*$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$name, 360 * 60, function()use($name){*/
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$name, 15 * 60, function()use($name){*/
 	        $data = array();
 	        $perimeter_bykategori_all = DB::select("SELECT * FROM dashboard_perimeterbyperusahaan($name)");
 
@@ -86,13 +86,13 @@ class DashboardController extends Controller
 	                "v_name_provinsi" => $pka->v_name_provinsi
 	            );
 	        }
-	        //return $data;
-	    //});
+	        return $data;
+	    });
 	        return response()->json(['status' => 200,'data' => $data]);
 	}
 
 	public function getPerimeter_bykategoriperusahaanProv($id){
-		/*$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$name, 360 * 60, function()use($id){*/
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$name, 15 * 60, function()use($id){
 	        $data = array();
 	        $perimeter_bykategori_all = DB::select("SELECT * FROM dashboard_perimeterbyperusahaanprov($id)");
 
@@ -105,13 +105,13 @@ class DashboardController extends Controller
 	                "v_name_provinsi" => $pka->v_name_provinsi
 	            );
 	        }
-	        //return $data;
-	    //});
+	        return $data;
+	    });
 	        return response()->json(['status' => 200,'data' => $data]);
 	}
 
 	public function getPerimeterbyProvinsiAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_byprovinsi_all3", 360 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_byprovinsi_all3", 15 * 60, function() {
 	        $data = array();
 	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM dashboard_perimeter_byprovinsi()");
 
@@ -128,7 +128,7 @@ class DashboardController extends Controller
 	}
 
 	public function getDashboardHead(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmin_head", 360 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmin_head", 15 * 60, function() {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM dashboard_head()");
 
@@ -147,7 +147,7 @@ class DashboardController extends Controller
 	}
 
 	public function getWeekList(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_week", 360 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_week", 15 * 60, function() {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM list_aktivitas_week()");
 
@@ -165,7 +165,7 @@ class DashboardController extends Controller
 	}
 
 	public function getMonitoring_ByMcidWeek($id, $tgl){
-	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_getmonitoring_bymcidweek_".$id."_".$tgl, 360 * 60, function()use($id, $tgl) {
+	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_getmonitoring_bymcidweek_".$id."_".$tgl, 15 * 60, function()use($id, $tgl) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM pemenuhan_monitoring_bymcidweek('$id','$tgl')");
 
@@ -180,7 +180,7 @@ class DashboardController extends Controller
 	}
 
 	public function getListMonitoring_ByMcidWeek($id, $tgl){
-	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_getlistmonitoring_bymcidweek_".$id."_".$tgl, 360 * 60, function()use($id, $tgl) {
+	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_getlistmonitoring_bymcidweek_".$id."_".$tgl, 15 * 60, function()use($id, $tgl) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT a.v_mpm_name, a.v_mpml_name, a.v_mpmk_name,
                     a.v_pic, a.v_fo, a.v_cek, b.persen_det
@@ -205,7 +205,7 @@ class DashboardController extends Controller
 	}
 
 	public function getDashboardHeadBUMN($id){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$id, 360 * 60, function()use($id) {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$id, 15 * 60, function()use($id) {
 	        $data = array();
 	        $dashboard_head = DB::select("SELECT * FROM dashboardbumn_head('$id')");
 
@@ -282,7 +282,7 @@ class DashboardController extends Controller
             $str = $str."_".$startdate."_".$enddate;
         }
 
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 60 * 60, function()use($startdate,$enddate) {
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate) {
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdatenow = $weeks['startweek'];
@@ -292,11 +292,11 @@ class DashboardController extends Controller
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
             if ($week==$weeknow){
-                $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
+              //  $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
 
-                foreach($company as $itemcompany) {
+              //foreach($company as $itemcompany) {
 
-                    $company_id = (string)$itemcompany->mc_id;
+                    //$company_id = (string)$itemcompany->mc_id;
                     //dd($itemcompany->mc_id);
                     $sql = "SELECT
                         a.v_mc_id,
@@ -307,19 +307,11 @@ class DashboardController extends Controller
                         a.v_pemenuhan_protokol,
                         a.v_pemenuhan_ceklist_monitoring,
                         a.v_pemenuhan_eviden
-                        FROM week_cosmic_index(?, ?) a
-                        GROUP BY
-                        a.v_mc_id,
-                        a.v_mc_name,
-                        a.v_ms_id,
-                        a.v_ms_name,
-                        a.v_cosmic_index,
-                        a.v_pemenuhan_protokol,
-                        a.v_pemenuhan_ceklist_monitoring,
-                        a.v_pemenuhan_eviden
+                        FROM mv_cosmic_index_report a
+
                         ";
                     //echo $sql;die;
-                    $result = DB::select($sql, [(string)$company_id, (string)$enddate]);
+                    $result = DB::select($sql);
                     //dd($result);
                     foreach ($result as $value) {
                         $data[] = array(
@@ -334,7 +326,7 @@ class DashboardController extends Controller
                             "pemenuhan_eviden" => $value->v_pemenuhan_eviden
 
                         );
-                    }
+                  //  }
                 }
             } else {
                 $rpi = DB::select("SELECT *
@@ -399,19 +391,12 @@ class DashboardController extends Controller
                         a.v_pemenuhan_protokol,
                         a.v_pemenuhan_ceklist_monitoring,
                         a.v_pemenuhan_eviden
-                        FROM week_cosmic_index(?, ?) a
-                        GROUP BY
-                        a.v_mc_id,
-                        a.v_mc_name,
-                        a.v_ms_id,
-                        a.v_ms_name,
-                        a.v_cosmic_index,
-                        a.v_pemenuhan_protokol,
-                        a.v_pemenuhan_ceklist_monitoring,
-                        a.v_pemenuhan_eviden
+                        FROM mv_cosmic_index_report a
+                        where a.v_mc_id =?
+
                         ";
                     //echo $sql;die;
-                    $result = DB::select($sql, [(string)$company_id, (string)$enddate]);
+                    $result = DB::select($sql, [(string)$company_id]);
                     //dd($result);
                     foreach ($result as $value) {
                         $data = array(
@@ -459,7 +444,7 @@ class DashboardController extends Controller
         $str = '_get_cosmic_index_detail_list_'.$kd_perusahaan;
         $mc_id = $kd_perusahaan;
 
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 360 * 60, function()use($mc_id) {
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($mc_id) {
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdatenow = $weeks['startweek'];
@@ -520,19 +505,11 @@ class DashboardController extends Controller
                           a.v_pemenuhan_protokol,
                           a.v_pemenuhan_ceklist_monitoring,
                           a.v_pemenuhan_eviden
-                          FROM week_cosmic_index(?, ?) a
-                          GROUP BY
-                          a.v_mc_id,
-                          a.v_mc_name,
-                          a.v_ms_id,
-                          a.v_ms_name,
-                          a.v_cosmic_index,
-                          a.v_pemenuhan_protokol,
-                          a.v_pemenuhan_ceklist_monitoring,
-                          a.v_pemenuhan_eviden
+                          FROM mv_cosmic_index_report a
+                          where a.v_mc_id =?
                           ";
                       //echo $sql;die;
-                      $result = DB::select($sql, [(string)$company_id, (string)$enddatenow]);
+                      $result = DB::select($sql, [(string)$company_id]);
                       //dd($result);
                       foreach ($result as $value) {
                         foreach ($weeksday as $itemweeksday){
