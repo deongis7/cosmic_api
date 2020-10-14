@@ -911,7 +911,6 @@ $status_monitoring = ($status['status']);
 
         if ($closed == null){
             $closed= New TblPerimeterClosed();
-            $closed->setConnection('pgsql2');
             $closed->tbpc_mpml_id = $request->id_perimeter_level;
             $closed->tbpc_alasan = $request->alasan;
             $closed->tbpc_requestor = $request->nik;
