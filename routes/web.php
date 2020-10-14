@@ -58,6 +58,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->post('/perimeter/update', 'PerimeterListController@updateDetailPerimeter');
 	$router->post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
 	$router->post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
+	$router->post('/perimeter_closed/addActivity', 'PerimeterListController@updateAktifitasClosedPerimeter');  //force add for actifity closed perimeter
+
 
 	//TaskForce
 	$router->get('/taskforce/count/{id}', 'PerimeterController@getCountTaskForce');
@@ -157,7 +159,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 	//Alert
 	$router->get('/dashboard/alert_week_bymcid/{id}', 'DashboardController@getAlertWeek_byMcid');
-	
+
 	//Dashboard
 	$router->get('/dashboard/cosmicindex', 'DashboardController@getCosmicIndexAll');
 	$router->get('/dashboard/perimeter_bykategori_all', 'DashboardController@getPerimeterbyKategoriAll');
@@ -179,7 +181,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashcluster/cluster_perimeter_bykategori_all/{id}', 'DashClusterController@getClusterPerimeterbyKategoriAll');
 	$router->get('/dashcluster/cluster_perimeter_byprovinsi_all/{id}', 'DashClusterController@getClusterPerimeterbyProvinsiAll');
 	$router->get('/dashcluster/cluster_perimeter_bycosmicindex/{id}', 'DashClusterController@getClusterCosmicIndexAll');
-	
+
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
 
