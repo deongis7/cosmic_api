@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\TrnKasus;
+use Illuminate\Support\Facades\Cache;
 
 class TerpaparController extends Controller {
     /**
@@ -39,58 +40,64 @@ class TerpaparController extends Controller {
 	}
 
 	public function getDataHome($id) {
-	    $terpapar = DB::select("SELECT msk_id, msk_name2,
-                    CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
-                    FROM master_status_kasus msk
-                    LEFT JOIN (
-                        SELECT tk_msk_id, COUNT(tk_msk_id) jml
-                        FROM transaksi_kasus
-                        WHERE tk_mc_id='$id' AND tk_msk_id!=3
-                        GROUP BY tk_msk_id
-                        UNION ALL
-                        SELECT 3, COUNT(tk_msk_id) jml
-                        FROM transaksi_kasus
-                        WHERE tk_mc_id='$id' AND tk_msk_id IN (3,4,5)
-                    ) tk on tk.tk_msk_id=msk.msk_id
-                    ORDER BY msk_id");
-	    $data=array();
-	    foreach($terpapar as $tpp){
-	        $data[] = array(
-	            "id_kasus" => $tpp->msk_id,
-	            "jenis_kasus" => $tpp->msk_name2,
-	            "jumlah" => $tpp->jml
-	        );
-	    }
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_bymcid_".$id, 5 * 60, function()use($id){
+    	    $terpapar = DB::select("SELECT msk_id, msk_name2,
+                        CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
+                        FROM master_status_kasus msk
+                        LEFT JOIN (
+                            SELECT tk_msk_id, COUNT(tk_msk_id) jml
+                            FROM transaksi_kasus
+                            WHERE tk_mc_id='$id' AND tk_msk_id!=3
+                            GROUP BY tk_msk_id
+                            UNION ALL
+                            SELECT 3, COUNT(tk_msk_id) jml
+                            FROM transaksi_kasus
+                            WHERE tk_mc_id='$id' AND tk_msk_id IN (3,4,5)
+                        ) tk on tk.tk_msk_id=msk.msk_id
+                        ORDER BY msk_id");
+    	    $data=array();
+    	    foreach($terpapar as $tpp){
+    	        $data[] = array(
+    	            "id_kasus" => $tpp->msk_id,
+    	            "jenis_kasus" => $tpp->msk_name2,
+    	            "jumlah" => $tpp->jml
+    	        );
+    	    }
+	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 
 	public function getDataHomeAll() {
-	   $terpapar = DB::select("SELECT * FROM dashboard_kasus()");
-	    $data = array();
-	    foreach($terpapar as $tpp){
-	        $data[] = array(
-	            "id_kasus" => $tpp->v_msk_id,
-	            "jenis_kasus" => $tpp->v_msk_name,
-	            "jumlah" => $tpp->v_cnt
-	        );
-	    }
-	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_all", 5 * 60, function(){
+    	    $terpapar = DB::select("SELECT * FROM dashboard_kasus()");
+    	    $data = array();
+    	    foreach($terpapar as $tpp){
+    	        $data[] = array(
+    	            "id_kasus" => $tpp->v_msk_id,
+    	            "jenis_kasus" => $tpp->v_msk_name,
+    	            "jumlah" => $tpp->v_cnt
+    	        );
+    	    }
+	    });
+        return response()->json(['status' => 200,
+            'data' => $datacache]);
 	}
 	
 	public function getClusterDataHomeAll($id) {
-	    $terpapar = DB::select("SELECT * FROM cluster_dashboard_kasus('$id')");
-	    $data = array();
-	    foreach($terpapar as $tpp){
-	        $data[] = array(
-	            "id_kasus" => $tpp->v_msk_id,
-	            "jenis_kasus" => $tpp->v_msk_name,
-	            "jumlah" => $tpp->v_cnt
-	        );
-	    }
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_bymcid_".$id, 5 * 60, function()use($id){
+    	    $terpapar = DB::select("SELECT * FROM cluster_dashboard_kasus('$id')");
+    	    $data = array();
+    	    foreach($terpapar as $tpp){
+    	        $data[] = array(
+    	            "id_kasus" => $tpp->v_msk_id,
+    	            "jenis_kasus" => $tpp->v_msk_name,
+    	            "jumlah" => $tpp->v_cnt
+    	        );
+    	    }
+	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 
 	public function getDatadetail($id, $page, $search,Request $request) {
@@ -300,8 +307,6 @@ class TerpaparController extends Controller {
 
     public function deleteKasus($id_kasus) {
         $data = TrnKasus::where('tk_id',$id_kasus)->delete();
-
-
         if ($data){
             return response()->json(['status' => 200,'message' => 'Data Berhasil DiHapus']);
         }  else if($data==null){
@@ -313,89 +318,102 @@ class TerpaparController extends Controller {
     }
 
 	public function getDashboardCompanybyMskid($id) {
-	    $terpapar = DB::select("SELECT * FROM allkasus_company_bymskid($id)");
-	    $data = array();
-	    foreach($terpapar as $tpp){
-	        $data[] = array(
-	            "mc_id" => $tpp->x_mc_id,
-	            "mc_name" => $tpp->x_mc_name,
-	            "jumlah" => $tpp->x_jml
-	        );
-	    }
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpaparcompany_bymskid_".$id, 5 * 60, function()use($id){
+    	    $terpapar = DB::select("SELECT * FROM allkasus_company_bymskid($id)");
+    	    $data = array();
+    	    foreach($terpapar as $tpp){
+    	        $data[] = array(
+    	            "mc_id" => $tpp->x_mc_id,
+    	            "mc_name" => $tpp->x_mc_name,
+    	            "jumlah" => $tpp->x_jml
+    	        );
+    	    }
+	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 
 	public function getDashboardProvinsibyMskid($id) {
-	    $terpapar = DB::select("SELECT * FROM allkasus_provinsi_bymskid($id)");
-	    $data = array();
-	    foreach($terpapar as $tpp){
-	        $data[] = array(
-	            "mpro_id" => $tpp->x_mpro_id,
-	            "mpro_name" => $tpp->x_mpro_name,
-	            "jumlah" => $tpp->x_jml
-	        );
-	    }
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpaparprovinsi_bymskid_".$id, 5 * 60, function()use($id){
+    	    $terpapar = DB::select("SELECT * FROM allkasus_provinsi_bymskid($id)");
+    	    $data = array();
+    	    foreach($terpapar as $tpp){
+    	        $data[] = array(
+    	            "mpro_id" => $tpp->x_mpro_id,
+    	            "mpro_name" => $tpp->x_mpro_name,
+    	            "jumlah" => $tpp->x_jml
+    	        );
+    	    }
+	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 
 	public function getDashboardKabupatenbyMskid($id) {
-	    $terpapar = DB::select("SELECT * FROM allkasus_kabupaten_bymskid($id)");
-	   // var_dump($terpapar);die;
-	    $data = array();
-	    foreach($terpapar as $tpp){
-	        $data[] = array(
-	            "mkab_id" => $tpp->x_mkab_id,
-	            "mkab_name" => $tpp->x_mkab_name,
-	            "jumlah" => $tpp->x_jml
-	        );
-	    }
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpaparkabupaten_bymskid_".$id, 5 * 60, function()use($id){
+    	    $terpapar = DB::select("SELECT * FROM allkasus_kabupaten_bymskid($id)");
+    	   // var_dump($terpapar);die;
+    	    $data = array();
+    	    foreach($terpapar as $tpp){
+    	        $data[] = array(
+    	            "mkab_id" => $tpp->x_mkab_id,
+    	            "mkab_name" => $tpp->x_mkab_name,
+    	            "jumlah" => $tpp->x_jml
+    	        );
+    	    }
+	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 	
 	public function getClusterDashboardCompanybyMskid($id, $msc_id) {
-	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_company_bymskid($id,'$msc_id')");
-	    $data = array();
-	    foreach($terpapar as $tpp){
-	        $data[] = array(
-	            "mc_id" => $tpp->x_mc_id,
-	            "mc_name" => $tpp->x_mc_name,
-	            "jumlah" => $tpp->x_jml
-	        );
-	    }
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparcompany_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
+    	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_company_bymskid($id,'$msc_id')");
+    	    $data = array();
+    	    foreach($terpapar as $tpp){
+    	        $data[] = array(
+    	            "mc_id" => $tpp->x_mc_id,
+    	            "mc_name" => $tpp->x_mc_name,
+    	            "jumlah" => $tpp->x_jml
+    	        );
+    	    }
+	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 	
 	public function getClusterDashboardProvinsibyMskid($id, $msc_id) {
-	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_provinsi_bymskid($id,'$msc_id')");
-	    $data = array();
-	    foreach($terpapar as $tpp){
-	        $data[] = array(
-	            "mpro_id" => $tpp->x_mpro_id,
-	            "mpro_name" => $tpp->x_mpro_name,
-	            "jumlah" => $tpp->x_jml
-	        );
-	    }
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparprovinsi_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
+    	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_provinsi_bymskid($id,'$msc_id')");
+    	    $data = array();
+    	    foreach($terpapar as $tpp){
+    	        $data[] = array(
+    	            "mpro_id" => $tpp->x_mpro_id,
+    	            "mpro_name" => $tpp->x_mpro_name,
+    	            "jumlah" => $tpp->x_jml
+    	        );
+    	    }
+	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 	
 	public function getClusterDashboardKabupatenbyMskid($id, $msc_id) {
-	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_kabupaten_bymskid($id,'$msc_id')");
-	    // var_dump($terpapar);die;
-	    $data = array();
-	    foreach($terpapar as $tpp){
-	        $data[] = array(
-	            "mkab_id" => $tpp->x_mkab_id,
-	            "mkab_name" => $tpp->x_mkab_name,
-	            "jumlah" => $tpp->x_jml
-	        );
-	    }
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparkabupaten_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
+	
+    	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_kabupaten_bymskid($id,'$msc_id')");
+    	    // var_dump($terpapar);die;
+    	    $data = array();
+    	    foreach($terpapar as $tpp){
+    	        $data[] = array(
+    	            "mkab_id" => $tpp->x_mkab_id,
+    	            "mkab_name" => $tpp->x_mkab_name,
+    	            "jumlah" => $tpp->x_jml
+    	        );
+    	    }
+	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 	
 }
