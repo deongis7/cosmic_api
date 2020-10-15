@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\TrnKasus;
+use Illuminate\Support\Facades\Cache;
 
 class TerpaparController extends Controller {
     /**
