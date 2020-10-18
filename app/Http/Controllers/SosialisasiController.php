@@ -105,7 +105,8 @@ class SosialisasiController extends Controller {
 
     public function getDataById($id) {
         $sosialisasi = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
-                ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb
+                ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb,
+                ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_id='$id'");
@@ -161,7 +162,11 @@ class SosialisasiController extends Controller {
                     "file_1" => $filesos1,
                     "file_1_tumb" => $filesos1_tumb,
                     "file_2" => $filesos2,
-                    "file_2_tumb" => $filesos2_tumb
+                    "file_2_tumb" => $filesos2_tumb,
+                    "checklist_dampak" =>$sos->ts_checklist_dampak,
+                    "bulan_kegiatan" =>$sos->ts_bulan,
+                    "persen_dampak" =>$sos->ts_prsn_dampak,
+                    "persen_dampak_keseluruhan" =>$sos->ts_prsn_dampak_all
                 );
             }
         }else{
@@ -314,6 +319,10 @@ class SosialisasiController extends Controller {
         $r_tgl = strtotime($request->tanggal);
         $r_tanggal = date('Y-m-d',$r_tgl);
         $r_kd_perusahaan = $request->kd_perusahaan;
+        $checklist_dampak = $request->checklist_dampak;
+        $bulan = $request->bulan_kegiatan;
+        $prsn_dampak = $request->persen_dampak;
+        $prsn_dampak_all = $request->persen_dampak_keseluruhan;
 
         $dataSosialisasi = Sosialisasi::find($id);
         //var_dump($dataSosialisasi);die;
@@ -323,6 +332,7 @@ class SosialisasiController extends Controller {
         $filex1_tumb = $dataSosialisasi->ts_file1_tumb;
         $filex2 = $dataSosialisasi->ts_file2;
         $filex2_tumb = $dataSosialisasi->ts_file2_tumb;
+
 
 
         if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan)) {
@@ -386,6 +396,10 @@ class SosialisasiController extends Controller {
         $dataSosialisasi->ts_file2 = $name2;
         $dataSosialisasi->ts_file1_tumb = $name1_tumb;
         $dataSosialisasi->ts_file2_tumb = $name2_tumb;
+        $dataSosialisasi->ts_checklist_dampak = $checklist_dampak;
+        $dataSosialisasi->ts_bulan = $bulan;
+        $dataSosialisasi->ts_prsn_dampak = $prsn_dampak;
+        $dataSosialisasi->ts_prsn_dampak_all = $prsn_dampak_all;
         $dataSosialisasi->ts_date_update = date('Y-m-d H:i:s');
         $dataSosialisasi->ts_user_update = Auth::guard('api')->user()->id;
         $dataSosialisasi->save();
@@ -414,6 +428,10 @@ class SosialisasiController extends Controller {
         $nama_kegiatan = $request->nama_kegiatan;
         $jenis_kegiatan = $request->jenis_kegiatan;
         $deskripsi = $request->deskripsi;
+        $checklist_dampak = $request->checklist_dampak;
+        $bulan = $request->bulan_kegiatan;
+        $prsn_dampak = $request->persen_dampak;
+        $prsn_dampak_all = $request->persen_dampak_keseluruhan;
         $tgl = strtotime($request->tanggal);
         $tanggal = date('Y-m-d',$tgl);
         $user_id = $request->user_id;
@@ -472,6 +490,10 @@ class SosialisasiController extends Controller {
         $dataSosialisasi->ts_file2 = $name2;
         $dataSosialisasi->ts_file1_tumb = $name1_tumb;
         $dataSosialisasi->ts_file2_tumb = $name2_tumb;
+        $dataSosialisasi->ts_checklist_dampak = $checklist_dampak;
+        $dataSosialisasi->ts_bulan = $bulan;
+        $dataSosialisasi->ts_prsn_dampak = $prsn_dampak;
+        $dataSosialisasi->ts_prsn_dampak_all = $prsn_dampak_all;
         $dataSosialisasi->ts_date_insert = date('Y-m-d H:i:s');
         $dataSosialisasi->ts_user_insert = $user_id;
         $dataSosialisasi->save();
@@ -500,6 +522,10 @@ class SosialisasiController extends Controller {
         $r_tgl = strtotime($request->tanggal);
         $r_tanggal = date('Y-m-d',$r_tgl);
         $r_kd_perusahaan = $request->kd_perusahaan;
+        $checklist_dampak = $request->checklist_dampak;
+        $bulan = $request->bulan_kegiatan;
+        $prsn_dampak = $request->persen_dampak;
+        $prsn_dampak_all = $request->persen_dampak_keseluruhan;
 
         $dataSosialisasi = Sosialisasi::find($id);
         //var_dump($dataSosialisasi);die;
@@ -572,6 +598,10 @@ class SosialisasiController extends Controller {
         $dataSosialisasi->ts_file2 = $name2;
         $dataSosialisasi->ts_file1_tumb = $name1_tumb;
         $dataSosialisasi->ts_file2_tumb = $name2_tumb;
+        $dataSosialisasi->ts_checklist_dampak = $checklist_dampak;
+        $dataSosialisasi->ts_bulan = $bulan;
+        $dataSosialisasi->ts_prsn_dampak = $prsn_dampak;
+        $dataSosialisasi->ts_prsn_dampak_all = $prsn_dampak_all;
         $dataSosialisasi->ts_date_update = date('Y-m-d H:i:s');
         $dataSosialisasi->ts_user_update = $user_id;
         $dataSosialisasi->save();
