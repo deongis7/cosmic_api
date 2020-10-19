@@ -69,7 +69,7 @@ class TerpaparController extends Controller {
 	}
 
 	public function getDataHomeAll() {
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_all", 5 * 60, function(){
+// 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_all", 5 * 60, function(){
     	    $terpapar = DB::select("SELECT * FROM dashboard_kasus()");
     	    $data = array();
     	    foreach($terpapar as $tpp){
@@ -79,13 +79,13 @@ class TerpaparController extends Controller {
     	            "jumlah" => $tpp->v_cnt
     	        );
     	    }
-	    });
+// 	    });
         return response()->json(['status' => 200,
             'data' => $datacache]);
 	}
 	
 	public function getClusterDataHomeAll($id) {
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_bymcid_".$id, 5 * 60, function()use($id){
+// 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_bymcid_".$id, 5 * 60, function()use($id){
     	    $terpapar = DB::select("SELECT * FROM cluster_dashboard_kasus('$id')");
     	    $data = array();
     	    foreach($terpapar as $tpp){
@@ -95,7 +95,7 @@ class TerpaparController extends Controller {
     	            "jumlah" => $tpp->v_cnt
     	        );
     	    }
-	    });
+// 	    });
 	    return response()->json(['status' => 200,
 	        'data' => $datacache]);
 	}
@@ -318,7 +318,7 @@ class TerpaparController extends Controller {
     }
 
 	public function getDashboardCompanybyMskid($id) {
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpaparcompany_bymskid_".$id, 5 * 60, function()use($id){
+// 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpaparcompany_bymskid_".$id, 5 * 60, function()use($id){
     	    $terpapar = DB::select("SELECT * FROM allkasus_company_bymskid($id)");
     	    $data = array();
     	    foreach($terpapar as $tpp){
@@ -328,13 +328,13 @@ class TerpaparController extends Controller {
     	            "jumlah" => $tpp->x_jml
     	        );
     	    }
-	    });
+// 	    });
 	    return response()->json(['status' => 200,
 	        'data' => $datacache]);
 	}
 
 	public function getDashboardProvinsibyMskid($id) {
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpaparprovinsi_bymskid_".$id, 5 * 60, function()use($id){
+// 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpaparprovinsi_bymskid_".$id, 5 * 60, function()use($id){
     	    $terpapar = DB::select("SELECT * FROM allkasus_provinsi_bymskid($id)");
     	    $data = array();
     	    foreach($terpapar as $tpp){
@@ -344,13 +344,13 @@ class TerpaparController extends Controller {
     	            "jumlah" => $tpp->x_jml
     	        );
     	    }
-	    });
+// 	    });
 	    return response()->json(['status' => 200,
 	        'data' => $datacache]);
 	}
 
 	public function getDashboardKabupatenbyMskid($id) {
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpaparkabupaten_bymskid_".$id, 5 * 60, function()use($id){
+// 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpaparkabupaten_bymskid_".$id, 5 * 60, function()use($id){
     	    $terpapar = DB::select("SELECT * FROM allkasus_kabupaten_bymskid($id)");
     	   // var_dump($terpapar);die;
     	    $data = array();
@@ -361,13 +361,13 @@ class TerpaparController extends Controller {
     	            "jumlah" => $tpp->x_jml
     	        );
     	    }
-	    });
+// 	    });
 	    return response()->json(['status' => 200,
 	        'data' => $datacache]);
 	}
 	
 	public function getClusterDashboardCompanybyMskid($id, $msc_id) {
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparcompany_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
+// 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparcompany_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
     	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_company_bymskid($id,'$msc_id')");
     	    $data = array();
     	    foreach($terpapar as $tpp){
@@ -377,13 +377,13 @@ class TerpaparController extends Controller {
     	            "jumlah" => $tpp->x_jml
     	        );
     	    }
-	    });
+// 	    });
 	    return response()->json(['status' => 200,
 	        'data' => $datacache]);
 	}
 	
 	public function getClusterDashboardProvinsibyMskid($id, $msc_id) {
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparprovinsi_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
+// 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparprovinsi_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
     	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_provinsi_bymskid($id,'$msc_id')");
     	    $data = array();
     	    foreach($terpapar as $tpp){
@@ -393,13 +393,13 @@ class TerpaparController extends Controller {
     	            "jumlah" => $tpp->x_jml
     	        );
     	    }
-	    });
+// 	    });
 	    return response()->json(['status' => 200,
 	        'data' => $datacache]);
 	}
 	
 	public function getClusterDashboardKabupatenbyMskid($id, $msc_id) {
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparkabupaten_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
+// 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparkabupaten_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
 	
     	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_kabupaten_bymskid($id,'$msc_id')");
     	    // var_dump($terpapar);die;
@@ -411,7 +411,7 @@ class TerpaparController extends Controller {
     	            "jumlah" => $tpp->x_jml
     	        );
     	    }
-	    });
+// 	    });
 	    return response()->json(['status' => 200,
 	        'data' => $datacache]);
 	}
