@@ -81,7 +81,7 @@ class TerpaparController extends Controller {
     	    }
 	    });
         return response()->json(['status' => 200,
-            'data' => $data]);
+            'data' => $datacache]);
 	}
 	
 	public function getClusterDataHomeAll($id) {
@@ -97,7 +97,7 @@ class TerpaparController extends Controller {
     	    }
 	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 
 	public function getDatadetail($id, $page, $search,Request $request) {
@@ -330,7 +330,7 @@ class TerpaparController extends Controller {
     	    }
 	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 
 	public function getDashboardProvinsibyMskid($id) {
@@ -346,7 +346,7 @@ class TerpaparController extends Controller {
     	    }
 	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 
 	public function getDashboardKabupatenbyMskid($id) {
@@ -363,7 +363,7 @@ class TerpaparController extends Controller {
     	    }
 	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 	
 	public function getClusterDashboardCompanybyMskid($id, $msc_id) {
@@ -379,7 +379,7 @@ class TerpaparController extends Controller {
     	    }
 	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 	
 	public function getClusterDashboardProvinsibyMskid($id, $msc_id) {
@@ -395,7 +395,7 @@ class TerpaparController extends Controller {
     	    }
 	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 	
 	public function getClusterDashboardKabupatenbyMskid($id, $msc_id) {
@@ -413,7 +413,7 @@ class TerpaparController extends Controller {
     	    }
 	    });
 	    return response()->json(['status' => 200,
-	        'data' => $data]);
+	        'data' => $datacache]);
 	}
 	
 }
