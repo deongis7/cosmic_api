@@ -299,7 +299,7 @@ class PerimeterReportController extends Controller
 
         });
             if(isset($nik) && ($user != null)) {
-              $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+              $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik,$week);
             } else {
                 $status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             }
@@ -419,7 +419,7 @@ class PerimeterReportController extends Controller
                       "alasan" => $itemperimeter->tbpc_alasan,
                       "percentage" => $itemperimeter->percentage,
                   );
-                   
+
                   if ($itemperimeter->status_monitoring == true) {
                               $totalpmmonitoring++;
                           }
@@ -642,11 +642,12 @@ class PerimeterReportController extends Controller
     */
 
     //Get Jumlah Perimeter List
-    private function getJumlahPerimeterLevel($kd_perusahaan,$nik){
+    private function getJumlahPerimeterLevel($kd_perusahaan,$nik,$week){
 
         $user = null;
         $role_id = null;
         $nik = $nik;
+        $week=$week;
         $str = "_get_jumlah_perimeterlevellist_by_perimeter_". $kd_perusahaan;
 
         if(isset($nik)){
@@ -656,41 +657,78 @@ class PerimeterReportController extends Controller
             $user = $user->where('username', $nik)->first();
             $str_fnc[]=$nik;
         }
-        //dd($str_fnc);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 40 * 60, function()use($kd_perusahaan,$nik,$user,$role_id) {
 
+        if(isset($request->week)){
+            $str = $str.'_week_'. $request->week;
+        }
+        //dd($str_fnc);
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 40 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$week) {
+          //current week
+          $crweeks = AppHelper::Weeks();
+          $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
+          $start = substr($week, 0, 10);
+          $end = substr($week, 11, 20);
+          $param =  [$kd_perusahaan, $week];
 
             $data = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
 
-            $perimeter = new Perimeter;
-            $perimeter->setConnection('pgsql2');
-            $perimeter = $perimeter->select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id')
-                ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
-                ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
-                ->leftjoin('app_users as userfo', 'userfo.username', 'master_perimeter_level.mpml_me_nik');
+            if (isset($week) && ($week != $currentweek)){
+              $sql = "select rhw.rhw_mc_id , sum(case when rhw.rhw_mpml_cek = 1 then 1 else 0 end) as jml_monitoring,
+                      sum(case when rhw.rhw_mpml_cek = 0 then 1 else 0 end) as jml_belum_monitoring, count(rhw.rhw_mpml_cek) as total
+                     from report_history_week rhw";
 
-            if(isset($nik) && ($user != null)) {
-                $role_id = $user->roles()->first()->id;
-                if ($role_id == 3) {
-                    $perimeter = $perimeter->where('userpic.username', $nik);
-                } else if ($role_id == 4) {
-                    $perimeter = $perimeter->where('userfo.username', $nik);
-                }
-            }
+              $sql =  $sql. " where rhw.rhw_mc_id = ? and rhw.rhw_week = ?";
 
-            $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan)->get();
-            $totalperimeter = $perimeter->count();
-            $totalpmmonitoring = 0;
+              if(isset($nik) && ($user != null)) {
+                        $role_id = $user->roles()->first()->id;
+                        if ($role_id == 3) {
+                          $sql = $sql. " and rhw_pic_nik = ? ";
+                          $param[] = $nik;
+                        } else if ($role_id == 4) {
+                          $sql = $sql. " and rhw_pic_fo = ? ";
+                          $param[] = $nik;
+                        }
+              }
+              $sql =  $sql. " group by rhw.rhw_mc_id";
+              $perimeter = DB::connection('pgsql2')->select($sql, $param);
 
-            foreach ($perimeter as $itemperimeter) {
-              $cluster = new TblPerimeterDetail;
-              $cluster->setConnection('pgsql2');
-                $cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
-                $status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
+              foreach ($perimeter as $itemperimeter) {
+                $totalperimeter = $itemperimeter->total;
+                $totalpmmonitoring = $itemperimeter->jml_monitoring;
+              }
 
-                if ($status['status'] == true) {
-                    $totalpmmonitoring++;
-                }
+
+            } else {
+              $perimeter = new Perimeter;
+              $perimeter->setConnection('pgsql2');
+              $perimeter = $perimeter->select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id')
+                  ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
+                  ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
+                  ->leftjoin('app_users as userfo', 'userfo.username', 'master_perimeter_level.mpml_me_nik');
+
+              if(isset($nik) && ($user != null)) {
+                  $role_id = $user->roles()->first()->id;
+                  if ($role_id == 3) {
+                      $perimeter = $perimeter->where('userpic.username', $nik);
+                  } else if ($role_id == 4) {
+                      $perimeter = $perimeter->where('userfo.username', $nik);
+                  }
+              }
+
+              $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan)->get();
+              $totalperimeter = $perimeter->count();
+              $totalpmmonitoring = 0;
+
+              foreach ($perimeter as $itemperimeter) {
+                $cluster = new TblPerimeterDetail;
+                $cluster->setConnection('pgsql2');
+                  $cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
+                  $status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
+
+                  if ($status['status'] == true) {
+                      $totalpmmonitoring++;
+                  }
+              }
             }
 
             //dashboard
@@ -711,7 +749,8 @@ class PerimeterReportController extends Controller
     public function getStatusPerimeterLevel($kd_perusahaan, Request $request){
 
         $nik = $request->nik;
-       $data = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+        $week = $request->week;
+       $data = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik,$week);
         return response()->json(['status' => 200 ,'data' => $data]);
 
     }

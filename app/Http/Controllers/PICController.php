@@ -334,7 +334,7 @@ class PICController extends Controller
 		$startdate = $weeks['startweek'];
 		$enddate = $weeks['endweek'];
 
-		$cluster = DB::connection('pgsql2')->select( "select  kc.kcar_id, kc.kcar_mcr_id, kc.kcar_ag_id, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from konfigurasi_car kc
+		$cluster = DB::connection('pgsql3')->select( "select  kc.kcar_id, kc.kcar_mcr_id, kc.kcar_ag_id, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from konfigurasi_car kc
 		join  master_cluster_ruangan mcr on kc.kcar_mcr_id = mcr.mcr_id
 		join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
 		left join transaksi_aktifitas ta on  ta.ta_kcar_id = kc.kcar_id and (ta.ta_date >= ? and ta.ta_date <= ? ) and ta.ta_tpmd_id = ?
@@ -480,7 +480,7 @@ class PICController extends Controller
 		$startdate = $weeks['startweek'];
 		$enddate = $weeks['endweek'];
 
-        $konfirmasi = DB::connection('pgsql2')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id,max(ta.ta_date_update) from transaksi_aktifitas ta
+        $konfirmasi = DB::connection('pgsql3')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id,max(ta.ta_date_update) from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
@@ -488,7 +488,7 @@ class PICController extends Controller
 		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id order by max(ta.ta_date_update) desc", [$id_perimeter_cluster, $startdate, $enddate]);
 
 		if($id_role == 4){
-		$clustertrans = DB::connection('pgsql2')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id,max(ta.ta_date_update) from transaksi_aktifitas ta
+		$clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id,max(ta.ta_date_update) from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
@@ -679,7 +679,7 @@ class PICController extends Controller
 			$role_id = $user->roles()->first()->id;
 
             $perimeter =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 10 * 60, function()use($id_perimeter_level) {
-                return $cacheperimeter = DB::connection('pgsql3')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo from master_perimeter_level mpl
+                return $cacheperimeter = DB::connection('pgsql2')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo from master_perimeter_level mpl
 					join master_perimeter mpm on mpm.mpm_id = mpl.mpml_mpm_id
 					join master_perimeter_kategori mpk on mpk.mpmk_id = mpm.mpm_mpmk_id
 					join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id and tpd.tpmd_cek=true
@@ -690,7 +690,7 @@ class PICController extends Controller
 			foreach($perimeter as $itemperimeter){
 				$data_aktifitas_cluster = array();
         $aktifitas = new KonfigurasiCAR;
-        $aktifitas->setConnection('pgsql3');
+        $aktifitas->setConnection('pgsql2');
 				$aktifitas = $aktifitas->join('master_car','master_car.mcar_id','konfigurasi_car.kcar_mcar_id')
 							->where('konfigurasi_car.kcar_ag_id',4)->where('konfigurasi_car.kcar_mcr_id',$itemperimeter->mcr_id)
 							->where('master_car.mcar_active',true)->count();
