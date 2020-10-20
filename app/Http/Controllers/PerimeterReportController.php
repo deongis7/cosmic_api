@@ -166,7 +166,7 @@ class PerimeterReportController extends Controller
                     "kabupaten" => $itemperimeter->kabupaten,
                 );
               }
-            return array('page_end' => $endpage, 'data' => $data);
+            return array('page_end' => $endpage, 'status_current_week' => false,'data' => $data);
           } else {
             $perimeter = new Perimeter;
             $perimeter->setConnection('pgsql3');
@@ -294,7 +294,7 @@ class PerimeterReportController extends Controller
             //);
 
             //return  $data;
-            return array('page_end' => $endpage, 'data' => $data);
+            return array('page_end' => $endpage, 'status_current_week' => true,'data' => $data);
           }
 
         });
@@ -305,7 +305,7 @@ class PerimeterReportController extends Controller
             }
         //$status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
         //$status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
-        return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
+        return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'status_current_week' =>$datacache['status_current_week'],'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
 
     }
 
@@ -658,8 +658,8 @@ class PerimeterReportController extends Controller
             $str_fnc[]=$nik;
         }
 
-        if(isset($request->week)){
-            $str = $str.'_week_'. $request->week;
+        if(isset($week)){
+            $str = $str.'_week_'. $week;
         }
         //dd($str_fnc);
         $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 40 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$week) {
@@ -671,13 +671,13 @@ class PerimeterReportController extends Controller
           $param =  [$kd_perusahaan, $week];
           $totalperimeter =0;
           $totalpmmonitoring=0;
-          
+
 
             $data = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
 
             if (isset($week) && ($week != $currentweek)){
               $sql = "select rhw.rhw_mc_id , sum(case when rhw.rhw_mpml_cek = 1 then 1 else 0 end) as jml_monitoring,
-                      sum(case when rhw.rhw_mpml_cek = 0 then 1 else 0 end) as jml_belum_monitoring, count(rhw.rhw_mpml_cek) as total
+                      sum(case when rhw.rhw_mpml_cek = 0  or rhw.rhw_mpml_cek is null then 1 else 0 end) as jml_belum_monitoring, count(rhw.rhw_mpml_cek) as total
                      from report_history_week rhw";
 
               $sql =  $sql. " where rhw.rhw_mc_id = ? and rhw.rhw_week = ?";
@@ -693,14 +693,13 @@ class PerimeterReportController extends Controller
                         }
               }
               $sql =  $sql. " group by rhw.rhw_mc_id";
+              //dd($sql);
               $perimeter = DB::connection('pgsql2')->select($sql, $param);
-
+              //dd($perimeter);
               foreach ($perimeter as $itemperimeter) {
                 $totalperimeter = $itemperimeter->total;
                 $totalpmmonitoring = $itemperimeter->jml_monitoring;
               }
-
-
             } else {
               $perimeter = new Perimeter;
               $perimeter->setConnection('pgsql2');
