@@ -669,6 +669,9 @@ class PerimeterReportController extends Controller
           $start = substr($week, 0, 10);
           $end = substr($week, 11, 20);
           $param =  [$kd_perusahaan, $week];
+          $totalperimeter =0;
+          $totalpmmonitoring=0;
+          
 
             $data = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
 
