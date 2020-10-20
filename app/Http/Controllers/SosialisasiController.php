@@ -14,7 +14,8 @@ class SosialisasiController extends Controller {
 
     public function getDataByMcid($id, $page) {
         $sosialisasiweek = DB::select("SELECT ts.ts_id, ts.ts_mc_id, ts.ts_nama_kegiatan, ts.ts_tanggal,
-                ts.ts_mslk_id,  mslk.mslk_name, ts.ts_deskripsi, ts.ts_file1, ts.ts_file1_tumb, ts.ts_file2, ts.ts_file2_tumb
+                ts.ts_mslk_id,  mslk.mslk_name, ts.ts_deskripsi, ts.ts_file1, ts.ts_file1_tumb, ts.ts_file2, ts.ts_file2_tumb,
+                ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id='$id'
@@ -31,14 +32,16 @@ class SosialisasiController extends Controller {
         $pageq = $page*$row;
 
         $sosialisasiall = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
-                ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb
+                ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb,
+                ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id='$id'
     	        ORDER BY ts_tanggal DESC");
 
         $sosialisasi = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
-               ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb
+               ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb,
+               ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id='$id'
@@ -93,7 +96,11 @@ class SosialisasiController extends Controller {
                     "file_1" => $filesos1,
                     "file_1_tumb" => $filesos1_tumb,
                     "file_2" => $filesos2,
-                    "file_2_tumb" => $filesos2_tumb
+                    "file_2_tumb" => $filesos2_tumb,
+                    "checklist_dampak" =>$sos->ts_checklist_dampak,
+                    "bulan_kegiatan" =>$sos->ts_bulan,
+                    "persen_dampak" =>$sos->ts_prsn_dampak,
+                    "persen_dampak_keseluruhan" =>$sos->ts_prsn_dampak_all
                 );
             }
         }else{
