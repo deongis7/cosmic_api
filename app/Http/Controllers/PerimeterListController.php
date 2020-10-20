@@ -961,7 +961,7 @@ $status_monitoring = ($status['status']);
             ->where('tbpc_enddate', $enddate)
             ->where('tbpc_status', 1)->first();
 
-
+        /**
         if ($closed != null){
             $fo_nik = $closed->tbpc_requestor;
             $closed->tbpc_approval= $request->nik;
@@ -991,6 +991,8 @@ $status_monitoring = ($status['status']);
         else {
             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
         }
+        */
+        return response()->json(['status' => 500,'message' => 'Untuk saat ini fitur dimatikan sementara'])->setStatusCode(500);
 
     }
 
