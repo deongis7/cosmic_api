@@ -11,10 +11,18 @@ class AppHelper {
 	$now = Carbon::now();
 	$startdate = $now->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
 	$enddate = $now->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
+	$last_month = $now->subMonth(1)->format('Y-m-d');
+	$three_month = $now->subMonth(3)->format('Y-m-d');
+	$six_month = $now->subMonth(6)->format('Y-m-d');
+	$last_year = $now->subMonth(12)->format('Y-m-d');
 
 	$data = [
 		"startweek"=> $startdate,
 		"endweek"=> $enddate,
+		"last_month"=> $last_month,
+		"three_month"=> $three_month,
+		"six_month"=> $six_month,
+		"last_year"=> $last_year,
 		"weeks"=> $startdate.'-'.$enddate
 		];
 
