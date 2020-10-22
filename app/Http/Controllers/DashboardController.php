@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Company;
+use App\ExportCosmicIndex;
 use App\Helpers\AppHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Cache;
+use Maatwebsite\Excel\Facades\Excel;
 
 use DB;
 
@@ -556,6 +558,128 @@ class DashboardController extends Controller
             return $data;
         });
         return response()->json(['status' => 200,'data' => $datacache]);
+    }
+
+    public function getDownloadCosmicIndexListbyCompany($kd_perusahaan, Request $request){
+        $str = '_get_cosmic_index_detail_list_'.$kd_perusahaan;
+        $mc_id = $kd_perusahaan;
+          $month=$request->month;
+        if(isset($request->month)){
+            $str = $str.'_month_'. $request->month;
+
+        }
+
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($mc_id,$month) {
+            $data = array();
+            $weeks = AppHelper::Weeks();
+            $startdatenow = $weeks['startweek'];
+            $enddatenow = $weeks['endweek'];
+
+            $weeknow = $startdatenow ."-".$enddatenow;
+            $data=[];
+            $weeksday =  DB::select("SELECT * , CONCAT(v_awal,' s/d ', v_akhir) tgl
+                  FROM list_aktivitas_week()
+                  ORDER BY v_rownum DESC");
+
+              $company_id = $mc_id;
+              $perimeter = DB::select('select * from master_perimeter_level mpml
+              join master_perimeter mpm on mpm.mpm_id = mpml.mpml_mpm_id
+              where mpm.mpm_mc_id = ? and mpml.mpml_id in (select tpmd_mpml_id from table_perimeter_detail)',[$company_id]);
+              $jml = count($perimeter);
+
+              $ceknow = DB::select("SELECT *
+                      FROM report_cosmic_index rpi
+                      WHERE rci_week = ? and rci_mc_id = ?
+                      ORDER BY rci_week asc limit 1 ",[(string)$weeknow,(string)$company_id]);
+
+
+              $sql ="SELECT *
+                      FROM report_cosmic_index rpi
+                      WHERE rci_mc_id = ?";
+
+              $param =[(string)$company_id];
+              if(isset($month)) {
+                  if ($month ==1){
+                  $limitdate = $weeks['last_month'];
+                } else if ($month ==2){
+                  $limitdate =  $weeks['three_month'];
+                } else if ($month ==3){
+                  $limitdate = $weeks['six_month'];
+                } else {
+                  $limitdate = $weeks['last_year'];
+                }
+                $sql = $sql . ' and substring(rpi.rci_week from 12 for 10)>= ?';
+                $param[] = $limitdate;
+              }
+              $sql= $sql." ORDER BY rci_week asc ";
+              $rpi = DB::select($sql,$param);
+
+              foreach($rpi as $itemrpi){
+                foreach ($weeksday as $itemweeksday){
+                  if($itemweeksday->v_week == $itemrpi->rci_week){
+                    $data[] = array(
+                        "week" =>  $itemrpi->rci_week,
+                        "weekname" =>  "Week ".$itemweeksday->v_rownum." ( ".$itemweeksday->tgl." )",
+                        "mc_id" => $itemrpi->rci_mc_id,
+                        "mc_name" => $itemrpi->rci_mc_name,
+                        "ms_id" => $itemrpi->rci_ms_id,
+                        "ms_name" => $itemrpi->rci_ms_name,
+                        "cosmic_index" => $itemrpi->rci_cosmic_index,
+                        "pemenuhan_protokol" => $itemrpi->rci_pemenuhan_protokol,
+                        "pemenuhan_ceklist_monitoring" => $itemrpi->rci_pemenuhan_ceklist_monitoring,
+                        "pemenuhan_eviden" => $itemrpi->rci_pemenuhan_eviden,
+                        "jumlah_perimeter" => $itemrpi->rci_jml_perimeter,
+
+                    );
+                  }
+                }
+
+              }
+              if ($ceknow==null){
+
+                      $sql = "SELECT
+                          a.v_mc_id,
+                          a.v_mc_name,
+                          a.v_ms_id,
+                          a.v_ms_name,
+                          a.v_cosmic_index,
+                          a.v_pemenuhan_protokol,
+                          a.v_pemenuhan_ceklist_monitoring,
+                          a.v_pemenuhan_eviden
+                          FROM mv_cosmic_index_report a
+                          where a.v_mc_id =?
+                          ";
+                      //echo $sql;die;
+                      $result = DB::select($sql, [(string)$company_id]);
+                      //dd($result);
+                      foreach ($result as $value) {
+                        foreach ($weeksday as $itemweeksday){
+                          if($itemweeksday->v_week == $weeknow){
+                            $data[] = array(
+                                "week" =>  $weeknow,
+                                "weekname" =>  "Week ".$itemweeksday->v_rownum." ( ".$itemweeksday->tgl." )",
+                                "mc_id" => $value->v_mc_id,
+                                "mc_name" => $value->v_mc_name,
+                                "ms_id" => $value->v_ms_id,
+                                "ms_name" => $value->v_ms_name,
+                                "cosmic_index" => $value->v_cosmic_index,
+                                "pemenuhan_protokol" => $value->v_pemenuhan_protokol,
+                                "pemenuhan_ceklist_monitoring" => $value->v_pemenuhan_ceklist_monitoring,
+                                "pemenuhan_eviden" => $value->v_pemenuhan_eviden,
+                                "jumlah_perimeter" => $jml
+
+                            );
+                          }
+                        }
+                      }
+              }
+            return $data;
+        });
+        //dd(collect($datacache));
+        $export = new ExportCosmicIndex(collect($datacache));
+
+        return Excel::download($export, 'cosmic_index_report.xlsx');
+        //return response()->json(['status' => 200,'data' => $datacache]);
     }
 
     private function tgl_indo($tanggal){
