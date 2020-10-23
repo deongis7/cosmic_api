@@ -177,21 +177,43 @@ class TerpaparController extends Controller {
 	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
 	        $datareq['tanggal'] = 'required';
 	    }
+	    
+// 	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
+// 	        if($request->jenis_kasus==3){
+// 	            $datareq['tanggal_positif'] = 'required';
+// 	        }else{
+// 	            $datareq['tanggal'] = 'required';
+// 	            $datareq['tanggal_positif'] = 'required';
+// 	        }
+// 	    }
 
         $this->validate($request, $datareq);
 
         $tgl = strtotime($request->tanggal);
         $tanggal = date('Y-m-d',$tgl);
-
+       
+        if(isset($request->tanggal_positif)){
+            $tgl_positif = strtotime($request->tanggal_positif);
+            $tanggal_positif = date('Y-m-d',$tgl_positif);
+            $data->tk_date_positif = $tanggal_positif;
+        }
+        
         if($request->jenis_kasus==5){
+            //$data->tk_date_positif = $tanggal_positif;
             $data->tk_date_meninggal = $tanggal;
             $data->tk_date = $tanggal;
         }else if($request->jenis_kasus==4){
+            //$data->tk_date_positif = $tanggal_positif;
             $data->tk_date_sembuh = $tanggal;
             $data->tk_date = $tanggal;
         }else if($request->jenis_kasus==3){
+            //$data->tk_date_positif = $tanggal_positif;
             $data->tk_date_positif = $tanggal;
             $data->tk_date = $tanggal;
+        }
+        
+        if(isset($request->tanggal_positif)){
+            $data->tk_date_positif = $tanggal_positif;
         }
 
 	    date_default_timezone_set('Asia/Jakarta');
@@ -231,21 +253,41 @@ class TerpaparController extends Controller {
 	        $datareq['tanggal'] = 'required';
 	    }
 	    
+	    // 	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
+	    // 	        if($request->jenis_kasus==3){
+	    // 	            $datareq['tanggal_positif'] = 'required';
+	    // 	        }else{
+	    // 	            $datareq['tanggal'] = 'required';
+	    // 	            $datareq['tanggal_positif'] = 'required';
+	    // 	        }
+	    // 	    }
+	    
 	    $this->validate($request, $datareq);
-        $tgl = strtotime($request->tanggal);
-        
-        $tanggal = date('Y-m-d',$tgl);
+	    
+	    $tgl = strtotime($request->tanggal);
+	    $tanggal = date('Y-m-d',$tgl);
+	    
+	    if(isset($request->tanggal_positif)){
+	        $tgl_positif = strtotime($request->tanggal_positif);
+	        $tanggal_positif = date('Y-m-d',$tgl_positif);
+	        $data->tk_date_positif = $tanggal_positif;
+	    }
+	    
+	    if($request->jenis_kasus==5){
+	        //$data->tk_date_positif = $tanggal_positif;
+	        $data->tk_date_meninggal = $tanggal;
+	        $data->tk_date = $tanggal;
+	    }else if($request->jenis_kasus==4){
+	        //$data->tk_date_positif = $tanggal_positif;
+	        $data->tk_date_sembuh = $tanggal;
+	        $data->tk_date = $tanggal;
+	    }else if($request->jenis_kasus==3){
+	        //$data->tk_date_positif = $tanggal_positif;
+	        $data->tk_date_positif = $tanggal;
+	        $data->tk_date = $tanggal;
+	    }
+	    
 
-        if($request->jenis_kasus==5){
-            $data->tk_date_meninggal = $tanggal;
-            $data->tk_date = $tanggal;
-        }else if($request->jenis_kasus==4){
-            $data->tk_date_sembuh = $tanggal;
-            $data->tk_date = $tanggal;
-        }else if($request->jenis_kasus==3){
-            $data->tk_date_positif = $tanggal;
-            $data->tk_date = $tanggal;
-        }
 
 	    $data->tk_mc_id = $request->kd_perusahaan;
 	    $data->tk_nama = $request->nama_pasien;
