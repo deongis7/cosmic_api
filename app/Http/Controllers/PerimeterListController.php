@@ -108,9 +108,10 @@ class PerimeterListController extends Controller
                 'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                 'master_perimeter_kategori.mpmk_name',
                 'master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
-                DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username) as status_pic"),
-                DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username) as status_fo"),
-                DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) as status_bumn")
+                DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) as status_bumn"),
+                DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,max(userpic.username)) as status_pic"),
+                DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,max(userfo.username)) as status_fo")
+
             )
                 ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
                 ->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
@@ -161,8 +162,6 @@ class PerimeterListController extends Controller
 
             $perimeter = $perimeter->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                     'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
-                    DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username) "),
-                    DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username) "),
                     DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) "))
                 ->orderBy('master_perimeter.mpm_name', 'asc');
             //dd(count($perimeter->get()) );
