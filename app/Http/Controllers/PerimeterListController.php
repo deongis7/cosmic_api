@@ -107,7 +107,11 @@ class PerimeterListController extends Controller
             $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
                 'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                 'master_perimeter_kategori.mpmk_name',
-                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name'
+                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
+                DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username) as status_pic"),
+                DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username) as status_fo"),
+                DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) as status_bumn"),
+
             )
                 ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
                 ->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
@@ -125,6 +129,30 @@ class PerimeterListController extends Controller
                     $perimeter = $perimeter->where('userfo.username', $nik);
                 }
             }
+              if(isset($monitoring)) {
+                  if ($monitoring == 'true') {
+                    if(isset($nik) && ($user != null)) {
+                      if ($role_id == 3) {
+                          $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username)"),true);
+                      } else if ($role_id == 4) {
+                          $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username)"),true);
+                      }
+                    } else {
+                      $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id)"),true);
+                    }
+
+                  } else{
+                    if(isset($nik) && ($user != null)) {
+                      if ($role_id == 3) {
+                          $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username)"),false);
+                      } else if ($role_id == 4) {
+                          $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username)"),false);
+                      }
+                    } else {
+                      $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id)"),false);
+                    }
+                  }
+              }
 
             $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan);
 
@@ -133,7 +161,10 @@ class PerimeterListController extends Controller
             }
 
             $perimeter = $perimeter->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
-                    'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
+                    'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
+                    DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username) "),
+                    DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username) "),
+                    DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) "))
                 ->orderBy('master_perimeter.mpm_name', 'asc');
             //dd(count($perimeter->get()) );
             $jmltotal=(count($perimeter->get()));
@@ -151,14 +182,14 @@ class PerimeterListController extends Controller
             //$totalpmmonitoring = 0;
 
             foreach ($perimeter as $itemperimeter) {
-              $cluster = new PerimeterLevel;
-              $cluster->setConnection('pgsql2');
-                $cluster = $cluster->join('table_perimeter_detail','table_perimeter_detail.tpmd_mpml_id', 'master_perimeter_level.mpml_id')
+              /** $cluster = new PerimeterLevel;
+              //$cluster->setConnection('pgsql2');
+              //$cluster = $cluster->join('table_perimeter_detail','table_perimeter_detail.tpmd_mpml_id', 'master_perimeter_level.mpml_id')
                     ->where('table_perimeter_detail.tpmd_cek', true)
                     ->where('master_perimeter_level.mpml_mpm_id',$itemperimeter->mpm_id)->count();
                 $status = $this->getStatusMonitoringPerimeter($itemperimeter->mpm_id, $role_id, $cluster);
-
-$status_monitoring = ($status['status']);
+              */
+              /**$status_monitoring = ($status['status']);
 
                 if(isset($monitoring)) {
                     //dd('tes1');
@@ -214,7 +245,28 @@ $status_monitoring = ($status['status']);
 
                     );
                 }
+                */
+                if(isset($nik) && ($user != null)) {
+                  $status_monitoring = ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo);
+                } else {
+                  $status_monitoring = $itemperimeter->status_bumn;
+                }
 
+                $data[] = array(
+                    "id_region" => $itemperimeter->mr_id,
+                    "region" => $itemperimeter->mr_name,
+                    "id_perimeter" => $itemperimeter->mpm_id,
+                    "nama_perimeter" => $itemperimeter->mpm_name,
+                    "alamat" => $itemperimeter->mpm_name,
+                    "kategori" => $itemperimeter->mpmk_name,
+                    "status_monitoring" => $status_monitoring,
+                    //"status_monitoring" => ($status['status']),
+                    //"percentage" => ($status['percentage']),
+                    "percentage" => 0,
+                    "provinsi" => $itemperimeter->mpro_name,
+                    "kabupaten" => $itemperimeter->mkab_name,
+
+                );
                 //if ($status['status'] == true) {
                   //  $totalpmmonitoring++;
                 //}
@@ -282,7 +334,10 @@ $status_monitoring = ($status['status']);
             $perimeter->setConnection('pgsql2');
             $perimeter = $perimeter->select( "master_perimeter.mpm_id", "master_perimeter_level.mpml_id", "master_perimeter_level.mpml_name","master_perimeter.mpm_name",
                         "master_perimeter_level.mpml_ket", "userpic.username as nik_pic", "userpic.first_name as pic", "userfo.username as nik_fo",
-                        "userfo.first_name as fo",DB::raw("(CASE WHEN tpc.tbpc_status is null THEN 0 ELSE tpc.tbpc_status END) AS status_perimeter"),"tpc.tbpc_alasan")
+                        "userfo.first_name as fo",DB::raw("(CASE WHEN tpc.tbpc_status is null THEN 0 ELSE tpc.tbpc_status END) AS status_perimeter"),"tpc.tbpc_alasan",
+                        DB::raw("status_monitoring_perimeter_level_pic(master_perimeter_level.mpml_id,userpic.username) as status_pic"),
+                        DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status_fo"),
+                        )
                         ->join("master_perimeter_level", "master_perimeter_level.mpml_mpm_id", "master_perimeter.mpm_id")
                         ->leftjoin("app_users as userpic", "userpic.username", "master_perimeter_level.mpml_pic_nik")
                         ->leftjoin("app_users as userfo", "userfo.username", "master_perimeter_level.mpml_me_nik")
@@ -324,10 +379,10 @@ $status_monitoring = ($status['status']);
             $totalpmmonitoring = 0;
 
             foreach ($perimeter as $itemperimeter) {
-                $cluster = new TblPerimeterDetail;
-                $cluster->setConnection('pgsql2');
-                $cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
-                $status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
+                //$cluster = new TblPerimeterDetail;
+                //$cluster->setConnection('pgsql2');
+                //$cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
+                //$status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
 
 
                 //dd($status['status']);
@@ -340,13 +395,15 @@ $status_monitoring = ($status['status']);
                             "pic" => $itemperimeter->pic,
                             "nik_fo" => $itemperimeter->nik_fo,
                             "fo" => $itemperimeter->fo,
-                            "status_monitoring" => ($status['status']),
+                            //"status_monitoring" => ($status['status']),
+                            "status_monitoring" => ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo),
                             "status_perimeter" => $itemperimeter->status_perimeter,
                             "alasan" => $itemperimeter->tbpc_alasan,
-                            "percentage" => ($status['percentage']),
+                            //"percentage" => ($status['percentage']),
+                            "percentage" => 0,
 
                     );
-                if ($status['status'] == true) {
+                if ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo == true) {
                             $totalpmmonitoring++;
                         }
             }
@@ -506,7 +563,10 @@ $status_monitoring = ($status['status']);
 
             $perimeter = new Perimeter;
             $perimeter->setConnection('pgsql2');
-            $perimeter = $perimeter->select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id')
+            $perimeter = $perimeter->select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id',
+                    DB::raw("status_monitoring_perimeter_level_pic(master_perimeter_level.mpml_id,userpic.username) as status_pic"),
+                    DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status_fo"),
+                  )
                 ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
                 ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
                 ->leftjoin('app_users as userfo', 'userfo.username', 'master_perimeter_level.mpml_me_nik');
@@ -525,12 +585,12 @@ $status_monitoring = ($status['status']);
             $totalpmmonitoring = 0;
 
             foreach ($perimeter as $itemperimeter) {
-              $cluster = new TblPerimeterDetail;
-              $cluster->setConnection('pgsql2');
-                $cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
-                $status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
+              //$cluster = new TblPerimeterDetail;
+              //$cluster->setConnection('pgsql2');
+              //$cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
+              //$status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
 
-                if ($status['status'] == true) {
+                if (($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo)== true) {
                     $totalpmmonitoring++;
                 }
             }
@@ -961,7 +1021,7 @@ $status_monitoring = ($status['status']);
             ->where('tbpc_enddate', $enddate)
             ->where('tbpc_status', 1)->first();
 
-        
+
         if ($closed != null){
             $fo_nik = $closed->tbpc_requestor;
             $closed->tbpc_approval= $request->nik;
