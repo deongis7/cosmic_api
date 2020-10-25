@@ -685,7 +685,7 @@ class PICController extends Controller
 		if ($user != null){
 			$role_id = $user->roles()->first()->id;
 
-            $perimeter =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 10 * 60, function()use($id_perimeter_level) {
+            $perimeter =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 7 * 60, function()use($id_perimeter_level) {
                 return $cacheperimeter = DB::connection('pgsql2')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
           case when tsp.tbsp_status = 2 then true else false end as status_pic,
           case when tsp.tbsp_status = 1 then true when tsp.tbsp_status = 2 then true else false end as status_fo,
