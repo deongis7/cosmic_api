@@ -110,8 +110,7 @@ class PerimeterListController extends Controller
                 'master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
                 DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username) as status_pic"),
                 DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username) as status_fo"),
-                DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) as status_bumn"),
-
+                DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) as status_bumn")
             )
                 ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
                 ->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
@@ -336,7 +335,7 @@ class PerimeterListController extends Controller
                         "master_perimeter_level.mpml_ket", "userpic.username as nik_pic", "userpic.first_name as pic", "userfo.username as nik_fo",
                         "userfo.first_name as fo",DB::raw("(CASE WHEN tpc.tbpc_status is null THEN 0 ELSE tpc.tbpc_status END) AS status_perimeter"),"tpc.tbpc_alasan",
                         DB::raw("status_monitoring_perimeter_level_pic(master_perimeter_level.mpml_id,userpic.username) as status_pic"),
-                        DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status_fo"),
+                        DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status_fo")
                         )
                         ->join("master_perimeter_level", "master_perimeter_level.mpml_mpm_id", "master_perimeter.mpm_id")
                         ->leftjoin("app_users as userpic", "userpic.username", "master_perimeter_level.mpml_pic_nik")
@@ -565,7 +564,7 @@ class PerimeterListController extends Controller
             $perimeter->setConnection('pgsql2');
             $perimeter = $perimeter->select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id',
                     DB::raw("status_monitoring_perimeter_level_pic(master_perimeter_level.mpml_id,userpic.username) as status_pic"),
-                    DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status_fo"),
+                    DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status_fo")
                   )
                 ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
                 ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
