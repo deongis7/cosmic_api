@@ -1092,4 +1092,43 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
       return $data;
       }
 
+    //POST  
+    public function openPerimeter(Request $request){
+        $this->validate($request, [
+            'id_perimeter_level' => 'required',
+            'alasan' => 'required'
+        ]);
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+
+
+        $open = TblPerimeterClosed::where('tbpc_mpml_id', $request->id_perimeter_level)
+            ->where('tbpc_startdate', $startdate)
+            ->where('tbpc_enddate', $enddate)->first();
+
+        if ($open == null){
+            $open= New TblPerimeterClosed();
+            $open->setConnection('pgsql1');
+            $open->tbpc_mpml_id = $request->id_perimeter_level;
+            $open->tbpc_alasan = $request->alasan;
+            $open->tbpc_requestor = $request->nik;
+            $open->tbpc_startdate = $startdate;
+            $open->tbpc_enddate = $enddate;
+            $open->tbpc_status = 0;
+        } else {
+            $open->tbpc_alasan = $request->alasan;
+            $open->tbpc_requestor = $request->nik;
+            $open->tbpc_startdate = $startdate;
+            $open->tbpc_enddate = $enddate;
+            $open->tbpc_status = 0;
+        }
+        if($open->save()) {
+            return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
+        }
+         else {
+             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+         }
+
+    }
 }
