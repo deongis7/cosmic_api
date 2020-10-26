@@ -1158,8 +1158,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
     //POST  
     public function openPerimeter(Request $request){
         $this->validate($request, [
-            'id_perimeter_level' => 'required',
-            'alasan' => 'required'
+            'id_perimeter_level' => 'required'
         ]);
         $weeks = AppHelper::Weeks();
         $startdate = $weeks['startweek'];
@@ -1174,13 +1173,11 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
             $open= New TblPerimeterClosed();
             $open->setConnection('pgsql1');
             $open->tbpc_mpml_id = $request->id_perimeter_level;
-            $open->tbpc_alasan = $request->alasan;
             $open->tbpc_requestor = $request->nik;
             $open->tbpc_startdate = $startdate;
             $open->tbpc_enddate = $enddate;
             $open->tbpc_status = 0;
         } else {
-            $open->tbpc_alasan = $request->alasan;
             $open->tbpc_requestor = $request->nik;
             $open->tbpc_startdate = $startdate;
             $open->tbpc_enddate = $enddate;
