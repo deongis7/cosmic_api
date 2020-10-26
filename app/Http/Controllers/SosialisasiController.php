@@ -8,46 +8,49 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManagerStatic as Image;
 class SosialisasiController extends Controller {
-    
+
     public function __construct() {
     }
-    
+
     public function getDataByMcid($id, $page) {
         $sosialisasiweek = DB::select("SELECT ts.ts_id, ts.ts_mc_id, ts.ts_nama_kegiatan, ts.ts_tanggal,
-                ts.ts_mslk_id,  mslk.mslk_name, ts.ts_deskripsi, ts.ts_file1, ts.ts_file1_tumb, ts.ts_file2, ts.ts_file2_tumb
+                ts.ts_mslk_id,  mslk.mslk_name, ts.ts_deskripsi, ts.ts_file1, ts.ts_file1_tumb, ts.ts_file2, ts.ts_file2_tumb,
+                ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
-                WHERE ts_mc_id='$id' 
+                WHERE ts_mc_id='$id'
                 AND ts_tanggal IN (
-                	SELECT 
+                	SELECT
                 	CAST(date_trunc('week', CURRENT_DATE) AS DATE) + i
                 	FROM generate_series(0,4) i
                 )");
-        
+
         if(count($sosialisasiweek) > 0){  $week = true; }else{ $week = false; }
         if($page > 0){   $page=$page-1; }else{ $page=0; }
-        
+
         $row = 10;
         $pageq = $page*$row;
-        
+
         $sosialisasiall = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
-                ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb
+                ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb,
+                ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id='$id'
     	        ORDER BY ts_tanggal DESC");
-        
+
         $sosialisasi = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
-               ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb
+               ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb,
+               ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id='$id'
     	        ORDER BY ts_tanggal DESC
                 OFFSET $pageq LIMIT $row");
-        
+
         $cntsosialisasiall = count($sosialisasiall);
         $pageend = ceil($cntsosialisasiall/$row);
-        
+
         if (count($sosialisasi) > 0){
             foreach($sosialisasi as $sos){
                 if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
@@ -65,7 +68,7 @@ class SosialisasiController extends Controller {
                     $filesos1 = '/404/img404.jpg';
                     $filesos1_tumb = '/404/img404.jpg';
                 }
-                
+
                 if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
                     if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file2))) {
                         $path_file404 = '/404/img404.jpg';
@@ -81,7 +84,7 @@ class SosialisasiController extends Controller {
                     $filesos2 = '/404/img404.jpg';
                     $filesos2_tumb ='/404/img404.jpg';
                 }
-                
+
                 $data[] = array(
                     "id" => $sos->ts_id,
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
@@ -93,7 +96,11 @@ class SosialisasiController extends Controller {
                     "file_1" => $filesos1,
                     "file_1_tumb" => $filesos1_tumb,
                     "file_2" => $filesos2,
-                    "file_2_tumb" => $filesos2_tumb
+                    "file_2_tumb" => $filesos2_tumb,
+                    "checklist_dampak" =>$sos->ts_checklist_dampak,
+                    "bulan_kegiatan" =>$sos->ts_bulan,
+                    "persen_dampak" =>$sos->ts_prsn_dampak,
+                    "persen_dampak_keseluruhan" =>$sos->ts_prsn_dampak_all
                 );
             }
         }else{
@@ -102,14 +109,15 @@ class SosialisasiController extends Controller {
         return response()->json(['status' => 200, 'page_end'=> $pageend,
             'week' => $week, 'data' => $data]);
     }
-    
+
     public function getDataById($id) {
         $sosialisasi = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
-                ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb
+                ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb,
+                ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_id='$id'");
-        
+
         if(count($sosialisasi) > 0) {
             foreach($sosialisasi as $sos){
                 if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
@@ -127,7 +135,7 @@ class SosialisasiController extends Controller {
                     $filesos1 = '/404/img404.jpg';
                     $filesos1_tumb = '/404/img404.jpg';
                 }
-                
+
                 if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
                     if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file2))) {
                         $path_file404 = '/404/img404.jpg';
@@ -143,13 +151,13 @@ class SosialisasiController extends Controller {
                     $filesos2 = '/404/img404.jpg';
                     $filesos2_tumb ='/404/img404.jpg';
                 }
-                
+
                 if(($filesos1==NULL && $filesos2==NULL) || ($filesos1=='' && $filesos2=='')){
                     $flag_foto = false;
                 }else{
                     $flag_foto = true;
                 }
-                
+
                 $data = array(
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
                     //"jenis_kegiatan" => $sos->ts_jenis_kegiatan,
@@ -161,7 +169,11 @@ class SosialisasiController extends Controller {
                     "file_1" => $filesos1,
                     "file_1_tumb" => $filesos1_tumb,
                     "file_2" => $filesos2,
-                    "file_2_tumb" => $filesos2_tumb
+                    "file_2_tumb" => $filesos2_tumb,
+                    "checklist_dampak" =>$sos->ts_checklist_dampak,
+                    "bulan_kegiatan" =>$sos->ts_bulan,
+                    "persen_dampak" =>$sos->ts_prsn_dampak,
+                    "persen_dampak_keseluruhan" =>$sos->ts_prsn_dampak_all
                 );
             }
         }else{
@@ -169,7 +181,7 @@ class SosialisasiController extends Controller {
         }
         return response()->json(['status' => 200,'data' => $data]);
     }
-    
+
     public function uploadSosialisasiJSON(Request $request) {
         date_default_timezone_set('Asia/Jakarta');
         $this->validate($request, [
@@ -180,7 +192,7 @@ class SosialisasiController extends Controller {
             'tanggal' => 'required',
             'file_sosialisasi1' =>'required',
         ]);
-        
+
         $file1 = $request->file_sosialisasi1;
         $file2 = $request->file_sosialisasi2;
         $kd_perusahaan = $request->kd_perusahaan;
@@ -190,16 +202,20 @@ class SosialisasiController extends Controller {
         $deskripsi = $request->deskripsi;
         $tgl = strtotime($request->tanggal);
         $tanggal = date('Y-m-d',$tgl);
-        $user_id = $request->user_id;    
+        $user_id = $request->user_id;
+        $checklist_dampak = $request->checklist_dampak;
+        $bulan = $request->bulan_kegiatan;
+        $prsn_dampak = $request->persen_dampak;
+        $prsn_dampak_all = $request->persen_dampak_keseluruhan;
         //var_dump($tanggal);die;
-        
+
         if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan)) {
             Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan);
         }
-      
+
         //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
         $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan;
-      
+
         $name1 = NULL;
         $name1_tumb = NULL;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {
@@ -208,16 +224,16 @@ class SosialisasiController extends Controller {
             $filedecode1 = base64_decode($image1);
             $name1 = round(microtime(true) * 1000).'.jpg';
             $name1_tumb = round(microtime(true) * 1000).'_tumb.jpg';
-            
+
             Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1);
-            
+
             Image::make($filedecode1)->resize(50, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1_tumb);
         }
-        
+
         $name2 = NULL;
         $name2_tumb = NULL;
         if(isset($request->file_sosialisasi2)){
@@ -227,17 +243,17 @@ class SosialisasiController extends Controller {
                 $filedecode2 = base64_decode($image2);
                 $name2 = round(microtime(true) * 1000).'.jpg';
                 $name2_tumb = round(microtime(true) * 1000).'_tumb.jpg';
-                
+
                 Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
                     $constraint->aspectRatio();
                 })->save($destinationPath.'/'.$name2);
-                
+
                 Image::make($filedecode2)->resize(50, NULL, function ($constraint) {
                     $constraint->aspectRatio();
                 })->save($destinationPath.'/'.$name2_tumb);
             }
         }
-        
+
         $dataSosialisasi = new Sosialisasi();
         $dataSosialisasi->ts_mc_id = $kd_perusahaan;
         $dataSosialisasi->ts_nama_kegiatan = $nama_kegiatan;
@@ -249,21 +265,25 @@ class SosialisasiController extends Controller {
         $dataSosialisasi->ts_file2 = $name2;
         $dataSosialisasi->ts_file1_tumb = $name1_tumb;
         $dataSosialisasi->ts_file2_tumb = $name2_tumb;
+        $dataSosialisasi->ts_checklist_dampak = $checklist_dampak;
+        $dataSosialisasi->ts_bulan = $bulan;
+        $dataSosialisasi->ts_prsn_dampak = $prsn_dampak;
+        $dataSosialisasi->ts_prsn_dampak_all = $prsn_dampak_all;
         $dataSosialisasi->ts_date_insert = date('Y-m-d H:i:s');
         $dataSosialisasi->ts_user_insert = Auth::guard('api')->user()->id;
         $dataSosialisasi->save();
-        
+
         if($dataSosialisasi->save()) {
             return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diImport']);
         } else {
             return response()->json(['status' => 500,'message' => 'Data Sosialisasi Gagal diImport'])->setStatusCode(500);
         }
     }
-    
+
     public function deleteSosialisasi($id){
         $data = Sosialisasi::where('ts_id',$id)->first();
         $data->delete();
-        
+
         if($data->delete()===NULL){
             $file1 = storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file1);
             if(is_file($file1)){
@@ -273,7 +293,7 @@ class SosialisasiController extends Controller {
             if(is_file($file1_tumb)){
                 unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file1_tumb));
             }
-            
+
             $file2 = storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file2);
             if(is_file($file2)){
                 unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file2));
@@ -282,13 +302,13 @@ class SosialisasiController extends Controller {
             if(is_file($file2_tumb)){
                 unlink(storage_path('app/public/sosialisasi/'.$data->ts_mc_id.'/'.$data->ts_file2_tumb));
             }
-            
+
             return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diDelete']);
         } else {
             return response()->json(['status' => 500,'message' => 'Data Sosialisasi Gagal diDelete'])->setStatusCode(500);
         }
     }
-    
+
     public function updateSosialisasiJSON($id, Request $request) {
         date_default_timezone_set('Asia/Jakarta');
         $this->validate($request, [
@@ -306,7 +326,11 @@ class SosialisasiController extends Controller {
         $r_tgl = strtotime($request->tanggal);
         $r_tanggal = date('Y-m-d',$r_tgl);
         $r_kd_perusahaan = $request->kd_perusahaan;
-        
+        $checklist_dampak = $request->checklist_dampak;
+        $bulan = $request->bulan_kegiatan;
+        $prsn_dampak = $request->persen_dampak;
+        $prsn_dampak_all = $request->persen_dampak_keseluruhan;
+
         $dataSosialisasi = Sosialisasi::find($id);
         //var_dump($dataSosialisasi);die;
         $kd_perusahaan = $dataSosialisasi->ts_mc_id;
@@ -315,40 +339,41 @@ class SosialisasiController extends Controller {
         $filex1_tumb = $dataSosialisasi->ts_file1_tumb;
         $filex2 = $dataSosialisasi->ts_file2;
         $filex2_tumb = $dataSosialisasi->ts_file2_tumb;
-        
-        
+
+
+
         if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan)) {
             Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan);
         }
         //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
         $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan;
-        
+
         $name1 = $filex1;
         $name1_tumb = $filex1_tumb;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {
             if($filex1!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1)){
                 unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1);
             }
-            
+
             if($filex1_tumb!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1_tumb)){
                 unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1_tumb);
             }
-            
+
             $img1 = explode(',', $r_file1);
             $image1 = $img1[1];
             $filedecode1 = base64_decode($image1);
             $name1 = round(microtime(true) * 1000).'.jpg';
             $name1_tumb = round(microtime(true) * 1000).'_tumb.jpg';
-            
+
             Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1);
-            
+
             Image::make($filedecode1)->resize(50, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1_tumb);
         }
-        
+
         $name2 = $filex2;
         $name2_tumb = $filex2_tumb;
         if(isset($request->file_sosialisasi2)){
@@ -358,17 +383,17 @@ class SosialisasiController extends Controller {
                 $filedecode2 = base64_decode($image2);
                 $name2 = round(microtime(true) * 1000).'.jpg';
                 $name2_tumb = round(microtime(true) * 1000).'_tumb.jpg';
-                
+
                 Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
                     $constraint->aspectRatio();
                 })->save($destinationPath.'/'.$name2);
-                
+
                 Image::make($filedecode2)->resize(50, NULL, function ($constraint) {
                     $constraint->aspectRatio();
                 })->save($destinationPath.'/'.$name2_tumb);
             }
         }
-        
+
         $dataSosialisasi->ts_mc_id = $r_kd_perusahaan;
         $dataSosialisasi->ts_nama_kegiatan = $r_nama_kegiatan;
         $dataSosialisasi->ts_mslk_id = $r_jenis_kegiatan;
@@ -378,17 +403,21 @@ class SosialisasiController extends Controller {
         $dataSosialisasi->ts_file2 = $name2;
         $dataSosialisasi->ts_file1_tumb = $name1_tumb;
         $dataSosialisasi->ts_file2_tumb = $name2_tumb;
+        $dataSosialisasi->ts_checklist_dampak = $checklist_dampak;
+        $dataSosialisasi->ts_bulan = $bulan;
+        $dataSosialisasi->ts_prsn_dampak = $prsn_dampak;
+        $dataSosialisasi->ts_prsn_dampak_all = $prsn_dampak_all;
         $dataSosialisasi->ts_date_update = date('Y-m-d H:i:s');
         $dataSosialisasi->ts_user_update = Auth::guard('api')->user()->id;
         $dataSosialisasi->save();
-        
+
         if($dataSosialisasi->save()) {
             return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diUpdate']);
         } else {
             return response()->json(['status' => 500,'message' => 'Data Sosialisasi Gagal diUpdate'])->setStatusCode(500);
         }
     }
-    
+
     public function WebuploadSosialisasiJSON($user_id, Request $request) {
         date_default_timezone_set('Asia/Jakarta');
         $this->validate($request, [
@@ -399,23 +428,27 @@ class SosialisasiController extends Controller {
             'tanggal' => 'required',
             'file_sosialisasi1' =>'required',
         ]);
-        
+
         $file1 = $request->file_sosialisasi1;
         $file2 = $request->file_sosialisasi2;
         $kd_perusahaan = $request->kd_perusahaan;
         $nama_kegiatan = $request->nama_kegiatan;
         $jenis_kegiatan = $request->jenis_kegiatan;
         $deskripsi = $request->deskripsi;
+        $checklist_dampak = $request->checklist_dampak;
+        $bulan = $request->bulan_kegiatan;
+        $prsn_dampak = $request->persen_dampak;
+        $prsn_dampak_all = $request->persen_dampak_keseluruhan;
         $tgl = strtotime($request->tanggal);
         $tanggal = date('Y-m-d',$tgl);
         $user_id = $request->user_id;
-        
+
         if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan)) {
             Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan);
         }
 
         $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan;
-        
+
         $name1 = NULL;
         $name1_tumb = NULL;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {
@@ -424,16 +457,16 @@ class SosialisasiController extends Controller {
             $filedecode1 = base64_decode($image1);
             $name1 = round(microtime(true) * 1000).'.jpg';
             $name1_tumb = round(microtime(true) * 1000).'_tumb.jpg';
-            
+
             Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1);
-            
+
             Image::make($filedecode1)->resize(50, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1_tumb);
         }
-        
+
         $name2 = NULL;
         $name2_tumb = NULL;
         if(isset($request->file_sosialisasi2)){
@@ -443,17 +476,17 @@ class SosialisasiController extends Controller {
                 $filedecode2 = base64_decode($image2);
                 $name2 = round(microtime(true) * 1000).'.jpg';
                 $name2_tumb = round(microtime(true) * 1000).'_tumb.jpg';
-                
+
                 Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
                     $constraint->aspectRatio();
                 })->save($destinationPath.'/'.$name2);
-                
+
                 Image::make($filedecode2)->resize(50, NULL, function ($constraint) {
                     $constraint->aspectRatio();
                 })->save($destinationPath.'/'.$name2_tumb);
             }
         }
-        
+
         $dataSosialisasi = new Sosialisasi();
         $dataSosialisasi->ts_mc_id = $kd_perusahaan;
         $dataSosialisasi->ts_nama_kegiatan = $nama_kegiatan;
@@ -464,17 +497,21 @@ class SosialisasiController extends Controller {
         $dataSosialisasi->ts_file2 = $name2;
         $dataSosialisasi->ts_file1_tumb = $name1_tumb;
         $dataSosialisasi->ts_file2_tumb = $name2_tumb;
+        $dataSosialisasi->ts_checklist_dampak = $checklist_dampak;
+        $dataSosialisasi->ts_bulan = $bulan;
+        $dataSosialisasi->ts_prsn_dampak = $prsn_dampak;
+        $dataSosialisasi->ts_prsn_dampak_all = $prsn_dampak_all;
         $dataSosialisasi->ts_date_insert = date('Y-m-d H:i:s');
         $dataSosialisasi->ts_user_insert = $user_id;
         $dataSosialisasi->save();
-        
+
         if($dataSosialisasi->save()) {
             return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diImport']);
         } else {
             return response()->json(['status' => 500,'message' => 'Data Sosialisasi Gagal diImport'])->setStatusCode(500);
         }
     }
-    
+
     public function WebupdateSosialisasiJSON($user_id, $id, Request $request) {
         date_default_timezone_set('Asia/Jakarta');
         $this->validate($request, [
@@ -492,7 +529,11 @@ class SosialisasiController extends Controller {
         $r_tgl = strtotime($request->tanggal);
         $r_tanggal = date('Y-m-d',$r_tgl);
         $r_kd_perusahaan = $request->kd_perusahaan;
-        
+        $checklist_dampak = $request->checklist_dampak;
+        $bulan = $request->bulan_kegiatan;
+        $prsn_dampak = $request->persen_dampak;
+        $prsn_dampak_all = $request->persen_dampak_keseluruhan;
+
         $dataSosialisasi = Sosialisasi::find($id);
         //var_dump($dataSosialisasi);die;
         $kd_perusahaan = $dataSosialisasi->ts_mc_id;
@@ -501,40 +542,40 @@ class SosialisasiController extends Controller {
         $filex1_tumb = $dataSosialisasi->ts_file1_tumb;
         $filex2 = $dataSosialisasi->ts_file2;
         $filex2_tumb = $dataSosialisasi->ts_file2_tumb;
-        
-        
+
+
         if(!Storage::exists('/app/public/sosialisasi/'.$kd_perusahaan)) {
             Storage::disk('public')->makeDirectory('/sosialisasi/'.$kd_perusahaan);
         }
         //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
         $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan;
-        
+
         $name1 = $filex1;
         $name1_tumb = $filex1_tumb;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {
             if($filex1!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1)){
                 unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1);
             }
-            
+
             if($filex1_tumb!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1_tumb)){
                 unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1_tumb);
             }
-            
+
             $img1 = explode(',', $r_file1);
             $image1 = $img1[1];
             $filedecode1 = base64_decode($image1);
             $name1 = round(microtime(true) * 1000).'.jpg';
             $name1_tumb = round(microtime(true) * 1000).'_tumb.jpg';
-            
+
             Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1);
-            
+
             Image::make($filedecode1)->resize(50, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1_tumb);
         }
-        
+
         $name2 = $filex2;
         $name2_tumb = $filex2_tumb;
         if(isset($request->file_sosialisasi2)){
@@ -544,17 +585,17 @@ class SosialisasiController extends Controller {
                 $filedecode2 = base64_decode($image2);
                 $name2 = round(microtime(true) * 1000).'.jpg';
                 $name2_tumb = round(microtime(true) * 1000).'_tumb.jpg';
-                
+
                 Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
                     $constraint->aspectRatio();
                 })->save($destinationPath.'/'.$name2);
-                
+
                 Image::make($filedecode2)->resize(50, NULL, function ($constraint) {
                     $constraint->aspectRatio();
                 })->save($destinationPath.'/'.$name2_tumb);
             }
         }
-        
+
         $dataSosialisasi->ts_mc_id = $r_kd_perusahaan;
         $dataSosialisasi->ts_nama_kegiatan = $r_nama_kegiatan;
         $dataSosialisasi->ts_mslk_id = $r_jenis_kegiatan;
@@ -564,10 +605,14 @@ class SosialisasiController extends Controller {
         $dataSosialisasi->ts_file2 = $name2;
         $dataSosialisasi->ts_file1_tumb = $name1_tumb;
         $dataSosialisasi->ts_file2_tumb = $name2_tumb;
+        $dataSosialisasi->ts_checklist_dampak = $checklist_dampak;
+        $dataSosialisasi->ts_bulan = $bulan;
+        $dataSosialisasi->ts_prsn_dampak = $prsn_dampak;
+        $dataSosialisasi->ts_prsn_dampak_all = $prsn_dampak_all;
         $dataSosialisasi->ts_date_update = date('Y-m-d H:i:s');
         $dataSosialisasi->ts_user_update = $user_id;
         $dataSosialisasi->save();
-        
+
         if($dataSosialisasi->save()) {
             return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diUpdate']);
         } else {

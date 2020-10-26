@@ -135,6 +135,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/list_perimeter/detail/{id_perimeter}', 'PerimeterListController@getPerimeterDetail');
     $router->get('/list_perimeter/region/{id}', 'PerimeterListController@getPerimeterListbyRegion');
     $router->get('/list_perimeter_report/{kd_perusahaan}', 'PerimeterReportController@getPerimeterList');
+    $router->get('/list_perimeter_level_report/perimeter/{id_perimeter}', 'PerimeterReportController@getPerimeterLevelListbyPerimeter');
+    $router->get('/list_perimeter_level_report/count/{kd_perusahaan}', 'PerimeterReportController@getStatusPerimeterLevel');
 
     //Region
     $router->get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
@@ -175,6 +177,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 	$router->get('/dashboard/cosmic_index_detail/{kd_perusahaan}', 'DashboardController@getCosmicIndexbyCompanyAndDate');
 	$router->get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
+	$router->get('/dashboard/cosmic_index_detaillist/download/{kd_perusahaan}', 'DashboardController@getDownloadCosmicIndexListbyCompany');
 
 	//DashboardCluster
 	$router->get('/dashcluster/cluster_dashboardhead/{id}', 'DashClusterController@getClusterDashboardHead');
