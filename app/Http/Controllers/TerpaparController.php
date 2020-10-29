@@ -174,18 +174,18 @@ class TerpaparController extends Controller {
 	        'tindakan' => 'required',
 	    ];
 	    
-	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
-	        $datareq['tanggal'] = 'required';
-	    }
-	    
 // 	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
-// 	        if($request->jenis_kasus==3){
-// 	            $datareq['tanggal_positif'] = 'required';
-// 	        }else{
-// 	            $datareq['tanggal'] = 'required';
-// 	            $datareq['tanggal_positif'] = 'required';
-// 	        }
+// 	        $datareq['tanggal'] = 'required';
 // 	    }
+	    
+	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
+	        if($request->jenis_kasus==3){
+	            $datareq['tanggal_positif'] = 'required';
+	        }else{
+	            $datareq['tanggal'] = 'required';
+	            $datareq['tanggal_positif'] = 'required';
+	        }
+	    }
 
         $this->validate($request, $datareq);
 
@@ -199,21 +199,21 @@ class TerpaparController extends Controller {
         }
         
         if($request->jenis_kasus==5){
-            //$data->tk_date_positif = $tanggal_positif;
+            $data->tk_date_positif = $tanggal_positif;
             $data->tk_date_meninggal = $tanggal;
             $data->tk_date = $tanggal;
         }else if($request->jenis_kasus==4){
-            //$data->tk_date_positif = $tanggal_positif;
+            $data->tk_date_positif = $tanggal_positif;
             $data->tk_date_sembuh = $tanggal;
             $data->tk_date = $tanggal;
         }else if($request->jenis_kasus==3){
-            //$data->tk_date_positif = $tanggal_positif;
+            $data->tk_date_positif = $tanggal_positif;
             $data->tk_date_positif = $tanggal;
             $data->tk_date = $tanggal;
         }
         
         if(isset($request->tanggal_positif)){
-            $data->tk_date_positif = $tanggal_positif;
+           $data->tk_date_positif = $tanggal_positif;
         }
 
 	    date_default_timezone_set('Asia/Jakarta');
@@ -249,18 +249,18 @@ class TerpaparController extends Controller {
 	        'tindakan' => 'required',
 	    ];
 	    
-	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
-	        $datareq['tanggal'] = 'required';
-	    }
+// 	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
+// 	        $datareq['tanggal'] = 'required';
+// 	    }
 	    
-	    // 	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
-	    // 	        if($request->jenis_kasus==3){
-	    // 	            $datareq['tanggal_positif'] = 'required';
-	    // 	        }else{
-	    // 	            $datareq['tanggal'] = 'required';
-	    // 	            $datareq['tanggal_positif'] = 'required';
-	    // 	        }
-	    // 	    }
+	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
+	        if($request->jenis_kasus==3){
+	            $datareq['tanggal_positif'] = 'required';
+	        }else{
+	            $datareq['tanggal'] = 'required';
+	            $datareq['tanggal_positif'] = 'required';
+	        }
+	    }
 	    
 	    $this->validate($request, $datareq);
 	    
@@ -274,21 +274,18 @@ class TerpaparController extends Controller {
 	    }
 	    
 	    if($request->jenis_kasus==5){
-	        //$data->tk_date_positif = $tanggal_positif;
+	        $data->tk_date_positif = $tanggal_positif;
 	        $data->tk_date_meninggal = $tanggal;
 	        $data->tk_date = $tanggal;
 	    }else if($request->jenis_kasus==4){
-	        //$data->tk_date_positif = $tanggal_positif;
+	        $data->tk_date_positif = $tanggal_positif;
 	        $data->tk_date_sembuh = $tanggal;
 	        $data->tk_date = $tanggal;
 	    }else if($request->jenis_kasus==3){
-	        //$data->tk_date_positif = $tanggal_positif;
-	        $data->tk_date_positif = $tanggal;
+	        $data->tk_date_positif = $tanggal_positif;
 	        $data->tk_date = $tanggal;
 	    }
 	    
-
-
 	    $data->tk_mc_id = $request->kd_perusahaan;
 	    $data->tk_nama = $request->nama_pasien;
 	    $data->tk_msk_id = $request->jenis_kasus;
