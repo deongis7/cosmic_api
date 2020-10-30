@@ -1183,6 +1183,11 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
             $open->tbpc_enddate = $enddate;
             $open->tbpc_status = 0;
         }
+
+        //delete aktivitas
+        $query_delete = "DELETE transaksi_aktifitas WHERE ta_tpmd_id in (SELECT tpmd_id FROM table_perimeter_detail WHERE tpmd_mpml_id='".$request->id_perimeter_level."') and ta_week = '".$startdate.'-'.$enddate."'";
+        DB::connection('pgsql1')->update($query_delete);
+        
         if($open->save()) {
             return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
         }
