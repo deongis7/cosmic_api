@@ -1185,7 +1185,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         }
 
         //delete aktivitas
-        $query_delete = "DELETE transaksi_aktifitas WHERE ta_tpmd_id in (SELECT tpmd_id FROM table_perimeter_detail WHERE tpmd_mpml_id='".$request->id_perimeter_level."') and ta_week = '".$startdate.'-'.$enddate."'";
+        $query_delete = "DELETE from transaksi_aktifitas WHERE ta_tpmd_id in (SELECT tpmd_id FROM table_perimeter_detail WHERE tpmd_mpml_id='".$request->id_perimeter_level."') and ta_week = '".$startdate.'-'.$enddate."'";
         DB::connection('pgsql2')->update($query_delete);
         
         if($open->save()) {
