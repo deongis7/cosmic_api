@@ -185,6 +185,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashcluster/cluster_perimeter_byprovinsi_all/{id}', 'DashClusterController@getClusterPerimeterbyProvinsiAll');
 	$router->get('/dashcluster/cluster_perimeter_bycosmicindex/{id}', 'DashClusterController@getClusterCosmicIndexAll');
 
+	//DashboardVaksin
+	$router->get('/dashvaksin/cluster_dashvaksin', 'DashVaksinController@getDashVaksin');
+	$router->get('/dashvaksin/cluster_dashvaksin_bymcid/{id}', 'DashClusterController@getDashVaksin_bymcid');
+	$router->get('/dashvaksin/cluster_dashvaksin_mc', 'DashVaksinController@getDashVaksinPerusahaan');
+	$router->get('/dashvaksin/cluster_dashvaksin_mpro', 'DashVaksinController@getDashVaksinProvinsi');
+	$router->get('/dashvaksin/cluster_dashvaksin_mkab', 'DashVaksinController@getDashVaksinKabupaten');
+	
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
 
