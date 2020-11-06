@@ -180,6 +180,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/cosmic_index_detaillist/download/{kd_perusahaan}', 'DashboardController@getDownloadCosmicIndexListbyCompany');
 	//sprint18
 	$router->get('/dashboard/perusahaan_byprovinsi_all', 'DashboardController@getPerusahaanbyProvinsiAll');
+	$router->get('/dashboard/perusahaan_byindustri_all', 'DashboardController@getPerusahaanbyIndustriAll');
 
 	//DashboardCluster
 	$router->get('/dashcluster/cluster_dashboardhead/{id}', 'DashClusterController@getClusterDashboardHead');
