@@ -49,7 +49,6 @@ class DashVaksinController extends Controller
 	                "v_jml" => $dv->v_jml
 	            );
 	        }
-	        return $data;
 	    //});
         return response()->json(['status' => 200,'data' => $data]);
 	}
@@ -65,7 +64,6 @@ class DashVaksinController extends Controller
     	            "v_jml" => $dv->v_jml
     	        );
     	    }
-    	    return $data;
 	    //});
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
@@ -82,7 +80,6 @@ class DashVaksinController extends Controller
     	            "v_jml" => $dvp->v_jml
     	        );
     	    }
-    	    return $data;
 	    //});
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
@@ -98,7 +95,6 @@ class DashVaksinController extends Controller
 	            "v_jml" => $dvp->v_jml
 	        );
 	    }
-	    return $data;
 	    //});
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
@@ -114,7 +110,6 @@ class DashVaksinController extends Controller
 	            "v_jml" => $dvk->v_jml
 	        );
 	    }
-	    return $data;
 	    //});
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
