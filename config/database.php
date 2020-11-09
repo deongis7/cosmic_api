@@ -47,7 +47,19 @@ return array(
             'sslmode' => env('DB_SSL_MODE3', 'prefer'),
         ],
 
-
+        # Our four database connection
+        'pgsql_vaksin' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST_VAKSIN', '127.0.0.1'),
+            'port' => env('DB_PORT_VAKSIN', 5432),
+            'database' => env('DB_DATABASE_VAKSIN', 'forge'),
+            'username' => env('DB_USERNAME_VAKSIN', 'forge'),
+            'password' => env('DB_PASSWORD_VAKSIN', ''),
+            'charset' => env('DB_CHARSET_VAKSIN', 'utf8'),
+            'prefix' => env('DB_PREFIX_VAKSIN', ''),
+            'schema' => env('DB_SCHEMA_VAKSIN', 'public'),
+            'sslmode' => env('DB_SSL_MODE_VAKSIN', 'prefer'),
+        ],
 
 
     ),
