@@ -41,7 +41,8 @@ class DashVaksinController extends Controller
 	public function getDashVaksin(){
 	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin", 15 * 60, function() {
 	        $data = array();
-	        $dashvaksin = DB::select("SELECT * FROM vaksin_dashboard()");
+	        $dashvaksin = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard()");
+	        //$dashvaksin = DB::select("SELECT * FROM vaksin_dashboard()");
 
 	        foreach($dashvaksin as $dv){
 	            $data[] = array(
@@ -56,7 +57,8 @@ class DashVaksinController extends Controller
 	public function getDashVaksin_bymcid($id){
 	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_".$id, 15 * 60, function()use($id){
 	    $data = array();
-	    $dashvaksin = DB::select("SELECT * FROM vaksin_summary_bymcid('$id')");
+	    $dashvaksin = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_summary_bymcid('$id')");
+	    //$dashvaksin = DB::select("SELECT * FROM vaksin_summary_bymcid('$id')");
 	    
 	    foreach($dashvaksin as $dv){
     	        $data[] = array(
@@ -71,7 +73,8 @@ class DashVaksinController extends Controller
 	public function getDashVaksinPerusahaan(){
 	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_perusahaan", 15 * 60, function() {
 	    $data = array();
-	    $dashkasus_perusahaan = DB::select("SELECT * FROM vaksin_dashboard_perusahaan()");
+	    $dashkasus_perusahaan = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_perusahaan()");
+	    //$dashkasus_perusahaan = DB::select("SELECT * FROM vaksin_dashboard_perusahaan()");
 	    
 	    foreach($dashkasus_perusahaan as $dvp){
     	        $data[] = array(
@@ -87,7 +90,8 @@ class DashVaksinController extends Controller
 	public function getDashVaksinProvinsi(){
 	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_provinsi", 15 * 60, function() {
 	    $data = array();
-	    $dashkasus_provinsi = DB::select("SELECT * FROM vaksin_dashboard_provinsi()");
+	    $dashkasus_provinsi = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_provinsi()");
+	    //$dashkasus_provinsi = DB::select("SELECT * FROM vaksin_dashboard_provinsi()");
 	    
 	    foreach($dashkasus_provinsi as $dvp){
 	        $data[] = array(
@@ -102,7 +106,8 @@ class DashVaksinController extends Controller
 	public function getDashVaksinKabupaten(){
 	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_kabupaten", 15 * 60, function() {
 	    $data = array();
-	    $dashkasus_kabupaten = DB::select("SELECT * FROM vaksin_dashboard_kabupaten()");
+	    $dashkasus_kabupaten = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_kabupaten()");
+	    //$dashkasus_kabupaten = DB::select("SELECT * FROM vaksin_dashboard_kabupaten()");
 	    
 	    foreach($dashkasus_kabupaten as $dvk){
 	        $data[] = array(
