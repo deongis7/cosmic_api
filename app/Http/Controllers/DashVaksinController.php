@@ -118,4 +118,52 @@ class DashVaksinController extends Controller
 	    //});
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
+	
+	public function getDashVaksinLokasi1(){
+	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_lokasi1", 15 * 60, function() {
+	    $data = array();
+	    $dashkasus_lokasi1 = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_lokasi1()");
+	    //$dashkasus_kabupaten = DB::select("SELECT * FROM vaksin_dashboard_lokasi1()");
+	    
+	    foreach($dashkasus_lokasi1 as $dl1){
+	        $data[] = array(
+	            "v_lokasi" => $dl1->v_lokasi,
+	            "v_jml" => $dl1->v_jml
+	        );
+	    }
+	    //});
+	    return response()->json(['status' => 200,'data' => $data]);
+	}
+	
+	public function getDashVaksinLokasi2(){
+	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_lokasi2", 15 * 60, function() {
+	    $data = array();
+	    $dashkasus_lokasi2 = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_lokasi2()");
+	    //$dashkasus_kabupaten = DB::select("SELECT * FROM vaksin_dashboard_lokasi2()");
+	    
+	    foreach($dashkasus_lokasi2 as $dl2){
+	        $data[] = array(
+	            "v_lokasi" => $dl2->v_lokasi,
+	            "v_jml" => $dl2->v_jml
+	        );
+	    }
+	    //});
+	    return response()->json(['status' => 200,'data' => $data]);
+	}
+	
+	public function getDashVaksinLokasi3(){
+	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_lokasi3", 15 * 60, function() {
+	    $data = array();
+	    $dashkasus_lokasi3 = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_lokasi3()");
+	    //$dashkasus_kabupaten = DB::select("SELECT * FROM vaksin_dashboard_lokasi3()");
+	    
+	    foreach($dashkasus_lokasi3 as $dl3){
+	        $data[] = array(
+	            "v_lokasi" => $dl3->v_lokasi,
+	            "v_jml" => $dl3->v_jml
+	        );
+	    }
+	    //});
+	    return response()->json(['status' => 200,'data' => $data]);
+	}
 }
