@@ -751,4 +751,38 @@ class DashboardController extends Controller
             'data' => $data
         ]);
     }
+
+    public function getPerusahaanbyProvinsiAll(){
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perusahaan_byprovinsi_all", 15 * 60, function() {
+	        $data = array();
+	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM dashboard_perusahaan_byprovinsi()");
+
+	        foreach($perimeter_byprovinsi_all as $ppa){
+	            $data[] = array(
+	                "v_mpro_id" => $ppa->v_mpro_id,
+	                "v_judul" => $ppa->v_judul,
+	                "v_jml" => $ppa->v_jml
+	            );
+	        }
+	        return $data;
+	    });
+	        return response()->json(['status' => 200,'data' => $datacache]);
+	}
+
+	public function getPerusahaanbyIndustriAll(){
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perusahaan_byprovinsi_all", 15 * 60, function() {
+	        $data = array();
+	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM dashboard_perusahaan_byindustri()");
+
+	        foreach($perimeter_byprovinsi_all as $ppa){
+	            $data[] = array(
+	                "v_mpro_id" => $ppa->v_mpro_id,
+	                "v_judul" => $ppa->v_judul,
+	                "v_jml" => $ppa->v_jml
+	            );
+	        }
+	        return $data;
+	    });
+	        return response()->json(['status' => 200,'data' => $datacache]);
+	}
 }

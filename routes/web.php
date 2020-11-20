@@ -59,7 +59,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
 	$router->post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
 	$router->post('/perimeter_closed/addActivity', 'PerimeterListController@updateAktifitasClosedPerimeter');  //force add for actifity closed perimeter
-
+	$router->post('/perimeter_open/add', 'PerimeterListController@openPerimeter');
 
 	//TaskForce
 	$router->get('/taskforce/count/{id}', 'PerimeterController@getCountTaskForce');
@@ -178,6 +178,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/cosmic_index_detail/{kd_perusahaan}', 'DashboardController@getCosmicIndexbyCompanyAndDate');
 	$router->get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
 	$router->get('/dashboard/cosmic_index_detaillist/download/{kd_perusahaan}', 'DashboardController@getDownloadCosmicIndexListbyCompany');
+	//sprint18
+	$router->get('/dashboard/perusahaan_byprovinsi_all', 'DashboardController@getPerusahaanbyProvinsiAll');
+	$router->get('/dashboard/perusahaan_byindustri_all', 'DashboardController@getPerusahaanbyIndustriAll');
 
 	//DashboardCluster
 	$router->get('/dashcluster/cluster_dashboardhead/{id}', 'DashClusterController@getClusterDashboardHead');
@@ -185,6 +188,16 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashcluster/cluster_perimeter_byprovinsi_all/{id}', 'DashClusterController@getClusterPerimeterbyProvinsiAll');
 	$router->get('/dashcluster/cluster_perimeter_bycosmicindex/{id}', 'DashClusterController@getClusterCosmicIndexAll');
 
+	//DashboardVaksin
+	$router->get('/dashvaksin/dashvaksin', 'DashVaksinController@getDashVaksin');
+	$router->get('/dashvaksin/dashvaksin_bymcid/{id}', 'DashClusterController@getDashVaksin_bymcid');
+	$router->get('/dashvaksin/dashvaksin_mc', 'DashVaksinController@getDashVaksinPerusahaan');
+	$router->get('/dashvaksin/dashvaksin_mpro', 'DashVaksinController@getDashVaksinProvinsi');
+	$router->get('/dashvaksin/dashvaksin_mkab', 'DashVaksinController@getDashVaksinKabupaten');
+	$router->get('/dashvaksin/dashvaksin_lokasi1', 'DashVaksinController@getDashVaksinLokasi1');
+	$router->get('/dashvaksin/dashvaksin_lokasi2', 'DashVaksinController@getDashVaksinLokasi2');
+	$router->get('/dashvaksin/dashvaksin_lokasi3', 'DashVaksinController@getDashVaksinLokasi3');
+	
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
 
@@ -195,6 +208,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/dashboardmrmpm_bumn/{id}', 'DashboardController@getDashboardMrMpmBUMN');
     //Log
     $router->get('/log_activity', 'UserController@setActivityLog');
+
+    //Product
+  	$router->get('/product/list_pengajuan_atestasi/{id_product}', 'ProductController@getPengajuanAtestasi');  
 
     //Sosialisasi Web
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
