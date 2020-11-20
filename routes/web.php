@@ -196,6 +196,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //Log
     $router->get('/log_activity', 'UserController@setActivityLog');
 
+    //Product
+  	$router->get('/product/list_pengajuan_atestasi/{id_product}', 'ProductController@getPengajuanAtestasi');  
+
     //Sosialisasi Web
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
     Route::post('/sosialisasi/webupdate_json/{user_id}/{id}', 'SosialisasiController@WebupdateSosialisasiJSON');
