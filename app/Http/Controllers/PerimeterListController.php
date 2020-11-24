@@ -1180,13 +1180,13 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
             $open= New TblPerimeterClosed();
             $open->setConnection('pgsql');
             $open->tbpc_mpml_id = $request->id_perimeter_level;
-            $open->tbpc_requestor = $request->nik;
+            //$open->tbpc_requestor = $request->nik;
             $open->tbpc_startdate = $startdate;
             $open->tbpc_enddate = $enddate;
             $open->tbpc_alasan = 'Buka Lagi';
             $open->tbpc_status = 0;
         } else {
-            $open->tbpc_requestor = $request->nik;
+            //$open->tbpc_requestor = $request->nik;
             $open->tbpc_startdate = $startdate;
             $open->tbpc_enddate = $enddate;
             $open->tbpc_alasan = 'Buka Lagi';
