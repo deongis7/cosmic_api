@@ -10,7 +10,7 @@ use OpenApi\Annotations\OpenApi;
 use Symfony\Component\Finder\Finder;
 
 if (defined('OpenApi\UNDEFINED') === false) {
-    /**
+    /*
      * Special value to differentiate between null and undefined.
      */
     define('OpenApi\UNDEFINED', '@OA\UNDEFINED🙈');
@@ -18,17 +18,26 @@ if (defined('OpenApi\UNDEFINED') === false) {
     define('OpenApi\Processors\UNDEFINED', UNDEFINED);
 }
 
+// PHP 8.0
+if (!defined('T_NAME_QUALIFIED')) {
+    define('T_NAME_QUALIFIED', -4);
+}
+if (!defined('T_NAME_FULLY_QUALIFIED')) {
+    define('T_NAME_FULLY_QUALIFIED', -5);
+}
+
 if (function_exists('OpenApi\scan') === false) {
     /**
      * Scan the filesystem for OpenAPI annotations and build openapi-documentation.
      *
-     * @param  string|array|Finder $directory The directory(s) or filename(s)
-     * @param  array               $options
-     *   exclude: string|array $exclude The directory(s) or filename(s) to exclude (as absolute or relative paths)
-     *   pattern: string       $pattern File pattern(s) to scan (default: *.php)
-     *   analyser: defaults to StaticAnalyser
-     *   analysis: defaults to a new Analysis
-     *   processors: defaults to the registered processors in Analysis
+     * @param array|Finder|string $directory The directory(s) or filename(s)
+     * @param array               $options
+     *                                       exclude: string|array $exclude The directory(s) or filename(s) to exclude (as absolute or relative paths)
+     *                                       pattern: string       $pattern File pattern(s) to scan (default: *.php)
+     *                                       analyser: defaults to StaticAnalyser
+     *                                       analysis: defaults to a new Analysis
+     *                                       processors: defaults to the registered processors in Analysis
+     *
      * @return OpenApi
      */
     function scan($directory, $options = [])
@@ -48,6 +57,7 @@ if (function_exists('OpenApi\scan') === false) {
         $analysis->process($processors);
         // Validation (Generate notices & warnings)
         $analysis->validate();
+
         return $analysis->openapi;
     }
 }
