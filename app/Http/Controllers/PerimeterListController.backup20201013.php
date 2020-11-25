@@ -27,7 +27,7 @@ use DB;
 use function Complex\negative;
 
 
-class PerimeterListController extends Controller
+class PerimeterListControllerAA extends Controller
 {
     /**
      * Create a new controller instance.
@@ -1024,5 +1024,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
       }
       return $data;
       }
+
+    
 
 }

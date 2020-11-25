@@ -6,13 +6,12 @@
 
 namespace OpenApi\Processors;
 
-use OpenApi\Annotations\Components;
 use OpenApi\Analysis;
-use OpenApi\Context;
+use OpenApi\Annotations\Components;
 use OpenApi\UNDEFINED;
 
 /**
- * Merge reusable annotation into @OA\Schemas
+ * Merge reusable annotation into @OA\Schemas.
  */
 class MergeIntoComponents
 {
@@ -23,10 +22,10 @@ class MergeIntoComponents
             $components = new Components([]);
             $components->_context->generated = true;
         }
-        $classes = array_keys(Components::$_nested);
+
         foreach ($analysis->annotations as $annotation) {
-            $class = get_class($annotation);
-            if (in_array($class, $classes) && $annotation->_context->is('nested') === false) { // A top level annotation.
+            if (Components::matchNested(get_class($annotation)) && $annotation->_context->is('nested') === false) {
+                // A top level annotation.
                 $components->merge([$annotation], true);
                 $analysis->openapi->components = $components;
             }

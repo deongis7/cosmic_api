@@ -6,11 +6,11 @@
 
 namespace OpenApi\Processors;
 
-use OpenApi\Annotations\Components;
-use OpenApi\Annotations\Schema;
 use OpenApi\Analysis;
+use OpenApi\Annotations\Components;
 use OpenApi\Annotations\Items;
 use OpenApi\Annotations\Property;
+use OpenApi\Annotations\Schema;
 use OpenApi\Context;
 
 /**
@@ -47,7 +47,7 @@ class AugmentProperties
             foreach ($analysis->openapi->components->schemas as $schema) {
                 if ($schema->schema !== UNDEFINED) {
                     $refs[strtolower($schema->_context->fullyQualifiedName($schema->_context->class))]
-                        = Components::SCHEMA_REF . $schema->schema;
+                        = Components::SCHEMA_REF.$schema->schema;
                 }
             }
         }
@@ -62,7 +62,7 @@ class AugmentProperties
             if ($property->ref !== UNDEFINED) {
                 continue;
             }
-            $comment = str_replace("\r\n", "\n", $context->comment);
+            $comment = str_replace("\r\n", "\n", (string) $context->comment);
             if ($property->type === UNDEFINED && $context->type && $context->type !== UNDEFINED) {
                 if ($context->nullable === true) {
                     $property->nullable = true;
@@ -77,7 +77,7 @@ class AugmentProperties
                         continue;
                     }
                 }
-            } else if (preg_match('/@var\s+(?<type>[^\s]+)([ \t])?(?<description>.+)?$/im', $comment, $varMatches)) {
+            } elseif (preg_match('/@var\s+(?<type>[^\s]+)([ \t])?(?<description>.+)?$/im', $comment, $varMatches)) {
                 if ($property->type === UNDEFINED) {
                     preg_match('/^([^\[]+)(.*$)/', trim($varMatches['type']), $typeMatches);
                     $isNullable = $this->isNullable($typeMatches[1]);
@@ -89,8 +89,8 @@ class AugmentProperties
                                 $property->oneOf = [
                                     new Schema([
                                         '_context' => $property->_context,
-                                        'ref' => $refs[$key]
-                                    ])
+                                        'ref' => $refs[$key],
+                                    ]),
                                 ];
                                 $property->nullable = true;
                             } else {

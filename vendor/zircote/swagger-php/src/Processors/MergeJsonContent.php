@@ -6,17 +6,17 @@
 
 namespace OpenApi\Processors;
 
-use OpenApi\Annotations\MediaType;
-use OpenApi\Annotations\JsonContent;
-use OpenApi\Annotations\Response;
-use OpenApi\Annotations\RequestBody;
-use OpenApi\Annotations\Parameter;
 use OpenApi\Analysis;
+use OpenApi\Annotations\JsonContent;
+use OpenApi\Annotations\MediaType;
+use OpenApi\Annotations\Parameter;
+use OpenApi\Annotations\RequestBody;
+use OpenApi\Annotations\Response;
 use OpenApi\Context;
 use OpenApi\Logger;
 
 /**
- * Split JsonContent into Schema and MediaType
+ * Split JsonContent into Schema and MediaType.
  */
 class MergeJsonContent
 {
@@ -27,24 +27,24 @@ class MergeJsonContent
             $parent = $jsonContent->_context->nested;
             if (!($parent instanceof Response) && !($parent instanceof RequestBody) && !($parent instanceof Parameter)) {
                 if ($parent) {
-                    Logger::notice('Unexpected '.$jsonContent->identity() .' in ' . $parent->identity() . ' in ' . $this->_context);
+                    Logger::notice('Unexpected '.$jsonContent->identity().' in '.$parent->identity().' in '.$parent->_context);
                 } else {
-                    Logger::notice('Unexpected '.$jsonContent->identity() .' must be nested');
+                    Logger::notice('Unexpected '.$jsonContent->identity().' must be nested');
                 }
                 continue;
             }
             if ($parent->content === UNDEFINED) {
                 $parent->content = [];
             }
-            $parent->content['application/json'] = new MediaType(
-                [
-                'mediaType' => 'application/json',
+            $parent->content['application/json'] = new MediaType([
                 'schema' => $jsonContent,
                 'example' => $jsonContent->example,
                 'examples' => $jsonContent->examples,
-                '_context' => new Context(['generated' => true], $jsonContent->_context)
-                ]
-            );
+                '_context' => new Context(['generated' => true], $jsonContent->_context),
+            ]);
+            if (!$parent instanceof Parameter) {
+                $parent->content['application/json']->mediaType = 'application/json';
+            }
             $jsonContent->example = UNDEFINED;
             $jsonContent->examples = UNDEFINED;
 

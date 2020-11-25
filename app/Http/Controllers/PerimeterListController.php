@@ -965,6 +965,7 @@ class PerimeterListController extends Controller
 
     //Post Perimeter Closed
     public function addClosedPerimeter(Request $request){
+
         $this->validate($request, [
             'id_perimeter_level' => 'required',
             'alasan' => 'required'
@@ -1007,6 +1008,9 @@ class PerimeterListController extends Controller
 
     //Post Perimeter Closed
     public function validasiClosedPerimeter(Request $request){
+      set_time_limit(0);
+        ini_set('max_execution_time', 0);
+        ini_set('max_input_time', 36000);
         $this->validate($request, [
             'id_perimeter_level' => 'required',
             'status' => 'required'
@@ -1030,7 +1034,7 @@ class PerimeterListController extends Controller
             return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
         }
         if($closed->save()) {
-          if($request->status == 2){
+          /** if($request->status == 2){
             $perimeterdet=TblPerimeterDetail::where('tpmd_mpml_id', $request->id_perimeter_level)->get();
             foreach($perimeterdet as $itemperimeterdet){
               $kcar=KonfigurasiCAR::JOIN('master_cluster_ruangan','master_cluster_ruangan.mcr_id','konfigurasi_car.kcar_mcr_id')
@@ -1043,7 +1047,7 @@ class PerimeterListController extends Controller
               }
 
             }
-          }
+          }*/
 
             return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
         }
@@ -1157,6 +1161,9 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
 
     //POST
     public function openPerimeter(Request $request){
+        set_time_limit(0);
+        ini_set('max_execution_time', 0);
+        ini_set('max_input_time', 36000);
         $this->validate($request, [
             'id_perimeter_level' => 'required'
         ]);
@@ -1173,20 +1180,22 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
             $open= New TblPerimeterClosed();
             $open->setConnection('pgsql');
             $open->tbpc_mpml_id = $request->id_perimeter_level;
-            $open->tbpc_requestor = $request->nik;
+            //$open->tbpc_requestor = $request->nik;
             $open->tbpc_startdate = $startdate;
             $open->tbpc_enddate = $enddate;
+            $open->tbpc_alasan = 'Buka Lagi';
             $open->tbpc_status = 0;
         } else {
-            $open->tbpc_requestor = $request->nik;
+            //$open->tbpc_requestor = $request->nik;
             $open->tbpc_startdate = $startdate;
             $open->tbpc_enddate = $enddate;
+            $open->tbpc_alasan = 'Buka Lagi';
             $open->tbpc_status = 0;
         }
 
         //delete aktivitas
-        $query_delete = "DELETE from transaksi_aktifitas WHERE ta_tpmd_id in (SELECT tpmd_id FROM table_perimeter_detail WHERE tpmd_mpml_id='".$request->id_perimeter_level."') and ta_week = '".$startdate.'-'.$enddate."'";
-        DB::connection('pgsql')->update($query_delete);
+        //$query_delete = "DELETE from transaksi_aktifitas WHERE ta_tpmd_id in (SELECT tpmd_id FROM table_perimeter_detail WHERE tpmd_mpml_id='".$request->id_perimeter_level."') and ta_week = '".$startdate.'-'.$enddate."'";
+        //DB::connection('pgsql')->update($query_delete);
 
         if($open->save()) {
             return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
