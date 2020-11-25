@@ -1,8 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace OpenApiTests;
+/**
+ * @license Apache 2.0
+ */
+
+namespace OpenApi\Tests;
 
 use OpenApi\Annotations;
+use OpenApi\Annotations\OpenApi;
 use OpenApi\Serializer;
 use const OpenApi\UNDEFINED;
 
@@ -37,11 +42,11 @@ class SerializerTest extends OpenApiTestCase
         $resp->content = [$content];
         $resp->x = [];
         $resp->x['repository'] = 'def';
-    
+
         $respRange = new Annotations\Response([]);
         $respRange->response = '4XX';
         $respRange->description = 'Client error response';
-        
+
         $path->post->responses = [$resp, $respRange];
 
         $expected = new Annotations\OpenApi([]);
@@ -144,14 +149,15 @@ JSON;
     public function testPetstoreExample()
     {
         $serializer = new Serializer();
-        $openapi = $serializer->deserializeFile(__DIR__.'/ExamplesOutput/petstore.swagger.io.json');
-        $this->assertInstanceOf('OpenApi\Annotations\OpenApi', $openapi);
-        $this->assertOpenApiEqualsFile(__DIR__.'/ExamplesOutput/petstore.swagger.io.json', $openapi);
+        $spec = __DIR__.'/../Examples/petstore.swagger.io/petstore.swagger.io.json';
+        $openapi = $serializer->deserializeFile($spec);
+        $this->assertInstanceOf(OpenApi::class, $openapi);
+        $this->assertJsonStringEqualsJsonString(file_get_contents($spec), $openapi->toJson());
     }
-
 
     /**
      * Test for correct deserialize schemas 'allOf' property.
+     *
      * @throws \Exception
      */
     public function testDeserializeAllOfProperty()
@@ -194,5 +200,14 @@ JSON;
             $this->assertNotSame($allOfItem->ref, UNDEFINED);
             $this->assertSame('#/components/schemas/SomeSchema', $allOfItem->ref);
         }
+    }
+
+    /**
+     * @dataProvider allAnnotationClasses
+     */
+    public function testValidAnnotationsListComplete($annotation)
+    {
+        $staticProperties = (new \ReflectionClass((Serializer::class)))->getStaticProperties();
+        $this->assertArrayHasKey($annotation, array_flip($staticProperties['VALID_ANNOTATIONS']));
     }
 }

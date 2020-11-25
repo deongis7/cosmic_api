@@ -7,12 +7,13 @@
 namespace OpenApi\Processors;
 
 use OpenApi\Analysis;
-use OpenApi\Annotations\Schema;
 use OpenApi\Annotations\Property;
+use OpenApi\Annotations\Schema;
 
 /**
  * Use the Schema context to extract useful information and inject that into the annotation.
- * Merges properties
+ *
+ * Merges properties.
  */
 class AugmentSchemas
 {

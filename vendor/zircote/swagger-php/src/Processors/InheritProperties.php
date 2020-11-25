@@ -6,14 +6,15 @@
 
 namespace OpenApi\Processors;
 
+use OpenApi\Analysis;
 use OpenApi\Annotations\Components;
 use OpenApi\Annotations\Property;
 use OpenApi\Annotations\Schema;
-use OpenApi\Analysis;
+use OpenApi\UNDEFINED;
 use Traversable;
 
 /**
- * Copy the annotated properties from parent classes;
+ * Copy the annotated properties from parent classes;.
  */
 class InheritProperties
 {
@@ -27,19 +28,13 @@ class InheritProperties
         foreach ($schemas as $schema) {
             if ($schema->_context->is('class')) {
                 if (in_array($schema->_context, $processedSchemas, true)) {
-                    //We should process only first schema in the same context
+                    // we should process only first schema in the same context
                     continue;
                 }
 
                 $processedSchemas[] = $schema->_context;
 
-                if ($schema->allOf !== UNDEFINED) {
-                    //if the allOf in the child is set, do noting
-                    continue;
-                }
-
                 $existing = [];
-
                 if (is_array($schema->properties) || $schema->properties instanceof Traversable) {
                     foreach ($schema->properties as $property) {
                         if ($property->property) {
@@ -76,34 +71,45 @@ class InheritProperties
     }
 
     /**
-     * Add to child schema allOf property
-     *
-     * @param \OpenApi\Annotations\Schema $childSchema
-     * @param \OpenApi\Annotations\Schema $parentSchema
+     * Add schema to child schema allOf property.
      */
     private function addAllOfProperty(Schema $childSchema, Schema $parentSchema)
     {
+        // clone (child) properties (except when they are already in allOf)
         $currentSchema = new Schema(['_context' => $childSchema->_context]);
-
         $currentSchema->mergeProperties($childSchema);
 
         $defaultValues = get_class_vars(Schema::class);
-
-        foreach (get_object_vars($currentSchema) as $property => $val) {
-            $childSchema->{$property} = $defaultValues[$property];
+        foreach (array_keys(get_object_vars($currentSchema)) as $property) {
+            $childSchema->$property = $defaultValues[$property];
         }
 
         $childSchema->schema = $currentSchema->schema;
-        unset($currentSchema->schema);
+        $currentSchema->schema = UNDEFINED;
+
         if ($childSchema->allOf === UNDEFINED) {
             $childSchema->allOf = [];
         }
-        $childSchema->allOf[] = new Schema(
-            [
+
+        if ($currentSchema->allOf !== UNDEFINED) {
+            foreach ($currentSchema->allOf as $ii => $schema) {
+                if ($schema->schema === UNDEFINED && $schema->properties !== UNDEFINED) {
+                    // move properties from allOf back up into schema
+                    $currentSchema->properties = $schema->properties;
+                } elseif ($schema->ref !== UNDEFINED && $schema->ref != Components::SCHEMA_REF.$parentSchema->schema) {
+                    // keep other schemas
+                    $childSchema->allOf[] = $schema;
+                }
+            }
+            $currentSchema->allOf = UNDEFINED;
+        }
+
+        $childSchema->allOf[] = new Schema([
             '_context' => $parentSchema->_context,
-            'ref' => Components::SCHEMA_REF . $parentSchema->schema
-            ]
-        );
-        $childSchema->allOf[] = $currentSchema;
+            'ref' => Components::SCHEMA_REF.$parentSchema->schema,
+        ]);
+        if ($currentSchema->properties !== UNDEFINED) {
+            $childSchema->allOf[] = $currentSchema;
+        }
     }
 }

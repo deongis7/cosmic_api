@@ -7,11 +7,7 @@
 namespace OpenApi\Processors;
 
 use OpenApi\Analysis;
-use SplObjectStorage;
 
-/**
- *
- */
 class CleanUnmerged
 {
     public function __invoke(Analysis $analysis)

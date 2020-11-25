@@ -4,7 +4,7 @@
  * @license Apache 2.0
  */
 
-namespace OpenApiTests;
+namespace OpenApi\Tests;
 
 class AnalyserTest extends OpenApiTestCase
 {
@@ -20,7 +20,7 @@ class AnalyserTest extends OpenApiTestCase
     public function testDeprecatedAnnotationWarning()
     {
         $this->countExceptions = 1;
-        $this->assertOpenApiLogEntryStartsWith('The annotation @SWG\Definition() is deprecated.');
+        $this->assertOpenApiLogEntryContains('The annotation @SWG\Definition() is deprecated.');
         $this->parseComment('@SWG\Definition()');
     }
 }
