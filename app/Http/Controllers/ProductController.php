@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Perimeter;
+use App\TblPengajuanAtestasi;
 use App\Helpers\AppHelper;
 
 use Illuminate\Http\Request;
@@ -45,7 +46,7 @@ class ProductController extends Controller
 
 
     //Get Status Monitoring Perimeter Level
-    public function getPengajuanAtestasi($id_product){
+    public function getPengajuanAtestasi($id_produk){
         $data = array();
         $weeks = AppHelper::Weeks();
         $startdate = $weeks['startweek'];
@@ -63,9 +64,10 @@ class ProductController extends Controller
         left join report_cosmic_index rci1 on rci1.rci_mc_id = mc.mc_id and rci1.rci_week = ?
         left join report_cosmic_index rci2 on rci2.rci_mc_id = mc.mc_id and rci2.rci_week = ?
         where mlp.mlp_id=?",
-        [$lastweek, $twoweek, $id_product ]);
+        [$lastweek, $twoweek, $id_produk ]);
 
         foreach ($pengajuan as $itempengajuan) {
+          $dataperimeter=[];
           $perimeter = DB::connection('pgsql2')->select( "select * from list_perimeter_by_id_pengajuan(?,?)",
             [ $itempengajuan->tbpa_id,$lastweek]);
               foreach ($perimeter as $itemperimeter) {
@@ -97,65 +99,52 @@ class ProductController extends Controller
         }
           return $data;
 
-
-
     }
 
-    private function getFile($id_aktifitas,$id_perusahaan){
+    //Get Layanan Produk
+    public function getLayananProduk(){
+        $data = array();
+        $product = DB::connection('pgsql2')->select( "select mlp.* from  master_layanan_produk mlp
+         order by mlp.mlp_id asc");
 
-      $data =[];
+        foreach ($product as $itemproduct) {
 
-      if ($id_aktifitas != null){
-      $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
-              ->where("ta_status", "<>", "2")
-              ->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
+            $data[] = array(
+                "id_produk" => $itemproduct->mlp_id,
+                "nama_produk" => $itemproduct->mlp_name,
+                "kd_perusahaan" => $itemproduct->mlp_mc_id,
+                "nama_perusahaan_jasa" => $itemproduct->mlp_by,
+                "deskripsi" => $itemproduct->mlp_desc,
+                "syarat_ketentuan" => $itemproduct->mlp_file_syarat_ketentuan,
+                "file" => $itemproduct->mlp_filename,
+                "status" => ($itemproduct->mlp_active='t'?true:false),
 
-        foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){
-
-          $data[] = array(
-              "id_file" => $itemtransaksi_aktifitas_file->taf_id,
-              "file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
-              "file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
-            );
+              );
         }
-      }
-      return $data;
-      }
+          return $data;
+    }
 
     //POST
-    public function openPerimeter(Request $request){
+    public function addPengajuanAtestasi($id_produk,Request $request){
         $this->validate($request, [
-            'id_perimeter_level' => 'required'
+            'nama_pj' => 'required',
+            'no_telp_pj' => 'required',
+            'email_pj' => 'required',
+            'kd_perusahaan'=>'required'
         ]);
-        $weeks = AppHelper::Weeks();
-        $startdate = $weeks['startweek'];
-        $enddate = $weeks['endweek'];
 
 
-        $open = TblPerimeterClosed::where('tbpc_mpml_id', $request->id_perimeter_level)
-            ->where('tbpc_startdate', $startdate)
-            ->where('tbpc_enddate', $enddate)->first();
+            $pengajuan= New TblPengajuanAtestasi();
+            $pengajuan->setConnection('pgsql');
+            $pengajuan->tbpa_mc_id = $request->kd_perusahaan;
+            $pengajuan->tbpa_mlp_id = $id_produk;
+            $pengajuan->tbpa_nama_pj = $request->nama_pj;
+            $pengajuan->tbpa_no_tlp_pj = $request->no_telp_pj;
+            $pengajuan->tbpa_email_pj = $request->email_pj;
+            $pengajuan->tbpa_perimeter = $request->perimeter;
+            $pengajuan->tbpa_status = 0;
 
-        if ($open == null){
-            $open= New TblPerimeterClosed();
-            $open->setConnection('pgsql');
-            $open->tbpc_mpml_id = $request->id_perimeter_level;
-            $open->tbpc_requestor = $request->nik;
-            $open->tbpc_startdate = $startdate;
-            $open->tbpc_enddate = $enddate;
-            $open->tbpc_status = 0;
-        } else {
-            $open->tbpc_requestor = $request->nik;
-            $open->tbpc_startdate = $startdate;
-            $open->tbpc_enddate = $enddate;
-            $open->tbpc_status = 0;
-        }
-
-        //delete aktivitas
-        $query_delete = "DELETE from transaksi_aktifitas WHERE ta_tpmd_id in (SELECT tpmd_id FROM table_perimeter_detail WHERE tpmd_mpml_id='".$request->id_perimeter_level."') and ta_week = '".$startdate.'-'.$enddate."'";
-        DB::connection('pgsql')->update($query_delete);
-
-        if($open->save()) {
+        if($pengajuan->save()) {
             return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
         }
          else {
