@@ -1025,4 +1025,6 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
       return $data;
       }
 
+    
+
 }
