@@ -16,6 +16,7 @@ class ImportController extends Controller
 
     public function import(Request $request)
     {
+        set_time_limit(0);
 		$this->validate($request, [
             'file_import' => 'required|mimes:xls,xlsx',
 			'kd_perusahaan' => 'required',
