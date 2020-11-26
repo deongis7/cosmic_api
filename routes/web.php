@@ -168,7 +168,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/perimeter_byprovinsi_all', 'DashboardController@getPerimeterbyProvinsiAll');
 	$router->get('/dashboard/perimeter_byperusahaan_all', 'DashboardController@getPerimeterbyPerusahaanAll');
 	$router->get('/dashboard/provinsi_bykategori/{id_kategori}', 'DashboardController@getProvinsibyKategoribyID');
-	$router->get('/dashboard/provinsi_byperusahaan/{kd_perusahaan}', 'DashboardController@getProvinsibyPerusahaanbyID');
+	$router->get('/dashboard/region_byperusahaan/{kd_perusahaan}', 'DashboardController@getRegionbyPerusahaanbyID');
 	$router->get('/dashboard/dashboardhead', 'DashboardController@getDashboardHead');
 	$router->get('/dashboard/list_week', 'DashboardController@getWeekList');
 	$router->get('/dashboard/monitoring_bymciddate/{id}/{tgl}', 'DashboardController@getMonitoring_ByMcidWeek');
