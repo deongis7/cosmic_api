@@ -197,7 +197,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashvaksin/dashvaksin_lokasi1', 'DashVaksinController@getDashVaksinLokasi1');
 	$router->get('/dashvaksin/dashvaksin_lokasi2', 'DashVaksinController@getDashVaksinLokasi2');
 	$router->get('/dashvaksin/dashvaksin_lokasi3', 'DashVaksinController@getDashVaksinLokasi3');
-	
+
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
 
@@ -210,7 +210,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/log_activity', 'UserController@setActivityLog');
 
     //Product
-  	$router->get('/product/list_pengajuan_atestasi/{id_product}', 'ProductController@getPengajuanAtestasi');  
+  	$router->get('/product/list_pengajuan_atestasi/{id_produk}', 'ProductController@getPengajuanAtestasi');
+  	$router->get('/product/layanan_produk', 'ProductController@getLayananProduk');
+  	$router->post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');  
 
     //Sosialisasi Web
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
