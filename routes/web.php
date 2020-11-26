@@ -166,11 +166,15 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/cosmicindex', 'DashboardController@getCosmicIndexAll');
 	$router->get('/dashboard/perimeter_bykategori_all', 'DashboardController@getPerimeterbyKategoriAll');
 	$router->get('/dashboard/perimeter_byprovinsi_all', 'DashboardController@getPerimeterbyProvinsiAll');
+	$router->get('/dashboard/perimeter_byperusahaan_all', 'DashboardController@getPerimeterbyPerusahaanAll');
+	$router->get('/dashboard/provinsi_bykategori/{id_kategori}', 'DashboardController@getProvinsibyKategoribyID');
+	$router->get('/dashboard/region_byperusahaan/{kd_perusahaan}', 'DashboardController@getRegionbyPerusahaanbyID');
 	$router->get('/dashboard/dashboardhead', 'DashboardController@getDashboardHead');
 	$router->get('/dashboard/list_week', 'DashboardController@getWeekList');
 	$router->get('/dashboard/monitoring_bymciddate/{id}/{tgl}', 'DashboardController@getMonitoring_ByMcidWeek');
 	$router->get('/dashboard/listmonitoring_bymciddate/{id}/{tgl}', 'DashboardController@getListMonitoring_ByMcidWeek');
 	$router->get('/dashboard/cosmic_index_report', 'DashboardController@getCosmicIndexReport');
+	$router->get('/dashboard/cosmic_index_report_average', 'DashboardController@getCosmicIndexReportAverage');
 	//sprint16
 	$router->get('/dashboard/perimeter_bykategoriperusahaan/{name}', 'DashboardController@getPerimeter_bykategoriperusahaan');
 	$router->get('/dashboard/perimeter_bykategoriperusahaanProv/{id}', 'DashboardController@getPerimeter_bykategoriperusahaanProv');
@@ -212,7 +216,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //Product
   	$router->get('/product/list_pengajuan_atestasi/{id_produk}', 'ProductController@getPengajuanAtestasi');
   	$router->get('/product/layanan_produk', 'ProductController@getLayananProduk');
-  	$router->post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');  
+  	$router->post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
 
     //Sosialisasi Web
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');

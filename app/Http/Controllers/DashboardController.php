@@ -57,10 +57,43 @@ class DashboardController extends Controller
         return response()->json(['status' => 200,'data' => $datacache]);
 	}
 
-	public function getPerimeterbyKategoriAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategori_allx", 15 * 60, function(){
+	public function getPerimeterbyKategoriAll(Request $request){
+    $limit = null;
+    $page = null;
+    $endpage = 1;
+    $search = null;
+    $str = "_get_perimeter_bykategori_allx";
+    if(isset($request->limit)){
+        $str = $str.'_limit_'. $request->limit;
+        $limit=$request->limit;
+        if(isset($request->page)){
+            $str = $str.'_page_'. $request->page;
+            $page=$request->page;
+        }
+    }
+    if(isset($request->search)){
+        $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+        $search=$request->search;
+    }
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
 	        $data = array();
-	        $perimeter_bykategori_all = DB::select("SELECT * FROM dashboard_perimeter_bykategori()");
+
+          $string ="SELECT * FROM dashboard_perimeter_bykategori()";
+          if(isset($search)) {
+              $string = $string . " where lower(TRIM(v_judul)) like '%".strtolower(trim($search))."%' ";
+          }
+          $jmltotal=(count(DB::select($string)));
+          if(isset($limit)) {
+              $string = $string. " limit ".$limit;
+              $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+              if (isset($page)) {
+                  $offset = ((int)$page -1) * (int)$limit;
+                  $string = $string . " offset " .$offset;
+              }
+          }
+
+	        $perimeter_bykategori_all = DB::select($string);
 
 	        foreach($perimeter_bykategori_all as $pka){
 	            $data[] = array(
@@ -69,10 +102,158 @@ class DashboardController extends Controller
 	                "v_jml" => $pka->v_jml
 	            );
 	        }
-	        return $data;
+	        return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
 	    });
-	        return response()->json(['status' => 200,'data' => $datacache]);
+	        return response()->json( $datacache);
 	}
+
+
+  	public function getPerimeterbyPerusahaanAll(Request $request){
+      $limit = null;
+      $page = null;
+      $endpage = 1;
+      $search = null;
+      $str = "_get_perimeter_byperusahaan_allx";
+      if(isset($request->limit)){
+          $str = $str.'_limit_'. $request->limit;
+          $limit=$request->limit;
+          if(isset($request->page)){
+              $str = $str.'_page_'. $request->page;
+              $page=$request->page;
+          }
+      }
+      if(isset($request->search)){
+          $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+          $search=$request->search;
+      }
+  	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
+  	        $data = array();
+
+            $string ="SELECT * FROM dashboard_perimeter_byperusahaan()";
+            if(isset($search)) {
+                $string = $string . " where lower(TRIM(v_nama_perusahaan)) like '%".strtolower(trim($search))."%' ";
+            }
+            $jmltotal=(count(DB::select($string)));
+            if(isset($limit)) {
+                $string = $string. " limit ".$limit;
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                if (isset($page)) {
+                    $offset = ((int)$page -1) * (int)$limit;
+                    $string = $string . " offset " .$offset;
+                }
+            }
+  	        $perimeter_byperusahaan_all = DB::select($string);
+
+  	        foreach($perimeter_byperusahaan_all as $pka){
+  	            $data[] = array(
+  	            	"v_id" => $pka->v_kd_perusahaan,
+  	                "v_judul" => $pka->v_nama_perusahaan,
+  	                "v_jml" => $pka->v_jml
+  	            );
+  	        }
+  	        return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
+  	    });
+  	        return response()->json( $datacache);
+  	}
+
+    public function getRegionbyPerusahaanbyID($kd_perusahaan,Request $request){
+      $limit = null;
+      $page = null;
+      $endpage = 1;
+      $search = null;
+      $str = "_get_region_byperusahaan_ID_".$kd_perusahaan;
+      if(isset($request->limit)){
+          $str = $str.'_limit_'. $request->limit;
+          $limit=$request->limit;
+          if(isset($request->page)){
+              $str = $str.'_page_'. $request->page;
+              $page=$request->page;
+          }
+      }
+      if(isset($request->search)){
+          $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+          $search=$request->search;
+      }
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$kd_perusahaan){
+            $data = array();
+
+            $string ="SELECT * FROM dashboard_region_byperusahaan('".$kd_perusahaan."')";
+            if(isset($search)) {
+                $string = $string . " where lower(TRIM(v_judul)) like '%".strtolower(trim($search))."%' ";
+            }
+            $jmltotal=(count(DB::select($string)));
+            if(isset($limit)) {
+                $string = $string. " limit ".$limit;
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                if (isset($page)) {
+                    $offset = ((int)$page -1) * (int)$limit;
+                    $string = $string . " offset " .$offset;
+                }
+            }
+            $perimeter_byperusahaan_all = DB::select($string);
+
+            foreach($perimeter_byperusahaan_all as $pka){
+                $data[] = array(
+                  "v_id" => $pka->v_mpro_id,
+                    "v_judul" => $pka->v_judul,
+                    "v_jml" => $pka->v_jml
+                );
+            }
+            return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
+        });
+            return response()->json( $datacache);
+    }
+
+    public function getProvinsibyKategoribyID($id_kategori,Request $request){
+      $limit = null;
+      $page = null;
+      $endpage = 1;
+      $search = null;
+      $str = "_get_provinsi_bykategori_ID_".$id_kategori;
+      if(isset($request->limit)){
+          $str = $str.'_limit_'. $request->limit;
+          $limit=$request->limit;
+          if(isset($request->page)){
+              $str = $str.'_page_'. $request->page;
+              $page=$request->page;
+          }
+      }
+      if(isset($request->search)){
+          $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+          $search=$request->search;
+      }
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$id_kategori){
+            $data = array();
+
+            $string ="SELECT * FROM dashboard_provinsi_bykategori(".$id_kategori.")";
+            if(isset($search)) {
+                $string = $string . " where lower(TRIM(v_judul)) like '%".strtolower(trim($search))."%' ";
+            }
+            $jmltotal=(count(DB::select($string)));
+            if(isset($limit)) {
+                $string = $string. " limit ".$limit;
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                if (isset($page)) {
+                    $offset = ((int)$page -1) * (int)$limit;
+                    $string = $string . " offset " .$offset;
+                }
+            }
+            $perimeter_byperusahaan_all = DB::select($string);
+
+            foreach($perimeter_byperusahaan_all as $pka){
+                $data[] = array(
+                  "v_id" => $pka->v_mpro_id,
+                    "v_judul" => $pka->v_judul,
+                    "v_jml" => $pka->v_jml
+                );
+            }
+            return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
+        });
+            return response()->json( $datacache);
+    }
 
 	public function getPerimeter_bykategoriperusahaan($name){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$name, 15 * 60, function()use($name){
@@ -347,6 +528,84 @@ class DashboardController extends Controller
                         "pemenuhan_protokol" => $itemrpi->rci_pemenuhan_protokol,
                         "pemenuhan_ceklist_monitoring" => $itemrpi->rci_pemenuhan_ceklist_monitoring,
                         "pemenuhan_eviden" => $itemrpi->rci_pemenuhan_eviden,
+
+                    );
+                }
+            }
+
+            return $data;
+        });
+        return response()->json(['status' => 200,'data' => $datacache]);
+    }
+
+    public function getCosmicIndexReportAverage(Request $request){
+        $str = 'get_cosmic_index_report_average';
+        if(isset($request->date)){
+            $strdate =  Carbon::parse($request->date);
+            //  dd($date);
+            $startdate = $strdate->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
+            $enddate = $strdate->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
+            $str = $str."_".$startdate."_".$enddate;
+        } else {
+            $crweeks = AppHelper::Weeks();
+            $startdate = $crweeks['startweek'];
+            $enddate = $crweeks['endweek'];
+            $str = $str."_".$startdate."_".$enddate;
+        }
+
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate) {
+            $data = array();
+            $weeks = AppHelper::Weeks();
+            $startdatenow = $weeks['startweek'];
+            $enddatenow = $weeks['endweek'];
+
+            $week = $startdate ."-".$enddate;
+            $weeknow = $startdatenow ."-".$enddatenow;
+            $data=[];
+            if ($week==$weeknow){
+              //  $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
+
+              //foreach($company as $itemcompany) {
+
+                    //$company_id = (string)$itemcompany->mc_id;
+                    //dd($itemcompany->mc_id);
+                    $sql = "SELECT
+                        avg((a.v_cosmic_index)::float) as v_cosmic_index,
+                        avg((a.v_pemenuhan_protokol)::float) as v_pemenuhan_protokol,
+                        avg((a.v_pemenuhan_ceklist_monitoring)::float) as v_pemenuhan_ceklist_monitoring,
+                        avg((a.v_pemenuhan_eviden)::float) as v_pemenuhan_eviden
+                        FROM mv_cosmic_index_report a
+                        ";
+                    //echo $sql;die;
+                    $result = DB::select($sql);
+                    //dd($result);
+                    foreach ($result as $value) {
+                        $data[] = array(
+                            "week" =>  $week,
+                            "cosmic_index" => round($value->v_cosmic_index,0),
+                            "pemenuhan_protokol" => round($value->v_pemenuhan_protokol,0),
+                            "pemenuhan_ceklist_monitoring" => round($value->v_pemenuhan_ceklist_monitoring,0),
+                            "pemenuhan_eviden" => round($value->v_pemenuhan_eviden,0)
+
+                        );
+                  //  }
+                }
+            } else {
+                $rpi = DB::select("SELECT
+                        avg((rpi.rci_cosmic_index)::float) as rci_cosmic_index,,
+                        avg((rpi.rci_pemenuhan_protokol)::float) as rci_pemenuhan_protokol,
+                        avg((rpi.rci_pemenuhan_ceklist_monitoring)::float) as rci_pemenuhan_ceklist_monitoring,
+                        avg((rpi.rci_pemenuhan_eviden)::float) s v_cosmirci_pemenuhan_evidenc_index
+                        FROM report_cosmic_index rpi
+                        WHERE rci_week = ?",[(string)$week]);
+
+                foreach ($rpi as $itemrpi){
+                    $data[]= array(
+                        "week" => $week,
+                        "cosmic_index" => round($itemrpi->rci_cosmic_index,0),
+                        "pemenuhan_protokol" => round($itemrpi->rci_pemenuhan_protokol,0),
+                        "pemenuhan_ceklist_monitoring" => round($itemrpi->rci_pemenuhan_ceklist_monitoring,0),
+                        "pemenuhan_eviden" => round($itemrpi->rci_pemenuhan_eviden,0)
 
                     );
                 }
