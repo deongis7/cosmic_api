@@ -157,12 +157,12 @@ class DashboardController extends Controller
   	        return response()->json( $datacache);
   	}
 
-    public function getProvinsibyPerusahaanbyID($kd_perusahaan,Request $request){
+    public function getRegionbyPerusahaanbyID($kd_perusahaan,Request $request){
       $limit = null;
       $page = null;
       $endpage = 1;
       $search = null;
-      $str = "_get_provinsi_byperusahaan_ID_".$kd_perusahaan;
+      $str = "_get_region_byperusahaan_ID_".$kd_perusahaan;
       if(isset($request->limit)){
           $str = $str.'_limit_'. $request->limit;
           $limit=$request->limit;
@@ -178,7 +178,7 @@ class DashboardController extends Controller
         $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$kd_perusahaan){
             $data = array();
 
-            $string ="SELECT * FROM dashboard_provinsi_byperusahaan('".$kd_perusahaan."')";
+            $string ="SELECT * FROM dashboard_region_byperusahaan('".$kd_perusahaan."')";
             if(isset($search)) {
                 $string = $string . " where lower(TRIM(v_judul)) like '%".strtolower(trim($search))."%' ";
             }
