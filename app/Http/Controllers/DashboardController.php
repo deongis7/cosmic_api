@@ -1217,7 +1217,7 @@ class DashboardController extends Controller
       }
       
       public function getRangkumanAll(){
-          //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_rangkuman_all", 120 * 60, function() {
+          $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_rangkuman_all", 120 * 60, function() {
               $data = array();
               $rangkuman_all = DB::select("SELECT ms_name, mc_name, cnt_mpm, cosmic_index, 
                 cosmic_index_min1, positif, suspek, kontakerat, selesai, 
@@ -1238,11 +1238,11 @@ class DashboardController extends Controller
                       "meninggal" => $ra->meninggal,
                       "persen_dokumen" => $ra->persen_dokumen,
                       "belum_dokumen" => $ra->belum_dokumen,
-                      "sosialisasi_akhir" => $ra->sosialisasi_akhir,
+                      "sosialisasi_akhir" => $ra->sosialisasi_akhir
                   );
               }
               return $data;
-          //});
-          return response()->json(['status' => 200,'data' => $data]);
+          });
+        return response()->json(['status' => 200,'data' => $datacache]);
       }
 }
