@@ -1044,4 +1044,34 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
+	
+	public function getRangkumanAll(){
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_rangkuman", 60 * 60, function() {
+	        $data = array();
+	        $rangkuman_all = DB::select("SELECT ms_name, mc_name, cnt_mpm, cosmic_index, 
+                cosmic_index_min1, positif, suspek, kontakerat, selesai, 
+                meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir 
+                FROM mv_rangkuman_all");
+	        
+	        foreach($rangkuman_all as $ra){
+	            $data[] = array(
+	                "ms_name" => $ra->ms_name,
+	                "mc_name" => $ra->mc_name,
+	                "jumlah_mpm" => $ra->cnt_mpm,
+	                "cosmic_index" => $ra->cosmic_index,
+	                "cosmic_index_min1" => $ra->cosmic_index_min1,
+	                "positif" => $ra->positif,
+	                "suspek" => $ra->suspek,
+	                "kontakerat" => $ra->kontakerat,
+	                "selesai" => $ra->selesai,
+	                "meninggal" => $ra->meninggal,
+	                "persen_dokumen" => $ra->persen_dokumen,
+	                "belum_dokumen" => $ra->belum_dokumen,
+	                "sosialisasi_akhir" => $ra->sosialisasi_akhir
+	            );
+	        }
+	        return $data;
+	    });
+	        return response()->json(['status' => 200,'data' => $datacache]);
+	}
 }

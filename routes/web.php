@@ -222,6 +222,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
     Route::post('/sosialisasi/webupdate_json/{user_id}/{id}', 'SosialisasiController@WebupdateSosialisasiJSON');
 
+    //rangkuman_all
+    $router->get('/dashboard/rangkuman_all', 'DashboardController@getRangkumanAll');
+    
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
 		Route::get('/user/detail', 'UserController@getDetailUser');
