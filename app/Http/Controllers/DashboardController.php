@@ -1193,7 +1193,7 @@ class DashboardController extends Controller
               return response()->json( $datacache);
       }
 
-      public function countEventbyPerusahaanAll(){
+    public function countEventbyPerusahaanAll(){
         $limit = null;
         $page = null;
         $endpage = 1;
@@ -1214,5 +1214,35 @@ class DashboardController extends Controller
               return array('status' => 200,'data' =>$data);
           });
               return response()->json( $datacache);
+      }
+      
+      public function getRangkumanAll(){
+          $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_rangkuman_all", 120 * 60, function() {
+              $data = array();
+              $rangkuman_all = DB::select("SELECT ms_name, mc_name, cnt_mpm, cosmic_index, 
+                cosmic_index_min1, positif, suspek, kontakerat, selesai, 
+                meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir 
+                FROM mv_rangkuman_all");
+              
+              foreach($rangkuman_all as $ra){
+                  $data[] = array(
+                      "nama_sektor" => $ra->ms_name,
+                      "nama_perusahaan" => $ra->mc_name,
+                      "jml_perimeter" => $ra->cnt_mpm,
+                      "cosmic_index" => $ra->cosmic_index,
+                      "cosmic_index_min1" => $ra->cosmic_index_min1,
+                      "positif" => $ra->positif,
+                      "suspek" => $ra->suspek,
+                      "kontakerat" => $ra->kontakerat,
+                      "selesai" => $ra->selesai,
+                      "meninggal" => $ra->meninggal,
+                      "persen_dokumen" => $ra->persen_dokumen,
+                      "belum_dokumen" => $ra->belum_dokumen,
+                      "sosialisasi_akhir" => $ra->sosialisasi_akhir,
+                  );
+              }
+              return $data;
+          });
+          return response()->json(['status' => 200,'data' => $datacache]);
       }
 }
