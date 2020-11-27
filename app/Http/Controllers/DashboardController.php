@@ -1242,7 +1242,7 @@ class DashboardController extends Controller
                   );
               }
               return $data;
-          });
-          //return response()->json(['status' => 200,'data' => $data]);
+          //});
+          return response()->json(['status' => 200,'data' => $data]);
       }
 }
