@@ -1219,14 +1219,15 @@ class DashboardController extends Controller
       public function getRangkumanAll(){
           $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_rangkuman_all", 120 * 60, function() {
               $data = array();
-              $rangkuman_all = DB::select("SELECT ms_name, mc_name, cnt_mpm, cosmic_index, 
+              $rangkuman_all = DB::select("SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index, 
                 cosmic_index_min1, positif, suspek, kontakerat, selesai, 
-                meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir 
+                meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now 
                 FROM mv_rangkuman_all");
               
               foreach($rangkuman_all as $ra){
                   $data[] = array(
                       "nama_sektor" => $ra->ms_name,
+                      "kode_perusahaan" => $ra->mc_id,
                       "nama_perusahaan" => $ra->mc_name,
                       "jml_perimeter" => $ra->cnt_mpm,
                       "cosmic_index" => $ra->cosmic_index,
@@ -1238,7 +1239,8 @@ class DashboardController extends Controller
                       "meninggal" => $ra->meninggal,
                       "persen_dokumen" => $ra->persen_dokumen,
                       "belum_dokumen" => $ra->belum_dokumen,
-                      "sosialisasi_akhir" => $ra->sosialisasi_akhir
+                      "sosialisasi_akhir" => $ra->sosialisasi_akhir,
+                      "last_update" => $ra->now
                   );
               }
               return $data;
