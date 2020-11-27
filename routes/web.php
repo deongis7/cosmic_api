@@ -117,6 +117,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
 	$router->post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
 	$router->get('/sosialisasi/get_last2/{id}', 'SosialisasiController@getDataLast2ByMcid');
+  $router->get('/sosialisasi/get_perusahaan_all', 'DashboardController@getEventbyPerusahaanAll');
+  $router->get('/sosialisasi/total_perusahaan_all', 'DashboardController@countEventbyPerusahaanAll');
 
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
@@ -169,6 +171,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/perimeter_byperusahaan_all', 'DashboardController@getPerimeterbyPerusahaanAll');
 	$router->get('/dashboard/provinsi_bykategori/{id_kategori}', 'DashboardController@getProvinsibyKategoribyID');
 	$router->get('/dashboard/region_byperusahaan/{kd_perusahaan}', 'DashboardController@getRegionbyPerusahaanbyID');
+	$router->get('/dashboard/perimeter_bykategori_byprovinsi/{id_kategori}/{id_provinsi}', 'DashboardController@getListPerimeter_byKategoribyProvinsi');
+	$router->get('/dashboard/perimeter_byperusahaan_byregion/{kd_perusahaan}/{id_region}', 'DashboardController@getListPerimeter_byPerusahaanbyRegion');
+
 	$router->get('/dashboard/dashboardhead', 'DashboardController@getDashboardHead');
 	$router->get('/dashboard/list_week', 'DashboardController@getWeekList');
 	$router->get('/dashboard/monitoring_bymciddate/{id}/{tgl}', 'DashboardController@getMonitoring_ByMcidWeek');
@@ -222,6 +227,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
     Route::post('/sosialisasi/webupdate_json/{user_id}/{id}', 'SosialisasiController@WebupdateSosialisasiJSON');
 
+    //rangkuman_all
+    $router->get('/dashboard/rangkuman_all', 'DashboardController@getRangkumanAll');
+    
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
 		Route::get('/user/detail', 'UserController@getDetailUser');
