@@ -52,7 +52,7 @@ class UserController extends Controller
 		$user = User::select('app_users.id','app_users.username','app_users.first_name',
 		    'master_company.mc_id','master_company.mc_name','app_groups.name',
 		    'app_users.no_hp','app_users.divisi','app_users.email','app_users.foto','master_company.mc_foto')
-					->join('master_company','master_company.mc_id','app_users.mc_id')
+					->leftjoin('master_company','master_company.mc_id','app_users.mc_id')
 					->join('app_users_groups','app_users_groups.user_id','app_users.id')
 					->join('app_groups','app_users_groups.group_id','app_groups.id')
 					->where('app_users.id',$id)

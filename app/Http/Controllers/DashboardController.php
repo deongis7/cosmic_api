@@ -206,6 +206,104 @@ class DashboardController extends Controller
             return response()->json( $datacache);
     }
 
+    public function getListPerimeter_byPerusahaanbyRegion($kd_perusahaan,$id_region,Request $request){
+      $limit = null;
+      $page = null;
+      $endpage = 1;
+      $search = null;
+      $str = "_get_listperimeter_byperusahaan_".$kd_perusahaan."_byregion_ID_".$id_region;
+      if(isset($request->limit)){
+          $str = $str.'_limit_'. $request->limit;
+          $limit=$request->limit;
+          if(isset($request->page)){
+              $str = $str.'_page_'. $request->page;
+              $page=$request->page;
+          }
+      }
+      if(isset($request->search)){
+          $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+          $search=$request->search;
+      }
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$kd_perusahaan,$id_region){
+            $data = array();
+
+            $string ="SELECT * FROM dashboard_listperimeter_byperusahaan_byregion('".$id_region."')";
+            if(isset($search)) {
+                $string = $string . " where lower(TRIM(nama_perimeter)) like '%".strtolower(trim($search))."%' ";
+            }
+            $jmltotal=(count(DB::select($string)));
+            if(isset($limit)) {
+                $string = $string. " limit ".$limit;
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                if (isset($page)) {
+                    $offset = ((int)$page -1) * (int)$limit;
+                    $string = $string . " offset " .$offset;
+                }
+            }
+            $perimeter_byperusahaan_all = DB::select($string);
+
+            foreach($perimeter_byperusahaan_all as $pka){
+                $data[] = array(
+                  "id_perimeter" => $pka->id_perimeter,
+                    "nama_perimeter" => $pka->nama_perimeter,
+                    "jml_level" => $pka->jml_level
+                );
+            }
+            return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
+        });
+            return response()->json( $datacache);
+    }
+
+    public function getListPerimeter_byKategoribyProvinsi($id_kategori,$id_provinsi,Request $request){
+      $limit = null;
+      $page = null;
+      $endpage = 1;
+      $search = null;
+      $str = "_get_listperimeter_bykategori_".$id_kategori."_byprovinsi_ID_".$id_provinsi;
+      if(isset($request->limit)){
+          $str = $str.'_limit_'. $request->limit;
+          $limit=$request->limit;
+          if(isset($request->page)){
+              $str = $str.'_page_'. $request->page;
+              $page=$request->page;
+          }
+      }
+      if(isset($request->search)){
+          $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+          $search=$request->search;
+      }
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$id_kategori,$id_provinsi){
+            $data = array();
+
+            $string ="SELECT * FROM dashboard_listperimeter_bykategori_byprovinsi('".$id_kategori."','".$id_provinsi."')";
+            if(isset($search)) {
+                $string = $string . " where lower(TRIM(nama_perimeter)) like '%".strtolower(trim($search))."%' ";
+            }
+            $jmltotal=(count(DB::select($string)));
+            if(isset($limit)) {
+                $string = $string. " limit ".$limit;
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                if (isset($page)) {
+                    $offset = ((int)$page -1) * (int)$limit;
+                    $string = $string . " offset " .$offset;
+                }
+            }
+            $perimeter_byperusahaan_all = DB::select($string);
+
+            foreach($perimeter_byperusahaan_all as $pka){
+                $data[] = array(
+                  "id_perimeter" => $pka->id_perimeter,
+                    "nama_perimeter" => $pka->nama_perimeter,
+                    "jml_level" => $pka->jml_level
+                );
+            }
+            return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
+        });
+            return response()->json( $datacache);
+    }
+
     public function getProvinsibyKategoribyID($id_kategori,Request $request){
       $limit = null;
       $page = null;
@@ -309,6 +407,7 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
+
 
 	public function getDashboardHead(){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmin_head", 15 * 60, function() {
@@ -1044,4 +1143,108 @@ class DashboardController extends Controller
 	    });
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
+
+      public function getEventbyPerusahaanAll(){
+        $limit = null;
+        $page = null;
+        $endpage = 1;
+        $search = null;
+        $str = "_get_event_by_perusahaan_all";
+        if(isset($request->limit)){
+            $str = $str.'_limit_'. $request->limit;
+            $limit=$request->limit;
+            if(isset($request->page)){
+                $str = $str.'_page_'. $request->page;
+                $page=$request->page;
+            }
+        }
+        if(isset($request->search)){
+            $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+            $search=$request->search;
+        }
+          $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
+              $data = array();
+
+              $string ="SELECT * FROM dashboard_event_all()";
+              if(isset($search)) {
+                  $string = $string . " where lower(TRIM(v_nama_perusahaan)) like '%".strtolower(trim($search))."%' ";
+              }
+              $jmltotal=(count(DB::select($string)));
+              if(isset($limit)) {
+                  $string = $string. " limit ".$limit;
+                  $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                  if (isset($page)) {
+                      $offset = ((int)$page -1) * (int)$limit;
+                      $string = $string . " offset " .$offset;
+                  }
+              }
+              $perimeter_byperusahaan_all = DB::select($string);
+
+              foreach($perimeter_byperusahaan_all as $pka){
+                  $data[] = array(
+                    "kd_perusahaan" => $pka->v_kd_perusahaan,
+                      "nama_perusahaan" => $pka->v_nama_perusahaan,
+                      "jml_event" => $pka->v_jml_event
+                  );
+              }
+              return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
+          });
+              return response()->json( $datacache);
+      }
+
+    public function countEventbyPerusahaanAll(){
+        $limit = null;
+        $page = null;
+        $endpage = 1;
+        $search = null;
+        $str = "_count_event_by_perusahaan_all";
+
+          $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function(){
+              $data = array();
+
+              $string ="SELECT sum(v_jml_event) FROM dashboard_event_all()";
+              $jmltotal=(DB::select($string));
+
+              foreach($jmltotal as $pka){
+                  $data[] = array(
+                    "total_event" => $pka->sum
+                  );
+              }
+              return array('status' => 200,'data' =>$data);
+          });
+              return response()->json( $datacache);
+      }
+      
+      public function getRangkumanAll(){
+          $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_rangkuman_all", 120 * 60, function() {
+              $data = array();
+              $rangkuman_all = DB::select("SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index, 
+                cosmic_index_min1, positif, suspek, kontakerat, selesai, 
+                meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now 
+                FROM mv_rangkuman_all");
+              
+              foreach($rangkuman_all as $ra){
+                  $data[] = array(
+                      "nama_sektor" => $ra->ms_name,
+                      "kode_perusahaan" => $ra->mc_id,
+                      "nama_perusahaan" => $ra->mc_name,
+                      "jml_perimeter" => $ra->cnt_mpm,
+                      "cosmic_index" => $ra->cosmic_index,
+                      "cosmic_index_min1" => $ra->cosmic_index_min1,
+                      "positif" => $ra->positif,
+                      "suspek" => $ra->suspek,
+                      "kontakerat" => $ra->kontakerat,
+                      "selesai" => $ra->selesai,
+                      "meninggal" => $ra->meninggal,
+                      "persen_dokumen" => $ra->persen_dokumen,
+                      "belum_dokumen" => $ra->belum_dokumen,
+                      "sosialisasi_akhir" => $ra->sosialisasi_akhir,
+                      "last_update" => $ra->now
+                  );
+              }
+              return $data;
+          });
+        return response()->json(['status' => 200,'data' => $datacache]);
+      }
 }
