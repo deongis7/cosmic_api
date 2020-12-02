@@ -232,8 +232,11 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::post('/sosialisasi/webupdate_json/{user_id}/{id}', 'SosialisasiController@WebupdateSosialisasiJSON');
     
     
-    // Report Protokol
+    // Report Protokol 
     $router->get('/dashreport/dashreport_bymcid/{id}', 'ReportController@getDashboardReportByMcid');
+    
+    //Report Protokol  Web
+    Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebupdatereportJSON');
     
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
