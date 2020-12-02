@@ -12,7 +12,7 @@ class ReportController extends Controller {
     public function __construct() {
     }
     
-    public function getDashboardReportBUMN($id){
+    public function getDashboardReportByMcid($id){
         //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashreportbumn_head_".$id, 15 * 60, function()use($id) {
             $data = array();
             $dashreport_head = DB::select("select * from dashboard_reportcard_bymcid('$id')");
@@ -101,5 +101,77 @@ class ReportController extends Controller {
         }
         return response()->json(['status' => 200, 'page_end'=> $pageend,
             'week' => $week, 'data' => $data]);
+    }
+    
+    public function WebupdatereportJSON($user_id, $id, Request $request) {
+        date_default_timezone_set('Asia/Jakarta');
+        $this->validate($request, [
+            'kd_perusahaan' => 'required'
+        ]);
+
+        $r_kd_perusahaan = $request->kd_perusahaan;
+        $checklist_dampak = $request->checklist_dampak;
+        
+        $r_file1 = $request->file_report1;
+        $r_file2 = $request->file_report2;
+        
+        $dataReport = Report::find($id);
+        $kd_perusahaan = $dataReport->tr_mc_id;
+        $filex1 = $dataReport->tr_tl_file1;
+        $filex2 = $dataReport->tr_tl_file2;
+        
+        if(!Storage::exists('/app/public/report_protokol/'.$kd_perusahaan)) {
+            Storage::disk('public')->makeDirectory('/report_protokol/'.$kd_perusahaan);
+        }
+        
+        $destinationPath = storage_path().'/app/public/report_protokol/' .$kd_perusahaan;
+        
+        $name1 = $filex1;
+        if ($request->file_report1 != null || $request->file_report1 != '') {
+            if($filex1!=NULL && file_exists(storage_path().'/app/public/report_protokol/' .$kd_perusahaan.'/'.$filex1)){
+                unlink(storage_path().'/app/public/report_protokol/' .$kd_perusahaan.'/'.$filex1);
+            }
+            
+            if($filex1_tumb!=NULL && file_exists(storage_path().'/app/public/report_protokol/' .$kd_perusahaan.'/'.$filex1_tumb)){
+                unlink(storage_path().'/app/public/report_protokol/' .$kd_perusahaan.'/'.$filex1_tumb);
+            }
+            
+            $img1 = explode(',', $r_file1);
+            $image1 = $img1[1];
+            $filedecode1 = base64_decode($image1);
+            $name1 = round(microtime(true) * 1000).'.jpg';
+            
+            Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($destinationPath.'/'.$name1);
+        }
+        
+        $name2 = $filex2;
+        if(isset($request->file_report2)){
+            if ($request->file_report2 != null || $request->file_report2 != '') {
+                $img2 = explode(',', $r_file2);
+                $image2 = $img2[1];
+                $filedecode2 = base64_decode($image2);
+                $name2 = round(microtime(true) * 1000).'.jpg';
+                
+                Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($destinationPath.'/'.$name2);
+            }
+        }
+        
+        $dataReport->tr_mc_id = $kd_perusahaan;
+        $dataReport->tr_tl_file1 = $name1;
+        $dataReport->tr_tl_file2 = $name2;
+        $dataReport->ts_checklist_dampak = $checklist_dampak;
+        $dataReport->ts_date_update = date('Y-m-d H:i:s');
+        $dataReport->ts_user_update = $user_id;
+        $dataReport->save();
+        
+        if($dataSosialisasi->save()) {
+            return response()->json(['status' => 200,'message' => 'Data Sosialisasi Berhasil diUpdate']);
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Sosialisasi Gagal diUpdate'])->setStatusCode(500);
+        }
     }
 }
