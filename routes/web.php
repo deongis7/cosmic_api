@@ -236,7 +236,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/dashreport/dashreport_bymcid/{id}', 'ReportController@getDashboardReportByMcid');
     
     //Report Protokol  Web
-    Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebupdatereportJSON');
+    Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
     
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
@@ -253,5 +253,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 		Route::post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
 		Route::post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
+		Route::post('/report/update_json/{id}', 'ReportController@updateReportJSON');
 	});
 });
