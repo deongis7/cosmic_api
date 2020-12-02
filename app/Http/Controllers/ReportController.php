@@ -105,6 +105,7 @@ class ReportController extends Controller {
     
     public function WebUpdateReportJSON($user_id, $id, Request $request) {
         date_default_timezone_set('Asia/Jakarta');
+        $penanggungjawab = $request->penanggungjawab;
         $ceklis = $request->ceklis;
         $r_file1 = $request->file_report1;
         $r_file2 = $request->file_report2;
@@ -158,6 +159,7 @@ class ReportController extends Controller {
         $dataReport->tr_tl_file1 = $name1;
         $dataReport->tr_tl_file2 = $name2;
         $dataReport->tr_close = $ceklis;
+        $dataReport->tr_penanggungjawab = $penanggungjawab;
         $dataReport->tr_date_update = date('Y-m-d H:i:s');
         $dataReport->tr_user_update = $user_id;
         $dataReport->save();
@@ -171,6 +173,7 @@ class ReportController extends Controller {
     
     public function updateReportJSON($id, Request $request) {
         date_default_timezone_set('Asia/Jakarta');
+        $penanggungjawab = $request->penanggungjawab;
         $ceklis = $request->ceklis;
         $r_file1 = $request->file_report1;
         $r_file2 = $request->file_report2;
@@ -224,6 +227,7 @@ class ReportController extends Controller {
         $dataReport->tr_tl_file1 = $name1;
         $dataReport->tr_tl_file2 = $name2;
         $dataReport->tr_close = $ceklis;
+        $dataReport->tr_penanggungjawab = $penanggungjawab;
         $dataReport->tr_date_update = date('Y-m-d H:i:s');
         $dataReport->tr_user_update = Auth::guard('api')->user()->id;
         $dataReport->save();
