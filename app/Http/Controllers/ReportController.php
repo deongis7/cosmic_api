@@ -264,7 +264,7 @@ class ReportController extends Controller {
                         $path_file404 = '/404/img404.jpg';
                         $filerep1 = $path_file404;
                     }else{
-                        $path_file1 = '/report_protokol/'.$rep->ts_file1;
+                        $path_file1 = '/report_protokol/'.$rep->tr_tl_file1;
                         $filerep1 = $path_file1;
                     }
                 }else{
@@ -276,7 +276,7 @@ class ReportController extends Controller {
                         $path_file404 = '/404/img404.jpg';
                         $filerep2 = $path_file404;
                     }else{
-                        $path_file2 = '/report_protokol/'.$rep->ts_file2;
+                        $path_file2 = '/report_protokol/'.$rep->tr_tl_file2;
                         $filerep2 = $path_file2;
                     }
                 }else{
@@ -299,8 +299,8 @@ class ReportController extends Controller {
                     "status" => $rep->status,
                     "penanggungjawab" => $rep->tr_penanggungjawab,
                     "close" => $rep->tr_close,
-                    "img_tl_1" => $img_tl_1,
-                    "img_tl_2" => $img_tl_2
+                    "img_tl_1" => $filerep1,
+                    "img_tl_2" => $filerep2
                 );
             }
         }else{
