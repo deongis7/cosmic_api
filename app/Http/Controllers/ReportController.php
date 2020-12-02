@@ -241,7 +241,12 @@ class ReportController extends Controller {
     
     public function getDataById($id) {
         $report = DB::select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
-        mpml.mpml_id, mpml.mpml_name
+        mpml.mpml_id, mpml.mpml_name,
+        CASE
+            WHEN (tr.tr_close = 1) THEN 'Selesai diproses'::text
+            ELSE 'Belum diproses'::text
+        END AS status,
+        to_char((tr.tr_date_insert)::timestamp with time zone, 'DD-MM-YYYY hh:mm:ss'::text) AS date_insert
 				FROM transaksi_report tr
 				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
 				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
