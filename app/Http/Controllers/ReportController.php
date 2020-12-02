@@ -13,10 +13,10 @@ class ReportController extends Controller {
     }
     
     public function getDashboardReportBUMN($id){
-        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashreportbumn_head_".$id, 15 * 60, function()use($id) {
+        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashreportbumn_head_".$id, 15 * 60, function()use($id) {
             $data = array();
             $dashreport_head = DB::select("select * from dashboard_reportcard_bymcid('$id')");
-            
+                
             foreach($dashreport_head as $dh){
                 $data[] = array(
                     "v_id" => $dh->x_id,
@@ -24,9 +24,8 @@ class ReportController extends Controller {
                     "v_jml" => $dh->x_jml
                 );
             }
-            
-        });
-        return response()->json(['status' => 200,'data' => $data]);
+        //});
+            return response()->json(['status' => 200,'data' => $data]);
     }
     
     public function getDataByMcid($id, $page) {
