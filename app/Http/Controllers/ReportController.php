@@ -142,7 +142,7 @@ class ReportController extends Controller {
         if(isset($request->file_report2)){
             if ($request->file_report2 != null || $request->file_report2 != '') {
                 if($filex2!=NULL && file_exists(storage_path().'/app/public/report_protokol/' .$filex2)){
-                    unlink(storage_path().'/app/public/report_protokol/'.$filex1);
+                    unlink(storage_path().'/app/public/report_protokol/'.$filex2);
                 }
                 
                 $img2 = explode(',', $r_file2);
