@@ -238,4 +238,69 @@ class ReportController extends Controller {
             return response()->json(['status' => 500,'message' => 'Data Report Protokol Gagal diUpdate'])->setStatusCode(500);
         }
     }
+    
+    public function getDataById($id) {
+        $report = DB::select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
+        mpml.mpml_id, mpml.mpml_name
+				FROM transaksi_report tr
+				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
+				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
+				INNER JOIN master_company mc ON mc.mc_id=mpm.mpm_mc_id
+				INNER JOIN master_sektor ms ON ms.ms_id=mc.mc_msc_id
+				WHERE mc.mc_level = 1
+				AND ms.ms_type = 'CCOVID'
+				AND tr.tr_id=$id
+    	        ORDER BY tr_id DESC");
+        
+        if(count($report) > 0) {
+            foreach($report as $rep){
+                if($rep->tr_tl_file1 !=NULL || $rep->tr_tl_file1 !=''){
+                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->tr_tl_file1))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filerep1 = $path_file404;
+                    }else{
+                        $path_file1 = '/report_protokol/'.$rep->ts_file1;
+                        $filerep1 = $path_file1;
+                    }
+                }else{
+                    $filerep1 = '/404/img404.jpg';
+                }
+                
+                if($rep->tr_tl_file2 !=NULL || $rep->tr_tl_file2 !=''){
+                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->tr_tl_file2))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filerep2 = $path_file404;
+                    }else{
+                        $path_file2 = '/report_protokol/'.$rep->ts_file2;
+                        $filerep2 = $path_file2;
+                    }
+                }else{
+                    $filerep2 = '/404/img404.jpg';
+                }
+                
+                if(($filerep1==NULL && $filerep2==NULL) || ($filerep1=='' && $filerep2=='')){
+                    $flag_foto = false;
+                }else{
+                    $flag_foto = true;
+                }
+                
+                $data = array(
+                    "id" => $rep->tr_id,
+                    "laporan" => $rep->tr_laporan,
+                    "no_laporan" => $rep->tr_no,
+                    "perimeter" => $rep->mpm_name,
+                    "perimeter_level" => $rep->mpml_name,
+                    "tgl_lapor" => $rep->date_insert,
+                    "status" => $rep->status,
+                    "penanggungjawab" => $rep->tr_penanggungjawab,
+                    "close" => $rep->tr_close,
+                    "img_tl_1" => $img_tl_1,
+                    "img_tl_2" => $img_tl_2
+                );
+            }
+        }else{
+            $data = array();
+        }
+        return response()->json(['status' => 200,'data' => $data]);
+    }
 }
