@@ -110,7 +110,7 @@ class ReportController extends Controller {
         ]);
 
         $r_kd_perusahaan = $request->kd_perusahaan;
-        $checklist_dampak = $request->checklist_dampak;
+        $ceklis = $request->ceklis;
         
         $r_file1 = $request->file_report1;
         $r_file2 = $request->file_report2;
@@ -163,9 +163,9 @@ class ReportController extends Controller {
         $dataReport->tr_mc_id = $kd_perusahaan;
         $dataReport->tr_tl_file1 = $name1;
         $dataReport->tr_tl_file2 = $name2;
-        $dataReport->ts_checklist_dampak = $checklist_dampak;
-        $dataReport->ts_date_update = date('Y-m-d H:i:s');
-        $dataReport->ts_user_update = $user_id;
+        $dataReport->tr_close = $ceklis;
+        $dataReport->tr_date_update = date('Y-m-d H:i:s');
+        $dataReport->tr_user_update = $user_id;
         $dataReport->save();
         
         if($dataSosialisasi->save()) {
