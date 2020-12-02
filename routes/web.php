@@ -233,7 +233,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     
     
     // Report Protokol
-    $router->get('/dashreport/dashreport_bumn/{id}', 'ReportController@getDashboardReportBUMN');
+    $router->get('/dashreport/dashreport_bymcid/{id}', 'ReportController@getDashboardReportByMcid');
     
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
