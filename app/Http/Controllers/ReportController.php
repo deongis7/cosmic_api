@@ -103,7 +103,7 @@ class ReportController extends Controller {
             'week' => $week, 'data' => $data]);
     }
     
-    public function WebupdatereportJSON($user_id, $id, Request $request) {
+    public function WebUpdateReportJSON($user_id, $id, Request $request) {
         date_default_timezone_set('Asia/Jakarta');
         $ceklis = $request->ceklis;
         $r_file1 = $request->file_report1;
@@ -160,6 +160,72 @@ class ReportController extends Controller {
         $dataReport->tr_close = $ceklis;
         $dataReport->tr_date_update = date('Y-m-d H:i:s');
         $dataReport->tr_user_update = $user_id;
+        $dataReport->save();
+        
+        if($dataReport->save()) {
+            return response()->json(['status' => 200,'message' => 'Data Report Protokol Berhasil diUpdate']);
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Report Protokol Gagal diUpdate'])->setStatusCode(500);
+        }
+    }
+    
+    public function updateReportJSON($id, Request $request) {
+        date_default_timezone_set('Asia/Jakarta');
+        $ceklis = $request->ceklis;
+        $r_file1 = $request->file_report1;
+        $r_file2 = $request->file_report2;
+        
+        $dataReport = Report::find($id);
+        $filex1 = $dataReport->tr_tl_file1;
+        $filex2 = $dataReport->tr_tl_file2;
+        
+        if(!Storage::exists('/app/public/report_protokol/')) {
+            Storage::disk('public')->makeDirectory('/report_protokol/');
+        }
+        
+        $destinationPath = storage_path().'/app/public/report_protokol/';
+        
+        $name1 = $filex1;
+        if(isset($request->file_report1)){
+            if ($request->file_report1 != null || $request->file_report1 != '') {
+                if($filex1!=NULL && file_exists(storage_path().'/app/public/report_protokol/' .$filex1)){
+                    unlink(storage_path().'/app/public/report_protokol/'.$filex1);
+                }
+                
+                $img1 = explode(',', $r_file1);
+                $image1 = $img1[1];
+                $filedecode1 = base64_decode($image1);
+                $name1 = round(microtime(true) * 1000).'.jpg';
+                
+                Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($destinationPath.'/'.$name1);
+            }
+        }
+        
+        $name2 = $filex2;
+        if(isset($request->file_report2)){
+            if ($request->file_report2 != null || $request->file_report2 != '') {
+                if($filex2!=NULL && file_exists(storage_path().'/app/public/report_protokol/' .$filex2)){
+                    unlink(storage_path().'/app/public/report_protokol/'.$filex1);
+                }
+                
+                $img2 = explode(',', $r_file2);
+                $image2 = $img2[1];
+                $filedecode2 = base64_decode($image2);
+                $name2 = round(microtime(true) * 1000).'.jpg';
+                
+                Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save($destinationPath.'/'.$name2);
+            }
+        }
+        
+        $dataReport->tr_tl_file1 = $name1;
+        $dataReport->tr_tl_file2 = $name2;
+        $dataReport->tr_close = $ceklis;
+        $dataReport->tr_date_update = date('Y-m-d H:i:s');
+        $dataReport->tr_user_update = Auth::guard('api')->user()->id;
         $dataReport->save();
         
         if($dataReport->save()) {
