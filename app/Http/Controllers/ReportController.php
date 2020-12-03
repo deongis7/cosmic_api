@@ -65,11 +65,11 @@ class ReportController extends Controller {
         if (count($report) > 0){
             foreach($report as $rep){
                 if($rep->tr_file1 !=NULL || $rep->tr_file1 !=''){
-                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->tr_file1))) {
+                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->mc_id."/".$rep->mpml_id."/".$rep->tr_file1))) {
                         $path_file404 = '/404/img404.jpg';
                         $filerep1 = $path_file404;
                     }else{
-                        $path_file1 = '/report_protokol/'.$rep->tr_file1;
+                        $path_file1 = '/report_protokol/'.$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_file1;
                         $filerep1 = $path_file1;
                     }
                 }else{
@@ -77,23 +77,48 @@ class ReportController extends Controller {
                 }
                 
                 if($rep->tr_file2 !=NULL || $rep->tr_file2 !=''){
-                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->tr_file2))) {
+                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->mc_id."/".$rep->mpml_id."/".$rep->tr_file2))) {
                         $path_file404 = '/404/img404.jpg';
-                        $filesos2 = $path_file404;
-                        $filesos2_tumb = $path_file404;
+                        $filerep2 = $path_file404;
                     }else{
-                        $path_file2 = '/report_protokol/'.$rep->tr_file2;
+                        $path_file2 = '/report_protokol/'.$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_file2;
                         $filerep2 = $path_file2;
                     }
                 }else{
                     $filerep2 = '/404/img404.jpg';
                 }
                 
+                if($rep->tr_tl_file1 !=NULL || $rep->tr_tl_file1 !=''){
+                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->mc_id."/".$rep->mpml_id."/".$rep->tr_tl_file1))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filerep_tl1 = $path_file404;
+                    }else{
+                        $path_file1 = '/report_protokol/'.$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_tl_file1;
+                        $filerep_tl1 = $path_file1;
+                    }
+                }else{
+                    $filerep_tl1 = '/404/img404.jpg';
+                }
+                
+                if($rep->tr_tl_file2 !=NULL || $rep->tr_tl_file2 !=''){
+                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->mc_id."/".$rep->mpml_id."/".$rep->tr_tl_file2))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filerep_tl2 = $path_file404;
+                    }else{
+                        $path_file2 = '/report_protokol/'.$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_tl_file2;
+                        $filerep_tl2 = $path_file2;
+                    }
+                }else{
+                    $filerep_tl2 = '/404/img404.jpg';
+                }
+                
                 $data[] = array(
                     "id" => $sos->ts_id,
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
-                    "file_1" => $filesos1,
-                    "file_2" => $filesos2,
+                    "file_1" => $filerep1,
+                    "file_2" => $filerep2,
+                    "file_tl_1" => $filerep_tl1,
+                    "file_tl_2" => $filerep_tl2,
                 );
             }
         }else{
@@ -114,17 +139,38 @@ class ReportController extends Controller {
         $filex1 = $dataReport->tr_tl_file1;
         $filex2 = $dataReport->tr_tl_file2;
         
+        $report_data = DB::select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
+        mpml.mpml_id, mpml.mpml_name
+				FROM transaksi_report tr
+				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
+				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
+				INNER JOIN master_company mc ON mc.mc_id=mpm.mpm_mc_id
+				INNER JOIN master_sektor ms ON ms.ms_id=mc.mc_msc_id
+				WHERE mc.mc_level = 1 
+				AND ms.ms_type = 'CCOVID' 
+				AND tr.tr_id=$id");
+        $mc_id = $report_data[0]->mc_id;
+        $mpml_id = $report_data[0]->mpml_id;
+        
         if(!Storage::exists('/app/public/report_protokol/')) {
             Storage::disk('public')->makeDirectory('/report_protokol/');
         }
         
-        $destinationPath = storage_path().'/app/public/report_protokol/';
+        if(!Storage::exists('/app/public/report_protokol/'.$mc_id)) {
+            Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id);
+        }
+        
+        if(!Storage::exists('/app/public/report_protokol/'.$mc_id.'/'.$mpml_id)) {
+            Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id.'/'.$mpml_id);
+        }
+        
+        $destinationPath = storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id;
         
         $name1 = $filex1;
         if(isset($request->file_report1)){
             if ($request->file_report1 != null || $request->file_report1 != '') {
-                if($filex1!=NULL && file_exists(storage_path().'/app/public/report_protokol/' .$filex1)){
-                    unlink(storage_path().'/app/public/report_protokol/'.$filex1);
+                if($filex1!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex1)){
+                    unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex1);
                 }
     
                 $img1 = explode(',', $r_file1);
@@ -141,8 +187,8 @@ class ReportController extends Controller {
         $name2 = $filex2;
         if(isset($request->file_report2)){
             if ($request->file_report2 != null || $request->file_report2 != '') {
-                if($filex2!=NULL && file_exists(storage_path().'/app/public/report_protokol/' .$filex2)){
-                    unlink(storage_path().'/app/public/report_protokol/'.$filex2);
+                if($filex2!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex2)){
+                    unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex2);
                 }
                 
                 $img2 = explode(',', $r_file2);
@@ -186,13 +232,21 @@ class ReportController extends Controller {
             Storage::disk('public')->makeDirectory('/report_protokol/');
         }
         
-        $destinationPath = storage_path().'/app/public/report_protokol/';
+        if(!Storage::exists('/app/public/report_protokol/'.$mc_id)) {
+            Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id);
+        }
+        
+        if(!Storage::exists('/app/public/report_protokol/'.$mc_id.'/'.$mpml_id)) {
+            Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id.'/'.$mpml_id);
+        }
+        
+        $destinationPath = storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id;
         
         $name1 = $filex1;
         if(isset($request->file_report1)){
             if ($request->file_report1 != null || $request->file_report1 != '') {
-                if($filex1!=NULL && file_exists(storage_path().'/app/public/report_protokol/' .$filex1)){
-                    unlink(storage_path().'/app/public/report_protokol/'.$filex1);
+                if($filex1!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex1)){
+                    unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex1);
                 }
                 
                 $img1 = explode(',', $r_file1);
@@ -209,8 +263,8 @@ class ReportController extends Controller {
         $name2 = $filex2;
         if(isset($request->file_report2)){
             if ($request->file_report2 != null || $request->file_report2 != '') {
-                if($filex2!=NULL && file_exists(storage_path().'/app/public/report_protokol/' .$filex2)){
-                    unlink(storage_path().'/app/public/report_protokol/'.$filex1);
+                if($filex2!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex2)){
+                    unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex2);
                 }
                 
                 $img2 = explode(',', $r_file2);
@@ -260,11 +314,11 @@ class ReportController extends Controller {
         if(count($report) > 0) {
             foreach($report as $rep){
                 if($rep->tr_tl_file1 !=NULL || $rep->tr_tl_file1 !=''){
-                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->tr_tl_file1))) {
+                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_tl_file1))) {
                         $path_file404 = '/404/img404.jpg';
                         $filerep1 = $path_file404;
                     }else{
-                        $path_file1 = '/report_protokol/'.$rep->tr_tl_file1;
+                        $path_file1 = '/report_protokol/'.$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_tl_file1;
                         $filerep1 = $path_file1;
                     }
                 }else{
@@ -272,11 +326,11 @@ class ReportController extends Controller {
                 }
                 
                 if($rep->tr_tl_file2 !=NULL || $rep->tr_tl_file2 !=''){
-                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->tr_tl_file2))) {
+                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_tl_file2))) {
                         $path_file404 = '/404/img404.jpg';
                         $filerep2 = $path_file404;
                     }else{
-                        $path_file2 = '/report_protokol/'.$rep->tr_tl_file2;
+                        $path_file2 = '/report_protokol/'.$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_tl_file2;
                         $filerep2 = $path_file2;
                     }
                 }else{
