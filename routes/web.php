@@ -117,8 +117,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
 	$router->post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
 	$router->get('/sosialisasi/get_last2/{id}', 'SosialisasiController@getDataLast2ByMcid');
-  $router->get('/sosialisasi/get_perusahaan_all', 'DashboardController@getEventbyPerusahaanAll');
-  $router->get('/sosialisasi/total_perusahaan_all', 'DashboardController@countEventbyPerusahaanAll');
+    $router->get('/sosialisasi/get_perusahaan_all', 'DashboardController@getEventbyPerusahaanAll');
+    $router->get('/sosialisasi/total_perusahaan_all', 'DashboardController@countEventbyPerusahaanAll');
 
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
@@ -231,6 +231,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
     Route::post('/sosialisasi/webupdate_json/{user_id}/{id}', 'SosialisasiController@WebupdateSosialisasiJSON');
     
+    
+    // Report Protokol 
+    $router->get('/dashreport/dashreport_bymcid/{id}', 'ReportController@getDashboardReportByMcid');
+    $router->get('/report/byid/{id}', 'ReportController@getDataByid');
+    //Report Protokol  Web
+    Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
+    
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
 		Route::get('/user/detail', 'UserController@getDetailUser');
@@ -246,5 +253,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 		Route::post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
 		Route::post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
+		Route::post('/report/update_json/{id}', 'ReportController@updateReportJSON');
 	});
 });

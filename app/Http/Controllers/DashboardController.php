@@ -1111,7 +1111,7 @@ class DashboardController extends Controller
     }
 
     public function getPerusahaanbyProvinsiAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perusahaan_byprovinsi_all2", 15 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perusahaan_byprovinsi_all", 5 * 60, function() {
 	        $data = array();
 	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM dashboard_perusahaan_byprovinsi()");
 
@@ -1128,7 +1128,7 @@ class DashboardController extends Controller
 	}
 
 	public function getPerusahaanbyIndustriAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perusahaan_byindustri_all2", 15 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perusahaan_byindustri_all", 5 * 60, function() {
 	        $data = array();
 	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM dashboard_perusahaan_byindustri()");
 
