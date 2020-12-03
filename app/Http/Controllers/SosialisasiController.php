@@ -12,7 +12,12 @@ class SosialisasiController extends Controller {
     public function __construct() {
     }
 
-    public function getDataByMcid($id, $page) {
+    public function getDataByMcid($id, $page,Request $request) {
+      $search = null;
+      if(isset($request->search)){
+        $search=$request->search;
+      }
+
         $sosialisasiweek = DB::select("SELECT ts.ts_id, ts.ts_mc_id, ts.ts_nama_kegiatan, ts.ts_tanggal,
                 ts.ts_mslk_id,  mslk.mslk_name, ts.ts_deskripsi, ts.ts_file1, ts.ts_file1_tumb, ts.ts_file2, ts.ts_file2_tumb,
                 ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
@@ -30,23 +35,28 @@ class SosialisasiController extends Controller {
 
         $row = 10;
         $pageq = $page*$row;
-
-        $sosialisasiall = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
+        $param[] = $id;
+        $string = "SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
                 ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb,
                 ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
-                WHERE ts_mc_id='$id'
-    	        ORDER BY ts_tanggal DESC");
+                WHERE ts_mc_id= ?";
+        if(isset($search)) {
+            $string = $string ." and (lower(TRIM(ts_nama_kegiatan)) like ? or lower(TRIM(ts_deskripsi)) like ? ) ";
+            $param[] ="%".strtolower(trim($search))."%";
+            $param[] ="%".strtolower(trim($search))."%";
+        }
+        $string = $string ." ORDER BY ts_tanggal DESC ";
 
-        $sosialisasi = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
-               ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb,
-               ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
-                FROM transaksi_sosialisasi ts
-                LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
-                WHERE ts_mc_id='$id'
-    	        ORDER BY ts_tanggal DESC
-                OFFSET $pageq LIMIT $row");
+        //get all
+        $sosialisasiall = DB::select($string,$param);
+        //dd($sosialisasiall);
+        //page limit
+        $string = $string ." OFFSET ? LIMIT ? ";
+        $param[] =$pageq;
+        $param[] =$row;
+        $sosialisasi = DB::select($string,$param);
 
         $cntsosialisasiall = count($sosialisasiall);
         $pageend = ceil($cntsosialisasiall/$row);
