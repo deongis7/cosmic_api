@@ -409,10 +409,25 @@ class DashboardController extends Controller
 	}
 
 
-	public function getDashboardHead(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmin_head", 15 * 60, function() {
+	public function getDashboardHead(Request $request){
+    $group_company = null;
+    $string ="_get_dashmin_head";
+    if(isset($request->group_company)){
+      $group_company = $request->group_company;
+      $string = $string ."_group_company_".$group_company;
+    }
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 15 * 60, function() use ($group_company){
 	        $data = array();
-	        $dashboard_head = DB::select("SELECT * FROM dashboard_head()");
+          if(isset($group_company)){
+            if($group_company==2){
+              $dashboard_string = "SELECT * FROM dashboard_head_nonbumn()";
+            } else {
+                $dashboard_string = "SELECT * FROM dashboard_head()";
+            }
+          } else {
+              $dashboard_string = "SELECT * FROM dashboard_head_semua()";
+          }
+	        $dashboard_head = DB::select($dashboard_string);
 
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
@@ -1215,15 +1230,15 @@ class DashboardController extends Controller
           });
               return response()->json( $datacache);
       }
-      
+
       public function getRangkumanAll(){
           $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_rangkuman_all", 120 * 60, function() {
               $data = array();
-              $rangkuman_all = DB::select("SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index, 
-                cosmic_index_min1, positif, suspek, kontakerat, selesai, 
-                meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now 
+              $rangkuman_all = DB::select("SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index,
+                cosmic_index_min1, positif, suspek, kontakerat, selesai,
+                meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now
                 FROM mv_rangkuman_all");
-              
+
               foreach($rangkuman_all as $ra){
                   $data[] = array(
                       "nama_sektor" => $ra->ms_name,
