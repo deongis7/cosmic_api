@@ -19,9 +19,9 @@ class ReportController extends Controller {
 
         foreach($dashreportcard_head as $dh){
             $data[] = array(
-                "v_id" => $dh->x_id,
-                "v_judul" => $dh->x_judul,
-                "v_jml" => $dh->x_jml
+                "v_id" => $dh->v_id,
+                "v_judul" => $dh->v_judul,
+                "v_jml" => $dh->v_jml
             );
         }
         //});
