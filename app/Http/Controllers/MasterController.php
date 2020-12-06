@@ -188,6 +188,7 @@ class MasterController extends Controller
         }
         $company->mc_foto = $name1;
         $company->save();
+        //$company=Company::update(['mc_id'=> $kd_perusahaan],['mc_foto'=>$name1,'mc_date_update'=> (Carbon::now()->format('Y-m-d h:m:s'))]);
 
         if($company) {
             return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
