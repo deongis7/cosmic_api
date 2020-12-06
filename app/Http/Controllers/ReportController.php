@@ -12,10 +12,44 @@ class ReportController extends Controller {
     public function __construct() {
     }
     
-    public function getDashboardReportByMcid($id){
+    public function getDashReportCardByJns($id){
+        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_report_dashboardall_card_byjns_".$id, 15 * 60, function()use($id) {
+        $data = array();
+        $dashreportcard_head = DB::select("select * from report_dashboardall_card_byjns('$id')");
+
+        foreach($dashreportcard_head as $dh){
+            $data[] = array(
+                "v_id" => $dh->x_id,
+                "v_judul" => $dh->x_judul,
+                "v_jml" => $dh->x_jml
+            );
+        }
+        //});
+        return response()->json(['status' => 200,'data' => $data]);
+    }
+    
+    public function getDashReportByJns($id){
+         //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_report_dashboardall_byjns_".$id, 15 * 60, function()use($id) {
+        $data = array();
+        $dashreportcard_head = DB::select("select * from report_dashboardall_byjns('$id')");
+        
+        foreach($dashreportcard_head as $dh){
+            $data[] = array(
+                "v_mc_id" => $dh->v_mc_id,
+                "v_mc_name" => $dh->v_mc_name,
+                "v_jml_1" => $dh->v_jml_1,
+                "v_jml_2" => $dh->v_jml_2,
+                "v_jml_3" => $dh->v_jml_3
+            );
+        }
+        //});
+        return response()->json(['status' => 200,'data' => $data]);
+    }
+    
+    public function getDashReportCardByMcid($id){
         //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashreportbumn_head_".$id, 15 * 60, function()use($id) {
             $data = array();
-            $dashreport_head = DB::select("select * from dashboard_reportcard_bymcid('$id')");
+            $dashreport_head = DB::select("select * from report_dashboardcard_bymcid('$id')");
                 
             foreach($dashreport_head as $dh){
                 $data[] = array(
