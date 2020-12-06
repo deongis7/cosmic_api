@@ -18,6 +18,8 @@ use Validator;
 use DB;
 use Illuminate\Support\Facades\Storage;
 
+use Intervention\Image\ImageManagerStatic as Image;
+
 class UserController extends Controller
 {
     /**
@@ -223,5 +225,50 @@ class UserController extends Controller
         }
     }
 
+    //Upload Foto
+    public function uploadFotoProfile(Request $request){
+        $this->validate($request, [
+            'file_foto' => 'required',
+        ]);
+        $id = Auth::guard('api')->user()->id;
 
+        $user = User::where('id','=',$id)->first();
+        if($user==null){
+            return response()->json(['status' => 404,'message' => 'Data User Tidak Ditemukan'])->setStatusCode(404);
+        }
+
+        $file = $request->file_foto;
+
+
+
+
+        if(!Storage::exists('/public/profile')) {
+            Storage::disk('public')->makeDirectory('/profile');
+        }
+
+        //$destinationPath = base_path("storage\app\public\aktifitas/").$kd_perusahaan.'/'.$tanggal;
+        $destinationPath = storage_path().'/app/public/profile';
+        $name1 = round(microtime(true) * 1000).'.jpg';
+
+
+        if ($file != null || $file != '') {
+            $img1 = explode(',', $file);
+            $image1 = $img1[1];
+            $filedecode1 = base64_decode($image1);
+
+
+            Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($destinationPath.'/'.$name1);
+
+        }
+        $user->foto = $name1;
+        $user->save();
+
+        if($user) {
+            return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+        }
+    }
 }

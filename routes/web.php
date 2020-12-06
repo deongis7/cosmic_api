@@ -164,10 +164,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Alert
 	$router->get('/dashboard/alert_week_bymcid/{id}', 'DashboardController@getAlertWeek_byMcid');
 
-	
+
 	//rangkuman_all
 	$router->get('/dashboard/rangkuman_all', 'DashboardController@getRangkumanAll');
-	
+
 	//Dashboard
 	$router->get('/dashboard/cosmicindex', 'DashboardController@getCosmicIndexAll');
 	$router->get('/dashboard/perimeter_bykategori_all', 'DashboardController@getPerimeterbyKategoriAll');
@@ -230,14 +230,14 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //Sosialisasi Web
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
     Route::post('/sosialisasi/webupdate_json/{user_id}/{id}', 'SosialisasiController@WebupdateSosialisasiJSON');
-    
-    
-    // Report Protokol 
+
+
+    // Report Protokol
     $router->get('/dashreport/dashreport_bymcid/{id}', 'ReportController@getDashboardReportByMcid');
     $router->get('/report/byid/{id}', 'ReportController@getDataByid');
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
-    
+
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
 		Route::get('/user/detail', 'UserController@getDetailUser');
@@ -245,6 +245,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::post('/user/change_password', 'UserController@change_password');
 		Route::post('/user/logout', 'UserController@logout');
 		Route::post('/user/detail_first/{id}', 'UserController@updateFirstDetailUser');
+		Route::post('/user/upload_foto_profile', 'UserController@uploadFotoProfile');
 
 		//Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
 		Route::post('/terpapar/update/{id}', 'TerpaparController@UpdateKasus');
