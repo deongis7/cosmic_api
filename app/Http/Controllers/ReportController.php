@@ -339,9 +339,6 @@ class ReportController extends Controller {
 				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
 				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
 				INNER JOIN master_company mc ON mc.mc_id=mpm.mpm_mc_id
-				INNER JOIN master_sektor ms ON ms.ms_id=mc.mc_msc_id
-				WHERE mc.mc_level = 1
-				AND ms.ms_type = 'CCOVID'
 				AND tr.tr_id=$id
     	        ORDER BY tr_id DESC");
         
