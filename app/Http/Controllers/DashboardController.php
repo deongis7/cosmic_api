@@ -62,6 +62,7 @@ class DashboardController extends Controller
     $page = null;
     $endpage = 1;
     $search = null;
+    $group_company = null;
     $str = "_get_perimeter_bykategori_allx";
     if(isset($request->limit)){
         $str = $str.'_limit_'. $request->limit;
@@ -71,14 +72,27 @@ class DashboardController extends Controller
             $page=$request->page;
         }
     }
+    if(isset($request->group_company)){
+      $group_company = $request->group_company;
+      $str = $str ."_group_company_".$group_company;
+    }
     if(isset($request->search)){
         $str = $str.'_searh_'. str_replace(' ','_',$request->search);
         $search=$request->search;
     }
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$group_company){
 	        $data = array();
-
-          $string ="SELECT * FROM dashboard_perimeter_bykategori()";
+          //Filter by GroupCompany
+          if(isset($request->group_company)){
+            if($request->group_company==2){
+              $string ="SELECT * FROM dashboard_perimeter_bykategori_nonbumn()";
+            } else {
+              $string ="SELECT * FROM dashboard_perimeter_bykategori()";
+            }
+          } else {
+            $string ="SELECT * FROM dashboard_perimeter_bykategori_semua()";
+          }
+          //$string ="SELECT * FROM dashboard_perimeter_bykategori()";
           if(isset($search)) {
               $string = $string . " where lower(TRIM(v_judul)) like '%".strtolower(trim($search))."%' ";
           }
@@ -391,10 +405,28 @@ class DashboardController extends Controller
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 
-	public function getPerimeterbyProvinsiAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_byprovinsi_all3", 15 * 60, function() {
+	public function getPerimeterbyProvinsiAll(Request $request){
+    $group_company = null;
+
+    $string ="_get_perimeter_byprovinsi_all3";
+    if(isset($request->group_company)){
+      $group_company = $request->group_company;
+      $string = $string ."_group_company_".$group_company;
+    }
+      //dd($group_company);
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 15 * 60, function() use ($group_company){
 	        $data = array();
-	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM dashboard_perimeter_byprovinsi()");
+          if(isset($group_company)){
+            if($group_company==2){
+              $dashboard_string = "SELECT * FROM dashboard_perimeter_byprovinsi_nonbumn()";
+            } else {
+                $dashboard_string = "SELECT * FROM dashboard_perimeter_byprovinsi()";
+            }
+          } else {
+              $dashboard_string = "SELECT * FROM dashboard_perimeter_byprovinsi_semua()";
+          }
+          //dd($dashboard_string);
+	        $perimeter_byprovinsi_all = DB::select($dashboard_string);
 
 	        foreach($perimeter_byprovinsi_all as $ppa){
 	            $data[] = array(
@@ -565,7 +597,15 @@ class DashboardController extends Controller
 	}
 
     public function getCosmicIndexReport(Request $request){
+
         $str = 'get_cosmic_index_report';
+        $group_company = null;
+
+        if(isset($request->group_company)){
+          $group_company = $request->group_company;
+          $str = $str ."_group_company_".$group_company;
+        }
+
         if(isset($request->date)){
             $strdate =  Carbon::parse($request->date);
             //  dd($date);
@@ -579,7 +619,7 @@ class DashboardController extends Controller
             $str = $str."_".$startdate."_".$enddate;
         }
 
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate) {
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate,$group_company) {
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdatenow = $weeks['startweek'];
@@ -588,6 +628,8 @@ class DashboardController extends Controller
             $week = $startdate ."-".$enddate;
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
+
+
             if ($week==$weeknow){
               //  $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
 
@@ -605,8 +647,17 @@ class DashboardController extends Controller
                         a.v_pemenuhan_ceklist_monitoring,
                         a.v_pemenuhan_eviden
                         FROM mv_cosmic_index_report a
-
                         ";
+                    if(isset($group_company)){
+                          if($group_company==2){
+                            $cc_string = " where a.v_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=2) ";
+                          } else {
+                              $cc_string = " where a.v_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=1) ";
+                          }
+                        } else {
+                            $cc_string = "";
+                        }
+                    $sql =$sql.$cc_string;
                     //echo $sql;die;
                     $result = DB::select($sql);
                     //dd($result);
@@ -626,10 +677,22 @@ class DashboardController extends Controller
                   //  }
                 }
             } else {
-                $rpi = DB::select("SELECT *
-                        FROM report_cosmic_index rpi
-                        WHERE rci_week = ?
-                        ORDER BY rci_mc_name",[(string)$week]);
+              $str_rpi ="SELECT *
+                      FROM report_cosmic_index rpi
+                      WHERE rci_week = ?";
+
+              if(isset($group_company)){
+                    if($group_company==2){
+                      $cc_string = " and rci_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=2) ";
+                    } else {
+                        $cc_string = " and rci_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=1) ";
+                    }
+                  } else {
+                      $cc_string = "";
+                  }
+              $str_rpi =$str_rpi.$cc_string." ORDER BY rci_mc_name";
+
+                $rpi = DB::select($str_rpi,[(string)$week]);
 
                 foreach($rpi as $itemrpi){
                     $data[] = array(
