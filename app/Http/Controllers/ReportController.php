@@ -93,7 +93,7 @@ class ReportController extends Controller {
             'tr_no', 'tr_penanggungjawab', 'tr_close',  'tr_date_insert',
             'mc.mc_id', 'mc.mc_name', 
             'mpm.mpm_id', 'mpm.mpm_name', 'mpml.mpml_id', 'mpml.mpml_name',
-            DB::raw(" to_char((tr_date_insert)::timestamp with time zone, 'DD-MM-YYYY hh:mm:ss'::text) AS date_insert"),
+            DB::raw(" to_char((tr_date_insert)::timestamp with time zone, 'DD/MM/YYYY'::text) AS date_insert"),
             DB::raw("CASE WHEN (tr_close = 1) THEN 'Selesai diproses'::text ELSE 'Belum diproses'::text END AS status")
          )
          ->join('master_perimeter_level AS mpml','mpml.mpml_id','tr_mpml_id')
@@ -375,7 +375,7 @@ class ReportController extends Controller {
             WHEN (tr.tr_close = 1) THEN 'Selesai diproses'::text
             ELSE 'Belum diproses'::text
         END AS status,
-        to_char((tr.tr_date_insert)::timestamp with time zone, 'DD-MM-YYYY hh:mm:ss'::text) AS date_insert
+        to_char((tr.tr_date_insert)::timestamp with time zone, 'DD/MM/YYYY'::text) AS date_insert
 				FROM transaksi_report tr
 				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
 				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
