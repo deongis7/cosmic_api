@@ -235,9 +235,11 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     // Report Protokol
     $router->get('/dashreport/all_card_byjns/{id}', 'ReportController@getDashReportCardByJns');
     $router->get('/dashreport/all_byjns/{id}', 'ReportController@getDashReportByJns');
+    $router->get('/dashreport/all_byjnsmcid/{id}', 'ReportController@getDashReportByJnsMCid');
     
     $router->get('/dashreport/card_bymcid/{id}', 'ReportController@getDashReportCardByMcid');
     $router->get('/report/byid/{id}', 'ReportController@getDataByid');
+    $router->get('/report/bymcid/{id}', 'ReportController@getDataByMcid');
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
 

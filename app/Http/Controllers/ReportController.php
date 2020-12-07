@@ -46,6 +46,24 @@ class ReportController extends Controller {
         return response()->json(['status' => 200,'data' => $data]);
     }
     
+    public function getDashReportByJnsMCid($id,$mc_id){
+        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_report_dashboardall_byjnsmcid_".$id.'_'.$mc_id, 15 * 60, function()use($id) {
+        $data = array();
+        $dashreportcard_head = DB::select("SELECT * FROM report_dashboardall_byjns('$id') WHERE v_mc_id='$mc_id'");
+        
+        foreach($dashreportcard_head as $dh){
+            $data[] = array(
+                "v_mc_id" => $dh->v_mc_id,
+                "v_mc_name" => $dh->v_mc_name,
+                "v_jml_1" => $dh->v_jml_1,
+                "v_jml_2" => $dh->v_jml_2,
+                "v_jml_3" => $dh->v_jml_3
+            );
+        }
+        //});
+        return response()->json(['status' => 200,'data' => $data]);
+    }
+    
     public function getDashReportCardByMcid($id){
         //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashreportbumn_head_".$id, 15 * 60, function()use($id) {
             $data = array();
@@ -62,39 +80,54 @@ class ReportController extends Controller {
             return response()->json(['status' => 200,'data' => $data]);
     }
     
-    public function getDataByMcid($id, $page) {
-        if($page > 0){   $page=$page-1; }else{ $page=0; }
+    public function getDataByMcid($id, Request $request) {
+        $limit = null;
+        $page = null;
+        $search = null;
+        $endpage = 1;
+      
+        $report = new Report();
+        $report->setConnection('pgsql2');
+        $report = $report->select('tr_id', 'tr_mpml_id', 'tr_laporan', 
+            'tr_file1', 'tr_file2', 'tr_tl_file1',  'tr_tl_file2',
+            'tr_no', 'tr_penanggungjawab', 'tr_close',  'tr_date_insert',
+            'mc.mc_id', 'mc.mc_name', 
+            'mpm.mpm_id', 'mpm.mpm_name', 'mpml.mpml_id', 'mpml.mpml_name',
+            DB::raw(" to_char((tr_date_insert)::timestamp with time zone, 'DD-MM-YYYY hh:mm:ss'::text) AS date_insert"),
+            DB::raw("CASE WHEN (tr_close = 1) THEN 'Selesai diproses'::text ELSE 'Belum diproses'::text END AS status")
+         )
+         ->join('master_perimeter_level AS mpml','mpml.mpml_id','tr_mpml_id')
+         ->join('master_perimeter AS mpm','mpm.mpm_id','mpml.mpml_mpm_id')
+         ->join('master_company AS mc','mc.mc_id','mpm.mpm_mc_id')
+         ->where('mc.mc_level', 1);
         
-        $row = 10;
-        $pageq = $page*$row;
-        
-        $reportall = DB::select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
-        mpml.mpml_id, mpml.mpml_name
-				FROM transaksi_report tr
-				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
-				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
-				INNER JOIN master_company mc ON mc.mc_id=mpm.mpm_mc_id
-				INNER JOIN master_sektor ms ON ms.ms_id=mc.mc_msc_id
-				WHERE mc.mc_level = 1 
-				AND ms.ms_type = 'CCOVID' 
-				AND mc.mc_id='$id'
-    	        ORDER BY tr_id DESC");
-        
-        $report = DB::select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
-        mpml.mpml_id, mpml.mpml_name
-				FROM transaksi_report tr
-				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
-				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
-				INNER JOIN master_company mc ON mc.mc_id=mpm.mpm_mc_id
-				INNER JOIN master_sektor ms ON ms.ms_id=mc.mc_msc_id
-				WHERE mc.mc_level = 1 
-				AND ms.ms_type = 'CCOVID' 
-				AND mc.mc_id='$id'
-    	        ORDER BY tr_id DESC
-                OFFSET $pageq LIMIT $row");
-        
-        $cntreportall = count($reportall);
-        $pageend = ceil($reportall/$row);
+         if(isset($request->close)) {
+             if($request->close == 1){
+                 $report = $report->where('tr_close', 1);
+             }else if($request->close == 0){
+                 $report = $report->where('tr_close', 0);
+             }
+         }
+         
+         if(isset($request->search)) {
+             $search = $request->search;
+             $report = $report->where(DB::raw("lower(TRIM(tr_laporan))"),'like','%'.strtolower(trim($search)).'%');
+         }
+         
+         $jmltotal=($report->count());
+         if(isset($request->limit)) {
+             $limit = $request->limit;
+             $report = $report->limit($limit);
+             $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+             
+             if (isset($request->page)) {
+                 $page = $request->page;
+                 $offset = ((int)$page -1) * (int)$limit;
+                 $report = $report->offset($offset);
+             }
+         }
+         $report = $report->get();
+         $totalreport = $report->count();
         
         if (count($report) > 0){
             foreach($report as $rep){
@@ -147,19 +180,27 @@ class ReportController extends Controller {
                 }
                 
                 $data[] = array(
-                    "id" => $sos->ts_id,
-                    "nama_kegiatan" => $sos->ts_nama_kegiatan,
+                    "id" => $rep->tr_id,
+                    "mpml_id" => $rep->tr_mpml_id,
+                    "mpm_id" => $rep->mpm_id,
+                    "mc_id" => $rep->mc_id,
                     "file_1" => $filerep1,
                     "file_2" => $filerep2,
                     "file_tl_1" => $filerep_tl1,
                     "file_tl_2" => $filerep_tl2,
+                    "laporan" => $rep->tr_laporan,
+                    "close" => $rep->tr_close,
+                    "status" => $rep->status,
+                    "no_laporan" => $rep->tr_no,
+                    "penanggungjawab" => $rep->tr_penanggungjawab,
+                    "date_insert" => $rep->date_insert,
                 );
             }
         }else{
             $data = array();
         }
-        return response()->json(['status' => 200, 'page_end'=> $pageend,
-            'week' => $week, 'data' => $data]);
+        return response()->json(['status' => 200, 'page_end'=> $endpage,
+             'data' => $data]);
     }
     
     public function WebUpdateReportJSON($user_id, $id, Request $request) {
@@ -344,28 +385,52 @@ class ReportController extends Controller {
         
         if(count($report) > 0) {
             foreach($report as $rep){
-                if($rep->tr_tl_file1 !=NULL || $rep->tr_tl_file1 !=''){
-                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_tl_file1))) {
+                if($rep->tr_file1 !=NULL || $rep->tr_file1 !=''){
+                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->mc_id."/".$rep->mpml_id."/".$rep->tr_file1))) {
                         $path_file404 = '/404/img404.jpg';
                         $filerep1 = $path_file404;
                     }else{
-                        $path_file1 = '/report_protokol/'.$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_tl_file1;
+                        $path_file1 = '/report_protokol/'.$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_file1;
                         $filerep1 = $path_file1;
                     }
                 }else{
                     $filerep1 = '/404/img404.jpg';
                 }
                 
-                if($rep->tr_tl_file2 !=NULL || $rep->tr_tl_file2 !=''){
-                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_tl_file2))) {
+                if($rep->tr_file2 !=NULL || $rep->tr_file2 !=''){
+                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->mc_id."/".$rep->mpml_id."/".$rep->tr_file2))) {
                         $path_file404 = '/404/img404.jpg';
                         $filerep2 = $path_file404;
                     }else{
-                        $path_file2 = '/report_protokol/'.$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_tl_file2;
+                        $path_file2 = '/report_protokol/'.$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_file2;
                         $filerep2 = $path_file2;
                     }
                 }else{
                     $filerep2 = '/404/img404.jpg';
+                }
+                
+                if($rep->tr_tl_file1 !=NULL || $rep->tr_tl_file1 !=''){
+                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->mc_id."/".$rep->mpml_id."/".$rep->tr_tl_file1))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filerep_tl1 = $path_file404;
+                    }else{
+                        $path_file1 = '/report_protokol/'.$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_tl_file1;
+                        $filerep_tl1 = $path_file1;
+                    }
+                }else{
+                    $filerep_tl1 = '/404/img404.jpg';
+                }
+                
+                if($rep->tr_tl_file2 !=NULL || $rep->tr_tl_file2 !=''){
+                    if (!file_exists(base_path("storage/app/public/report_protokol/".$rep->mc_id."/".$rep->mpml_id."/".$rep->tr_tl_file2))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filerep_tl2 = $path_file404;
+                    }else{
+                        $path_file2 = '/report_protokol/'.$rep->mc_id.'/'.$rep->mpml_id.'/'.$rep->tr_tl_file2;
+                        $filerep_tl2 = $path_file2;
+                    }
+                }else{
+                    $filerep_tl2 = '/404/img404.jpg';
                 }
                 
                 if(($filerep1==NULL && $filerep2==NULL) || ($filerep1=='' && $filerep2=='')){
@@ -376,16 +441,19 @@ class ReportController extends Controller {
                 
                 $data = array(
                     "id" => $rep->tr_id,
+                    "mpml_id" => $rep->tr_mpml_id,
+                    "mpm_id" => $rep->mpm_id,
+                    "mc_id" => $rep->mc_id,
+                    "file_1" => $filerep1,
+                    "file_2" => $filerep2,
+                    "file_tl_1" => $filerep_tl1,
+                    "file_tl_2" => $filerep_tl2,
                     "laporan" => $rep->tr_laporan,
-                    "no_laporan" => $rep->tr_no,
-                    "perimeter" => $rep->mpm_name,
-                    "perimeter_level" => $rep->mpml_name,
-                    "tgl_lapor" => $rep->date_insert,
-                    "status" => $rep->status,
-                    "penanggungjawab" => $rep->tr_penanggungjawab,
                     "close" => $rep->tr_close,
-                    "img_tl_1" => $filerep1,
-                    "img_tl_2" => $filerep2
+                    "status" => $rep->status,
+                    "no_laporan" => $rep->tr_no,
+                    "penanggungjawab" => $rep->tr_penanggungjawab,
+                    "date_insert" => $rep->date_insert,
                 );
             }
         }else{
