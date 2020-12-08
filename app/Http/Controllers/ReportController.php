@@ -182,7 +182,9 @@ class ReportController extends Controller {
                 $data[] = array(
                     "id" => $rep->tr_id,
                     "mpml_id" => $rep->tr_mpml_id,
+                    "mpml_name" => $rep->mpml_name,
                     "mpm_id" => $rep->mpm_id,
+                    "mpm_name" => $rep->mpm_name,
                     "mc_id" => $rep->mc_id,
                     "file_1" => $filerep1,
                     "file_2" => $filerep2,
@@ -442,7 +444,9 @@ class ReportController extends Controller {
                 $data = array(
                     "id" => $rep->tr_id,
                     "mpml_id" => $rep->tr_mpml_id,
+                    "mpml_name" => $rep->mpml_name,
                     "mpm_id" => $rep->mpm_id,
+                    "mpm_name" => $rep->mpm_name,
                     "mc_id" => $rep->mc_id,
                     "file_1" => $filerep1,
                     "file_2" => $filerep2,
