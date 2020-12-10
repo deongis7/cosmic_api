@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManagerStatic as Image;
-use App\Company;
 class ReportController extends Controller {
     
     public function __construct() {
@@ -87,11 +86,20 @@ class ReportController extends Controller {
         $search = null;
         $endpage = 1;
       
-        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_report_dashboardall_byjnsmcid_".$id.'_'.$mc_id, 15 * 60, function()use($id) {
-        $data = array();
-        $dashreport_head = DB::select("SELECT * FROM report_dashboardall_byjns('$id')
-                 WHERE v_mc_id='$mc_id'");
-       
+        $report = new Report();
+        $report->setConnection('pgsql2');
+        $report = $report->select('tr_id', 'tr_mpml_id', 'tr_laporan', 
+            'tr_file1', 'tr_file2', 'tr_tl_file1',  'tr_tl_file2',
+            'tr_no', 'tr_penanggungjawab', 'tr_close',  'tr_date_insert',
+            'mc.mc_id', 'mc.mc_name', 
+            'mpm.mpm_id', 'mpm.mpm_name', 'mpml.mpml_id', 'mpml.mpml_name',
+            DB::raw(" to_char((tr_date_insert)::timestamp with time zone, 'DD/MM/YYYY'::text) AS date_insert"),
+            DB::raw("CASE WHEN (tr_close = 1) THEN 'Selesai diproses'::text ELSE 'Belum diproses'::text END AS status")
+         )
+         ->join('master_perimeter_level AS mpml','mpml.mpml_id','tr_mpml_id')
+         ->join('master_perimeter AS mpm','mpm.mpm_id','mpml.mpml_mpm_id')
+         ->join('master_company AS mc','mc.mc_id','mpm.mpm_mc_id')
+         ->where('mc.mc_level', 1);
         
          if(isset($request->close)) {
              if($request->close == 1){
@@ -214,7 +222,6 @@ class ReportController extends Controller {
 				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
 				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
 				INNER JOIN master_company mc ON mc.mc_id=mpm.mpm_mc_id
-				INNER JOIN master_sektor ms ON ms.ms_id=mc.mc_msc_id
 				AND tr.tr_id=$id");
         $mc_id = $report_data[0]->mc_id;
         $mpml_id = $report_data[0]->mpml_id;
@@ -290,85 +297,91 @@ class ReportController extends Controller {
         $ceklis = $request->ceklis;
         $r_file1 = $request->file_report1;
         $r_file2 = $request->file_report2;
-        
-        $dataReport = Report::find($id);
-        $filex1 = $dataReport->tr_tl_file1;
-        $filex2 = $dataReport->tr_tl_file2;
-        
+
         $report_data = DB::select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
         mpml.mpml_id, mpml.mpml_name
 				FROM transaksi_report tr
 				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
 				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
 				INNER JOIN master_company mc ON mc.mc_id=mpm.mpm_mc_id
-				INNER JOIN master_sektor ms ON ms.ms_id=mc.mc_msc_id
 				AND tr.tr_id=$id");
-        $mc_id = $report_data[0]->mc_id;
-        $mpml_id = $report_data[0]->mpml_id;
-        
-        if(!Storage::exists('/app/public/report_protokol/')) {
-            Storage::disk('public')->makeDirectory('/report_protokol/');
-        }
-        
-        if(!Storage::exists('/app/public/report_protokol/'.$mc_id)) {
-            Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id);
-        }
-        
-        if(!Storage::exists('/app/public/report_protokol/'.$mc_id.'/'.$mpml_id)) {
-            Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id.'/'.$mpml_id);
-        }
-        
-        $destinationPath = storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id;
-        
-        $name1 = $filex1;
-        if(isset($request->file_report1)){
-            if ($request->file_report1 != null || $request->file_report1 != '') {
-                if($filex1!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex1)){
-                    unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex1);
-                }
-                
-                $img1 = explode(',', $r_file1);
-                $image1 = $img1[1];
-                $filedecode1 = base64_decode($image1);
-                $name1 = round(microtime(true) * 1000).'.jpg';
-                
-                Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
-                    $constraint->aspectRatio();
-                })->save($destinationPath.'/'.$name1);
+       
+        if(count($report_data) > 0){
+            $mc_id = $report_data[0]->mc_id;
+            $mpml_id = $report_data[0]->mpml_id;
+            
+            $dataReport = Report::find($id);
+            $filex1 = $dataReport->tr_tl_file1;
+            $filex2 = $dataReport->tr_tl_file2;
+            
+            if(!Storage::exists('/app/public/report_protokol/')) {
+                Storage::disk('public')->makeDirectory('/report_protokol/');
             }
-        }
-        
-        $name2 = $filex2;
-        if(isset($request->file_report2)){
-            if ($request->file_report2 != null || $request->file_report2 != '') {
-                if($filex2!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex2)){
-                    unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex2);
-                }
-                
-                $img2 = explode(',', $r_file2);
-                $image2 = $img2[1];
-                $filedecode2 = base64_decode($image2);
-                $name2 = round(microtime(true) * 1000).'.jpg';
-                
-                Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
-                    $constraint->aspectRatio();
-                })->save($destinationPath.'/'.$name2);
+            
+            if(!Storage::exists('/app/public/report_protokol/'.$mc_id)) {
+                Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id);
             }
+            
+            if(!Storage::exists('/app/public/report_protokol/'.$mc_id.'/'.$mpml_id)) {
+                Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id.'/'.$mpml_id);
+            }
+            
+            $destinationPath = storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id;
+            
+            $name1 = $filex1;
+            if(isset($request->file_report1)){
+                if ($request->file_report1 != null || $request->file_report1 != '') {
+                    if($filex1!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex1)){
+                        unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex1);
+                    }
+                    
+                    $img1 = explode(',', $r_file1);
+                    $image1 = $img1[1];
+                    $filedecode1 = base64_decode($image1);
+                    $name1 = round(microtime(true) * 1000).'.jpg';
+                    
+                    Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save($destinationPath.'/'.$name1);
+                }
+            }
+            
+            $name2 = $filex2;
+            if(isset($request->file_report2)){
+                if ($request->file_report2 != null || $request->file_report2 != '') {
+                    if($filex2!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex2)){
+                        unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex2);
+                    }
+                    
+                    $img2 = explode(',', $r_file2);
+                    $image2 = $img2[1];
+                    $filedecode2 = base64_decode($image2);
+                    $name2 = round(microtime(true) * 1000).'.jpg';
+                    
+                    Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save($destinationPath.'/'.$name2);
+                }
+            }
+            
+            $dataReport->tr_tl_file1 = $name1;
+            $dataReport->tr_tl_file2 = $name2;
+            $dataReport->tr_close = $ceklis;
+            $dataReport->tr_penanggungjawab = $penanggungjawab;
+            $dataReport->tr_date_update = date('Y-m-d H:i:s');
+            $dataReport->tr_user_update = Auth::guard('api')->user()->id;
+            $dataReport->save();
+            
+            
+            if($dataReport->save()) {
+                return response()->json(['status' => 200,'message' => 'Data Report Protokol Berhasil diUpdate']);
+            } else {
+                return response()->json(['status' => 500,'message' => 'Data Report Protokol Gagal diUpdate'])->setStatusCode(500);
+            }
+        }else{
+            return response()->json(['status' => 404,'message' => 'Data Report Protokol Tidak Ditemukan '])->setStatusCode(404);
         }
-        
-        $dataReport->tr_tl_file1 = $name1;
-        $dataReport->tr_tl_file2 = $name2;
-        $dataReport->tr_close = $ceklis;
-        $dataReport->tr_penanggungjawab = $penanggungjawab;
-        $dataReport->tr_date_update = date('Y-m-d H:i:s');
-        $dataReport->tr_user_update = Auth::guard('api')->user()->id;
-        $dataReport->save();
-        
-        if($dataReport->save()) {
-            return response()->json(['status' => 200,'message' => 'Data Report Protokol Berhasil diUpdate']);
-        } else {
-            return response()->json(['status' => 500,'message' => 'Data Report Protokol Gagal diUpdate'])->setStatusCode(500);
-        }
+   
     }
     
     public function getDataById($id) {
@@ -463,29 +476,6 @@ class ReportController extends Controller {
             }
         }else{
             $data = array();
-        }
-        return response()->json(['status' => 200,'data' => $data]);
-    }
-    
-    public function getDashReportMobileByJns($id, Request $request) {
-        $search = null;
-        $data = array();
-        
-        $dashreport_head = DB::select("SELECT * 
-            FROM report_dashboardall_byjns($id) 
-            LOWER(TRIM(v_mc_name)) LIKE LOWER(TRIM('%$request->search%')) 
-            ");
-      
-   
-        
-        foreach($dashreport_head as $dh){
-            $data[] = array(
-                "v_mc_id" => $dh->v_mc_id,
-                "v_mc_name" => $dh->v_mc_name,
-                "v_jml_1" => $dh->v_jml_1,
-                "v_jml_2" => $dh->v_jml_2,
-                "v_jml_3" => $dh->v_jml_3
-            );
         }
         return response()->json(['status' => 200,'data' => $data]);
     }
