@@ -532,4 +532,52 @@ class ReportController extends Controller {
         
         return response()->json(['status' => 200, 'page_end'=>$endpage, 'data' => $data]);
     }
+    
+    public function getMobilePICFObyMcid($id, Request $request){
+        $data = array();
+        $limit = '';
+        $page = '';
+        $endpage = 1;
+        
+        $query = " SELECT au.id, au.username, au.first_name 
+                FROM app_users au
+                INNER JOIN app_users_groups aug ON aug.user_id=au.id
+                WHERE aug.group_id IN (3,4)
+                AND au.mc_id='$id' ";
+        
+        if(isset($request->search)) {
+            $search = $request->search;
+            $sqlsearch = " AND LOWER(TRIM(first_name)) LIKE LOWER(TRIM('%$request->search%')) ";
+        }else{
+            $search = '';
+            $sqlsearch = "";
+        }
+        
+        $picfoall = DB::select($query . $sqlsearch);
+        $picfo = DB::select($query . $sqlsearch);
+        
+        $jmltotal=(count($picfoall));
+        if(isset($request->limit)) {
+            $limit = $request->limit;
+            $report = DB::select($query . $sqlsearch .  " ORDER BY first_name LIMIT $limit ");
+            $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+            
+            if (isset($request->page)) {
+                $page = $request->page;
+                $offset = ((int)$page-1) * (int)$limit;
+                $report = DB::select($query . $sqlsearch .  " ORDER BY first_name OFFSET $offset LIMIT $limit ");
+            }
+        }
+        
+        $cntpicfoall = count($picfoall);
+        foreach($picfo as $pf){
+            $data[] = array(
+                "id" => $pf->id,
+                "username" => $pf->username,
+                "firstname" => $pf->first_name
+            );
+        }
+        
+        return response()->json(['status' => 200, 'page_end'=>$endpage, 'data' => $data]);
+    }
 }
