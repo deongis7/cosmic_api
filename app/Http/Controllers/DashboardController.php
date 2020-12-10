@@ -82,9 +82,10 @@ class DashboardController extends Controller
     }
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$group_company){
 	        $data = array();
+
           //Filter by GroupCompany
-          if(isset($request->group_company)){
-            if($request->group_company==2){
+          if(isset($group_company)){
+            if($group_company==2){
               $string ="SELECT * FROM dashboard_perimeter_bykategori_nonbumn()";
             } else {
               $string ="SELECT * FROM dashboard_perimeter_bykategori()";
@@ -92,6 +93,7 @@ class DashboardController extends Controller
           } else {
             $string ="SELECT * FROM dashboard_perimeter_bykategori_semua()";
           }
+          dd($string);
           //$string ="SELECT * FROM dashboard_perimeter_bykategori()";
           if(isset($search)) {
               $string = $string . " where lower(TRIM(v_judul)) like '%".strtolower(trim($search))."%' ";
