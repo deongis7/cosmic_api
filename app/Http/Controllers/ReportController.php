@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManagerStatic as Image;
+use App\Company;
 class ReportController extends Controller {
     
     public function __construct() {
@@ -86,20 +87,11 @@ class ReportController extends Controller {
         $search = null;
         $endpage = 1;
       
-        $report = new Report();
-        $report->setConnection('pgsql2');
-        $report = $report->select('tr_id', 'tr_mpml_id', 'tr_laporan', 
-            'tr_file1', 'tr_file2', 'tr_tl_file1',  'tr_tl_file2',
-            'tr_no', 'tr_penanggungjawab', 'tr_close',  'tr_date_insert',
-            'mc.mc_id', 'mc.mc_name', 
-            'mpm.mpm_id', 'mpm.mpm_name', 'mpml.mpml_id', 'mpml.mpml_name',
-            DB::raw(" to_char((tr_date_insert)::timestamp with time zone, 'DD/MM/YYYY'::text) AS date_insert"),
-            DB::raw("CASE WHEN (tr_close = 1) THEN 'Selesai diproses'::text ELSE 'Belum diproses'::text END AS status")
-         )
-         ->join('master_perimeter_level AS mpml','mpml.mpml_id','tr_mpml_id')
-         ->join('master_perimeter AS mpm','mpm.mpm_id','mpml.mpml_mpm_id')
-         ->join('master_company AS mc','mc.mc_id','mpm.mpm_mc_id')
-         ->where('mc.mc_level', 1);
+        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_report_dashboardall_byjnsmcid_".$id.'_'.$mc_id, 15 * 60, function()use($id) {
+        $data = array();
+        $dashreport_head = DB::select("SELECT * FROM report_dashboardall_byjns('$id')
+                 WHERE v_mc_id='$mc_id'");
+       
         
          if(isset($request->close)) {
              if($request->close == 1){
@@ -223,8 +215,6 @@ class ReportController extends Controller {
 				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
 				INNER JOIN master_company mc ON mc.mc_id=mpm.mpm_mc_id
 				INNER JOIN master_sektor ms ON ms.ms_id=mc.mc_msc_id
-				WHERE mc.mc_level = 1 
-				AND ms.ms_type = 'CCOVID' 
 				AND tr.tr_id=$id");
         $mc_id = $report_data[0]->mc_id;
         $mpml_id = $report_data[0]->mpml_id;
@@ -304,6 +294,17 @@ class ReportController extends Controller {
         $dataReport = Report::find($id);
         $filex1 = $dataReport->tr_tl_file1;
         $filex2 = $dataReport->tr_tl_file2;
+        
+        $report_data = DB::select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
+        mpml.mpml_id, mpml.mpml_name
+				FROM transaksi_report tr
+				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
+				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
+				INNER JOIN master_company mc ON mc.mc_id=mpm.mpm_mc_id
+				INNER JOIN master_sektor ms ON ms.ms_id=mc.mc_msc_id
+				AND tr.tr_id=$id");
+        $mc_id = $report_data[0]->mc_id;
+        $mpml_id = $report_data[0]->mpml_id;
         
         if(!Storage::exists('/app/public/report_protokol/')) {
             Storage::disk('public')->makeDirectory('/report_protokol/');
@@ -462,6 +463,29 @@ class ReportController extends Controller {
             }
         }else{
             $data = array();
+        }
+        return response()->json(['status' => 200,'data' => $data]);
+    }
+    
+    public function getDashReportMobileByJns($id, Request $request) {
+        $search = null;
+        $data = array();
+        
+        $dashreport_head = DB::select("SELECT * 
+            FROM report_dashboardall_byjns($id) 
+            LOWER(TRIM(v_mc_name)) LIKE LOWER(TRIM('%$request->search%')) 
+            ");
+      
+   
+        
+        foreach($dashreport_head as $dh){
+            $data[] = array(
+                "v_mc_id" => $dh->v_mc_id,
+                "v_mc_name" => $dh->v_mc_name,
+                "v_jml_1" => $dh->v_jml_1,
+                "v_jml_2" => $dh->v_jml_2,
+                "v_jml_3" => $dh->v_jml_3
+            );
         }
         return response()->json(['status' => 200,'data' => $data]);
     }
