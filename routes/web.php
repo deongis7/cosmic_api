@@ -240,6 +240,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/dashreport/card_bymcid/{id}', 'ReportController@getDashReportCardByMcid');
     $router->get('/report/byid/{id}', 'ReportController@getDataByid');
     $router->get('/report/bymcid/{id}', 'ReportController@getDataByMcid');
+    
+    $router->get('/dashreport/mobileall_byjns/{id}', 'ReportController@getDashReportMobileByJns');
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
 

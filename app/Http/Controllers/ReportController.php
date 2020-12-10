@@ -49,7 +49,8 @@ class ReportController extends Controller {
     public function getDashReportByJnsMCid($id,$mc_id){
         //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_report_dashboardall_byjnsmcid_".$id.'_'.$mc_id, 15 * 60, function()use($id) {
         $data = array();
-        $dashreportcard_head = DB::select("SELECT * FROM report_dashboardall_byjns('$id') WHERE v_mc_id='$mc_id'");
+        $dashreportcard_head = DB::select("SELECT * FROM report_dashboardall_byjns('$id') 
+        WHERE v_mc_id='$mc_id'");
         
         foreach($dashreportcard_head as $dh){
             $data[] = array(
@@ -182,7 +183,9 @@ class ReportController extends Controller {
                 $data[] = array(
                     "id" => $rep->tr_id,
                     "mpml_id" => $rep->tr_mpml_id,
+                    "mpml_name" => $rep->mpml_name,
                     "mpm_id" => $rep->mpm_id,
+                    "mpm_name" => $rep->mpm_name,
                     "mc_id" => $rep->mc_id,
                     "file_1" => $filerep1,
                     "file_2" => $filerep2,
@@ -220,75 +223,77 @@ class ReportController extends Controller {
 				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
 				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
 				INNER JOIN master_company mc ON mc.mc_id=mpm.mpm_mc_id
-				INNER JOIN master_sektor ms ON ms.ms_id=mc.mc_msc_id
-				WHERE mc.mc_level = 1 
-				AND ms.ms_type = 'CCOVID' 
 				AND tr.tr_id=$id");
-        $mc_id = $report_data[0]->mc_id;
-        $mpml_id = $report_data[0]->mpml_id;
         
-        if(!Storage::exists('/app/public/report_protokol/')) {
-            Storage::disk('public')->makeDirectory('/report_protokol/');
-        }
-        
-        if(!Storage::exists('/app/public/report_protokol/'.$mc_id)) {
-            Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id);
-        }
-        
-        if(!Storage::exists('/app/public/report_protokol/'.$mc_id.'/'.$mpml_id)) {
-            Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id.'/'.$mpml_id);
-        }
-        
-        $destinationPath = storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id;
-        
-        $name1 = $filex1;
-        if(isset($request->file_report1)){
-            if ($request->file_report1 != null || $request->file_report1 != '') {
-                if($filex1!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex1)){
-                    unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex1);
-                }
-    
-                $img1 = explode(',', $r_file1);
-                $image1 = $img1[1];
-                $filedecode1 = base64_decode($image1);
-                $name1 = round(microtime(true) * 1000).'.jpg';
-                
-                Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
-                    $constraint->aspectRatio();
-                })->save($destinationPath.'/'.$name1);
+        if(count($report_data) > 0){
+            $mc_id = $report_data[0]->mc_id;
+            $mpml_id = $report_data[0]->mpml_id;
+            
+            if(!Storage::exists('/app/public/report_protokol/')) {
+                Storage::disk('public')->makeDirectory('/report_protokol/');
             }
-        }
-        
-        $name2 = $filex2;
-        if(isset($request->file_report2)){
-            if ($request->file_report2 != null || $request->file_report2 != '') {
-                if($filex2!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex2)){
-                    unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex2);
-                }
-                
-                $img2 = explode(',', $r_file2);
-                $image2 = $img2[1];
-                $filedecode2 = base64_decode($image2);
-                $name2 = round(microtime(true) * 1000).'.jpg';
-                
-                Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
-                    $constraint->aspectRatio();
-                })->save($destinationPath.'/'.$name2);
+            
+            if(!Storage::exists('/app/public/report_protokol/'.$mc_id)) {
+                Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id);
             }
-        }
+            
+            if(!Storage::exists('/app/public/report_protokol/'.$mc_id.'/'.$mpml_id)) {
+                Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id.'/'.$mpml_id);
+            }
+            
+            $destinationPath = storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id;
+            
+            $name1 = $filex1;
+            if(isset($request->file_report1)){
+                if ($request->file_report1 != null || $request->file_report1 != '') {
+                    if($filex1!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex1)){
+                        unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex1);
+                    }
         
-        $dataReport->tr_tl_file1 = $name1;
-        $dataReport->tr_tl_file2 = $name2;
-        $dataReport->tr_close = $ceklis;
-        $dataReport->tr_penanggungjawab = $penanggungjawab;
-        $dataReport->tr_date_update = date('Y-m-d H:i:s');
-        $dataReport->tr_user_update = $user_id;
-        $dataReport->save();
-        
-        if($dataReport->save()) {
-            return response()->json(['status' => 200,'message' => 'Data Report Protokol Berhasil diUpdate']);
-        } else {
-            return response()->json(['status' => 500,'message' => 'Data Report Protokol Gagal diUpdate'])->setStatusCode(500);
+                    $img1 = explode(',', $r_file1);
+                    $image1 = $img1[1];
+                    $filedecode1 = base64_decode($image1);
+                    $name1 = round(microtime(true) * 1000).'.jpg';
+                    
+                    Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save($destinationPath.'/'.$name1);
+                }
+            }
+            
+            $name2 = $filex2;
+            if(isset($request->file_report2)){
+                if ($request->file_report2 != null || $request->file_report2 != '') {
+                    if($filex2!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex2)){
+                        unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex2);
+                    }
+                    
+                    $img2 = explode(',', $r_file2);
+                    $image2 = $img2[1];
+                    $filedecode2 = base64_decode($image2);
+                    $name2 = round(microtime(true) * 1000).'.jpg';
+                    
+                    Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save($destinationPath.'/'.$name2);
+                }
+            }
+            
+            $dataReport->tr_tl_file1 = $name1;
+            $dataReport->tr_tl_file2 = $name2;
+            $dataReport->tr_close = $ceklis;
+            $dataReport->tr_penanggungjawab = $penanggungjawab;
+            $dataReport->tr_date_update = date('Y-m-d H:i:s');
+            $dataReport->tr_user_update = $user_id;
+            $dataReport->save();
+            
+            if($dataReport->save()) {
+                return response()->json(['status' => 200,'message' => 'Data Report Protokol Berhasil diUpdate']);
+            } else {
+                return response()->json(['status' => 500,'message' => 'Data Report Protokol Gagal diUpdate'])->setStatusCode(500);
+            }
+        }else{
+            return response()->json(['status' => 404,'message' => 'Data Report Protokol Tidak Ditemukan '])->setStatusCode(404);
         }
     }
     
@@ -298,74 +303,91 @@ class ReportController extends Controller {
         $ceklis = $request->ceklis;
         $r_file1 = $request->file_report1;
         $r_file2 = $request->file_report2;
-        
-        $dataReport = Report::find($id);
-        $filex1 = $dataReport->tr_tl_file1;
-        $filex2 = $dataReport->tr_tl_file2;
-        
-        if(!Storage::exists('/app/public/report_protokol/')) {
-            Storage::disk('public')->makeDirectory('/report_protokol/');
-        }
-        
-        if(!Storage::exists('/app/public/report_protokol/'.$mc_id)) {
-            Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id);
-        }
-        
-        if(!Storage::exists('/app/public/report_protokol/'.$mc_id.'/'.$mpml_id)) {
-            Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id.'/'.$mpml_id);
-        }
-        
-        $destinationPath = storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id;
-        
-        $name1 = $filex1;
-        if(isset($request->file_report1)){
-            if ($request->file_report1 != null || $request->file_report1 != '') {
-                if($filex1!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex1)){
-                    unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex1);
-                }
-                
-                $img1 = explode(',', $r_file1);
-                $image1 = $img1[1];
-                $filedecode1 = base64_decode($image1);
-                $name1 = round(microtime(true) * 1000).'.jpg';
-                
-                Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
-                    $constraint->aspectRatio();
-                })->save($destinationPath.'/'.$name1);
+
+        $report_data = DB::select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
+        mpml.mpml_id, mpml.mpml_name
+				FROM transaksi_report tr
+				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
+				INNER JOIN master_perimeter mpm ON mpm.mpm_id=mpml.mpml_mpm_id
+				INNER JOIN master_company mc ON mc.mc_id=mpm.mpm_mc_id
+				AND tr.tr_id=$id");
+       
+        if(count($report_data) > 0){
+            $mc_id = $report_data[0]->mc_id;
+            $mpml_id = $report_data[0]->mpml_id;
+            
+            $dataReport = Report::find($id);
+            $filex1 = $dataReport->tr_tl_file1;
+            $filex2 = $dataReport->tr_tl_file2;
+            
+            if(!Storage::exists('/app/public/report_protokol/')) {
+                Storage::disk('public')->makeDirectory('/report_protokol/');
             }
-        }
-        
-        $name2 = $filex2;
-        if(isset($request->file_report2)){
-            if ($request->file_report2 != null || $request->file_report2 != '') {
-                if($filex2!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex2)){
-                    unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex2);
-                }
-                
-                $img2 = explode(',', $r_file2);
-                $image2 = $img2[1];
-                $filedecode2 = base64_decode($image2);
-                $name2 = round(microtime(true) * 1000).'.jpg';
-                
-                Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
-                    $constraint->aspectRatio();
-                })->save($destinationPath.'/'.$name2);
+            
+            if(!Storage::exists('/app/public/report_protokol/'.$mc_id)) {
+                Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id);
             }
+            
+            if(!Storage::exists('/app/public/report_protokol/'.$mc_id.'/'.$mpml_id)) {
+                Storage::disk('public')->makeDirectory('/report_protokol/'.$mc_id.'/'.$mpml_id);
+            }
+            
+            $destinationPath = storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id;
+            
+            $name1 = $filex1;
+            if(isset($request->file_report1)){
+                if ($request->file_report1 != null || $request->file_report1 != '') {
+                    if($filex1!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex1)){
+                        unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex1);
+                    }
+                    
+                    $img1 = explode(',', $r_file1);
+                    $image1 = $img1[1];
+                    $filedecode1 = base64_decode($image1);
+                    $name1 = round(microtime(true) * 1000).'.jpg';
+                    
+                    Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save($destinationPath.'/'.$name1);
+                }
+            }
+            
+            $name2 = $filex2;
+            if(isset($request->file_report2)){
+                if ($request->file_report2 != null || $request->file_report2 != '') {
+                    if($filex2!=NULL && file_exists(storage_path().'/app/public/report_protokol/'.$filex2)){
+                        unlink(storage_path().'/app/public/report_protokol/'.$mc_id.'/'.$mpml_id.'/'.$filex2);
+                    }
+                    
+                    $img2 = explode(',', $r_file2);
+                    $image2 = $img2[1];
+                    $filedecode2 = base64_decode($image2);
+                    $name2 = round(microtime(true) * 1000).'.jpg';
+                    
+                    Image::make($filedecode2)->resize(700, NULL, function ($constraint) {
+                        $constraint->aspectRatio();
+                    })->save($destinationPath.'/'.$name2);
+                }
+            }
+            
+            $dataReport->tr_tl_file1 = $name1;
+            $dataReport->tr_tl_file2 = $name2;
+            $dataReport->tr_close = $ceklis;
+            $dataReport->tr_penanggungjawab = $penanggungjawab;
+            $dataReport->tr_date_update = date('Y-m-d H:i:s');
+            $dataReport->tr_user_update = Auth::guard('api')->user()->id;
+            $dataReport->save();
+            
+            
+            if($dataReport->save()) {
+                return response()->json(['status' => 200,'message' => 'Data Report Protokol Berhasil diUpdate']);
+            } else {
+                return response()->json(['status' => 500,'message' => 'Data Report Protokol Gagal diUpdate'])->setStatusCode(500);
+            }
+        }else{
+            return response()->json(['status' => 404,'message' => 'Data Report Protokol Tidak Ditemukan '])->setStatusCode(404);
         }
-        
-        $dataReport->tr_tl_file1 = $name1;
-        $dataReport->tr_tl_file2 = $name2;
-        $dataReport->tr_close = $ceklis;
-        $dataReport->tr_penanggungjawab = $penanggungjawab;
-        $dataReport->tr_date_update = date('Y-m-d H:i:s');
-        $dataReport->tr_user_update = Auth::guard('api')->user()->id;
-        $dataReport->save();
-        
-        if($dataReport->save()) {
-            return response()->json(['status' => 200,'message' => 'Data Report Protokol Berhasil diUpdate']);
-        } else {
-            return response()->json(['status' => 500,'message' => 'Data Report Protokol Gagal diUpdate'])->setStatusCode(500);
-        }
+   
     }
     
     public function getDataById($id) {
@@ -442,7 +464,9 @@ class ReportController extends Controller {
                 $data = array(
                     "id" => $rep->tr_id,
                     "mpml_id" => $rep->tr_mpml_id,
+                    "mpml_name" => $rep->mpml_name,
                     "mpm_id" => $rep->mpm_id,
+                    "mpm_name" => $rep->mpm_name,
                     "mc_id" => $rep->mc_id,
                     "file_1" => $filerep1,
                     "file_2" => $filerep2,
@@ -460,5 +484,100 @@ class ReportController extends Controller {
             $data = array();
         }
         return response()->json(['status' => 200,'data' => $data]);
+    }
+    
+    public function getDashReportMobileByJns($id, Request $request){
+        $data = array();
+        $limit = '';
+        $page = '';
+        $endpage = 1;
+        
+        $query = " SELECT *  FROM report_dashboardall_byjns('$id') 
+                WHERE 1=1 ";
+        
+        if(isset($request->search)) {
+            $search = $request->search;
+            $sqlsearch = " AND LOWER(TRIM(v_mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
+        }else{
+            $search = '';
+            $sqlsearch = "";
+        }
+        
+        $reportall = DB::select($query . $sqlsearch);
+        $report = DB::select($query . $sqlsearch);
+        
+        $jmltotal=(count($reportall));
+        if(isset($request->limit)) {
+            $limit = $request->limit;
+            $report = DB::select($query . $sqlsearch .  " ORDER BY v_mc_name LIMIT $limit ");
+            $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+            
+            if (isset($request->page)) {
+                $page = $request->page;
+                $offset = ((int)$page-1) * (int)$limit;
+                $report = DB::select($query . $sqlsearch .  " ORDER BY v_mc_name OFFSET $offset LIMIT $limit ");
+            }
+        }
+
+        $cntreportall = count($reportall);
+        foreach($report as $dh){
+            $data[] = array(
+                "v_mc_id" => $dh->v_mc_id,
+                "v_mc_name" => $dh->v_mc_name,
+                "v_jml_1" => $dh->v_jml_1,
+                "v_jml_2" => $dh->v_jml_2,
+                "v_jml_3" => $dh->v_jml_3
+            );
+        }
+        
+        return response()->json(['status' => 200, 'page_end'=>$endpage, 'data' => $data]);
+    }
+    
+    public function getMobilePICFObyMcid($id, Request $request){
+        $data = array();
+        $limit = '';
+        $page = '';
+        $endpage = 1;
+        
+        $query = " SELECT au.id, au.username, au.first_name 
+                FROM app_users au
+                INNER JOIN app_users_groups aug ON aug.user_id=au.id
+                WHERE aug.group_id IN (3,4)
+                AND au.mc_id='$id' ";
+        
+        if(isset($request->search)) {
+            $search = $request->search;
+            $sqlsearch = " AND LOWER(TRIM(first_name)) LIKE LOWER(TRIM('%$request->search%')) ";
+        }else{
+            $search = '';
+            $sqlsearch = "";
+        }
+        
+        $picfoall = DB::select($query . $sqlsearch);
+        $picfo = DB::select($query . $sqlsearch);
+        
+        $jmltotal=(count($picfoall));
+        if(isset($request->limit)) {
+            $limit = $request->limit;
+            $report = DB::select($query . $sqlsearch .  " ORDER BY first_name LIMIT $limit ");
+            $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+            
+            if (isset($request->page)) {
+                $page = $request->page;
+                $offset = ((int)$page-1) * (int)$limit;
+                $report = DB::select($query . $sqlsearch .  " ORDER BY first_name OFFSET $offset LIMIT $limit ");
+            }
+        }
+        
+        $cntpicfoall = count($picfoall);
+        foreach($picfo as $pf){
+            $data[] = array(
+                "id" => $pf->id,
+                "username" => $pf->username,
+                "firstname" => $pf->first_name
+            );
+        }
+        
+        return response()->json(['status' => 200, 'page_end'=>$endpage, 'data' => $data]);
     }
 }
