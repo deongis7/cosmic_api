@@ -1009,8 +1009,11 @@ class PerimeterListController extends Controller
     //Post Perimeter Closed
     public function validasiClosedPerimeter(Request $request){
       set_time_limit(0);
-        ini_set('max_execution_time', 0);
-        ini_set('max_input_time', 36000);
+      ini_set('max_execution_time', 0);
+      ini_set('memory_limit', '-1');
+      ini_set('upload_max_filesize', '409600M');
+      ini_set('post_max_size', '409600M');
+      ini_set('max_input_time', 360000);
         $this->validate($request, [
             'id_perimeter_level' => 'required',
             'status' => 'required'
@@ -1161,9 +1164,12 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
 
     //POST
     public function openPerimeter(Request $request){
-        set_time_limit(0);
-        ini_set('max_execution_time', 0);
-        ini_set('max_input_time', 36000);
+      set_time_limit(0);
+      ini_set('max_execution_time', 0);
+      ini_set('memory_limit', '-1');
+      ini_set('upload_max_filesize', '409600M');
+      ini_set('post_max_size', '409600M');
+      ini_set('max_input_time', 360000);
         $this->validate($request, [
             'id_perimeter_level' => 'required'
         ]);
