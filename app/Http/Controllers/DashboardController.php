@@ -93,7 +93,7 @@ class DashboardController extends Controller
           } else {
             $string ="SELECT * FROM dashboard_perimeter_bykategori_semua()";
           }
-          dd($string);
+          //dd($string);
           //$string ="SELECT * FROM dashboard_perimeter_bykategori()";
           if(isset($search)) {
               $string = $string . " where lower(TRIM(v_judul)) like '%".strtolower(trim($search))."%' ";
