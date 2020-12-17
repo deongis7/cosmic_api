@@ -100,7 +100,7 @@ class TerpaparController extends Controller {
 	        'data' => $data]);
 	}
 
-	public function getDatadetail($id, $page, $search,Request $request) {
+	public function getDatadetail($id, $page, $search, Request $request) {
 	    if($page > 0){
 	        $page=$page-1;
 	    }else{
@@ -504,7 +504,8 @@ class TerpaparController extends Controller {
 	            "v_mc_id" => $tpp->x_mc_id,
 	            "v_mc_name" => $tpp->x_mc_name,
 	            "v_mc_foto" => $file,
-	            "v_jml" => $tpp->x_jml
+	            "v_jml" => $tpp->x_jml,
+	            "v_last_update" => $tpp->x_date
 	        );
 	    }
 	    
