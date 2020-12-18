@@ -719,6 +719,12 @@ class DashboardController extends Controller
 
     public function getCosmicIndexReportAverage(Request $request){
         $str = 'get_cosmic_index_report_average';
+        $group_company = null;
+
+        if(isset($request->group_company)){
+          $group_company = $request->group_company;
+          $str = $str ."_group_company_".$group_company;
+        }
         if(isset($request->date)){
             $strdate =  Carbon::parse($request->date);
             //  dd($date);
@@ -732,7 +738,7 @@ class DashboardController extends Controller
             $str = $str."_".$startdate."_".$enddate;
         }
 
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate) {
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate,$group_company) {
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdatenow = $weeks['startweek'];
@@ -755,6 +761,17 @@ class DashboardController extends Controller
                         avg((a.v_pemenuhan_eviden)::float) as v_pemenuhan_eviden
                         FROM mv_cosmic_index_report a
                         ";
+
+                  if(isset($group_company)){
+                    if($group_company==2){
+                      $cc_string = " where a.v_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=2) ";
+                    } else {
+                      $cc_string = " where a.v_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=1) ";
+                    }
+                  } else {
+                    $cc_string = "";
+                  }
+                  $sql =$sql.$cc_string;
                     //echo $sql;die;
                     $result = DB::select($sql);
                     //dd($result);
@@ -770,13 +787,24 @@ class DashboardController extends Controller
                   //  }
                 }
             } else {
-                $rpi = DB::select("SELECT
-                        avg((rpi.rci_cosmic_index)::float) as rci_cosmic_index,,
-                        avg((rpi.rci_pemenuhan_protokol)::float) as rci_pemenuhan_protokol,
-                        avg((rpi.rci_pemenuhan_ceklist_monitoring)::float) as rci_pemenuhan_ceklist_monitoring,
-                        avg((rpi.rci_pemenuhan_eviden)::float) s v_cosmirci_pemenuhan_evidenc_index
-                        FROM report_cosmic_index rpi
-                        WHERE rci_week = ?",[(string)$week]);
+              $sqlrpi = "SELECT
+                      avg((rpi.rci_cosmic_index)::float) as rci_cosmic_index,,
+                      avg((rpi.rci_pemenuhan_protokol)::float) as rci_pemenuhan_protokol,
+                      avg((rpi.rci_pemenuhan_ceklist_monitoring)::float) as rci_pemenuhan_ceklist_monitoring,
+                      avg((rpi.rci_pemenuhan_eviden)::float) s v_cosmirci_pemenuhan_evidenc_index
+                      FROM report_cosmic_index rpi
+                      WHERE rci_week = ?";
+                if(isset($group_company)){
+                    if($group_company==2){
+                      $cc_string = " and rpi.rci_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=2) ";
+                    } else {
+                      $cc_string = " and rpi.rci_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=1) ";
+                    }
+                } else {
+                      $cc_string = "";
+                }
+              $sqlrpi = $sqlrpi.$cc_string;
+                $rpi = DB::select($sqlrpi,[(string)$week]);
 
                 foreach ($rpi as $itemrpi){
                     $data[]= array(
@@ -1296,13 +1324,48 @@ class DashboardController extends Controller
               return response()->json( $datacache);
       }
 
-      public function getRangkumanAll(){
-          $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_rangkuman_all", 120 * 60, function() {
+      public function getRangkumanAll(Request $request){
+        $str="_get_rangkuman_all";
+        $group_company=null;
+        $group_level=null;
+          if(isset($request->group_company)){
+              $group_company = $request->group_company;
+              $str = $str ."_group_company_".$group_company;
+          }
+          if(isset($request->group_level)){
+              $group_level = $request->group_level;
+              $str = $str ."_group_level_".$group_level;
+          }
+          //dd($str);
+          $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 120 * 60, function()use($group_company,$group_level) {
               $data = array();
-              $rangkuman_all = DB::select("SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index,
-                cosmic_index_min1, positif, suspek, kontakerat, selesai,
-                meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now
-                FROM mv_rangkuman_all");
+              if(isset($group_company)){
+                  if($group_company==1){
+                    if($group_level==2 && (isset($group_level))){
+                      $query="SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index,
+                        cosmic_index_min1, positif, suspek, kontakerat, selesai,
+                        meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now,last_update
+                        FROM mv_rangkuman_all_lvl2";
+                    } else {
+                      $query="SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index,
+                        cosmic_index_min1, positif, suspek, kontakerat, selesai,
+                        meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now,last_update
+                        FROM mv_rangkuman_all";
+                    }
+                  } else {
+                    $query="SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index,
+                      cosmic_index_min1, positif, suspek, kontakerat, selesai,
+                      meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now,last_update
+                      FROM mv_rangkuman_all_nonbumn";
+                  }
+              } else {
+                $query="SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index,
+                  cosmic_index_min1, positif, suspek, kontakerat, selesai,
+                  meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now,last_update
+                  FROM mv_rangkuman_all";
+              }
+
+              $rangkuman_all = DB::select($query);
 
               foreach($rangkuman_all as $ra){
                   $data[] = array(
@@ -1320,7 +1383,8 @@ class DashboardController extends Controller
                       "persen_dokumen" => $ra->persen_dokumen,
                       "belum_dokumen" => $ra->belum_dokumen,
                       "sosialisasi_akhir" => $ra->sosialisasi_akhir,
-                      "last_update" => $ra->now
+                      "last_update" => $ra->now,
+                      "kasus_last_update" => $ra->last_update
                   );
               }
               return $data;

@@ -53,7 +53,7 @@ class UserController extends Controller
 		$id = Auth::guard('api')->user()->id;
 		$user = User::select('app_users.id','app_users.username','app_users.first_name',
 		    'master_company.mc_id','master_company.mc_name','app_groups.name',
-		    'app_users.no_hp','app_users.divisi','app_users.email','app_users.foto','master_company.mc_foto')
+		    'app_users.no_hp','app_users.divisi','app_users.email','app_users.foto','master_company.mc_foto','master_company.mc_flag')
 					->leftjoin('master_company','master_company.mc_id','app_users.mc_id')
 					->join('app_users_groups','app_users_groups.user_id','app_users.id')
 					->join('app_groups','app_users_groups.group_id','app_groups.id')
@@ -73,6 +73,7 @@ class UserController extends Controller
     			    "email" => $user->email,
 			        "foto" => $Path.$user->foto,
 			        "foto_bumn" => $PathCompany.$user->mc_foto,
+              "group_company" => $user->mc_flag,
 					);
 			return response()->json(['status' => 200,'data' => $data]);
 		} else {
