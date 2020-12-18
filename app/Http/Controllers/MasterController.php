@@ -199,6 +199,7 @@ class MasterController extends Controller
 
     public function getAllStsKasus(){
         $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mskasus", 360 * 60, function() {
+            $data=[];
             $mststskasus = MstStsKasus::all();
 
             foreach($mststskasus as $msk){
@@ -212,9 +213,31 @@ class MasterController extends Controller
         });
         return response()->json(['status' => 200,'data' => $datacache]);
     }
+    
+    public function getAllStsKasus2(){
+        //$datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mskasus2", 360 * 60, function() {
+            $data=[];
+            $mststskasus = DB::select("SELECT msk_id, msk_name, msk_name2
+                                    FROM master_status_kasus msk
+                                    WHERE msk.msk_id IN (1,2,3)
+    								UNION ALL
+    								SELECT 0, 'SEMUA', 'SEMUA'");
+            
+            foreach($mststskasus as $msk){
+                $data[] = array(
+                    "id" => $msk->msk_id,
+                    "name" => $msk->msk_name,
+                    "name2" => $msk->msk_name2,
+                );
+            }
+            return $data;
+       // });
+            return response()->json(['status' => 200,'data' => $data]);
+    }
 
     public function getAllStsPegawai(){
         //var_dump();die;
+        $data=[];
         $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai", 360 * 60, function() {
             $mststspegawai = MstStsPegawai::all();
 

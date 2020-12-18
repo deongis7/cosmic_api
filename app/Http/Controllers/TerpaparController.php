@@ -100,7 +100,7 @@ class TerpaparController extends Controller {
 	        'data' => $data]);
 	}
 
-	public function getDatadetail($id, $page, $search,Request $request) {
+	public function getDatadetail($id, $page, $search, Request $request) {
 	    if($page > 0){
 	        $page=$page-1;
 	    }else{
@@ -128,9 +128,7 @@ class TerpaparController extends Controller {
                 } else {
                     $query = $query . " and tk_msk_id = " .$request->status_kasus;
                 }
-
             }
-
         }
 	    $query = $query . " ORDER BY tk_id ";
 	    $terpaparall = DB::select($query);
@@ -455,4 +453,62 @@ class TerpaparController extends Controller {
 	        'data' => $data]);
 	}
 	
+	public function getDashboardCompanyMobilebyMskid($id, Request $request){
+	    $data = array();
+	    $limit = '';
+	    $page = '';
+	    $endpage = 1;
+	    
+	    $query = "SELECT * FROM allkasus_companymobile_bymskid($id)
+                WHERE 1=1 ";
+	    
+	    if(isset($request->search)) {
+	        $search = $request->search;
+	        $sqlsearch = " AND LOWER(TRIM(x_mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
+	    }else{
+	        $search = '';
+	        $sqlsearch = "";
+	    }
+	    
+	    $terpaparall = DB::select($query . $sqlsearch);
+	    $terpapar = DB::select($query . $sqlsearch);
+	    
+	    $jmltotal=(count($terpaparall));
+	    if(isset($request->limit)) {
+	        $limit = $request->limit;
+	        $terpapar = DB::select($query . $sqlsearch .  " ORDER BY x_mc_name LIMIT $limit ");
+	        $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+	        
+	        if (isset($request->page)) {
+	            $page = $request->page;
+	            $offset = ((int)$page-1) * (int)$limit;
+	            $terpapar = DB::select($query . $sqlsearch .  " ORDER BY x_mc_name OFFSET $offset LIMIT $limit ");
+	        }
+	    }
+	    
+	    $cntterpaparall = count($terpaparall);
+	    foreach($terpapar as $tpp){
+	        if($tpp->x_mc_foto !=NULL || $tpp->x_mc_foto !=''){
+	            if (!file_exists(base_path("storage/app/public/foto_bumn/".$tpp->x_mc_foto))) {
+	                $path_file404 = '/404/img404.jpg';
+	                $file = $path_file404;
+	            }else{
+	                $path_file = '/foto_bumn/'.$tpp->x_mc_foto;
+	                $file = $path_file;
+	            }
+	        }else{
+	            $file = '/404/img404.jpg';
+	        }
+	        
+	        $data[] = array(
+	            "v_mc_id" => $tpp->x_mc_id,
+	            "v_mc_name" => $tpp->x_mc_name,
+	            "v_mc_foto" => $file,
+	            "v_jml" => $tpp->x_jml,
+	            "v_last_update" => $tpp->x_date
+	        );
+	    }
+	    
+	    return response()->json(['status' => 200, 'page_end'=>$endpage, 'data' => $data]);
+	}
 }

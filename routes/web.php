@@ -96,7 +96,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/terpapar/dashkasus_company_bymskid/{id}', 'TerpaparController@getDashboardCompanybyMskid');
 	$router->get('/terpapar/dashkasus_provinsi_bymskid/{id}', 'TerpaparController@getDashboardProvinsibyMskid');
 	$router->get('/terpapar/dashkasus_kabupaten_bymskid/{id}', 'TerpaparController@getDashboardKabupatenbyMskid');
-
+	$router->get('/terpapar/dashkasus_companymobile_bymskid/{id}', 'TerpaparController@getDashboardCompanyMobilebyMskid');
+	
+	
 	$router->get('/terpapar/cluster_laporan_home_all/{id}', 'TerpaparController@getClusterDataHomeAll');
 	$router->get('/terpapar/dashclusterkasus_company_bymskid/{id}/{msc_id}', 'TerpaparController@getClusterDashboardCompanybyMskid');
 	$router->get('/terpapar/dashclusterkasus_provinsi_bymskid/{id}/{msc_id}', 'TerpaparController@getClusterDashboardProvinsibyMskid');
@@ -120,6 +122,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/sosialisasi/get_perusahaan_all', 'DashboardController@getEventbyPerusahaanAll');
     $router->get('/sosialisasi/total_perusahaan_all', 'DashboardController@countEventbyPerusahaanAll');
 
+    $router->get('/sosialisasi/sosialisasiraw', 'SosialisasiController@getSosialisasiRaw');
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
 	$router->post('/monitoring/file','PICController@updateMonitoringFile');
@@ -150,6 +153,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
     //Master
 	$router->get('/stskasus', 'MasterController@getAllStsKasus');
+	$router->get('/stskasus2', 'MasterController@getAllStsKasus2');
 	$router->get('/stspegawai', 'MasterController@getAllStsPegawai');
 	$router->get('/sosialisasikategori', 'MasterController@getAllSosialisasiKategori');
 	$router->get('/perimeterkategori', 'MasterController@getKategoriPerimeter');
@@ -240,6 +244,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/dashreport/card_bymcid/{id}', 'ReportController@getDashReportCardByMcid');
     $router->get('/report/byid/{id}', 'ReportController@getDataByid');
     $router->get('/report/bymcid/{id}', 'ReportController@getDataByMcid');
+    $router->get('/report/picfobymcid/{id}', 'ReportController@getMobilePICFObyMcid');
     
     $router->get('/dashreport/mobileall_byjns/{id}', 'ReportController@getDashReportMobileByJns');
     //Report Protokol  Web
