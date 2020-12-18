@@ -629,4 +629,103 @@ class SosialisasiController extends Controller {
             return response()->json(['status' => 500,'message' => 'Data Sosialisasi Gagal diUpdate'])->setStatusCode(500);
         }
     }
+    
+    public function getSosialisasiRaw(Request $request) {
+        $limit = null;
+        $page = null;
+        $search = null;
+        $endpage = 1;
+        
+        $sosialisasi = new Sosialisasi();
+        $sosialisasi->setConnection('pgsql2');
+        $sosialisasi = $sosialisasi->select('mc_id', 'mc_name', 'ts_id', 
+            'ts_nama_kegiatan', 'ts_tanggal',
+            'ts_mslk_id', 'mslk_name', 'ts_deskripsi', 'ts_checklist_dampak',
+            'ts_bulan', 'ts_prsn_dampak', 'ts_prsn_dampak_all',
+            'ts_file1', 'ts_file2', 'ts_date_insert', 'ts_date_update')
+        ->join('master_company AS mc','mc.mc_id','ts_mc_id')
+        ->join('master_sosialisasi_kategori AS mslk','mslk.mslk_id','ts_mslk_id')
+        ->where('mc.mc_level', 1);
+        
+        if(isset($request->search)) {
+            $search = $request->search;
+            $sosialisasi = $report->where(DB::raw("lower(TRIM(ts_nama_kegiatan))"),'like','%'.strtolower(trim($search)).'%');
+        }
+        
+        $jmltotal=($sosialisasi->count());
+        if(isset($request->limit)) {
+            $limit = $request->limit;
+            $sosialisasi = $sosialisasi->limit($limit);
+            $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+            
+            if (isset($request->page)) {
+                $page = $request->page;
+                $offset = ((int)$page -1) * (int)$limit;
+                $sosialisasi = $sosialisasi->offset($offset);
+            }
+        }
+        $sosialisasi = $sosialisasi->get();
+        $totalsosialisasi = $sosialisasi->count();
+        
+        if (count($sosialisasi) > 0){
+            foreach($sosialisasi as $sos){
+                if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
+                    if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file1))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filesos1 = $path_file404;
+                        $filesos1_tumb = $path_file404;
+                    }else{
+                        $path_file1 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file1;
+                        $path_file1_tumb =  '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file1_tumb;
+                        $filesos1 = $path_file1;
+                        $filesos1_tumb = $path_file1_tumb;
+                    }
+                }else{
+                    $filesos1 = '/404/img404.jpg';
+                    $filesos1_tumb = '/404/img404.jpg';
+                }
+                
+                if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
+                    if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file2))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filesos2 = $path_file404;
+                        $filesos2_tumb = $path_file404;
+                    }else{
+                        $path_file2 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file2;
+                        $path_file2_tumb = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file2_tumb;
+                        $filesos2 = $path_file2;
+                        $filesos2_tumb = $path_file2_tumb;
+                    }
+                }else{
+                    $filesos2 = '/404/img404.jpg';
+                    $filesos2_tumb ='/404/img404.jpg';
+                }
+                
+                $data[] = array(
+                    "kode_perusahaan" => $sos->mc_id,
+                    "nama_perusahaan" => $sos->mc_name,
+                    "id" => $sos->ts_id,
+                    "nama_kegiatan" => $sos->ts_nama_kegiatan,
+                    "jenis_kegiatan" => $sos->mslk_name,
+                    "jenis_kegiatan_id" => $sos->ts_mslk_id,
+                    "deskripsi" => $sos->ts_deskripsi,
+                    "tanggal" => $sos->ts_tanggal,
+                    "file_1" => $filesos1,
+                    "file_1_tumb" => $filesos1_tumb,
+                    "file_2" => $filesos2,
+                    "file_2_tumb" => $filesos2_tumb,
+                    "checklist_dampak" =>$sos->ts_checklist_dampak,
+                    "bulan_kegiatan" =>$sos->ts_bulan,
+                    "persen_dampak" =>$sos->ts_prsn_dampak,
+                    "persen_dampak_keseluruhan" =>$sos->ts_prsn_dampak_all,
+                    "date_insert" =>$sos->ts_date_insert,
+                    "date_update" =>$sos->ts_date_update,
+                );
+            }
+        }else{
+            $data = array();
+        }
+        return response()->json(['status' => 200, 'page_end'=> $endpage,
+            'data' => $data]);
+    }
 }
