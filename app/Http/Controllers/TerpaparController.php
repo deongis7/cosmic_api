@@ -511,5 +511,4 @@ class TerpaparController extends Controller {
 	    
 	    return response()->json(['status' => 200, 'page_end'=>$endpage, 'data' => $data]);
 	}
-	
 }

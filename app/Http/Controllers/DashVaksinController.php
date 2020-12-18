@@ -166,4 +166,21 @@ class DashVaksinController extends Controller
 	    //});
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
+	
+	public function qrcode_mpm($id) {
+	    set_time_limit(0);
+	    ini_set('max_execution_time', 0);
+	    ini_set('memory_limit', '-1');
+	    ini_set('post_max_size', '409600M');
+	    ini_set('max_input_time', 360000);
+	    
+	    $client    = new Client();
+	    $url = 'http://103.146.244.78/cosmic_api/public/api/v1/dashboard/perimeter_bykategori_all';
+	    $request  = $client->request('GET', $url);
+	    
+	    $response = $request->getBody()->getContents();
+	    $result   = json_decode($response, true);
+	    
+	    return response()->json(['status' => 200,'data' => $result]);
+	}
 }

@@ -122,6 +122,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/sosialisasi/get_perusahaan_all', 'DashboardController@getEventbyPerusahaanAll');
     $router->get('/sosialisasi/total_perusahaan_all', 'DashboardController@countEventbyPerusahaanAll');
 
+    $router->get('/sosialisasi/sosialisasiraw', 'SosialisasiController@getSosialisasiRaw');
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
 	$router->post('/monitoring/file','PICController@updateMonitoringFile');
