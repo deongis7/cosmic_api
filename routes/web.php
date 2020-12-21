@@ -97,8 +97,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/terpapar/dashkasus_provinsi_bymskid/{id}', 'TerpaparController@getDashboardProvinsibyMskid');
 	$router->get('/terpapar/dashkasus_kabupaten_bymskid/{id}', 'TerpaparController@getDashboardKabupatenbyMskid');
 	$router->get('/terpapar/dashkasus_companymobile_bymskid/{id}', 'TerpaparController@getDashboardCompanyMobilebyMskid');
-	
-	
+
+
 	$router->get('/terpapar/cluster_laporan_home_all/{id}', 'TerpaparController@getClusterDataHomeAll');
 	$router->get('/terpapar/dashclusterkasus_company_bymskid/{id}/{msc_id}', 'TerpaparController@getClusterDashboardCompanybyMskid');
 	$router->get('/terpapar/dashclusterkasus_provinsi_bymskid/{id}/{msc_id}', 'TerpaparController@getClusterDashboardProvinsibyMskid');
@@ -136,6 +136,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//PerimeterList
     $router->get('/list_perimeter_level/perimeter/{id_perimeter}', 'PerimeterListController@getPerimeterLevelListbyPerimeter');
     $router->get('/list_perimeter/{kd_perusahaan}', 'PerimeterListController@getPerimeterList');
+    $router->get('/list_perimeter_all', 'PerimeterListController@getPerimeterListAll');
     $router->get('/list_perimeter_level/count/{kd_perusahaan}', 'PerimeterListController@getStatusPerimeterLevel');
     $router->get('/list_perimeter/detail/{id_perimeter}', 'PerimeterListController@getPerimeterDetail');
     $router->get('/list_perimeter/region/{id}', 'PerimeterListController@getPerimeterListbyRegion');
@@ -240,12 +241,12 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/dashreport/all_card_byjns/{id}', 'ReportController@getDashReportCardByJns');
     $router->get('/dashreport/all_byjns/{id}', 'ReportController@getDashReportByJns');
     $router->get('/dashreport/all_byjnsmcid/{id}', 'ReportController@getDashReportByJnsMCid');
-    
+
     $router->get('/dashreport/card_bymcid/{id}', 'ReportController@getDashReportCardByMcid');
     $router->get('/report/byid/{id}', 'ReportController@getDataByid');
     $router->get('/report/bymcid/{id}', 'ReportController@getDataByMcid');
     $router->get('/report/picfobymcid/{id}', 'ReportController@getMobilePICFObyMcid');
-    
+
     $router->get('/dashreport/mobileall_byjns/{id}', 'ReportController@getDashReportMobileByJns');
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
