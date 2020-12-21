@@ -649,7 +649,7 @@ class SosialisasiController extends Controller {
         
         if(isset($request->search)) {
             $search = $request->search;
-            $sosialisasi = $report->where(DB::raw("lower(TRIM(ts_nama_kegiatan))"),'like','%'.strtolower(trim($search)).'%');
+            $sosialisasi = $sosialisasi->where(DB::raw("lower(TRIM(ts_nama_kegiatan))"),'like','%'.strtolower(trim($search)).'%');
         }
         
         $jmltotal=($sosialisasi->count());
