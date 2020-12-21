@@ -125,6 +125,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //EID
     $router->get('/sosialisasi/sosialisasiraw', 'SosialisasiController@getSosialisasiRaw');
     $router->get('/vaksin/vaksinraw', 'DashVaksinController@getVaksinRaw');
+    $router->get('/terpapar/terpaparraw', 'TerpaparController@getTerpaparRaw');
 	
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
