@@ -54,6 +54,111 @@ class PerimeterListController extends Controller
 
 	}
 
+  //Get Perimeter List
+  public function getPerimeterListAll(Request $request){
+
+      $limit = null;
+      $page = null;
+      $search = null;
+      $group_company = null;
+      $endpage = 1;
+
+      $str = "_get_perimeterlist_all_";
+
+
+      if(isset($request->limit)){
+          $str = $str.'_limit_'. $request->limit;
+          $limit=$request->limit;
+          if(isset($request->page)){
+              $str = $str.'_page_'. $request->page;
+              $page=$request->page;
+          }
+      }
+      if(isset($request->search)){
+          $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+          $search=$request->search;
+      }
+
+      if(isset($request->group_company)){
+          $str = $str.'_group_company_'. $request->group_company;
+          $group_company=$request->group_company;
+      }
+
+      $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 360 * 60, function()use($limit,$page,$group_company,$endpage,$search) {
+          $data = array();
+          $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
+          //current week
+          $crweeks = AppHelper::Weeks();
+          $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
+
+          $perimeter = new Perimeter;
+          $perimeter->setConnection('pgsql2');
+          $perimeter = $perimeter->select('master_company.mc_id','master_company.mc_name','master_perimeter.mpm_id',
+              'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
+              'master_perimeter_kategori.mpmk_id','master_perimeter_kategori.mpmk_name',
+              'master_provinsi.mpro_id', 'master_kabupaten.mkab_id','master_provinsi.mpro_name', 'master_kabupaten.mkab_name'
+          )
+              ->join('master_company','master_company.mc_id','master_perimeter.mpm_mc_id')
+              ->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
+              ->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
+              ->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id');
+
+          $perimeter = $perimeter->where('master_company.mc_level', 1);
+          $perimeter = $perimeter->whereRaw("master_perimeter.mpm_id in (select mpml_mpm_id from master_perimeter_level)");
+          if(isset($group_company)) {
+              $perimeter = $perimeter->where('master_company.mc_flag', $group_company);
+          }
+          if(isset($search)) {
+              $perimeter = $perimeter->where(DB::raw("lower(TRIM(master_perimeter.mpm_name))"),'like','%'.strtolower(trim($search)).'%');
+          }
+
+          $perimeter = $perimeter->groupBy('master_company.mc_id','master_company.mc_name','master_perimeter.mpm_id',
+              'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
+              'master_perimeter_kategori.mpmk_id','master_perimeter_kategori.mpmk_name',
+              'master_provinsi.mpro_id', 'master_kabupaten.mkab_id','master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
+              ->orderBy('master_perimeter.mpm_name', 'asc');
+          //dd(count($perimeter->get()) );
+          $jmltotal=(count($perimeter->get()));
+          if(isset($limit)) {
+              $perimeter = $perimeter->limit($limit);
+              $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+              if (isset($page)) {
+                  $offset = ((int)$page -1) * (int)$limit;
+                  $perimeter = $perimeter->offset($offset);
+              }
+          }
+          $perimeter = $perimeter->get();
+
+          foreach ($perimeter as $itemperimeter) {
+
+              $data[] = array(
+                  "kd_perusahaan" => $itemperimeter->mc_id,
+                  "perusahaan" => $itemperimeter->mc_name,
+                  "id_perimeter" => $itemperimeter->mpm_id,
+                  "nama_perimeter" => $itemperimeter->mpm_name,
+                  "alamat" => $itemperimeter->mpm_name,
+                  "id_kategori" => $itemperimeter->mpmk_id,
+                  "kategori" => $itemperimeter->mpmk_name,
+                  "id_provinsi" => $itemperimeter->mpro_name,
+                  "provinsi" => $itemperimeter->mpro_name,
+                  "id_kabupaten" => $itemperimeter->mkab_name,
+                  "kabupaten" => $itemperimeter->mkab_name,
+
+              );
+
+          }
+
+          //return  $data;
+          return array('page_end' => $endpage, 'data' => $data, 'total_perimeter' => $jmltotal);
+      });
+
+
+      //$status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+      //$status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
+      return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'total_perimeter' => $datacache['total_perimeter'], 'data' => $datacache['data']]);
+
+  }
 
     //Get Perimeter List
     public function getPerimeterList($kd_perusahaan,Request $request){
