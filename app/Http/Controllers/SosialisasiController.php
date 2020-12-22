@@ -18,7 +18,7 @@ class SosialisasiController extends Controller {
         $search=$request->search;
       }
 
-        $sosialisasiweek = DB::select("SELECT ts.ts_id, ts.ts_mc_id, ts.ts_nama_kegiatan, ts.ts_tanggal,
+      $sosialisasiweek = DB::connection('pgsql3')->select("SELECT ts.ts_id, ts.ts_mc_id, ts.ts_nama_kegiatan, ts.ts_tanggal,
                 ts.ts_mslk_id,  mslk.mslk_name, ts.ts_deskripsi, ts.ts_file1, ts.ts_file1_tumb, ts.ts_file2, ts.ts_file2_tumb,
                 ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
@@ -50,13 +50,13 @@ class SosialisasiController extends Controller {
         $string = $string ." ORDER BY ts_tanggal DESC ";
 
         //get all
-        $sosialisasiall = DB::select($string,$param);
+        $sosialisasiall = DB::connection('pgsql3')->select($string,$param);
         //dd($sosialisasiall);
         //page limit
         $string = $string ." OFFSET ? LIMIT ? ";
         $param[] =$pageq;
         $param[] =$row;
-        $sosialisasi = DB::select($string,$param);
+        $sosialisasi = DB::connection('pgsql3')->select($string,$param);
 
         $cntsosialisasiall = count($sosialisasiall);
         $pageend = ceil($cntsosialisasiall/$row);
@@ -121,7 +121,7 @@ class SosialisasiController extends Controller {
     }
 
     public function getDataById($id) {
-        $sosialisasi = DB::select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
+        $sosialisasi = DB::connection('pgsql3')->select("SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
                 ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb,
                 ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
@@ -637,7 +637,7 @@ class SosialisasiController extends Controller {
         $endpage = 1;
         
         $sosialisasi = new Sosialisasi();
-        $sosialisasi->setConnection('pgsql2');
+        $sosialisasi->setConnection('pgsql3');
         $sosialisasi = $sosialisasi->select('mc_id', 'mc_name', 'ts_id', 
             'ts_nama_kegiatan', 'ts_tanggal',
             'ts_mslk_id', 'mslk_name', 'ts_deskripsi', 'ts_checklist_dampak',

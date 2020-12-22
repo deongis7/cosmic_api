@@ -15,7 +15,7 @@ class ReportController extends Controller {
     public function getDashReportCardByJns($id){
         //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_report_dashboardall_card_byjns_".$id, 15 * 60, function()use($id) {
         $data = array();
-        $dashreportcard_head = DB::select("select * from report_dashboardall_card_byjns('$id')");
+        $dashreportcard_head = DB::connection('pgsql3')->select("select * from report_dashboardall_card_byjns('$id')");
 
         foreach($dashreportcard_head as $dh){
             $data[] = array(
@@ -31,7 +31,7 @@ class ReportController extends Controller {
     public function getDashReportByJns($id){
          //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_report_dashboardall_byjns_".$id, 15 * 60, function()use($id) {
         $data = array();
-        $dashreportcard_head = DB::select("select * from report_dashboardall_byjns('$id')");
+        $dashreportcard_head = DB::connection('pgsql3')->select("select * from report_dashboardall_byjns('$id')");
         
         foreach($dashreportcard_head as $dh){
             $data[] = array(
@@ -49,7 +49,7 @@ class ReportController extends Controller {
     public function getDashReportByJnsMCid($id,$mc_id){
         //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_report_dashboardall_byjnsmcid_".$id.'_'.$mc_id, 15 * 60, function()use($id) {
         $data = array();
-        $dashreportcard_head = DB::select("SELECT * FROM report_dashboardall_byjns('$id') 
+        $dashreportcard_head = DB::connection('pgsql3')->select("SELECT * FROM report_dashboardall_byjns('$id') 
         WHERE v_mc_id='$mc_id'");
         
         foreach($dashreportcard_head as $dh){
@@ -68,7 +68,7 @@ class ReportController extends Controller {
     public function getDashReportCardByMcid($id){
         //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashreportbumn_head_".$id, 15 * 60, function()use($id) {
             $data = array();
-            $dashreport_head = DB::select("select * from report_dashboardcard_bymcid('$id')");
+            $dashreport_head = DB::connection('pgsql3')->select("select * from report_dashboardcard_bymcid('$id')");
                 
             foreach($dashreport_head as $dh){
                 $data[] = array(
@@ -88,7 +88,7 @@ class ReportController extends Controller {
         $endpage = 1;
       
         $report = new Report();
-        $report->setConnection('pgsql2');
+        $report->setConnection('pgsql3');
         $report = $report->select('tr_id', 'tr_mpml_id', 'tr_laporan', 
             'tr_file1', 'tr_file2', 'tr_tl_file1',  'tr_tl_file2',
             'tr_no', 'tr_penanggungjawab', 'tr_close',  'tr_date_insert',
@@ -217,7 +217,7 @@ class ReportController extends Controller {
         $filex1 = $dataReport->tr_tl_file1;
         $filex2 = $dataReport->tr_tl_file2;
         
-        $report_data = DB::select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
+        $report_data =  DB::connection('pgsql3')->select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
         mpml.mpml_id, mpml.mpml_name
 				FROM transaksi_report tr
 				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
@@ -304,7 +304,7 @@ class ReportController extends Controller {
         $r_file1 = $request->file_report1;
         $r_file2 = $request->file_report2;
 
-        $report_data = DB::select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
+        $report_data =  DB::connection('pgsql3')->select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
         mpml.mpml_id, mpml.mpml_name
 				FROM transaksi_report tr
 				INNER JOIN master_perimeter_level mpml ON mpml.mpml_id=tr.tr_mpml_id
@@ -391,7 +391,7 @@ class ReportController extends Controller {
     }
     
     public function getDataById($id) {
-        $report = DB::select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
+        $report = DB::connection('pgsql3')->select("SELECT tr.*, mc.mc_id, mc.mc_name, mpm.mpm_id, mpm.mpm_name,
         mpml.mpml_id, mpml.mpml_name,
         CASE
             WHEN (tr.tr_close = 1) THEN 'Selesai diproses'::text
@@ -503,19 +503,19 @@ class ReportController extends Controller {
             $sqlsearch = "";
         }
         
-        $reportall = DB::select($query . $sqlsearch);
-        $report = DB::select($query . $sqlsearch);
+        $reportall = DB::connection('pgsql3')->select($query . $sqlsearch);
+        $report =  DB::connection('pgsql3')->select($query . $sqlsearch);
         
         $jmltotal=(count($reportall));
         if(isset($request->limit)) {
             $limit = $request->limit;
-            $report = DB::select($query . $sqlsearch .  " ORDER BY v_mc_name LIMIT $limit ");
+            $report =  DB::connection('pgsql3')->select($query . $sqlsearch .  " ORDER BY v_mc_name LIMIT $limit ");
             $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
             
             if (isset($request->page)) {
                 $page = $request->page;
                 $offset = ((int)$page-1) * (int)$limit;
-                $report = DB::select($query . $sqlsearch .  " ORDER BY v_mc_name OFFSET $offset LIMIT $limit ");
+                $report =  DB::connection('pgsql3')->select($query . $sqlsearch .  " ORDER BY v_mc_name OFFSET $offset LIMIT $limit ");
             }
         }
 
@@ -553,19 +553,19 @@ class ReportController extends Controller {
             $sqlsearch = "";
         }
         
-        $picfoall = DB::select($query . $sqlsearch);
-        $picfo = DB::select($query . $sqlsearch);
+        $picfoall =  DB::connection('pgsql3')->select($query . $sqlsearch);
+        $picfo =  DB::connection('pgsql3')->select($query . $sqlsearch);
         
         $jmltotal=(count($picfoall));
         if(isset($request->limit)) {
             $limit = $request->limit;
-            $report = DB::select($query . $sqlsearch .  " ORDER BY first_name LIMIT $limit ");
+            $report =  DB::connection('pgsql3')->select($query . $sqlsearch .  " ORDER BY first_name LIMIT $limit ");
             $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
             
             if (isset($request->page)) {
                 $page = $request->page;
                 $offset = ((int)$page-1) * (int)$limit;
-                $report = DB::select($query . $sqlsearch .  " ORDER BY first_name OFFSET $offset LIMIT $limit ");
+                $report =  DB::connection('pgsql3')->select($query . $sqlsearch .  " ORDER BY first_name OFFSET $offset LIMIT $limit ");
             }
         }
         

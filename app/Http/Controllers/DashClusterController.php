@@ -42,7 +42,7 @@ class DashClusterController extends Controller
 	public function getClusterDashboardHead($id){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterdashmin_head".$id, 360 * 60, function()use($id){
 	        $data = array();
-	        $dashboard_head = DB::select("SELECT * FROM cluster_dashboard_head('$id')");
+	        $dashboard_head =  DB::connection('pgsql2')->select("SELECT * FROM cluster_dashboard_head('$id')");
 
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
@@ -61,7 +61,7 @@ class DashClusterController extends Controller
 	public function getClusterPerimeterbyKategoriAll($id){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_getcluster_perimeter_bykategori_all".$id, 360 * 60, function()use($id){
 	        $data = array();
-	        $perimeter_bykategori_all = DB::select("SELECT * FROM cluster_dashboard_perimeter_bykategori('$id')");
+	        $perimeter_bykategori_all = DB::connection('pgsql2')->select("SELECT * FROM cluster_dashboard_perimeter_bykategori('$id')");
 	        
 	        foreach($perimeter_bykategori_all as $pka){
 	            $data[] = array(
@@ -77,7 +77,7 @@ class DashClusterController extends Controller
 	public function getClusterPerimeterbyProvinsiAll($id){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_getcluster_perimeter_byprovinsi_all".$id, 360 * 60, function()use($id){
 	        $data = array();
-	        $perimeter_byprovinsi_all = DB::select("SELECT * FROM cluster_dashboard_perimeter_byprovinsi('$id')");
+	        $perimeter_byprovinsi_all = DB::connection('pgsql2')->select("SELECT * FROM cluster_dashboard_perimeter_byprovinsi('$id')");
 	        
 	        foreach($perimeter_byprovinsi_all as $ppa){
 	            $data[] = array(
@@ -93,7 +93,7 @@ class DashClusterController extends Controller
 	public function getClusterCosmicIndexAll($id){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_getcluster_cosmicindex_all".$id, 360 * 60, function()use($id){
 	        $data = array();
-	        $cosmicindex_all = DB::select("SELECT * FROM cluster_dashboard_perimeter_bycosmicindex('$id')");
+	        $cosmicindex_all = DB::connection('pgsql2')->select("SELECT * FROM cluster_dashboard_perimeter_bycosmicindex('$id')");
 	        
 	        foreach($cosmicindex_all as $cia){
 	            $data[] = array(
