@@ -40,8 +40,8 @@ class TerpaparController extends Controller {
 	}
 
 	public function getDataHome($id) {
-	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_bymcid_".$id, 5 * 60, function()use($id){
-    	    $terpapar = DB::select("SELECT msk_id, msk_name2,
+    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_bymcid_".$id, 5 * 60, function()use($id){
+	    $terpapar = DB::connection('pgsql3')->select("SELECT msk_id, msk_name2,
                         CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
                         FROM master_status_kasus msk
                         LEFT JOIN (
@@ -70,7 +70,7 @@ class TerpaparController extends Controller {
 
 	public function getDataHomeAll() {
 // 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_all", 5 * 60, function(){
-    	    $terpapar = DB::select("SELECT * FROM dashboard_kasus()");
+	    $terpapar = DB::connection('pgsql3')->select("SELECT * FROM dashboard_kasus()");
     	    $data = array();
     	    foreach($terpapar as $tpp){
     	        $data[] = array(
@@ -86,7 +86,7 @@ class TerpaparController extends Controller {
 	
 	public function getClusterDataHomeAll($id) {
 // 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_bymcid_".$id, 5 * 60, function()use($id){
-    	    $terpapar = DB::select("SELECT * FROM cluster_dashboard_kasus('$id')");
+	    $terpapar = DB::connection('pgsql3')->select("SELECT * FROM cluster_dashboard_kasus('$id')");
     	    $data = array();
     	    foreach($terpapar as $tpp){
     	        $data[] = array(
@@ -131,9 +131,9 @@ class TerpaparController extends Controller {
             }
         }
 	    $query = $query . " ORDER BY tk_id ";
-	    $terpaparall = DB::select($query);
+	    $terpaparall = DB::connection('pgsql3')->select($query);
 
-	    $terpapar = DB::select($query . " OFFSET $pageq LIMIT $row");
+	    $terpapar = DB::connection('pgsql3')->select($query . " OFFSET $pageq LIMIT $row");
 
 	    $cntterpaparall = count($terpaparall);
 	    $pageend = ceil($cntterpaparall/$row);
@@ -304,7 +304,7 @@ class TerpaparController extends Controller {
 	}
 
 	public function getDataByid($id) {
-	    $terpapar = DB::select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
+	    $terpapar = DB::connection('pgsql3')->select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
                     msp_name, mpro_id, mpro_name, mkab_id, mkab_name, tk_tempat_perawatan, tk_tindakan,
                     tk_date_meninggal, tk_date_sembuh, tk_date_positif
                     FROM transaksi_kasus tk
@@ -356,7 +356,7 @@ class TerpaparController extends Controller {
 
 	public function getDashboardCompanybyMskid($id) {
 // 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpaparcompany_bymskid_".$id, 5 * 60, function()use($id){
-    	    $terpapar = DB::select("SELECT * FROM allkasus_company_bymskid($id)");
+	    $terpapar = DB::connection('pgsql3')->select("SELECT * FROM allkasus_company_bymskid($id)");
     	    $data = array();
     	    foreach($terpapar as $tpp){
     	        $data[] = array(
@@ -372,7 +372,7 @@ class TerpaparController extends Controller {
 
 	public function getDashboardProvinsibyMskid($id) {
 // 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpaparprovinsi_bymskid_".$id, 5 * 60, function()use($id){
-    	    $terpapar = DB::select("SELECT * FROM allkasus_provinsi_bymskid($id)");
+	    $terpapar = DB::connection('pgsql3')->select("SELECT * FROM allkasus_provinsi_bymskid($id)");
     	    $data = array();
     	    foreach($terpapar as $tpp){
     	        $data[] = array(
@@ -388,7 +388,7 @@ class TerpaparController extends Controller {
 
 	public function getDashboardKabupatenbyMskid($id) {
 // 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpaparkabupaten_bymskid_".$id, 5 * 60, function()use($id){
-    	    $terpapar = DB::select("SELECT * FROM allkasus_kabupaten_bymskid($id)");
+	    $terpapar = DB::connection('pgsql3')->select("SELECT * FROM allkasus_kabupaten_bymskid($id)");
     	   // var_dump($terpapar);die;
     	    $data = array();
     	    foreach($terpapar as $tpp){
@@ -405,7 +405,7 @@ class TerpaparController extends Controller {
 	
 	public function getClusterDashboardCompanybyMskid($id, $msc_id) {
 // 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparcompany_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
-    	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_company_bymskid($id,'$msc_id')");
+	    $terpapar = DB::connection('pgsql3')->select("SELECT * FROM cluster_allkasus_company_bymskid($id,'$msc_id')");
     	    $data = array();
     	    foreach($terpapar as $tpp){
     	        $data[] = array(
@@ -421,7 +421,7 @@ class TerpaparController extends Controller {
 	
 	public function getClusterDashboardProvinsibyMskid($id, $msc_id) {
 // 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparprovinsi_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
-    	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_provinsi_bymskid($id,'$msc_id')");
+	    $terpapar = DB::connection('pgsql3')->select("SELECT * FROM cluster_allkasus_provinsi_bymskid($id,'$msc_id')");
     	    $data = array();
     	    foreach($terpapar as $tpp){
     	        $data[] = array(
@@ -438,7 +438,7 @@ class TerpaparController extends Controller {
 	public function getClusterDashboardKabupatenbyMskid($id, $msc_id) {
 // 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparkabupaten_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
 	
-    	    $terpapar = DB::select("SELECT * FROM cluster_allkasus_kabupaten_bymskid($id,'$msc_id')");
+	    $terpapar = DB::connection('pgsql3')->select("SELECT * FROM cluster_allkasus_kabupaten_bymskid($id,'$msc_id')");
     	    // var_dump($terpapar);die;
     	    $data = array();
     	    foreach($terpapar as $tpp){
@@ -470,8 +470,8 @@ class TerpaparController extends Controller {
 	        $sqlsearch = "";
 	    }
 	    
-	    $terpaparall = DB::select($query . $sqlsearch);
-	    $terpapar = DB::select($query . $sqlsearch);
+	    $terpaparall = DB::connection('pgsql3')->select($query . $sqlsearch);
+	    $terpapar = DB::connection('pgsql3')->select($query . $sqlsearch);
 	    
 	    $jmltotal=(count($terpaparall));
 	    if(isset($request->limit)) {
@@ -520,7 +520,7 @@ class TerpaparController extends Controller {
 	    $endpage = 1;
 	    
 	    $terpapar = new TrnKasus();
-	    $terpapar->setConnection('pgsql2');
+	    $terpapar->setConnection('pgsql3');
 	    $terpapar = $terpapar->select('mc_id', 'mc_name', 'tk_id',
         'tk_nama', 'tk_msk_id', 'tk_msp_id',  'tk_mpro_id',  'tk_mkab_id',
         'tk_date_positif',  'tk_date_meninggal',  'tk_date_sembuh',
