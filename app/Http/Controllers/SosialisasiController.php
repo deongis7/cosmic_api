@@ -642,7 +642,7 @@ class SosialisasiController extends Controller {
             'ts_nama_kegiatan', 'ts_tanggal',
             'ts_mslk_id', 'mslk_name', 'ts_deskripsi', 'ts_checklist_dampak',
             'ts_bulan', 'ts_prsn_dampak', 'ts_prsn_dampak_all',
-            'ts_file1', 'ts_file2', 'ts_date_insert', 'ts_date_update')
+            'ts_file1', 'ts_file2', 'ts_file1_tumb', 'ts_file2_tumb', 'ts_date_insert', 'ts_date_update')
         ->join('master_company AS mc','mc.mc_id','ts_mc_id')
         ->join('master_sosialisasi_kategori AS mslk','mslk.mslk_id','ts_mslk_id')
         ->where('mc.mc_level', 1);
