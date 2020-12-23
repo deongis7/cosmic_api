@@ -100,7 +100,8 @@ class ReportController extends Controller {
          ->join('master_perimeter_level AS mpml','mpml.mpml_id','tr_mpml_id')
          ->join('master_perimeter AS mpm','mpm.mpm_id','mpml.mpml_mpm_id')
          ->join('master_company AS mc','mc.mc_id','mpm.mpm_mc_id')
-         ->where('mc.mc_level', 1);
+         ->where('mc.mc_level', 1)
+         ->where('mc.mc_id', $id);
         
          if(isset($request->close)) {
              if($request->close == 1){
