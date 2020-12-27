@@ -1330,11 +1330,11 @@ class DashboardController extends Controller
         $group_level=null;
           if(isset($request->group_company)){
               $group_company = $request->group_company;
-              $str = $str ."_group_company_".$group_company;
+              $str = $str ."_group_company_2".$group_company;
           }
           if(isset($request->group_level)){
               $group_level = $request->group_level;
-              $str = $str ."_group_level_".$group_level;
+              $str = $str ."_group_level_2".$group_level;
           }
           //dd($str);
           $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 120 * 60, function()use($group_company,$group_level) {
@@ -1342,24 +1342,24 @@ class DashboardController extends Controller
               if(isset($group_company)){
                   if($group_company==1){
                     if($group_level==2 && (isset($group_level))){
-                      $query="SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index,
+                      $query="SELECT ms_name, v_mc_id, mc_name, cnt_mpm, cosmic_index,
                         cosmic_index_min1, positif, suspek, kontakerat, selesai,
                         meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now,last_update
                         FROM mv_rangkuman_all_lvl2";
                     } else {
-                      $query="SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index,
+                      $query="SELECT ms_name, v_mc_id, mc_name, cnt_mpm, cosmic_index,
                         cosmic_index_min1, positif, suspek, kontakerat, selesai,
                         meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now,last_update
                         FROM mv_rangkuman_all";
                     }
                   } else {
-                    $query="SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index,
+                    $query="SELECT ms_name, v_mc_id, mc_name, cnt_mpm, cosmic_index,
                       cosmic_index_min1, positif, suspek, kontakerat, selesai,
                       meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now,last_update
                       FROM mv_rangkuman_all_nonbumn";
                   }
               } else {
-                $query="SELECT ms_name, mc_id, mc_name, cnt_mpm, cosmic_index,
+                $query="SELECT ms_name, v_mc_id, mc_name, cnt_mpm, cosmic_index,
                   cosmic_index_min1, positif, suspek, kontakerat, selesai,
                   meninggal, persen_dokumen, belum_dokumen, sosialisasi_akhir, now,last_update
                   FROM mv_rangkuman_all";
