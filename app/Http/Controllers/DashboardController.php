@@ -1370,7 +1370,7 @@ class DashboardController extends Controller
               foreach($rangkuman_all as $ra){
                   $data[] = array(
                       "nama_sektor" => $ra->ms_name,
-                      "kode_perusahaan" => $ra->mc_id,
+                      "kode_perusahaan" => $ra->v_mc_id,
                       "nama_perusahaan" => $ra->mc_name,
                       "jml_perimeter" => $ra->cnt_mpm,
                       "cosmic_index" => $ra->cosmic_index,
