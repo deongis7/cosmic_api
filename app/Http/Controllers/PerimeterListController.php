@@ -140,9 +140,9 @@ class PerimeterListController extends Controller
                   "alamat" => $itemperimeter->mpm_name,
                   "id_kategori" => $itemperimeter->mpmk_id,
                   "kategori" => $itemperimeter->mpmk_name,
-                  "id_provinsi" => $itemperimeter->mpro_name,
+                  "id_provinsi" => $itemperimeter->mpro_id,
                   "provinsi" => $itemperimeter->mpro_name,
-                  "id_kabupaten" => $itemperimeter->mkab_name,
+                  "id_kabupaten" => $itemperimeter->mkab_id,
                   "kabupaten" => $itemperimeter->mkab_name,
 
               );
