@@ -61,6 +61,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->post('/perimeter_closed/addActivity', 'PerimeterListController@updateAktifitasClosedPerimeter');  //force add for actifity closed perimeter
 	$router->post('/perimeter_open/add', 'PerimeterListController@openPerimeter');
 
+
 	//TaskForce
 	$router->get('/taskforce/count/{id}', 'PerimeterController@getCountTaskForce');
 	$router->get('/taskforce/{id}', 'PerimeterController@getTaskForce');
@@ -126,7 +127,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/sosialisasi/sosialisasiraw', 'SosialisasiController@getSosialisasiRaw');
     $router->get('/vaksin/vaksinraw', 'DashVaksinController@getVaksinRaw');
     $router->get('/terpapar/terpaparraw', 'TerpaparController@getTerpaparRaw');
-	
+
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
 	$router->post('/monitoring/file','PICController@updateMonitoringFile');
@@ -147,6 +148,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/list_perimeter_report/{kd_perusahaan}', 'PerimeterReportController@getPerimeterList');
     $router->get('/list_perimeter_level_report/perimeter/{id_perimeter}', 'PerimeterReportController@getPerimeterLevelListbyPerimeter');
     $router->get('/list_perimeter_level_report/count/{kd_perusahaan}', 'PerimeterReportController@getStatusPerimeterLevel');
+    $router->post('/list_perimeter/add', 'PerimeterListController@addPerimeterList');
 
     //Region
     $router->get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');

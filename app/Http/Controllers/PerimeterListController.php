@@ -997,6 +997,55 @@ class PerimeterListController extends Controller
 
     }
 
+    //Add Perimeter
+    public function addPerimeterList(Request $request){
+        $this->validate($request, [
+            'nama_perimeter' => 'required',
+            'id_kategori' => 'required',
+            'id_provinsi' => 'required',
+            'id_kota' => 'required',
+            'alamat' => 'required',
+            'kd_perusahaan' => 'required',
+        ]);
+
+        $data = array();
+        if(!ISSET($request->id_region)){
+          if(ISSET($request->region)){
+            $reg = Region::where(DB::raw("lower(TRIM(mr_name))"),'like','%'.strtolower(trim($request->region)).'%')->first();
+            if (!($reg ==NULL)){
+              $id_region = $reg->mr_id;
+            } else {
+              $reg_add = Region::create(['mr_name'=>$request->region,'mr_mc_id'=>$request->kd_perusahaan]);
+              $id_region = $reg_add->mr_id;
+            }
+          } else {
+              return response()->json(['status' => 500,'message' => 'Data Region tidak lengkap'])->setStatusCode(500);
+          }
+
+        } else {
+          $id_region = $request->id_region;
+        }
+
+        $perimeter = New Perimeter();
+        $perimeter->mpm_mr_id = $id_region;
+        $perimeter->mpm_name = $request->nama_perimeter;
+        $perimeter->mpm_mpmk_id =  $request->id_kategori;
+        $perimeter->mpm_mpro_id =  $request->id_provinsi;
+        $perimeter->mpm_mkab_id =  $request->id_kota;
+        $perimeter->mpm_alamat =  $request->alamat;
+        $perimeter->mpm_longitude =  $request->logitude;
+        $perimeter->mpm_latitude =  $request->latitude;
+        $perimeter->mpm_mc_id =  $request->kd_perusahaan;
+
+
+        if($perimeter->save()){
+          return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+        }
+    }
+
     //Get Perimeter per Region
     public function getPerimeterListbyRegion($id,Request $request){
         $limit = null;
