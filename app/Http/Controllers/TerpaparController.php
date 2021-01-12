@@ -464,28 +464,44 @@ class TerpaparController extends Controller {
 	    
 	    if(isset($request->search)) {
 	        $search = $request->search;
-	        $sqlsearch = " AND LOWER(TRIM(x_mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
+	        $sql_search = " AND LOWER(TRIM(x_mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
 	    }else{
-	        $search = '';
-	        $sqlsearch = "";
+	        $search = "";
+	        $sql_search = "";
 	    }
 	    
-	    $terpaparall = DB::connection('pgsql3')->select($query . $sqlsearch);
-	    $terpapar = DB::connection('pgsql3')->select($query . $sqlsearch);
+	    $terpaparall = DB::connection('pgsql3')->select($query .$sql_search);
+	    $terpapar = DB::connection('pgsql3')->select($query .$sql_search);
 	    
 	    $jmltotal=(count($terpaparall));
+	   
+	    if(isset($request->coloum_sort)) {
+	        if(isset($request->p_sort)) {
+	            $sql_sort = ' ORDER BY '.$request->coloum_sort.' '.$request->p_sort;
+	            $terpapar = DB::connection('pgsql3')->select($query .$sql_search .$sql_sort);
+	        }else{
+	            $sql_sort = ' ORDER BY '.$request->coloum_sort.' DESC';
+	            $terpapar = DB::connection('pgsql3')->select($query .$sql_search .$sql_sort);
+	        }
+	    }else{
+	        $sql_sort = ' ORDER BY x_jml DESC ';
+	        $terpapar = DB::connection('pgsql3')->select($query .$sql_search .$sql_sort);
+	    }
+	    
 	    if(isset($request->limit)) {
 	        $limit = $request->limit;
-	        $terpapar = DB::select($query . $sqlsearch .  " ORDER BY x_mc_name LIMIT $limit ");
+	        $sql_limit = ' LIMIT '.$request->limit;
+	        $terpapar = DB::select($query .$sql_search .$sql_sort .$sql_limit);
 	        $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
 	        
 	        if (isset($request->page)) {
 	            $page = $request->page;
 	            $offset = ((int)$page-1) * (int)$limit;
-	            $terpapar = DB::select($query . $sqlsearch .  " ORDER BY x_mc_name OFFSET $offset LIMIT $limit ");
+	            $sql_offset= ' OFFSET '.$offset;
+	            $terpapar = DB::select($query .$sql_search .$sql_sort .$sql_offset .$sql_limit);
 	        }
 	    }
-	    
+
 	    $cntterpaparall = count($terpaparall);
 	    foreach($terpapar as $tpp){
 	        if($tpp->x_mc_foto !=NULL || $tpp->x_mc_foto !=''){
