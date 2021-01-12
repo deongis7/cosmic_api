@@ -463,41 +463,40 @@ class TerpaparController extends Controller {
                 WHERE 1=1 ";
 
 	    if(isset($request->search)) {
-	        $query = $query ." AND LOWER(TRIM(x_mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
+	        $query .= " AND LOWER(TRIM(x_mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
         }
 	    
 	    $terpaparall = DB::connection('pgsql3')->select($query);
-	    $terpapar = DB::connection('pgsql3')->select($query);
-	    
 	    $jmltotal=(count($terpaparall));
-	   
+
 	    if(isset($request->column_sort)) {
 	        if(isset($request->p_sort)) {
 	            $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
-	            $terpapar = DB::connection('pgsql3')->select($query .$sql_sort);
 	        }else{
 	            $sql_sort = ' ORDER BY '.$request->column_sort.' DESC';
-	            $terpapar = DB::connection('pgsql3')->select($query .$sql_sort);
 	        }
 	    }else{
 	        $sql_sort = ' ORDER BY x_jml DESC ';
-	        $terpapar = DB::connection('pgsql3')->select($query .$sql_sort);
 	    }
+	    $query .= $sql_sort;
 	    
 	    if(isset($request->limit)) {
 	        $limit = $request->limit;
 	        $sql_limit = ' LIMIT '.$request->limit;
-	        $terpapar = DB::select($query .$sql_sort .$sql_limit);
 	        $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+	        
+	        $query .= $sql_limit;
 	        
 	        if (isset($request->page)) {
 	            $page = $request->page;
 	            $offset = ((int)$page-1) * (int)$limit;
 	            $sql_offset= ' OFFSET '.$offset;
-	            $terpapar = DB::select($query .$sql_sort .$sql_offset .$sql_limit);
+	            
+	            $query .= $sql_offset;
 	        }
 	    }
 
+	    $terpapar = DB::select($query);
 	    $cntterpaparall = count($terpaparall);
 	    foreach($terpapar as $tpp){
 	        if($tpp->x_mc_foto !=NULL || $tpp->x_mc_foto !=''){

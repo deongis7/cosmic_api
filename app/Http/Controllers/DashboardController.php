@@ -80,85 +80,124 @@ class DashboardController extends Controller
             $str = $str.'_searh_'. str_replace(' ','_',$request->search);
             $search=$request->search;
         }
-    	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$group_company){
-    	        $data = array();
+        
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$group_company){
+        $data = array();
     
-              //Filter by GroupCompany
-              if(isset($group_company)){
+          //Filter by GroupCompany
+            if(isset($group_company)){
                 if($group_company==2){
-                  $string ="SELECT * FROM dashboard_perimeter_bykategori_nonbumn()";
+                    $string = " SELECT * FROM dashboard_perimeter_bykategori_nonbumn() ";
                 } else {
-                  $string ="SELECT * FROM dashboard_perimeter_bykategori()";
+                    $string = " SELECT * FROM dashboard_perimeter_bykategori() ";
                 }
-              } else {
-                $string ="SELECT * FROM dashboard_perimeter_bykategori_semua()";
-              }
-              //dd($string);
-              //$string ="SELECT * FROM dashboard_perimeter_bykategori()";
-              if(isset($search)) {
-                  $string = $string . " where lower(TRIM(v_judul)) like '%".strtolower(trim($search))."%' ";
-              }
-              $jmltotal=(count(DB::connection('pgsql2')->select($string)));
-              if(isset($limit)) {
-                  $string = $string. " limit ".$limit;
-                  $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-    
-                  if (isset($page)) {
-                      $offset = ((int)$page -1) * (int)$limit;
-                      $string = $string . " offset " .$offset;
-                  }
-              }
-    
-    	        $perimeter_bykategori_all = DB::select($string);
-    
-    	        foreach($perimeter_bykategori_all as $pka){
-    	            $data[] = array(
-    	            	"v_id" => $pka->v_id,
-    	                "v_judul" => $pka->v_judul,
-    	                "v_jml" => $pka->v_jml
-    	            );
-    	        }
-    	        return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
-    	    });
-    	        return response()->json( $datacache);
+            } else {
+                $string = " SELECT * FROM dashboard_perimeter_bykategori_semua() ";
+            }
+            
+            if(isset($search)) {
+                $string .= " WHERE LOWER(TRIM(v_judul)) LIKE '%".strtolower(trim($search))."%' ";
+            }
+              
+            $jmltotal=(count(DB::connection('pgsql2')->select($string)));
+            if(isset($request->column_sort)) {
+                if(isset($request->p_sort)) {
+                    $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
+                }else{
+                    $sql_sort = ' ORDER BY '.$request->column_sort.' DESC';
+                }
+            }else{
+                $sql_sort = ' ORDER BY v_jml DESC ';
+            }
+            $string .= $sql_sort;
+              
+            if(isset($request->limit)) {
+                $limit = $request->limit;
+                $sql_limit = ' LIMIT '.$request->limit;
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+                
+                $string .= $sql_limit;
+                
+                if (isset($request->page)) {
+                    $page = $request->page;
+                    $offset = ((int)$page-1) * (int)$limit;
+                    $sql_offset= ' OFFSET '.$offset;
+                    
+                    $string .= $sql_offset;
+                }
+            }
+            
+            $perimeter_bykategori_all = DB::select($string);
+            
+            foreach($perimeter_bykategori_all as $pka){
+                $data[] = array(
+                	"v_id" => $pka->v_id,
+                    "v_judul" => $pka->v_judul,
+                    "v_jml" => $pka->v_jml
+                );
+            }
+            return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
+        });
+        return response()->json( $data);
 	}
 
 
   	public function getPerimeterbyPerusahaanAll(Request $request){
-      $limit = null;
-      $page = null;
-      $endpage = 1;
-      $search = null;
-      $str = "_get_perimeter_byperusahaan_allx";
-      if(isset($request->limit)){
+        $limit = null;
+        $page = null;
+        $endpage = 1;
+        $search = null;
+        $str = "_get_perimeter_byperusahaan_allx";
+        if(isset($request->limit)){
           $str = $str.'_limit_'. $request->limit;
           $limit=$request->limit;
           if(isset($request->page)){
               $str = $str.'_page_'. $request->page;
               $page=$request->page;
           }
-      }
-      if(isset($request->search)){
+        }
+        if(isset($request->search)){
           $str = $str.'_searh_'. str_replace(' ','_',$request->search);
           $search=$request->search;
-      }
-  	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
-  	        $data = array();
+        }
+      
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
+        $data = array();
 
-            $string ="SELECT * FROM dashboard_perimeter_byperusahaan()";
+            $string =" SELECT * FROM dashboard_perimeter_byperusahaan() ";
+            
             if(isset($search)) {
-                $string = $string . " where lower(TRIM(v_nama_perusahaan)) like '%".strtolower(trim($search))."%' ";
+                $string .= " WHERE lower(TRIM(v_nama_perusahaan)) like '%".strtolower(trim($search))."%' ";
             }
             $jmltotal=(count(DB::connection('pgsql2')->select($string)));
-            if(isset($limit)) {
-                $string = $string. " limit ".$limit;
-                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
 
-                if (isset($page)) {
-                    $offset = ((int)$page -1) * (int)$limit;
-                    $string = $string . " offset " .$offset;
+            if(isset($request->column_sort)) {
+                if(isset($request->p_sort)) {
+                    $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
+                }else{
+                    $sql_sort = ' ORDER BY '.$request->column_sort.' DESC';
+                }
+            }else{
+                $sql_sort = ' ORDER BY v_jml DESC ';
+            }
+            $string .= $sql_sort;
+            
+            if(isset($request->limit)) {
+                $limit = $request->limit;
+                $sql_limit = ' LIMIT '.$request->limit;
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+                
+                $string .= $sql_limit;
+                
+                if (isset($request->page)) {
+                    $page = $request->page;
+                    $offset = ((int)$page-1) * (int)$limit;
+                    $sql_offset= ' OFFSET '.$offset;
+                    
+                    $string .= $sql_offset;
                 }
             }
+            
             $perimeter_byperusahaan_all = DB::connection('pgsql2')->select($string);
 
   	        foreach($perimeter_byperusahaan_all as $pka){
@@ -168,9 +207,9 @@ class DashboardController extends Controller
   	                "v_jml" => $pka->v_jml
   	            );
   	        }
-  	        return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
+            return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
   	    });
-  	        return response()->json( $datacache);
+        return response()->json($datacache);
   	}
 
     public function getRegionbyPerusahaanbyID($kd_perusahaan,Request $request){
@@ -599,13 +638,12 @@ class DashboardController extends Controller
 	}
 
     public function getCosmicIndexReport(Request $request){
-
         $str = 'get_cosmic_index_report';
         $group_company = null;
-
+        
         if(isset($request->group_company)){
-          $group_company = $request->group_company;
-          $str = $str ."_group_company_".$group_company;
+            $group_company = $request->group_company;
+            $str = $str ."_group_company_".$group_company;
         }
 
         if(isset($request->date)){
@@ -631,87 +669,133 @@ class DashboardController extends Controller
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
 
-
             if ($week==$weeknow){
-              //  $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
-
-              //foreach($company as $itemcompany) {
-
-                    //$company_id = (string)$itemcompany->mc_id;
-                    //dd($itemcompany->mc_id);
-                    $sql = "SELECT
-                        a.v_mc_id,
-                        a.v_mc_name,
-                        a.v_ms_id,
-                        a.v_ms_name,
-                        a.v_cosmic_index,
-                        a.v_pemenuhan_protokol,
-                        a.v_pemenuhan_ceklist_monitoring,
-                        a.v_pemenuhan_eviden
-                        FROM mv_cosmic_index_report a
-                        ";
-                    if(isset($group_company)){
-                          if($group_company==2){
-                            $cc_string = " where a.v_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=2) ";
-                          } else {
-                              $cc_string = " where a.v_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=1) ";
-                          }
-                        } else {
-                            $cc_string = "";
-                        }
-                    $sql =$sql.$cc_string;
-                    //echo $sql;die;
-                    $result = DB::select($sql);
-                    //dd($result);
-                    foreach ($result as $value) {
-                        $data[] = array(
-                            "week" =>  $week,
-                            "mc_id" => $value->v_mc_id,
-                            "mc_name" => $value->v_mc_name,
-                            "ms_id" => $value->v_ms_id,
-                            "ms_name" => $value->v_ms_name,
-                            "cosmic_index" => $value->v_cosmic_index,
-                            "pemenuhan_protokol" => $value->v_pemenuhan_protokol,
-                            "pemenuhan_ceklist_monitoring" => $value->v_pemenuhan_ceklist_monitoring,
-                            "pemenuhan_eviden" => $value->v_pemenuhan_eviden
-
-                        );
-                  //  }
-                }
-            } else {
-              $str_rpi ="SELECT *
-                      FROM report_cosmic_index rpi
-                      WHERE rci_week = ?";
-
-              if(isset($group_company)){
+                //  $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
+                //foreach($company as $itemcompany) {
+                //$company_id = (string)$itemcompany->mc_id;
+                //dd($itemcompany->mc_id);
+                $sql = "SELECT
+                    a.v_mc_id,
+                    a.v_mc_name,
+                    a.v_ms_id,
+                    a.v_ms_name,
+                    a.v_cosmic_index,
+                    a.v_pemenuhan_protokol,
+                    a.v_pemenuhan_ceklist_monitoring,
+                    a.v_pemenuhan_eviden
+                    FROM mv_cosmic_index_report a
+                    ";
+                if(isset($group_company)){
                     if($group_company==2){
-                      $cc_string = " and rci_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=2) ";
+                        $cc_string = " WHERE a.v_mc_id in (SELECT mc_id FROM master_company WHERE mc_level=1 AND mc_flag=2) ";
                     } else {
-                        $cc_string = " and rci_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=1) ";
+                      $cc_string = " WHERE a.v_mc_id in (SELECT mc_id FROM master_company WHERE mc_level=1 AND mc_flag=1) ";
                     }
-                  } else {
-                      $cc_string = "";
-                  }
-              $str_rpi =$str_rpi.$cc_string." ORDER BY rci_mc_name";
-
-              $rpi =  DB::connection('pgsql2')->select($str_rpi,[(string)$week]);
-
-                foreach($rpi as $itemrpi){
+                } else {
+                    $cc_string = "";
+                }
+                $sql =$sql.$cc_string;
+                    
+                if(isset($request->column_sort)) {
+                    if(isset($request->p_sort)) {
+                        $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
+                    }else{
+                        $sql_sort = ' ORDER BY '.$request->column_sort.' DESC';
+                    }
+                }else{
+                    $sql_sort = ' ORDER BY v_cosmic_index DESC ';
+                }
+                $sql .= $sql_sort;
+                    
+                if(isset($request->limit)) {
+                    $limit = $request->limit;
+                    $sql_limit = ' LIMIT '.$request->limit;
+                    $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+                    
+                    $sql .= $sql_limit;
+                    
+                    if (isset($request->page)) {
+                        $page = $request->page;
+                        $offset = ((int)$page-1) * (int)$limit;
+                        $sql_offset= ' OFFSET '.$offset;
+                        
+                        $sql .= $sql_offset;
+                    }
+                }
+                    //echo $sql;die;
+                $result = DB::select($sql);
+                //dd($result);
+                foreach ($result as $value) {
                     $data[] = array(
                         "week" =>  $week,
-                        "mc_id" => $itemrpi->rci_mc_id,
-                        "mc_name" => $itemrpi->rci_mc_name,
-                        "ms_id" => $itemrpi->rci_ms_id,
-                        "ms_name" => $itemrpi->rci_ms_name,
-                        "cosmic_index" => $itemrpi->rci_cosmic_index,
-                        "pemenuhan_protokol" => $itemrpi->rci_pemenuhan_protokol,
-                        "pemenuhan_ceklist_monitoring" => $itemrpi->rci_pemenuhan_ceklist_monitoring,
-                        "pemenuhan_eviden" => $itemrpi->rci_pemenuhan_eviden,
+                        "mc_id" => $value->v_mc_id,
+                        "mc_name" => $value->v_mc_name,
+                        "ms_id" => $value->v_ms_id,
+                        "ms_name" => $value->v_ms_name,
+                        "cosmic_index" => $value->v_cosmic_index,
+                        "pemenuhan_protokol" => $value->v_pemenuhan_protokol,
+                        "pemenuhan_ceklist_monitoring" => $value->v_pemenuhan_ceklist_monitoring,
+                        "pemenuhan_eviden" => $value->v_pemenuhan_eviden
 
                     );
                 }
-            }
+            } else {
+                $str_rpi =" SELECT * FROM mv_cosmic_index_report_hist WHERE v_week = ? ";
 
+                if(isset($group_company)){
+                    if($group_company==2){
+                      $cc_string = " AND v_mc_id IN (SELECT mc_id FROM master_company WHERE mc_level=1 AND mc_flag=2) ";
+                    } else {
+                        $cc_string = " AND v_mc_id IN (SELECT mc_id FROM master_company WHERE mc_level=1 AND mc_flag=1) ";
+                    }
+                } else {
+                  $cc_string = "";
+                }
+                $str_rpi .= $cc_string;
+
+                if(isset($request->column_sort)) {
+                    if(isset($request->p_sort)) {
+                        $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
+                    }else{
+                        $sql_sort = ' ORDER BY '.$request->column_sort.' DESC';
+                    }
+                }else{
+                    $sql_sort = ' ORDER BY v_cosmic_index DESC ';
+                }
+                $str_rpi .= $sql_sort;
+                
+                if(isset($request->limit)) {
+                    $limit = $request->limit;
+                    $sql_limit = ' LIMIT '.$request->limit;
+                    $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+                    
+                    $str_rpi .= $sql_limit;
+                    
+                    if (isset($request->page)) {
+                        $page = $request->page;
+                        $offset = ((int)$page-1) * (int)$limit;
+                        $sql_offset= ' OFFSET '.$offset;
+                        
+                        $str_rpi .= $sql_offset;
+                    }
+                }
+          
+                $rpi =  DB::connection('pgsql2')->select($str_rpi,[(string)$week]);
+        
+                foreach($rpi as $itemrpi){
+                    $data[] = array(
+                        "week" =>  $week,
+                        "mc_id" => $itemrpi->v_mc_id,
+                        "mc_name" => $itemrpi->v_mc_name,
+                        "ms_id" => $itemrpi->v_ms_id,
+                        "ms_name" => $itemrpi->v_ms_name,
+                        "cosmic_index" => $itemrpi->v_cosmic_index,
+                        "pemenuhan_protokol" => $itemrpi->v_pemenuhan_protokol,
+                        "pemenuhan_ceklist_monitoring" => $itemrpi->v_pemenuhan_ceklist_monitoring,
+                        "pemenuhan_eviden" => $itemrpi->v_pemenuhan_eviden,
+                    );
+                }
+            }
             return $data;
         });
         return response()->json(['status' => 200,'data' => $datacache]);
@@ -725,6 +809,7 @@ class DashboardController extends Controller
           $group_company = $request->group_company;
           $str = $str ."_group_company_".$group_company;
         }
+        
         if(isset($request->date)){
             $strdate =  Carbon::parse($request->date);
             //  dd($date);
@@ -748,43 +833,34 @@ class DashboardController extends Controller
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
             if ($week==$weeknow){
-              //  $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
+                $sql = "SELECT
+                avg((a.v_cosmic_index)::float) as v_cosmic_index,
+                avg((a.v_pemenuhan_protokol)::float) as v_pemenuhan_protokol,
+                avg((a.v_pemenuhan_ceklist_monitoring)::float) as v_pemenuhan_ceklist_monitoring,
+                avg((a.v_pemenuhan_eviden)::float) as v_pemenuhan_eviden
+                FROM mv_cosmic_index_report a
+                ";
 
-              //foreach($company as $itemcompany) {
-
-                    //$company_id = (string)$itemcompany->mc_id;
-                    //dd($itemcompany->mc_id);
-                    $sql = "SELECT
-                        avg((a.v_cosmic_index)::float) as v_cosmic_index,
-                        avg((a.v_pemenuhan_protokol)::float) as v_pemenuhan_protokol,
-                        avg((a.v_pemenuhan_ceklist_monitoring)::float) as v_pemenuhan_ceklist_monitoring,
-                        avg((a.v_pemenuhan_eviden)::float) as v_pemenuhan_eviden
-                        FROM mv_cosmic_index_report a
-                        ";
-
-                  if(isset($group_company)){
+                if(isset($group_company)){
                     if($group_company==2){
                       $cc_string = " where a.v_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=2) ";
                     } else {
                       $cc_string = " where a.v_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=1) ";
                     }
-                  } else {
+                } else {
                     $cc_string = "";
-                  }
-                  $sql =$sql.$cc_string;
-                    //echo $sql;die;
-                  $result =  DB::connection('pgsql2')->select($sql);
-                    //dd($result);
-                    foreach ($result as $value) {
-                        $data[] = array(
-                            "week" =>  $week,
-                            "cosmic_index" => round($value->v_cosmic_index,0),
-                            "pemenuhan_protokol" => round($value->v_pemenuhan_protokol,0),
-                            "pemenuhan_ceklist_monitoring" => round($value->v_pemenuhan_ceklist_monitoring,0),
-                            "pemenuhan_eviden" => round($value->v_pemenuhan_eviden,0)
-
-                        );
-                  //  }
+                }
+                $sql =$sql.$cc_string;
+                
+                $result =  DB::connection('pgsql2')->select($sql);
+                foreach ($result as $value) {
+                    $data[] = array(
+                        "week" =>  $week,
+                        "cosmic_index" => round($value->v_cosmic_index,0),
+                        "pemenuhan_protokol" => round($value->v_pemenuhan_protokol,0),
+                        "pemenuhan_ceklist_monitoring" => round($value->v_pemenuhan_ceklist_monitoring,0),
+                        "pemenuhan_eviden" => round($value->v_pemenuhan_eviden,0)
+                    );
                 }
             } else {
               $sqlrpi = "SELECT
