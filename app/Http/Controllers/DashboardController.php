@@ -1346,23 +1346,43 @@ class DashboardController extends Controller
             $str = $str.'_searh_'. str_replace(' ','_',$request->search);
             $search=$request->search;
         }
-          $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
+        
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
               $data = array();
 
-              $string ="SELECT * FROM dashboard_event_all()";
+              $string =" SELECT * FROM dashboard_event_all() ";
               if(isset($search)) {
-                  $string = $string . " where lower(TRIM(v_nama_perusahaan)) like '%".strtolower(trim($search))."%' ";
+                  $string .= " WHERE LOWER(TRIM(v_nama_perusahaan)) LIKE '%".strtolower(trim($search))."%' ";
               }
               $jmltotal=(count( DB::connection('pgsql2')->select($string)));
-              if(isset($limit)) {
-                  $string = $string. " limit ".$limit;
+             
+              if(isset($request->column_sort)) {
+                  if(isset($request->p_sort)) {
+                      $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
+                  }else{
+                      $sql_sort = ' ORDER BY '.$request->column_sort.' DESC';
+                  }
+              }else{
+                  $sql_sort = ' ORDER BY v_jml_event DESC ';
+              }
+              $string .= $sql_sort;
+              
+              if(isset($request->limit)) {
+                  $limit = $request->limit;
+                  $sql_limit = ' LIMIT '.$request->limit;
                   $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-
-                  if (isset($page)) {
-                      $offset = ((int)$page -1) * (int)$limit;
-                      $string = $string . " offset " .$offset;
+                  
+                  $string .= $sql_limit;
+                  
+                  if (isset($request->page)) {
+                      $page = $request->page;
+                      $offset = ((int)$page-1) * (int)$limit;
+                      $sql_offset= ' OFFSET '.$offset;
+                      
+                      $string .= $sql_offset;
                   }
               }
+              
               $perimeter_byperusahaan_all =  DB::connection('pgsql2')->select($string);
 
               foreach($perimeter_byperusahaan_all as $pka){
@@ -1373,8 +1393,8 @@ class DashboardController extends Controller
                   );
               }
               return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
-          });
-              return response()->json( $datacache);
+        });
+        return response()->json($data);
       }
 
     public function countEventbyPerusahaanAll(){
