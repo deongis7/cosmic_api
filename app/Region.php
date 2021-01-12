@@ -12,4 +12,7 @@ class Region extends Model
 	protected $primaryKey = 'mr_id';
 	const CREATED_AT = 'mr_date_insert';
 	const UPDATED_AT = 'mr_date_update';
+  protected $fillable = [
+        'mr_name','mr_mc_id'
+    ];
 }
