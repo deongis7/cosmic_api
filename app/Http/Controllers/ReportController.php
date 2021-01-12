@@ -490,7 +490,7 @@ class ReportController extends Controller {
     public function getDashReportMobileByJns($id, Request $request){
         $data = array();
         $limit = '';
-        $page = '';
+        $page = 1;
         $endpage = 1;
         
         $query = " SELECT *  FROM report_dashboardall_byjns('$id') 
@@ -498,28 +498,42 @@ class ReportController extends Controller {
         
         if(isset($request->search)) {
             $search = $request->search;
-            $sqlsearch = " AND LOWER(TRIM(v_mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
-        }else{
-            $search = '';
-            $sqlsearch = "";
+            $query .= " AND LOWER(TRIM(v_mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
         }
         
-        $reportall = DB::connection('pgsql3')->select($query . $sqlsearch);
-        $report =  DB::connection('pgsql3')->select($query . $sqlsearch);
+        $reportall = DB::connection('pgsql3')->select($query);
+        
         
         $jmltotal=(count($reportall));
+ 
+        if(isset($request->column_sort)) {
+            if(isset($request->p_sort)) {
+                $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
+            }else{
+                $sql_sort = ' ORDER BY '.$request->column_sort.' DESC';
+            }
+        }else{
+            $sql_sort = ' ORDER BY v_jml_1 DESC ';
+        }
+        $query .= $sql_sort;
+        
         if(isset($request->limit)) {
             $limit = $request->limit;
-            $report =  DB::connection('pgsql3')->select($query . $sqlsearch .  " ORDER BY v_mc_name LIMIT $limit ");
+            $sql_limit = ' LIMIT '.$request->limit;
             $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+            
+            $query .= $sql_limit;
             
             if (isset($request->page)) {
                 $page = $request->page;
                 $offset = ((int)$page-1) * (int)$limit;
-                $report =  DB::connection('pgsql3')->select($query . $sqlsearch .  " ORDER BY v_mc_name OFFSET $offset LIMIT $limit ");
+                $sql_offset= ' OFFSET '.$offset;
+                
+                $query .= $sql_offset;
             }
         }
 
+        $report =  DB::connection('pgsql3')->select($query);
         $cntreportall = count($reportall);
         foreach($report as $dh){
             $data[] = array(
