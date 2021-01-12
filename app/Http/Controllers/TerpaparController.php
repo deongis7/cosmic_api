@@ -461,44 +461,40 @@ class TerpaparController extends Controller {
 	    
 	    $query = "SELECT * FROM allkasus_companymobile_bymskid($id)
                 WHERE 1=1 ";
-	    
+
 	    if(isset($request->search)) {
-	        $search = $request->search;
-	        $sql_search = " AND LOWER(TRIM(x_mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
-	    }else{
-	        $search = "";
-	        $sql_search = "";
-	    }
+	        $query = $query ." AND LOWER(TRIM(x_mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
+        }
 	    
-	    $terpaparall = DB::connection('pgsql3')->select($query .$sql_search);
-	    $terpapar = DB::connection('pgsql3')->select($query .$sql_search);
+	    $terpaparall = DB::connection('pgsql3')->select($query);
+	    $terpapar = DB::connection('pgsql3')->select($query);
 	    
 	    $jmltotal=(count($terpaparall));
 	   
 	    if(isset($request->column_sort)) {
 	        if(isset($request->p_sort)) {
 	            $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
-	            $terpapar = DB::connection('pgsql3')->select($query .$sql_search .$sql_sort);
+	            $terpapar = DB::connection('pgsql3')->select($query .$sql_sort);
 	        }else{
 	            $sql_sort = ' ORDER BY '.$request->column_sort.' DESC';
-	            $terpapar = DB::connection('pgsql3')->select($query .$sql_search .$sql_sort);
+	            $terpapar = DB::connection('pgsql3')->select($query .$sql_sort);
 	        }
 	    }else{
 	        $sql_sort = ' ORDER BY x_jml DESC ';
-	        $terpapar = DB::connection('pgsql3')->select($query .$sql_search .$sql_sort);
+	        $terpapar = DB::connection('pgsql3')->select($query .$sql_sort);
 	    }
 	    
 	    if(isset($request->limit)) {
 	        $limit = $request->limit;
 	        $sql_limit = ' LIMIT '.$request->limit;
-	        $terpapar = DB::select($query .$sql_search .$sql_sort .$sql_limit);
+	        $terpapar = DB::select($query .$sql_sort .$sql_limit);
 	        $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
 	        
 	        if (isset($request->page)) {
 	            $page = $request->page;
 	            $offset = ((int)$page-1) * (int)$limit;
 	            $sql_offset= ' OFFSET '.$offset;
-	            $terpapar = DB::select($query .$sql_search .$sql_sort .$sql_offset .$sql_limit);
+	            $terpapar = DB::select($query .$sql_sort .$sql_offset .$sql_limit);
 	        }
 	    }
 
