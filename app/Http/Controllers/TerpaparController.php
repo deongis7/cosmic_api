@@ -475,12 +475,12 @@ class TerpaparController extends Controller {
 	    
 	    $jmltotal=(count($terpaparall));
 	   
-	    if(isset($request->coloum_sort)) {
+	    if(isset($request->column_sort)) {
 	        if(isset($request->p_sort)) {
-	            $sql_sort = ' ORDER BY '.$request->coloum_sort.' '.$request->p_sort;
+	            $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
 	            $terpapar = DB::connection('pgsql3')->select($query .$sql_search .$sql_sort);
 	        }else{
-	            $sql_sort = ' ORDER BY '.$request->coloum_sort.' DESC';
+	            $sql_sort = ' ORDER BY '.$request->column_sort.' DESC';
 	            $terpapar = DB::connection('pgsql3')->select($query .$sql_search .$sql_sort);
 	        }
 	    }else{
