@@ -997,6 +997,61 @@ class PerimeterListController extends Controller
 
     }
 
+    //Get Perimeter Detail Level
+    public function addDetailPerimeter(Request $request){
+        $this->validate($request, [
+            'id_perimeter' => 'required',
+            'level' => 'required',
+            'nik_fo' => 'required',
+            'nik_pic' => 'required',
+            'id_kategori_perimeter' => 'required'
+        ]);
+
+        $data = array();
+        $cluster=$request->cluster;
+
+
+        //Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
+        //$perimeterlevel = PerimeterLevel::where('mpml_id',$request->id_perimeter_level)->first();
+        $perimeter = Perimeter::where('mpm_id',$request->id_perimeter)->first();
+
+          ($perimeter);
+            if ($perimeter!= null){
+              $perimeterlevel= New PerimeterLevel();
+                $perimeterlevel->mpml_name = $request->level;
+                $perimeterlevel->mpml_ket = $request->keterangan;
+                $perimeterlevel->mpml_me_nik = $request->nik_fo;
+                $perimeterlevel->mpml_pic_nik = $request->nik_pic;
+                $perimeterlevel->mpml_mpm_id = $request->id_perimeter;
+                //$perimeter->mpm_mpmk_id = $request->id_kategori_perimeter;
+                if($perimeterlevel->save()){
+
+                    PerimeterDetail::where('tpmd_mpml_id' ,$request->id_perimeter_level)->update(['tpmd_cek' => false]);
+
+                    //dd((strtolower($item_tmp_perimeter->c1)));
+                    //lobby
+                    foreach($cluster as $itemcluster){
+                        $jml=$itemcluster['jumlah'];
+
+                        for ($i = 1; $i <= $jml; $i++){
+                            PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $request->id_perimeter_level, 'tpmd_mcr_id' => $itemcluster['id_cluster_ruangan'], 'tpmd_order' => $i],['tpmd_cek' => true]);
+                        }
+                    }
+
+
+                    return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+
+                } else {
+                    return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+                }
+
+            } else {
+                return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+
+            }
+
+    }
+
     //Add Perimeter
     public function addPerimeterList(Request $request){
         $this->validate($request, [

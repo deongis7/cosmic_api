@@ -55,6 +55,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/perimeter/{kd_perusahaan}/kota/{id_kota}', 'PerimeterController@getPerimeterbyKota');
 	$router->get('/perimeter_level/perimeter/{id_perimeter}', 'PerimeterController@getLevelbyPerimeter');
 	$router->post('/perimeter_level/update', 'PerimeterController@updateDetailPerimeterLevel');
+	$router->post('/perimeter_level/add', 'PerimeterListController@addDetailPerimeter');
 	$router->post('/perimeter/update', 'PerimeterListController@updateDetailPerimeter');
 	$router->post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
 	$router->post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
