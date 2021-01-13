@@ -1094,7 +1094,7 @@ class PerimeterListController extends Controller
 
 
         if($perimeter->save()){
-          return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+          return response()->json(['id_perimeter' => $perimeter->mpm_id,'status' => 200,'message' => 'Data Berhasil Disimpan']);
 
         } else {
             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
