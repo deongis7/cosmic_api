@@ -1004,7 +1004,7 @@ class PerimeterListController extends Controller
             'level' => 'required',
             'nik_fo' => 'required',
             'nik_pic' => 'required',
-            'id_kategori_perimeter' => 'required'
+            //'id_kategori_perimeter' => 'required'
         ]);
 
         $data = array();
