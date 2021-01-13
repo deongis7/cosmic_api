@@ -1026,7 +1026,7 @@ class PerimeterListController extends Controller
                 //$perimeter->mpm_mpmk_id = $request->id_kategori_perimeter;
                 if($perimeterlevel->save()){
 
-                    PerimeterDetail::where('tpmd_mpml_id' ,$request->id_perimeter_level)->update(['tpmd_cek' => false]);
+                    PerimeterDetail::where('tpmd_mpml_id' ,$perimeterlevel->mpml_id)->update(['tpmd_cek' => false]);
 
                     //dd((strtolower($item_tmp_perimeter->c1)));
                     //lobby
@@ -1034,7 +1034,7 @@ class PerimeterListController extends Controller
                         $jml=$itemcluster['jumlah'];
 
                         for ($i = 1; $i <= $jml; $i++){
-                            PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $request->id_perimeter_level, 'tpmd_mcr_id' => $itemcluster['id_cluster_ruangan'], 'tpmd_order' => $i],['tpmd_cek' => true]);
+                            PerimeterDetail::updateOrCreate(['tpmd_mpml_id' => $perimeterlevel->mpml_id, 'tpmd_mcr_id' => $itemcluster['id_cluster_ruangan'], 'tpmd_order' => $i],['tpmd_cek' => true]);
                         }
                     }
 
