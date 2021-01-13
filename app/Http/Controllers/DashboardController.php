@@ -138,7 +138,7 @@ class DashboardController extends Controller
             }
             return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
         });
-        return response()->json( $data);
+            return response()->json( $datacache);
 	}
 
 
