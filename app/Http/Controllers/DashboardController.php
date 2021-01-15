@@ -667,7 +667,7 @@ class DashboardController extends Controller
 
             $week = $startdate ."-".$enddate;
             $weeknow = $startdatenow ."-".$enddatenow;
-            $data=[];
+            //$data=[];
 
             if ($week==$weeknow){
                 //  $company = Company::select(DB::raw("cast(mc_id as varchar(5))"))->where('mc_level',1)->get();
@@ -796,7 +796,7 @@ class DashboardController extends Controller
                     );
                 }
             }
-            return $data;
+           // return $data;
         //});
         return response()->json(['status' => 200,'data' => $data]);
     }
