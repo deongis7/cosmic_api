@@ -81,7 +81,7 @@ class DashboardController extends Controller
             $search=$request->search;
         }
         
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$group_company){
+        //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$group_company){
         $data = array();
     
           //Filter by GroupCompany
@@ -137,8 +137,8 @@ class DashboardController extends Controller
                 );
             }
             return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
-        });
-            return response()->json( $datacache);
+        //});
+            return response()->json( $data);
 	}
 
 
@@ -161,7 +161,7 @@ class DashboardController extends Controller
           $search=$request->search;
         }
       
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
+        //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
         $data = array();
 
             $string =" SELECT * FROM dashboard_perimeter_byperusahaan() ";
@@ -208,8 +208,8 @@ class DashboardController extends Controller
   	            );
   	        }
             return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
-  	    });
-        return response()->json($datacache);
+  	    //});
+        return response()->json($data);
   	}
 
     public function getRegionbyPerusahaanbyID($kd_perusahaan,Request $request){
@@ -659,7 +659,7 @@ class DashboardController extends Controller
             $str = $str."_".$startdate."_".$enddate;
         }
 
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate,$group_company) {
+        //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate,$group_company) {
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdatenow = $weeks['startweek'];
@@ -797,8 +797,8 @@ class DashboardController extends Controller
                 }
             }
             return $data;
-        });
-        return response()->json(['status' => 200,'data' => $datacache]);
+        //});
+        return response()->json(['status' => 200,'data' => $data]);
     }
 
     public function getCosmicIndexReportAverage(Request $request){
@@ -1347,7 +1347,7 @@ class DashboardController extends Controller
             $search=$request->search;
         }
         
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
+        //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
               $data = array();
 
               $string =" SELECT * FROM dashboard_event_all() ";
@@ -1393,7 +1393,7 @@ class DashboardController extends Controller
                   );
               }
               return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
-        });
+        //});
         return response()->json($data);
       }
 
