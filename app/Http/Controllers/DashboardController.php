@@ -1328,7 +1328,7 @@ class DashboardController extends Controller
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 
-      public function getEventbyPerusahaanAll(){
+	public function getEventbyPerusahaanAll(Request $request){
         $limit = null;
         $page = null;
         $endpage = 1;
@@ -1382,7 +1382,7 @@ class DashboardController extends Controller
                       $string .= $sql_offset;
                   }
               }
-              
+      
               $perimeter_byperusahaan_all =  DB::connection('pgsql2')->select($string);
 
               foreach($perimeter_byperusahaan_all as $pka){
