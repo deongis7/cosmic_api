@@ -1066,7 +1066,8 @@ class PerimeterListController extends Controller
         $data = array();
         if(!ISSET($request->id_region)){
           if(ISSET($request->region)){
-            $reg = Region::where(DB::raw("lower(TRIM(mr_name))"),'like','%'.strtolower(trim($request->region)).'%')->first();
+            $reg = Region::where(DB::raw("lower(TRIM(mr_name))"),'=',''.strtolower(trim($request->region)).'')
+                ->where('mr_mc_id','=',$request->kd_perusahaan)->first();
             if (!($reg ==NULL)){
               $id_region = $reg->mr_id;
             } else {
