@@ -80,10 +80,10 @@ class DashboardController extends Controller
             $str = $str.'_searh_'. str_replace(' ','_',$request->search);
             $search=$request->search;
         }
-        
+
         //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$group_company){
         $data = array();
-    
+
           //Filter by GroupCompany
             if(isset($group_company)){
                 if($group_company==2){
@@ -94,11 +94,11 @@ class DashboardController extends Controller
             } else {
                 $string = " SELECT * FROM dashboard_perimeter_bykategori_semua() ";
             }
-            
+
             if(isset($search)) {
                 $string .= " WHERE LOWER(TRIM(v_judul)) LIKE '%".strtolower(trim($search))."%' ";
             }
-              
+
             $jmltotal=(count(DB::connection('pgsql2')->select($string)));
             if(isset($request->column_sort)) {
                 if(isset($request->p_sort)) {
@@ -110,25 +110,25 @@ class DashboardController extends Controller
                 $sql_sort = ' ORDER BY v_jml DESC ';
             }
             $string .= $sql_sort;
-              
+
             if(isset($request->limit)) {
                 $limit = $request->limit;
                 $sql_limit = ' LIMIT '.$request->limit;
                 $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-                
+
                 $string .= $sql_limit;
-                
+
                 if (isset($request->page)) {
                     $page = $request->page;
                     $offset = ((int)$page-1) * (int)$limit;
                     $sql_offset= ' OFFSET '.$offset;
-                    
+
                     $string .= $sql_offset;
                 }
             }
-            
+
             $perimeter_bykategori_all = DB::select($string);
-            
+
             foreach($perimeter_bykategori_all as $pka){
                 $data[] = array(
                 	"v_id" => $pka->v_id,
@@ -160,12 +160,12 @@ class DashboardController extends Controller
           $str = $str.'_searh_'. str_replace(' ','_',$request->search);
           $search=$request->search;
         }
-      
+
         //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
         $data = array();
 
             $string =" SELECT * FROM dashboard_perimeter_byperusahaan() ";
-            
+
             if(isset($search)) {
                 $string .= " WHERE lower(TRIM(v_nama_perusahaan)) like '%".strtolower(trim($search))."%' ";
             }
@@ -181,23 +181,23 @@ class DashboardController extends Controller
                 $sql_sort = ' ORDER BY v_jml DESC ';
             }
             $string .= $sql_sort;
-            
+
             if(isset($request->limit)) {
                 $limit = $request->limit;
                 $sql_limit = ' LIMIT '.$request->limit;
                 $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-                
+
                 $string .= $sql_limit;
-                
+
                 if (isset($request->page)) {
                     $page = $request->page;
                     $offset = ((int)$page-1) * (int)$limit;
                     $sql_offset= ' OFFSET '.$offset;
-                    
+
                     $string .= $sql_offset;
                 }
             }
-            
+
             $perimeter_byperusahaan_all = DB::connection('pgsql2')->select($string);
 
   	        foreach($perimeter_byperusahaan_all as $pka){
@@ -302,7 +302,9 @@ class DashboardController extends Controller
                 $data[] = array(
                   "id_perimeter" => $pka->id_perimeter,
                     "nama_perimeter" => $pka->nama_perimeter,
-                    "jml_level" => $pka->jml_level
+                    "jml_level" => $pka->jml_level,
+                    "kd_perusahaan" => $pka->kd_perusahaan,
+                    "nama_perusahaan" => $pka->nama_perusahaan
                 );
             }
             return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
@@ -351,7 +353,9 @@ class DashboardController extends Controller
                 $data[] = array(
                   "id_perimeter" => $pka->id_perimeter,
                     "nama_perimeter" => $pka->nama_perimeter,
-                    "jml_level" => $pka->jml_level
+                    "jml_level" => $pka->jml_level,
+                    "kd_perusahaan" => $pka->kd_perusahaan,
+                    "nama_perusahaan" => $pka->nama_perusahaan
                 );
             }
             return array('status' => 200,'page_end' =>$endpage ,'data' =>$data);
@@ -448,7 +452,7 @@ class DashboardController extends Controller
 
 	public function getPerimeterbyProvinsiAll(Request $request){
         $group_company = null;
-    
+
         $string ="_get_perimeter_byprovinsi_all3";
         if(isset($request->group_company)){
           $group_company = $request->group_company;
@@ -640,7 +644,7 @@ class DashboardController extends Controller
     public function getCosmicIndexReport(Request $request){
         $str = 'get_cosmic_index_report';
         $group_company = null;
-        
+
         if(isset($request->group_company)){
             $group_company = $request->group_company;
             $str = $str ."_group_company_".$group_company;
@@ -695,7 +699,7 @@ class DashboardController extends Controller
                     $cc_string = "";
                 }
                 $sql =$sql.$cc_string;
-                    
+
                 if(isset($request->column_sort)) {
                     if(isset($request->p_sort)) {
                         $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
@@ -706,19 +710,19 @@ class DashboardController extends Controller
                     $sql_sort = ' ORDER BY v_cosmic_index DESC ';
                 }
                 $sql .= $sql_sort;
-                    
+
                 if(isset($request->limit)) {
                     $limit = $request->limit;
                     $sql_limit = ' LIMIT '.$request->limit;
                     $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-                    
+
                     $sql .= $sql_limit;
-                    
+
                     if (isset($request->page)) {
                         $page = $request->page;
                         $offset = ((int)$page-1) * (int)$limit;
                         $sql_offset= ' OFFSET '.$offset;
-                        
+
                         $sql .= $sql_offset;
                     }
                 }
@@ -763,25 +767,25 @@ class DashboardController extends Controller
                     $sql_sort = ' ORDER BY v_cosmic_index DESC ';
                 }
                 $str_rpi .= $sql_sort;
-                
+
                 if(isset($request->limit)) {
                     $limit = $request->limit;
                     $sql_limit = ' LIMIT '.$request->limit;
                     $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-                    
+
                     $str_rpi .= $sql_limit;
-                    
+
                     if (isset($request->page)) {
                         $page = $request->page;
                         $offset = ((int)$page-1) * (int)$limit;
                         $sql_offset= ' OFFSET '.$offset;
-                        
+
                         $str_rpi .= $sql_offset;
                     }
                 }
-          
+
                 $rpi =  DB::connection('pgsql2')->select($str_rpi,[(string)$week]);
-        
+
                 foreach($rpi as $itemrpi){
                     $data[] = array(
                         "week" =>  $week,
@@ -809,7 +813,7 @@ class DashboardController extends Controller
           $group_company = $request->group_company;
           $str = $str ."_group_company_".$group_company;
         }
-        
+
         if(isset($request->date)){
             $strdate =  Carbon::parse($request->date);
             //  dd($date);
@@ -851,7 +855,7 @@ class DashboardController extends Controller
                     $cc_string = "";
                 }
                 $sql =$sql.$cc_string;
-                
+
                 $result =  DB::connection('pgsql2')->select($sql);
                 foreach ($result as $value) {
                     $data[] = array(
@@ -1346,7 +1350,7 @@ class DashboardController extends Controller
             $str = $str.'_searh_'. str_replace(' ','_',$request->search);
             $search=$request->search;
         }
-        
+
         //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
               $data = array();
 
@@ -1355,7 +1359,7 @@ class DashboardController extends Controller
                   $string .= " WHERE LOWER(TRIM(v_nama_perusahaan)) LIKE '%".strtolower(trim($search))."%' ";
               }
               $jmltotal=(count( DB::connection('pgsql2')->select($string)));
-             
+
               if(isset($request->column_sort)) {
                   if(isset($request->p_sort)) {
                       $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
@@ -1366,23 +1370,23 @@ class DashboardController extends Controller
                   $sql_sort = ' ORDER BY v_jml_event DESC ';
               }
               $string .= $sql_sort;
-              
+
               if(isset($request->limit)) {
                   $limit = $request->limit;
                   $sql_limit = ' LIMIT '.$request->limit;
                   $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-                  
+
                   $string .= $sql_limit;
-                  
+
                   if (isset($request->page)) {
                       $page = $request->page;
                       $offset = ((int)$page-1) * (int)$limit;
                       $sql_offset= ' OFFSET '.$offset;
-                      
+
                       $string .= $sql_offset;
                   }
               }
-      
+
               $perimeter_byperusahaan_all =  DB::connection('pgsql2')->select($string);
 
               foreach($perimeter_byperusahaan_all as $pka){
