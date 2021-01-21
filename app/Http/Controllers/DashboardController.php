@@ -852,7 +852,7 @@ class DashboardController extends Controller
                       $cc_string = " where a.v_mc_id in (select mc_id from master_company where mc_level=1 and mc_flag=1) ";
                     }
                 } else {
-                    $cc_string = "";
+                    $cc_string = " where a.v_mc_id in (select mc_id from master_company where mc_level=1) ";
                 }
                 $sql =$sql.$cc_string;
 
