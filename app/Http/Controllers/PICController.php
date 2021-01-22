@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\ClusterRuangan;
 use App\Perimeter;
 use App\PerimeterLevel;
+use App\PerimeterLevelFile;
 use App\PerimeterDetail;
 use App\PerimeterKategori;
 use App\TblPerimeterDetail;
@@ -809,6 +810,110 @@ class PICController extends Controller
 		}
 		return response()->json(['status' => 200,'data' => $data]);
 	}
+
+public function addFilePerimeterLevel(Request $request){
+    $this->validate($request, [
+      'id_perimeter_level' => 'required',
+      'file_foto' => 'required',
+      'nik' => 'required'
+        ]);
+
+
+    $user = User::where(DB::raw("TRIM(username)"),'=',trim($request->nik))->first();
+    if($user==null){
+       return response()->json(['status' => 404,'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
+    }
+    $kd_perusahaan = $user->mc_id;
+    $file = $request->file_foto;
+    $id_perimeter_level = $request->id_perimeter_level;
+    $nik = trim($request->nik);
+
+    $user_id = $user->id;
+
+        if(!Storage::exists('/public/perimeter_level/'.$kd_perusahaan)) {
+            Storage::disk('public')->makeDirectory('/perimeter_level/'.$kd_perusahaan);
+        }
+
+        //$destinationPath = base_path("storage\app\public\aktifitas/").$kd_perusahaan.'/'.$tanggal;
+    $destinationPath = storage_path().'/app/public/perimeter_level/' .$kd_perusahaan;
+    $name1 = round(microtime(true) * 1000).'.jpg';
+    $name2 = round(microtime(true) * 1000).'_tumb.jpg';
+
+        if ($file != null || $file != '') {
+            $img1 = explode(',', $file);
+            $image1 = $img1[1];
+            $filedecode1 = base64_decode($image1);
+
+
+      Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($destinationPath.'/'.$name1);
+      Image::make($filedecode1)->resize(50, NULL, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($destinationPath.'/'.$name2);
+        }
+
+    $perimeter_level_file= PerimeterLevelFile::create(
+            ['mpmlf_mpml_id' => $id_perimeter_level, 'mpmlf_file' => $name1, 'mpmlf_file_tumb' => $name2,'mpmlf_user_insert' => $user_id,'mpmlf_user_update' => $user_id,]);
+
+    $perimeter_level_file->save();
+
+        if($perimeter_level_file) {
+            return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+        }
+  }
+
+  //Get File ID
+  public function getFilePerimeterLevelByID($id_file){
+    $data =[];
+    if ($id_file != null){
+
+    $perimeter_level_file = PerimeterLevelFile::select('master_perimeter.mpm_mc_id','master_perimeter_level_file.mpmlf_file','master_perimeter_level_file.mpmlf_file_tumb')
+          ->join('master_perimeter_level','master_perimeter_level.mpml_id','master_perimeter_level_file.mpmlf_mpml_id')
+          ->join('master_perimeter','master_perimeter.mpm_id','master_perimeter_level.mpml_mpm_id')
+          ->where('master_perimeter_level_file.mpmlf_id',$id_file)
+          ->first();
+
+      if ($perimeter_level_file != null){
+
+        $data = array(
+            "id_file" => $id_file,
+            "file" => "/aktifitas/".$perimeter_level_file->mpm_mc_id."/".$perimeter_level_file->mpmlf_file,
+            "file_tumb" => "/aktifitas/".$perimeter_level_file->mpm_mc_id."/".$perimeter_level_file->mpmlf_file_tumb,
+          );
+      }
+    }
+    return response()->json(['status' => 200,'data' => $data]);
+  }
+
+  //Get File ID
+  public function getFilePerimeterLevelByPerimeterLevel($id_perimeter_level){
+    $data =[];
+    if ($id_perimeter_level != null){
+
+    $perimeter_level_file = PerimeterLevelFile::select('master_perimeter_level_file.mpmlf_id','master_perimeter.mpm_mc_id','master_perimeter_level_file.mpmlf_file','master_perimeter_level_file.mpmlf_file_tumb')
+          ->join('master_perimeter_level','master_perimeter_level.mpml_id','master_perimeter_level_file.mpmlf_mpml_id')
+          ->join('master_perimeter','master_perimeter.mpm_id','master_perimeter_level.mpml_mpm_id')
+          ->where('master_perimeter_level.mpml_id',$id_perimeter_level)
+          ->orderBy('mpmlf_id','desc')
+          ->limit(3)
+          ->get();
+
+      if ($perimeter_level_file->count() >0){
+        foreach($perimeter_level_file as $plf){
+          $data[] = array(
+            "id_file" => $plf->mpmlf_id,
+            "file" => "/aktifitas/".$plf->mpm_mc_id."/".$plf->mpmlf_file,
+            "file_tumb" => "/aktifitas/".$plf->mpm_mc_id."/".$plf->mpmlf_file_tumb,
+            );
+        }
+
+      }
+    }
+    return response()->json(['status' => 200,'data' => $data]);
+  }
 
     //
 }
