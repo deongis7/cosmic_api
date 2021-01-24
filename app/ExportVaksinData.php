@@ -27,7 +27,7 @@ class ExportVaksinData extends DefaultValueBinder implements  FromCollection, Wi
     * @return \Illuminate\Database\Eloquent\Model|null
     */
     private $vaksin;
-    private String $nama_perusahaan;
+    private $nama_perusahaan;
     //private $kd_perusahaan;
 
 
