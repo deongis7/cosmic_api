@@ -880,8 +880,8 @@ public function addFilePerimeterLevel(Request $request){
 
         $data = array(
             "id_file" => $id_file,
-            "file" => "/aktifitas/".$perimeter_level_file->mpm_mc_id."/".$perimeter_level_file->mpmlf_file,
-            "file_tumb" => "/aktifitas/".$perimeter_level_file->mpm_mc_id."/".$perimeter_level_file->mpmlf_file_tumb,
+            "file" => "/perimeter_level/".$perimeter_level_file->mpm_mc_id."/".$perimeter_level_file->mpmlf_file,
+            "file_tumb" => "/perimeter_level/".$perimeter_level_file->mpm_mc_id."/".$perimeter_level_file->mpmlf_file_tumb,
           );
       }
     }
@@ -905,8 +905,8 @@ public function addFilePerimeterLevel(Request $request){
         foreach($perimeter_level_file as $plf){
           $data[] = array(
             "id_file" => $plf->mpmlf_id,
-            "file" => "/aktifitas/".$plf->mpm_mc_id."/".$plf->mpmlf_file,
-            "file_tumb" => "/aktifitas/".$plf->mpm_mc_id."/".$plf->mpmlf_file_tumb,
+            "file" => "/perimeter_level/".$plf->mpm_mc_id."/".$plf->mpmlf_file,
+            "file_tumb" => "/perimeter_level/".$plf->mpm_mc_id."/".$plf->mpmlf_file_tumb,
             );
         }
 
