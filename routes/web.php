@@ -80,6 +80,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Cluster Ruangan
 	$router->get('/cluster/perimeter/{id}', 'PerimeterController@getClusterbyPerimeter');
 	$router->get('/cluster/perimeter/{id}/{nik}', 'PICController@getClusterbyPerimeter');
+	$router->get('/cluster/get_file/{id_perimeter_cluster}', 'PICController@getFileClusterRuanganByID');
+	$router->post('/cluster/add_file', 'PICController@addFileClusterRuangan');
 
 	//Protokol
 	$router->get('/protokol/{id}', 'ProtokolController@protokol');
