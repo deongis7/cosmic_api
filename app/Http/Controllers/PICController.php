@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Http\File;
 use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\Facades\Redis;
 
 use Storage;
 use DB;
@@ -965,7 +966,8 @@ public function addFilePerimeterLevel(Request $request){
       $cluster_ruangan->tpmd_file_foto= $name1;
       $cluster_ruangan->tpmd_file_tumb= $name2;
       $cluster_ruangan->save();
-
+      //dd('*'.env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $cluster_ruangan->tpmd_mpml_id);
+      Redis::del(Redis::keys('*'.env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $cluster_ruangan->tpmd_mpml_id));
           if($cluster_ruangan) {
               return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
           } else {
