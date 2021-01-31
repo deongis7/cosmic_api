@@ -56,6 +56,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/perimeter_level/perimeter/{id_perimeter}', 'PerimeterController@getLevelbyPerimeter');
 	$router->post('/perimeter_level/update', 'PerimeterController@updateDetailPerimeterLevel');
 	$router->post('/perimeter_level/add', 'PerimeterListController@addDetailPerimeter');
+	$router->post('/perimeter_level/add_file', 'PICController@addFilePerimeterLevel');
+  $router->get('/perimeter_level/get_file_by_id/{id_file}', 'PICController@getFilePerimeterLevelByID');
+  $router->get('/perimeter_level/get_file/{id_perimeter_level}', 'PICController@getFilePerimeterLevelByPerimeterLevel');
 	$router->post('/perimeter/update', 'PerimeterListController@updateDetailPerimeter');
 	$router->post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
 	$router->post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
@@ -77,6 +80,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Cluster Ruangan
 	$router->get('/cluster/perimeter/{id}', 'PerimeterController@getClusterbyPerimeter');
 	$router->get('/cluster/perimeter/{id}/{nik}', 'PICController@getClusterbyPerimeter');
+	$router->get('/cluster/get_file/{id_perimeter_cluster}', 'PICController@getFileClusterRuanganByID');
+	$router->post('/cluster/add_file', 'PICController@addFileClusterRuangan');
 
 	//Protokol
 	$router->get('/protokol/{id}', 'ProtokolController@protokol');
@@ -150,6 +155,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/list_perimeter_level_report/perimeter/{id_perimeter}', 'PerimeterReportController@getPerimeterLevelListbyPerimeter');
     $router->get('/list_perimeter_level_report/count/{kd_perusahaan}', 'PerimeterReportController@getStatusPerimeterLevel');
     $router->post('/list_perimeter/add', 'PerimeterListController@addPerimeterList');
+    $router->post('/list_perimeter/update_gmap/{id_perimeter}', 'PerimeterListController@updatePerimeterListGmap');
 
     //Region
     $router->get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
@@ -222,6 +228,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashvaksin/dashvaksin_lokasi1', 'DashVaksinController@getDashVaksinLokasi1');
 	$router->get('/dashvaksin/dashvaksin_lokasi2', 'DashVaksinController@getDashVaksinLokasi2');
 	$router->get('/dashvaksin/dashvaksin_lokasi3', 'DashVaksinController@getDashVaksinLokasi3');
+	$router->get('/dashvaksin/download/{kd_perusahaan}', 'DashboardController@getDownloadVaksinbyCompany');
+
 
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\ClusterRuangan;
 use App\Perimeter;
 use App\PerimeterLevel;
+use App\PerimeterLevelFile;
 use App\PerimeterDetail;
 use App\PerimeterKategori;
 use App\TblPerimeterDetail;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Http\File;
 use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\Facades\Redis;
 
 use Storage;
 use DB;
@@ -689,6 +691,7 @@ class PICController extends Controller
                 return $cacheperimeter = DB::connection('pgsql2')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
           case when tsp.tbsp_status = 2 then true else false end as status_pic,
           case when tsp.tbsp_status = 1 then true when tsp.tbsp_status = 2 then true else false end as status_fo,
+          tpd.tpmd_file_foto,tpd.tpmd_file_tumb, mpm.mpm_mc_id,
           tsp.updated_at as last_update
           from master_perimeter_level mpl
 					join master_perimeter mpm on mpm.mpm_id = mpl.mpml_mpm_id
@@ -722,6 +725,9 @@ class PICController extends Controller
 						//"status" => $status['status'],
 						"status_konfirmasi" => $itemperimeter->status_konfirmasi,
 						"status" => ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo),
+
+            "file_cluster" => $itemperimeter->tpmd_file_foto != null ? "/cluster_ruangan/".$itemperimeter->mpm_mc_id."/".$itemperimeter->tpmd_file_foto:null,
+            "file_cluster_tumb" => $itemperimeter->tpmd_file_tumb != null ? "/cluster_ruangan/".$itemperimeter->mpm_mc_id."/".$itemperimeter->tpmd_file_tumb:null,
 						"last_update" => $itemperimeter->last_update,
 						"aktifitas" => $data_aktifitas_cluster,
 
@@ -810,5 +816,186 @@ class PICController extends Controller
 		return response()->json(['status' => 200,'data' => $data]);
 	}
 
-    //
+public function addFilePerimeterLevel(Request $request){
+    $this->validate($request, [
+      'id_perimeter_level' => 'required',
+      'file_foto' => 'required',
+      'nik' => 'required'
+        ]);
+
+
+    $user = User::where(DB::raw("TRIM(username)"),'=',trim($request->nik))->first();
+    if($user==null){
+       return response()->json(['status' => 404,'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
+    }
+    $kd_perusahaan = $user->mc_id;
+    $file = $request->file_foto;
+    $id_perimeter_level = $request->id_perimeter_level;
+    $nik = trim($request->nik);
+
+    $user_id = $user->id;
+
+        if(!Storage::exists('/public/perimeter_level/'.$kd_perusahaan)) {
+            Storage::disk('public')->makeDirectory('/perimeter_level/'.$kd_perusahaan);
+        }
+
+        //$destinationPath = base_path("storage\app\public\aktifitas/").$kd_perusahaan.'/'.$tanggal;
+    $destinationPath = storage_path().'/app/public/perimeter_level/' .$kd_perusahaan;
+    $name1 = round(microtime(true) * 1000).'.jpg';
+    $name2 = round(microtime(true) * 1000).'_tumb.jpg';
+
+        if ($file != null || $file != '') {
+            $img1 = explode(',', $file);
+            $image1 = $img1[1];
+            $filedecode1 = base64_decode($image1);
+
+
+      Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($destinationPath.'/'.$name1);
+      Image::make($filedecode1)->resize(50, NULL, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($destinationPath.'/'.$name2);
+        }
+
+    $perimeter_level_file= PerimeterLevelFile::create(
+            ['mpmlf_mpml_id' => $id_perimeter_level, 'mpmlf_file' => $name1, 'mpmlf_file_tumb' => $name2,'mpmlf_user_insert' => $user_id,'mpmlf_user_update' => $user_id,]);
+
+    $perimeter_level_file->save();
+
+        if($perimeter_level_file) {
+            return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+        }
+  }
+
+  //Get File ID
+  public function getFilePerimeterLevelByID($id_file){
+    $data =[];
+    if ($id_file != null){
+
+    $perimeter_level_file = PerimeterLevelFile::select('master_perimeter.mpm_mc_id','master_perimeter_level_file.mpmlf_file','master_perimeter_level_file.mpmlf_file_tumb')
+          ->join('master_perimeter_level','master_perimeter_level.mpml_id','master_perimeter_level_file.mpmlf_mpml_id')
+          ->join('master_perimeter','master_perimeter.mpm_id','master_perimeter_level.mpml_mpm_id')
+          ->where('master_perimeter_level_file.mpmlf_id',$id_file)
+          ->first();
+
+      if ($perimeter_level_file != null){
+
+        $data = array(
+            "id_file" => $id_file,
+            "file" => "/perimeter_level/".$perimeter_level_file->mpm_mc_id."/".$perimeter_level_file->mpmlf_file,
+            "file_tumb" => "/perimeter_level/".$perimeter_level_file->mpm_mc_id."/".$perimeter_level_file->mpmlf_file_tumb,
+          );
+      }
+    }
+    return response()->json(['status' => 200,'data' => $data]);
+  }
+
+  //Get File ID
+  public function getFilePerimeterLevelByPerimeterLevel($id_perimeter_level){
+    $data =[];
+    if ($id_perimeter_level != null){
+
+    $perimeter_level_file = PerimeterLevelFile::select('master_perimeter_level_file.mpmlf_id','master_perimeter.mpm_mc_id','master_perimeter_level_file.mpmlf_file','master_perimeter_level_file.mpmlf_file_tumb')
+          ->join('master_perimeter_level','master_perimeter_level.mpml_id','master_perimeter_level_file.mpmlf_mpml_id')
+          ->join('master_perimeter','master_perimeter.mpm_id','master_perimeter_level.mpml_mpm_id')
+          ->where('master_perimeter_level.mpml_id',$id_perimeter_level)
+          ->orderBy('mpmlf_id','desc')
+          ->limit(3)
+          ->get();
+
+      if ($perimeter_level_file->count() >0){
+        foreach($perimeter_level_file as $plf){
+          $data[] = array(
+            "id_file" => $plf->mpmlf_id,
+            "file" => "/perimeter_level/".$plf->mpm_mc_id."/".$plf->mpmlf_file,
+            "file_tumb" => "/perimeter_level/".$plf->mpm_mc_id."/".$plf->mpmlf_file_tumb,
+            );
+        }
+
+      }
+    }
+    return response()->json(['status' => 200,'data' => $data]);
+  }
+
+  public function addFileClusterRuangan(Request $request){
+      $this->validate($request, [
+        'id_perimeter_cluster' => 'required',
+        'file_foto' => 'required',
+        'nik' => 'required'
+          ]);
+
+
+      $user = User::where(DB::raw("TRIM(username)"),'=',trim($request->nik))->first();
+      if($user==null){
+         return response()->json(['status' => 404,'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
+      }
+      $kd_perusahaan = $user->mc_id;
+      $file = $request->file_foto;
+      $id_perimeter_cluster = $request->id_perimeter_cluster;
+      $nik = trim($request->nik);
+
+      $user_id = $user->id;
+
+          if(!Storage::exists('/public/cluster_ruangan/'.$kd_perusahaan)) {
+              Storage::disk('public')->makeDirectory('/cluster_ruangan/'.$kd_perusahaan);
+          }
+
+
+      $destinationPath = storage_path().'/app/public/cluster_ruangan/' .$kd_perusahaan;
+      $name1 = round(microtime(true) * 1000).'.jpg';
+      $name2 = round(microtime(true) * 1000).'_tumb.jpg';
+
+          if ($file != null || $file != '') {
+              $img1 = explode(',', $file);
+              $image1 = $img1[1];
+              $filedecode1 = base64_decode($image1);
+
+
+        Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+                  $constraint->aspectRatio();
+              })->save($destinationPath.'/'.$name1);
+        Image::make($filedecode1)->resize(50, NULL, function ($constraint) {
+                  $constraint->aspectRatio();
+              })->save($destinationPath.'/'.$name2);
+          }
+
+      $cluster_ruangan= PerimeterDetail::where('tpmd_id',$id_perimeter_cluster)->first();
+      $cluster_ruangan->tpmd_file_foto= $name1;
+      $cluster_ruangan->tpmd_file_tumb= $name2;
+      $cluster_ruangan->save();
+      //dd('*'.env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $cluster_ruangan->tpmd_mpml_id);
+      Redis::del(Redis::keys('*'.env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $cluster_ruangan->tpmd_mpml_id));
+          if($cluster_ruangan) {
+              return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+          } else {
+              return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+          }
+    }
+
+    public function getFileClusterRuanganByID($id_perimeter_cluster){
+      $data =[];
+      if ($id_perimeter_cluster != null){
+
+      $cluster_ruangan_file = PerimeterDetail::select('table_perimeter_detail.tpmd_id','master_perimeter.mpm_mc_id','table_perimeter_detail.tpmd_file_foto','table_perimeter_detail.tpmd_file_tumb')
+            ->join('master_perimeter_level','master_perimeter_level.mpml_id','table_perimeter_detail.tpmd_mpml_id')
+            ->join('master_perimeter','master_perimeter.mpm_id','master_perimeter_level.mpml_mpm_id')
+            ->where('table_perimeter_detail.tpmd_id',$id_perimeter_cluster)
+            ->first();
+
+        if ($cluster_ruangan_file != null){
+
+            $data = array(
+              "id_file" => $cluster_ruangan_file->tpmd_id,
+              "file" =>  $cluster_ruangan_file->tpmd_file_foto != null ?"/perimeter_level/".$cluster_ruangan_file->mpm_mc_id."/".$cluster_ruangan_file->tpmd_file_foto:null,
+              "file_tumb" =>  $cluster_ruangan_file->tpmd_file_tumb != null ?"/perimeter_level/".$cluster_ruangan_file->mpm_mc_id."/".$cluster_ruangan_file->tpmd_file_tumb:null,
+              );
+
+
+        }
+      }
+      return response()->json(['status' => 200,'data' => $data]);
+    }
 }

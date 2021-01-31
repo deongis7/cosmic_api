@@ -899,14 +899,15 @@ class PerimeterListController extends Controller
             $perimeter->setConnection('pgsql2');
             //Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
             $perimeter =   $perimeter->select('master_region.mr_id','master_region.mr_name',
-                'master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
+                'master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',  'master_perimeter.mpm_gmap',
                 'master_perimeter_kategori.mpmk_name','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude',
-                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name'
+                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name','master_company.mc_id','master_company.mc_name'
             )
 
                 ->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
                 ->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
 
+                ->leftjoin('master_company','master_company.mc_id','master_perimeter.mpm_mc_id')
                 ->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
                 ->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id')
                 ->where('master_perimeter.mpm_id',$id_perimeter)
@@ -917,6 +918,8 @@ class PerimeterListController extends Controller
             if ($perimeter!= null){
 
                 $data[] = array(
+                    "kd_perusahaan" => $perimeter->mc_id,
+                    "nama_perusahaan" => $perimeter->mc_name,
                     "id_region" => $perimeter->mr_id,
                     "region" => $perimeter->mr_name,
                     "id_perimeter" => $perimeter->mpm_id,
@@ -927,6 +930,7 @@ class PerimeterListController extends Controller
                     "kategori" => $perimeter->mpmk_name,
                     "longitude" => $perimeter->mpm_longitude,
                     "latitude" => $perimeter->mpm_latitude,
+                    "gmap" => $perimeter->mpm_gmap,
                     "provinsi" => $perimeter->mpro_name,
                     "kabupaten" => $perimeter->mkab_name,
                 );
@@ -1066,7 +1070,8 @@ class PerimeterListController extends Controller
         $data = array();
         if(!ISSET($request->id_region)){
           if(ISSET($request->region)){
-            $reg = Region::where(DB::raw("lower(TRIM(mr_name))"),'like','%'.strtolower(trim($request->region)).'%')->first();
+            $reg = Region::where(DB::raw("lower(TRIM(mr_name))"),'=',''.strtolower(trim($request->region)).'')
+                ->where('mr_mc_id','=',$request->kd_perusahaan)->first();
             if (!($reg ==NULL)){
               $id_region = $reg->mr_id;
             } else {
@@ -1100,6 +1105,24 @@ class PerimeterListController extends Controller
             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
         }
     }
+
+    public function updatePerimeterListGmap($id_perimeter,Request $request){
+        $this->validate($request, [
+            'gmap' => 'required',
+
+        ]);
+
+        $perimeter =  Perimeter::where('mpm_id',$id_perimeter)->first();
+        $perimeter->mpm_gmap =  $request->gmap;
+
+        if($perimeter->save()){
+          return response()->json(['id_perimeter' => $perimeter->mpm_id,'status' => 200,'message' => 'Data Berhasil Disimpan']);
+
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+        }
+    }
+
 
     //Get Perimeter per Region
     public function getPerimeterListbyRegion($id,Request $request){
