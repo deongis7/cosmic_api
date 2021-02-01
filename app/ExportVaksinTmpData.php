@@ -44,7 +44,7 @@ class ExportVaksinTmpData extends DefaultValueBinder implements  FromCollection,
     public function headings(): array
    {
        return [["Nama Perusahaan","",$this->nama_perusahaan],[],[],["No.", "Nama Pegawai", "Status Pegawai (PKWT/PKWTT/Alihdaya)", "Jenis Kelamin (L/P)", "Provinsi",
-           "Kota","NIK","Usia","No Handphone","Jumlah Keluarga Inti","Tgl Upload","Keterangan"]];
+           "Kota","NIK","Usia","No Handphone","Jumlah Keluarga Inti","Tgl Upload","Status","Keterangan"]];
    }
    public function startCell(): string
     {
@@ -75,6 +75,7 @@ class ExportVaksinTmpData extends DefaultValueBinder implements  FromCollection,
             'I' => 15,
             'J' => 15,
             'K' => 15,
+            'L' => 15,
         ];
     }
 
