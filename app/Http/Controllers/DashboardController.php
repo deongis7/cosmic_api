@@ -1524,7 +1524,7 @@ class DashboardController extends Controller
         foreach($vaksin as $itemvaksin){
           $data[] = array(
                   "no" =>  $i++,
-                  "nama" => htmlspecialchars(strval($itemvaksin->tv_nama)),
+                    "nama" => strval($itemvaksin->tv_nama),
                   "status_peg" => $itemvaksin->msp_name2,
                   "jenis_kelamin" => $itemvaksin->tv_mjk_id == 1 ? 'L':'P',
                   "provinsi" => $itemvaksin->mpro_name,
@@ -1560,18 +1560,18 @@ class DashboardController extends Controller
         $company = $company->where('mc_id',$company_id)->first();
         $nama_perusahaan = $company->mc_name;
         
-        $vaksin=  DB::connection('pgsql_vaksin')->select('select tmpv.*, mpro.mpro_name 
+        $vaksin=  DB::connection('pgsql_vaksin')->select("select tmpv.*, mpro.mpro_name 
                 from tmp_vaksin tmpv
                 left join master_kabupaten mkab ON lower(mkab.mkab_name)=lower(tmpv.kota)
                 left join master_provinsi mpro ON mpro.mpro_id = mkab.mkab_mpro_id
-                where created_at > "2021-01-01 21:00:00"
-                and kd_perusahaan = ? ',[$company_id]);
+                where created_at > '2021-01-01 21:00:00'
+                and kd_perusahaan = ? ",[$company_id]);
         $jml = count($vaksin);
         $i=1;
         foreach($vaksin as $itemvaksin){
             $data[] = array(
                 "no" =>  $i++,
-                "nama" => htmlspecialchars(strval($itemvaksin->nama)),
+                "nama" =>  strval($itemvaksin->nama),
                 "status_peg" => $itemvaksin->status_peg,
                 "jenis_kelamin" => $itemvaksin->jenis_kelamin,
                 "provinsi" => $itemvaksin->mpro_name,
