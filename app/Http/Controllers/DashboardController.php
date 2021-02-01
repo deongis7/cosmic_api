@@ -1564,7 +1564,11 @@ class DashboardController extends Controller
         $company = $company->where('mc_id',$company_id)->first();
         $nama_perusahaan = $company->mc_name;
         
-        $vaksin=  DB::connection('pgsql_vaksin')->select("select tmpv.*, mpro.mpro_name 
+        $vaksin=  DB::connection('pgsql_vaksin')->select("select tmpv.*, mpro.mpro_name,
+                CASE WHEN status=0 THEN 'Progress'
+                WHEN status=1 THEN 'Berhasil Parsing'
+                WHEN status=4 THEN 'Berhasil Parsing'
+                ELSE 'Gagal Parsing' END AS sts
                 from tmp_vaksin tmpv
                 left join master_kabupaten mkab ON lower(mkab.mkab_name)=lower(tmpv.kota)
                 left join master_provinsi mpro ON mpro.mpro_id = mkab.mkab_mpro_id
@@ -1585,6 +1589,7 @@ class DashboardController extends Controller
                 "no_hp" => $itemvaksin->no_hp,
                 "jml_keluarga" => $itemvaksin->jml_keluarga,
                 "tgl_upload" => $itemvaksin->created_at,
+                "status" => $itemvaksin->sts,
                 "keterangan" => $itemvaksin->keterangan,
             );
         }
