@@ -1495,6 +1495,14 @@ class DashboardController extends Controller
       }
 
   public function getDownloadVaksinbyCompany($kd_perusahaan){
+      set_time_limit(0);
+      ini_set('max_execution_time', 0);
+      ini_set('memory_limit', '-1');
+      ini_set('upload_max_filesize', '409600M');
+      ini_set('post_max_size', '409600M');
+      ini_set('max_input_time', 360000);
+      date_default_timezone_set("Asia/Jakarta");
+      
     $str = '_get_cosmic_index_detail_list_'.$kd_perusahaan;
     $mc_id = $kd_perusahaan;
     
@@ -1529,7 +1537,7 @@ class DashboardController extends Controller
     }
   //return response()->json(['status' => 200,'data' => $data]);
   $export = new ExportVaksinData(collect($data),$nama_perusahaan);
-  return Excel::download($export, 'vaksin_data_report.xlsx');
+  return Excel::download($export, 'vaksin_data_report.xls');
 
   }
 
