@@ -6,6 +6,7 @@ use App\Company;
 use App\TrnVaksin;
 use App\ExportCosmicIndex;
 use App\ExportVaksinData;
+use App\ExportVaksinTmpData;
 use App\Helpers\AppHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -1540,7 +1541,7 @@ class DashboardController extends Controller
       }
       //return response()->json(['status' => 200,'data' => $data]);
       $export = new ExportVaksinData(collect($data),$nama_perusahaan);
-      return Excel::download($export, 'vaksin_data_report.xlsx');
+      return Excel::download($export, 'vaksin_data_report_'.$nama_perusahaan.'.xls');
     }
     
     public function getDownloadVaksinTmpbyCompany($kd_perusahaan){
@@ -1567,7 +1568,7 @@ class DashboardController extends Controller
                 from tmp_vaksin tmpv
                 left join master_kabupaten mkab ON lower(mkab.mkab_name)=lower(tmpv.kota)
                 left join master_provinsi mpro ON mpro.mpro_id = mkab.mkab_mpro_id
-                where created_at > '2021-01-01 21:00:00'
+                where created_at > '2021-01-31 21:00:00'
                 and kd_perusahaan = ? ",[$company_id]);
         $jml = count($vaksin);
         $i=1;
@@ -1583,12 +1584,12 @@ class DashboardController extends Controller
                 "usia" => $itemvaksin->usia,
                 "no_hp" => $itemvaksin->no_hp,
                 "jml_keluarga" => $itemvaksin->jml_keluarga,
-//                 "tgl_upload" => $itemvaksin->created_at,
-//                 "keterangan" => $itemvaksin->keterangan,
+                "tgl_upload" => $itemvaksin->created_at,
+                "keterangan" => $itemvaksin->keterangan,
             );
         }
         //return response()->json(['status' => 200,'data' => $data]);
-        $export = new ExportVaksinData(collect($data),$nama_perusahaan);
-        return Excel::download($export, 'vaksin_data_report_upload.xls');
+        $export = new ExportVaksinTmpData(collect($data),$nama_perusahaan);
+        return Excel::download($export, 'vaksin_data_report_upload_'.$nama_perusahaan.'.xls');
     }
 }
