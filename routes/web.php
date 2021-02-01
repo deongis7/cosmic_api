@@ -80,6 +80,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Cluster Ruangan
 	$router->get('/cluster/perimeter/{id}', 'PerimeterController@getClusterbyPerimeter');
 	$router->get('/cluster/perimeter/{id}/{nik}', 'PICController@getClusterbyPerimeter');
+	$router->get('/cluster/get_file/{id_perimeter_cluster}', 'PICController@getFileClusterRuanganByID');
+	$router->post('/cluster/add_file', 'PICController@addFileClusterRuangan');
 
 	//Protokol
 	$router->get('/protokol/{id}', 'ProtokolController@protokol');
@@ -153,6 +155,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/list_perimeter_level_report/perimeter/{id_perimeter}', 'PerimeterReportController@getPerimeterLevelListbyPerimeter');
     $router->get('/list_perimeter_level_report/count/{kd_perusahaan}', 'PerimeterReportController@getStatusPerimeterLevel');
     $router->post('/list_perimeter/add', 'PerimeterListController@addPerimeterList');
+    $router->post('/list_perimeter/update_gmap/{id_perimeter}', 'PerimeterListController@updatePerimeterListGmap');
 
     //Region
     $router->get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
