@@ -1524,7 +1524,7 @@ class DashboardController extends Controller
         foreach($vaksin as $itemvaksin){
           $data[] = array(
                   "no" =>  $i++,
-                  "nama" => str_replace("'", '', strval($itemvaksin->tv_nama)),
+                  "nama" => strval($itemvaksin->tv_nama),
                   "status_peg" => $itemvaksin->msp_name2,
                   "jenis_kelamin" => $itemvaksin->tv_mjk_id == 1 ? 'L':'P',
                   "provinsi" => $itemvaksin->mpro_name,
