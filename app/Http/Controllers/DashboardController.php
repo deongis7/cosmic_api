@@ -1514,17 +1514,20 @@ class DashboardController extends Controller
         $company = $company->where('mc_id',$company_id)->first();
         $nama_perusahaan = $company->mc_name;
 
-        $vaksin=  DB::connection('pgsql_vaksin')->select('select * from transaksi_vaksin tv
+        $vaksin=  DB::connection('pgsql_vaksin')->select('select * 
+                from transaksi_vaksin tv
                 left join master_status_pegawai msp on tv.tv_msp_id = msp.msp_id
                 left join master_kabupaten mkab on tv.tv_mkab_id = mkab.mkab_id
                 left join master_provinsi mpro on mpro.mpro_id = mkab.mkab_mpro_id
-                where tv.tv_mc_id = ? ',[$company_id]);
+                where tv.tv_mc_id = ? 
+                order by tv.tv_nama ',[$company_id]);
                 $jml = count($vaksin);
+                //var_dump($company_id);die;
         $i=1;
         foreach($vaksin as $itemvaksin){
           $data[] = array(
                   "no" =>  $i++,
-                    "nama" => strval($itemvaksin->tv_nama),
+                  "nama" => str_replace("'", ' ', $itemvaksin->tv_nama),
                   "status_peg" => $itemvaksin->msp_name2,
                   "jenis_kelamin" => $itemvaksin->tv_mjk_id == 1 ? 'L':'P',
                   "provinsi" => $itemvaksin->mpro_name,
@@ -1537,7 +1540,7 @@ class DashboardController extends Controller
       }
       //return response()->json(['status' => 200,'data' => $data]);
       $export = new ExportVaksinData(collect($data),$nama_perusahaan);
-      return Excel::download($export, 'vaksin_data_report.xls');
+      return Excel::download($export, 'vaksin_data_report.xlsx');
     }
     
     public function getDownloadVaksinTmpbyCompany($kd_perusahaan){
@@ -1571,7 +1574,7 @@ class DashboardController extends Controller
         foreach($vaksin as $itemvaksin){
             $data[] = array(
                 "no" =>  $i++,
-                "nama" =>  strval($itemvaksin->nama),
+                "nama" => str_replace("'", ' ', $itemvaksin->nama),
                 "status_peg" => $itemvaksin->status_peg,
                 "jenis_kelamin" => $itemvaksin->jenis_kelamin,
                 "provinsi" => $itemvaksin->mpro_name,
@@ -1580,10 +1583,12 @@ class DashboardController extends Controller
                 "usia" => $itemvaksin->usia,
                 "no_hp" => $itemvaksin->no_hp,
                 "jml_keluarga" => $itemvaksin->jml_keluarga,
+//                 "tgl_upload" => $itemvaksin->created_at,
+//                 "keterangan" => $itemvaksin->keterangan,
             );
         }
         //return response()->json(['status' => 200,'data' => $data]);
         $export = new ExportVaksinData(collect($data),$nama_perusahaan);
-        return Excel::download($export, 'vaksin_data_report.xls');
+        return Excel::download($export, 'vaksin_data_report_upload.xls');
     }
 }
