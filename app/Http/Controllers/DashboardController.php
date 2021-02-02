@@ -1495,9 +1495,13 @@ class DashboardController extends Controller
       }
 
   public function getDownloadVaksinbyCompany($kd_perusahaan){
+    set_time_limit(0);
+    ini_set('max_execution_time', 0);
+    ini_set('max_input_time', 6500000);
+    date_default_timezone_set("Asia/Jakarta");
     $str = '_get_cosmic_index_detail_list_'.$kd_perusahaan;
     $mc_id = $kd_perusahaan;
-    
+
     $data = array();
     $data=[];
     $company_id = $mc_id;
