@@ -1541,7 +1541,7 @@ class DashboardController extends Controller
       }
       //return response()->json(['status' => 200,'data' => $data]);
       $export = new ExportVaksinData(collect($data),$nama_perusahaan);
-      return Excel::download($export, 'vaksin_data_report_'.$nama_perusahaan.'.xls');
+      return Excel::download($export, 'vaksin_data_report_'.$nama_perusahaan.'.xlsx');
     }
     
     public function getDownloadVaksinTmpbyCompany($kd_perusahaan){
@@ -1595,6 +1595,6 @@ class DashboardController extends Controller
         }
         //return response()->json(['status' => 200,'data' => $data]);
         $export = new ExportVaksinTmpData(collect($data),$nama_perusahaan);
-        return Excel::download($export, 'vaksin_data_report_upload_'.$nama_perusahaan.'.xls');
+        return Excel::download($export, 'vaksin_data_report_upload_'.$nama_perusahaan.'.xlsx');
     }
 }
