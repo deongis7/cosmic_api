@@ -1501,12 +1501,12 @@ class DashboardController extends Controller
         ini_set('memory_limit', '-1');
         ini_set('upload_max_filesize', '409600M');
         ini_set('post_max_size', '409600M');
-        ini_set('max_input_time', 360000);
+        ini_set('max_input_time', 3600000);
         date_default_timezone_set("Asia/Jakarta");
-      
+
         $str = '_get_cosmic_index_detail_list_'.$kd_perusahaan;
         $mc_id = $kd_perusahaan;
-        
+
         $data = array();
         $data=[];
         $company_id = $mc_id;
@@ -1515,12 +1515,12 @@ class DashboardController extends Controller
         $company = $company->where('mc_id',$company_id)->first();
         $nama_perusahaan = $company->mc_name;
 
-        $vaksin=  DB::connection('pgsql_vaksin')->select('select * 
+        $vaksin=  DB::connection('pgsql_vaksin')->select('select *
                 from transaksi_vaksin tv
                 left join master_status_pegawai msp on tv.tv_msp_id = msp.msp_id
                 left join master_kabupaten mkab on tv.tv_mkab_id = mkab.mkab_id
                 left join master_provinsi mpro on mpro.mpro_id = mkab.mkab_mpro_id
-                where tv.tv_mc_id = ? 
+                where tv.tv_mc_id = ?
                 order by tv.tv_nama ',[$company_id]);
                 $jml = count($vaksin);
                 //var_dump($company_id);die;
@@ -1543,7 +1543,7 @@ class DashboardController extends Controller
       $export = new ExportVaksinData(collect($data),$nama_perusahaan);
       return Excel::download($export, 'vaksin_data_report_'.$nama_perusahaan.'.xlsx');
     }
-    
+
     public function getDownloadVaksinTmpbyCompany($kd_perusahaan){
         set_time_limit(0);
         ini_set('max_execution_time', 0);
@@ -1552,10 +1552,10 @@ class DashboardController extends Controller
         ini_set('post_max_size', '409600M');
         ini_set('max_input_time', 360000);
         date_default_timezone_set("Asia/Jakarta");
-        
+
         $str = '_get_cosmic_index_detail_list_'.$kd_perusahaan;
         $mc_id = $kd_perusahaan;
-        
+
         $data = array();
         $data=[];
         $company_id = $mc_id;
@@ -1563,7 +1563,7 @@ class DashboardController extends Controller
         $company->setConnection('pgsql_vaksin');
         $company = $company->where('mc_id',$company_id)->first();
         $nama_perusahaan = $company->mc_name;
-        
+
         $vaksin=  DB::connection('pgsql_vaksin')->select("select tmpv.*, mpro.mpro_name,
                 CASE WHEN status=0 THEN 'Progress'
                 WHEN status=1 THEN 'Berhasil Parsing'
