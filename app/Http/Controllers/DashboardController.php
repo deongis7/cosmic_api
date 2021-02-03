@@ -597,6 +597,23 @@ class DashboardController extends Controller
 	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 
+  public function getDashboardJmlPegawai($id){
+      $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashjumpegawai_".$id, 15 * 60, function()use($id) {
+          $data = array();
+          $dashboard_head =  DB::connection('pgsql_vaksin')->select("SELECT * FROM dashboard_jmlpegawai('$id')");
+
+          foreach($dashboard_head as $dh){
+              $data[] = array(
+                  "v_id" => $dh->x_id,
+                  "v_judul" => $dh->x_judul,
+                  "v_jml" => $dh->x_jml
+              );
+          }
+          return $data;
+      });
+          return response()->json(['status' => 200,'data' => $datacache]);
+  }
+
 	public function getDashboardProtokolBUMN($id){
        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_".$id, 15 * 60, function()use($id) {
 	        $data = array();
