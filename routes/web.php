@@ -229,7 +229,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashvaksin/dashvaksin_lokasi2', 'DashVaksinController@getDashVaksinLokasi2');
 	$router->get('/dashvaksin/dashvaksin_lokasi3', 'DashVaksinController@getDashVaksinLokasi3');
 	$router->get('/dashvaksin/download/{kd_perusahaan}', 'DashboardController@getDownloadVaksinbyCompany');
-
+	$router->get('/dashvaksin/downloadtmp/{kd_perusahaan}', 'DashboardController@getDownloadVaksinTmpbyCompany');
 
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');

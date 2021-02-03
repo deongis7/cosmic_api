@@ -6,6 +6,7 @@ use App\Company;
 use App\TrnVaksin;
 use App\ExportCosmicIndex;
 use App\ExportVaksinData;
+use App\ExportVaksinTmpData;
 use App\Helpers\AppHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -1509,45 +1510,108 @@ class DashboardController extends Controller
               return $data;
           });
         return response()->json(['status' => 200,'data' => $datacache]);
-      }
+    }
 
-  public function getDownloadVaksinbyCompany($kd_perusahaan){
-    $str = '_get_cosmic_index_detail_list_'.$kd_perusahaan;
-    $mc_id = $kd_perusahaan;
-    
-    $data = array();
-    $data=[];
-    $company_id = $mc_id;
-    $company = new Company;
-    $company->setConnection('pgsql_vaksin');
-    $company = $company->where('mc_id',$company_id)->first();
-    $nama_perusahaan = $company->mc_name;
+    public function getDownloadVaksinbyCompany($kd_perusahaan){
+        set_time_limit(0);
+        ini_set('max_execution_time', 0);
+        ini_set('memory_limit', '-1');
+        ini_set('upload_max_filesize', '409600M');
+        ini_set('post_max_size', '409600M');
+        ini_set('max_input_time', 3600000);
+        date_default_timezone_set("Asia/Jakarta");
 
-    $vaksin=  DB::connection('pgsql_vaksin')->select('select * from transaksi_vaksin tv
+        $str = '_get_cosmic_index_detail_list_'.$kd_perusahaan;
+        $mc_id = $kd_perusahaan;
+
+        $data = array();
+        $data=[];
+        $company_id = $mc_id;
+        $company = new Company;
+        $company->setConnection('pgsql_vaksin');
+        $company = $company->where('mc_id',$company_id)->first();
+        $nama_perusahaan = $company->mc_name;
+
+        $vaksin=  DB::connection('pgsql_vaksin')->select('select *
+                from transaksi_vaksin tv
                 left join master_status_pegawai msp on tv.tv_msp_id = msp.msp_id
                 left join master_kabupaten mkab on tv.tv_mkab_id = mkab.mkab_id
                 left join master_provinsi mpro on mpro.mpro_id = mkab.mkab_mpro_id
-                where tv.tv_mc_id = ? ',[$company_id]);
+                where tv.tv_mc_id = ?
+                order by tv.tv_nama ',[$company_id]);
                 $jml = count($vaksin);
-    $i=1;
-    foreach($vaksin as $itemvaksin){
-      $data[] = array(
-                      "no" =>  $i++,
-                      "nama" =>  strval($itemvaksin->tv_nama),
-                      "status_peg" => $itemvaksin->msp_name2,
-                      "jenis_kelamin" => $itemvaksin->tv_mjk_id == 1 ? 'L':'P',
-                      "provinsi" => $itemvaksin->mpro_name,
-                      "kota" => $itemvaksin->mkab_name,
-                      "nik" => ((string)$itemvaksin->tv_nik),
-                      "usia" => $itemvaksin->tv_usia,
-                      "no_hp" => $itemvaksin->tv_no_hp,
-                      "jml_keluarga" => $itemvaksin->tv_jml_keluarga,
-                );
+                //var_dump($company_id);die;
+        $i=1;
+        foreach($vaksin as $itemvaksin){
+          $data[] = array(
+                  "no" =>  $i++,
+                  "nama" => str_replace("'", ' ', $itemvaksin->tv_nama),
+                  "status_peg" => $itemvaksin->msp_name2,
+                  "jenis_kelamin" => $itemvaksin->tv_mjk_id == 1 ? 'L':'P',
+                  "provinsi" => $itemvaksin->mpro_name,
+                  "kota" => $itemvaksin->mkab_name,
+                  "nik" => ((string)$itemvaksin->tv_nik),
+                  "usia" => $itemvaksin->tv_usia,
+                  "no_hp" => $itemvaksin->tv_no_hp,
+                  "jml_keluarga" => $itemvaksin->tv_jml_keluarga,
+            );
+      }
+      //return response()->json(['status' => 200,'data' => $data]);
+      $export = new ExportVaksinData(collect($data),$nama_perusahaan);
+      return Excel::download($export, 'vaksin_data_report_'.$nama_perusahaan.'.xlsx');
     }
-  //return response()->json(['status' => 200,'data' => $data]);
-  $export = new ExportVaksinData(collect($data),$nama_perusahaan);
-  return Excel::download($export, 'vaksin_data_report.xlsx');
 
-  }
+    public function getDownloadVaksinTmpbyCompany($kd_perusahaan){
+        set_time_limit(0);
+        ini_set('max_execution_time', 0);
+        ini_set('memory_limit', '-1');
+        ini_set('upload_max_filesize', '409600M');
+        ini_set('post_max_size', '409600M');
+        ini_set('max_input_time', 360000);
+        date_default_timezone_set("Asia/Jakarta");
 
+        $str = '_get_cosmic_index_detail_list_'.$kd_perusahaan;
+        $mc_id = $kd_perusahaan;
+
+        $data = array();
+        $data=[];
+        $company_id = $mc_id;
+        $company = new Company;
+        $company->setConnection('pgsql_vaksin');
+        $company = $company->where('mc_id',$company_id)->first();
+        $nama_perusahaan = $company->mc_name;
+
+        $vaksin=  DB::connection('pgsql_vaksin')->select("select tmpv.*, mpro.mpro_name,
+                CASE WHEN status=0 THEN 'Progress'
+                WHEN status=1 THEN 'Berhasil Parsing'
+                WHEN status=4 THEN 'Berhasil Parsing'
+                ELSE 'Gagal Parsing' END AS sts
+                from tmp_vaksin tmpv
+                left join master_kabupaten mkab ON lower(mkab.mkab_name)=lower(tmpv.kota)
+                left join master_provinsi mpro ON mpro.mpro_id = mkab.mkab_mpro_id
+                where created_at > '2021-01-31 21:00:00'
+                and kd_perusahaan = ? ",[$company_id]);
+        $jml = count($vaksin);
+        $i=1;
+        foreach($vaksin as $itemvaksin){
+            $data[] = array(
+                "no" =>  $i++,
+                "nama" => str_replace("'", ' ', $itemvaksin->nama),
+                "status_peg" => $itemvaksin->status_peg,
+                "jenis_kelamin" => $itemvaksin->jenis_kelamin,
+                "provinsi" => $itemvaksin->mpro_name,
+                "kota" => $itemvaksin->kota,
+                "nik" => ((string)$itemvaksin->nik),
+                "usia" => $itemvaksin->usia,
+                "no_hp" => $itemvaksin->no_hp,
+                "jml_keluarga" => $itemvaksin->jml_keluarga,
+                "tgl_upload" => $itemvaksin->created_at,
+                "status" => $itemvaksin->sts,
+                "keterangan" => $itemvaksin->keterangan,
+            );
+        }
+        //return response()->json(['status' => 200,'data' => $data]);
+        $export = new ExportVaksinTmpData(collect($data),$nama_perusahaan);
+        return Excel::download($export, 'vaksin_data_report_upload_'.$nama_perusahaan.'.xlsx');
+    }
 }
