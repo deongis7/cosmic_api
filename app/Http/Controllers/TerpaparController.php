@@ -113,7 +113,8 @@ class TerpaparController extends Controller {
 	        $search='';
 	    }
 	    $query = "SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
-                    msp_name, mpro_name, mkab_name, tk_tempat_perawatan, tk_tindakan
+                    msp_name, mpro_name, mkab_name, tk_tempat_perawatan, tk_tindakan,
+                    tk_nik, tk_mjk_id, tk_mpm_id, tk_direksi
                     FROM transaksi_kasus tk
                     INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
                     INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
@@ -152,6 +153,11 @@ class TerpaparController extends Controller {
 	                "kabupaten" => $tpp->mkab_name,
 	                "tempat_perawatan" => $tpp->tk_tempat_perawatan,
 	                "tindakan" => $tpp->tk_tindakan,
+	                
+	                "nik" => $tpp->tk_nik,
+	                "jns_kelamin" => $tpp->tk_mjk_id,
+	                "perimeter" => $tpp->tk_mpm_id,
+	                "direksi" => $tpp->tk_direksi
 	            );
 	        }
 	    }else{
@@ -223,6 +229,12 @@ class TerpaparController extends Controller {
 	    $data->tk_mkab_id = $request->kabupaten;
 	    $data->tk_tempat_perawatan = $request->tempat_perawatan;
 	    $data->tk_tindakan = $request->tindakan;
+	    
+	    $data->tk_nik = $request->nik;
+	    $data->tk_mjk_id = $request->jns_kelamin;
+	    $data->tk_mpm_id = $request->perimeter;
+	    $data->tk_direksi = $request->direksi;
+	    
 	    $data->tk_user_insert = Auth::guard('api')->user()->id;
 	    $data->tk_date_insert = date('d-m-Y H:i:s');
 	    $data->save();
@@ -292,6 +304,12 @@ class TerpaparController extends Controller {
 	    $data->tk_mkab_id = $request->kabupaten;
 	    $data->tk_tempat_perawatan = $request->tempat_perawatan;
 	    $data->tk_tindakan = $request->tindakan;
+	    
+	    $data->tk_nik = $request->nik;
+	    $data->tk_mjk_id = $request->jns_kelamin;
+	    $data->tk_mpm_id = $request->perimeter;
+	    $data->tk_direksi = $request->direksi;
+	    
 	    $data->tk_user_update = Auth::guard('api')->user()->id;
 	    $data->tk_date_update = date('d-m-Y H:i:s');
 	    $data->save();
@@ -305,15 +323,16 @@ class TerpaparController extends Controller {
 
 	public function getDataByid($id) {
 	    $terpapar = DB::connection('pgsql3')->select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
-                    msp_name, mpro_id, mpro_name, mkab_id, mkab_name, tk_tempat_perawatan, tk_tindakan,
-                    tk_date_meninggal, tk_date_sembuh, tk_date_positif
-                    FROM transaksi_kasus tk
-                    INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
-                    INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
-                    LEFT JOIN master_status_pegawai msp ON msp.msp_id=tk.tk_msp_id
-                    LEFT JOIN master_provinsi mpro ON mpro.mpro_id=tk.tk_mpro_id
-                    LEFT JOIN master_kabupaten mkab ON mkab.mkab_id=tk.tk_mkab_id AND mkab.mkab_mpro_id=mpro.mpro_id
-                    WHERE tk_id=$id");
+            msp_name, mpro_id, mpro_name, mkab_id, mkab_name, tk_tempat_perawatan, tk_tindakan,
+            tk_date_meninggal, tk_date_sembuh, tk_date_positif,
+            tk_nik, tk_mjk_id, tk_mpm_id, tk_direksi
+            FROM transaksi_kasus tk
+            INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
+            INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
+            LEFT JOIN master_status_pegawai msp ON msp.msp_id=tk.tk_msp_id
+            LEFT JOIN master_provinsi mpro ON mpro.mpro_id=tk.tk_mpro_id
+            LEFT JOIN master_kabupaten mkab ON mkab.mkab_id=tk.tk_mkab_id AND mkab.mkab_mpro_id=mpro.mpro_id
+            WHERE tk_id=$id");
 
 	    if (count($terpapar) > 0){
 	        foreach($terpapar as $tpp){
@@ -333,7 +352,12 @@ class TerpaparController extends Controller {
 	                "tindakan" => $tpp->tk_tindakan,
 	                "date_meninggal" => $tpp->tk_date_meninggal,
 	                "date_sembuh" => $tpp->tk_date_sembuh,
-	                "date_positif" => $tpp->tk_date_positif
+	                "date_positif" => $tpp->tk_date_positif,
+	                
+	                "nik" => $tpp->tk_nik,
+	                "jns_kelamin" => $tpp->tk_mjk_id,
+	                "perimeter" => $tpp->tk_mpm_id,
+	                "direksi" => $tpp->tk_direksi
 	            );
 	        }
 	        return response()->json(['status' => 200,'data' => $data]);
@@ -537,6 +561,7 @@ class TerpaparController extends Controller {
         'tk_date_positif',  'tk_date_meninggal',  'tk_date_sembuh',
         'tk_date_insert', 'tk_date_update',  'tk_tempat_perawatan', 'tk_tindakan',
 	    'msk_name','msk_name2','msp_name', 'mpro_name', 'mkab_name',
+	    'tk_nik', 'tk_mjk_id', 'tk_mpm_id', 'tk_direksi',
 	    'tk_date_insert', 'tk_date_update')
         ->join('master_company AS mc','mc.mc_id','tk_mc_id')
         ->join('master_status_kasus AS msk','msk.msk_id','tk_msk_id')
@@ -586,6 +611,12 @@ class TerpaparController extends Controller {
                     "date_sembuh" => $tpp->tk_date_sembuh,
                     "tempat_perawatan" => $tpp->tk_tempat_perawatan,
                     "tindakan" => $tpp->tk_tindakan,
+                    
+                    "nik" => $tpp->tk_nik,
+                    "jns_kelamin" => $tpp->tk_mjk_id,
+                    "perimeter" => $tpp->tk_mpm_id,
+                    "direksi" => $tpp->tk_direksi,
+                    
                     "date_insert" =>$tpp->tk_date_insert,
                     "date_update" =>$tpp->tk_date_update,
                 );
