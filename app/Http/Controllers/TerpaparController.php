@@ -655,6 +655,16 @@ class TerpaparController extends Controller {
             $terpapar = $terpapar->where(DB::raw("lower(TRIM(tk_nama))"),'like','%'.strtolower(trim($search)).'%');
         }
         
+        if(isset($request->column_sort)) {
+            if(isset($request->p_sort)) {
+                $terpapar = $terpapar->orderBy($request->column_sort, $request->p_sort);
+            }else{
+                $terpapar = $terpapar->orderBy($request->column_sort, 'ASC');
+            }
+        }else{
+            $terpapar = $terpapar->orderBy('tk_id', 'DESC');
+        }
+     
         $jmltotal=($terpapar->count());
         if(isset($request->limit)) {
             $limit = $request->limit;
