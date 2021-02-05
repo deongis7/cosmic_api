@@ -627,4 +627,73 @@ class TerpaparController extends Controller {
         return response()->json(['status' => 200, 'page_end'=> $endpage,
             'data' => $data]);
 	}
+	
+	public function getDatadetailNew($id, Request $request) {
+	    $limit = null;
+	    $page = null;
+	    $search = null;
+	    $endpage = 1;
+	    
+	    $terpapar = new TrnKasus();
+	    $terpapar->setConnection('pgsql3');
+	    $terpapar = $terpapar->select(
+	        'tk_id', 'tk_mc_id', 'tk_nama', 'mc_name', 'msk_name', 'msk_name2',
+	        'msp_name', 'mpro_name', 'mkab_name', 'tk_tempat_perawatan', 'tk_tindakan',
+	        'tk_nik', 'tk_mjk_id', 'tk_mpm_id', 'tk_direksi'
+	        )
+        ->join('master_company AS mc','mc.mc_id','tk_mc_id')
+        ->join('master_status_kasus AS msk', 'msk.msk_id','tk_msk_id')
+        ->join('master_status_pegawai AS msp','msp.msp_id','tk_msp_id')
+        ->join('master_provinsi AS mpro','mpro.mpro_id','tk_mpro_id')
+        ->join('master_kabupaten AS mkab','mkab.mkab_id','tk_mkab_id')
+
+        ->where('mc.mc_level', 1)
+        ->where('mc.mc_id', $id);
+
+        if(isset($request->search)) {
+            $search = $request->search;
+            $terpapar = $terpapar->where(DB::raw("lower(TRIM(tk_nama))"),'like','%'.strtolower(trim($search)).'%');
+        }
+        
+        $jmltotal=($terpapar->count());
+        if(isset($request->limit)) {
+            $limit = $request->limit;
+            $terpapar = $terpapar->limit($limit);
+            $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+            
+            if (isset($request->page)) {
+                $page = $request->page;
+                $offset = ((int)$page -1) * (int)$limit;
+                $report = $terpapar->offset($offset);
+            }
+        }
+        $terpapar = $terpapar->get();
+        $totalterpapar = $terpapar->count();
+	    
+	    if (count($terpapar) > 0){
+	        foreach($terpapar as $tpp){
+	            $data[] = array(
+	                "id" => $tpp->tk_id,
+	                "kd_perusahaan" => $tpp->tk_mc_id,
+	                "perusahaan" => $tpp->mc_name,
+	                "nama_pasien" => $tpp->tk_nama,
+	                "jenis_kasus" => $tpp->msk_name2,
+	                "jenis_kasus2" => $tpp->msk_name,
+	                "status_pegawai" => $tpp->msp_name,
+	                "provinsi" => $tpp->mpro_name,
+	                "kabupaten" => $tpp->mkab_name,
+	                "tempat_perawatan" => $tpp->tk_tempat_perawatan,
+	                "tindakan" => $tpp->tk_tindakan,
+	                "nik" => $tpp->tk_nik,
+	                "jns_kelamin" => $tpp->tk_mjk_id,
+	                "perimeter" => $tpp->tk_mpm_id,
+	                "direksi" => $tpp->tk_direksi
+	            );
+	        }
+	    }else{
+	        $data = array();
+	    }
+	    return response()->json(['status' => 200, 'page_end'=>$endpage, 'data' => $data]);
+	}
+	
 }
