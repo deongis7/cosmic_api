@@ -157,9 +157,16 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/list_perimeter_level_report/count/{kd_perusahaan}', 'PerimeterReportController@getStatusPerimeterLevel');
     $router->post('/list_perimeter/add', 'PerimeterListController@addPerimeterList');
     $router->post('/list_perimeter/update_gmap/{id_perimeter}', 'PerimeterListController@updatePerimeterListGmap');
+    $router->get('/list_perimeter/rate_week/{id_perimeter}', 'PerimeterListController@getWeekPerimeterRate');
 
-    //Region
-    $router->get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
+    //report
+  $router->get('/report/perimeter/{id_perimeter}', 'PerimeterListController@getReportByPerimeter');
+  $router->get('/report/by_id/{id_report}', 'PerimeterListController@getReportPerimeterByID');
+  $router->get('/review/perimeter/{id_perimeter}', 'PerimeterListController@getReviewByPerimeter');
+  $router->get('/review/by_id/{id_review}', 'PerimeterListController@getReviewPerimeterByID');
+
+  //Region
+  $router->get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
 
 	//Kota
 	$router->get('/kota', 'MasterController@getAllKota');
@@ -240,6 +247,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/dashboardhead_bumn/{id}', 'DashboardController@getDashboardHeadBUMN');
 	$router->get('/dashboard/dashboardprotokol_bumn/{id}', 'DashboardController@getDashboardProtokolBUMN');
 	$router->get('/dashboard/dashboardmrmpm_bumn/{id}', 'DashboardController@getDashboardMrMpmBUMN');
+	$router->get('/dashboard/dashboardjml_pegawai/{id}', 'DashboardController@getDashboardJmlPegawai');
     //Log
     $router->get('/log_activity', 'UserController@setActivityLog');
 
