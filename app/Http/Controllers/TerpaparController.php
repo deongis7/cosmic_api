@@ -639,14 +639,16 @@ class TerpaparController extends Controller {
 	    $terpapar = $terpapar->select(
 	        'tk_id', 'tk_mc_id', 'tk_nama', 'mc_name', 'msk_name', 'msk_name2',
 	        'msp_name', 'mpro_name', 'mkab_name', 'tk_tempat_perawatan', 'tk_tindakan',
-	        'tk_nik', 'tk_mjk_id', 'tk_mpm_id', 'tk_direksi'
+	        'tk_nik', 'tk_mjk_id', 'tk_mpm_id', 'tk_direksi', 'mpm_name','mpm_alamat',
+	        'mpmk_id','mpmk_name'
 	        )
         ->join('master_company AS mc','mc.mc_id','tk_mc_id')
-        ->join('master_status_kasus AS msk', 'msk.msk_id','tk_msk_id')
-        ->join('master_status_pegawai AS msp','msp.msp_id','tk_msp_id')
-        ->join('master_provinsi AS mpro','mpro.mpro_id','tk_mpro_id')
-        ->join('master_kabupaten AS mkab','mkab.mkab_id','tk_mkab_id')
-
+        ->leftjoin('master_status_kasus AS msk', 'msk.msk_id','tk_msk_id')
+        ->leftjoin('master_status_pegawai AS msp','msp.msp_id','tk_msp_id')
+        ->leftjoin('master_provinsi AS mpro','mpro.mpro_id','tk_mpro_id')
+        ->leftjoin('master_kabupaten AS mkab','mkab.mkab_id','tk_mkab_id')
+        ->leftjoin('master_perimeter AS mpm','mpm.mpm_id','tk_mpm_id')
+        ->leftjoin('master_perimeter_kategori AS mpmk','mpmk.mpmk_id','mpm.mpm_mpmk_id')
         ->where('mc.mc_level', 1)
         ->where('mc.mc_id', $id);
 
@@ -696,7 +698,10 @@ class TerpaparController extends Controller {
 	                "tindakan" => $tpp->tk_tindakan,
 	                "nik" => $tpp->tk_nik,
 	                "jns_kelamin" => $tpp->tk_mjk_id,
-	                "perimeter" => $tpp->tk_mpm_id,
+	                "perimeter_id" => $tpp->tk_mpm_id,
+	                "perimeter_name" => $tpp->mpm_name,
+	                "perimeter_kategori" => $tpp->mpmk_name,
+	                "perimeter_alamat" => $tpp->mpm_alamat,
 	                "direksi" => $tpp->tk_direksi
 	            );
 	        }
