@@ -114,13 +114,16 @@ class TerpaparController extends Controller {
 	    }
 	    $query = "SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
                     msp_name, mpro_name, mkab_name, tk_tempat_perawatan, tk_tindakan,
-                    tk_nik, tk_mjk_id, tk_mpm_id, tk_direksi
+                    tk_nik, tk_mjk_id, tk_mpm_id, tk_direksi,
+                    mpm_name, mpm_alamat, mpmk_name
                     FROM transaksi_kasus tk
                     INNER JOIN master_company mc ON mc.mc_id=tk.tk_mc_id
                     INNER JOIN master_status_kasus msk ON msk.msk_id=tk.tk_msk_id
                     LEFT JOIN master_status_pegawai msp ON msp.msp_id=tk.tk_msp_id
                     LEFT JOIN master_provinsi mpro ON mpro.mpro_id=tk.tk_mpro_id
                     LEFT JOIN master_kabupaten mkab ON mkab.mkab_id=tk.tk_mkab_id AND mkab.mkab_mpro_id=mpro.mpro_id
+                    LEFT JOIN master_perimeter AS mpm ON mpm.mpm_id=tk_mpm_id
+                    LEFT JOIN master_perimeter_kategori AS mpmk ON mpmk.mpmk_id=mpm.mpm_mpmk_id
                     WHERE tk_mc_id='$id' AND LOWER(tk_nama) LIKE LOWER('%$search%') ";
         if(isset($request->status_kasus)){
             if(($request->status_kasus != 'null' && $request->status_kasus != 'undefined')){
@@ -153,10 +156,12 @@ class TerpaparController extends Controller {
 	                "kabupaten" => $tpp->mkab_name,
 	                "tempat_perawatan" => $tpp->tk_tempat_perawatan,
 	                "tindakan" => $tpp->tk_tindakan,
-	                
+	                "perimeter_id" => $tpp->tk_mpm_id,
+	                "perimeter_name" => $tpp->mpm_name,
+	                "perimeter_kategori" => $tpp->mpmk_name,
+	                "perimeter_alamat" => $tpp->mpm_alamat,
 	                "nik" => $tpp->tk_nik,
 	                "jns_kelamin" => $tpp->tk_mjk_id,
-	                "perimeter" => $tpp->tk_mpm_id,
 	                "direksi" => $tpp->tk_direksi
 	            );
 	        }
@@ -333,8 +338,8 @@ class TerpaparController extends Controller {
             LEFT JOIN master_status_pegawai msp ON msp.msp_id=tk.tk_msp_id
             LEFT JOIN master_provinsi mpro ON mpro.mpro_id=tk.tk_mpro_id
             LEFT JOIN master_kabupaten mkab ON mkab.mkab_id=tk.tk_mkab_id AND mkab.mkab_mpro_id=mpro.mpro_id
-            LEFT JOIN master_perimeter AS mpm ON mpm.mpm_id=tk_mpm_id)
-            LEFT JOIN master_perimeter_kategori AS mpmk ON mpmk.mpmk_id=mpm.mpm_mpmk_id)
+            LEFT JOIN master_perimeter AS mpm ON mpm.mpm_id=tk_mpm_id
+            LEFT JOIN master_perimeter_kategori AS mpmk ON mpmk.mpmk_id=mpm.mpm_mpmk_id
             WHERE tk_id=$id");
 
 	    if (count($terpapar) > 0){
