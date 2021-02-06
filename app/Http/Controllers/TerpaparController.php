@@ -134,7 +134,7 @@ class TerpaparController extends Controller {
                 }
             }
         }
-	    $query = $query . " ORDER BY tk_id ";
+	    $query = $query . " ORDER BY tk_id DESC ";
 	    $terpaparall = DB::connection('pgsql3')->select($query);
 
 	    $terpapar = DB::connection('pgsql3')->select($query . " OFFSET $pageq LIMIT $row");
@@ -585,9 +585,9 @@ class TerpaparController extends Controller {
         
         if(isset($request->search)) {
             $search = $request->search;
-            $terpapar = $report->where(DB::raw("lower(TRIM(tk_nama))"),'like','%'.strtolower(trim($search)).'%');
+            $terpapar = $terpapar->where(DB::raw("lower(TRIM(tk_nama))"),'like','%'.strtolower(trim($search)).'%');
         }
-        
+        $terpapar = $terpapar->orderBy('tk_id', 'DESC');
         $jmltotal=($terpapar->count());
         if(isset($request->limit)) {
             $limit = $request->limit;
