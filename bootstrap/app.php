@@ -110,7 +110,8 @@ $app->register(Intervention\Image\ImageServiceProvider::class);
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
 $app->register(\SwaggerLume\ServiceProvider::class);
 
-Dusterio\LumenPassport\LumenPassport::routes($app->router, ['prefix' => 'api/v1/oauth'] );
+//Dusterio\LumenPassport\LumenPassport::routes($app->router, ['prefix' => 'api/v1/oauth'] );
+Dusterio\LumenPassport\LumenPassport::routes($app->router, ['prefix' => 'apix/v1/oauth'] );
 /*
 |--------------------------------------------------------------------------
 | Register Alias

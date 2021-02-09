@@ -44,7 +44,7 @@ $router->get('/storage/{jenis}/{kd_perusahaan}/{filename}', function ($jenis,$kd
     return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/'. $filename))->response();
 });
 
-$router->group(['prefix' => 'api/v1'], function () use ($router) {
+$router->group(['prefix' => 'apix/v1'], function () use ($router) {
 	//Perimeter
 	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
@@ -97,6 +97,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Data_detail /Terpapar /Kasus
 	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
 	$router->get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
+	$router->get('/terpapar/laporan_detail_new/{id}', 'TerpaparController@getDatadetailNew');
 	$router->get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
 
 	$router->get('/terpapar/laporan_home_all', 'TerpaparController@getDataHomeAll');
@@ -156,9 +157,18 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/list_perimeter_level_report/count/{kd_perusahaan}', 'PerimeterReportController@getStatusPerimeterLevel');
     $router->post('/list_perimeter/add', 'PerimeterListController@addPerimeterList');
     $router->post('/list_perimeter/update_gmap/{id_perimeter}', 'PerimeterListController@updatePerimeterListGmap');
+    $router->get('/list_perimeter/rate_week/{id_perimeter}', 'PerimeterListController@getWeekPerimeterRate');
+    
+    $router->get('/list_perimeter_new/{kd_perusahaan}', 'PerimeterListController@getPerimeterListNew');
 
-    //Region
-    $router->get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
+    //report
+  $router->get('/report/perimeter/{id_perimeter}', 'PerimeterListController@getReportByPerimeter');
+  $router->get('/report/by_id/{id_report}', 'PerimeterListController@getReportPerimeterByID');
+  $router->get('/review/perimeter/{id_perimeter}', 'PerimeterListController@getReviewByPerimeter');
+  $router->get('/review/by_id/{id_review}', 'PerimeterListController@getReviewPerimeterByID');
+
+  //Region
+  $router->get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
 
 	//Kota
 	$router->get('/kota', 'MasterController@getAllKota');

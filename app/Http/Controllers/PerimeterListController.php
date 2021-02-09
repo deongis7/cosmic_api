@@ -16,6 +16,8 @@ use App\Helpers\AppHelper;
 use App\TblPerimeterDetail;
 use App\TblPerimeterClosed;
 use App\TrnAktifitas;
+use App\TrnReport;
+use App\TblPerimeterRate;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -1442,5 +1444,301 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
              return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
          }
 
+    }
+
+    public function getWeekPerimeterRate($id_perimeter){
+
+        $data = array();
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+
+        $rate = DB::connection('pgsql2')->select( "select * from week_perimeter_rate(?, ? ) limit 1", [$id_perimeter, $startdate]);
+        //dd($rate);
+      if (count($rate) > 0){
+        foreach ($rate as $itemrate) {
+            $data = array(
+                        "id_perimeter" => $itemrate->v_mpm_id,
+                        "start_date" =>$itemrate->v_start_date,
+                        "end_date" => $itemrate->v_end_date,
+                        "rate" => $itemrate->v_mpm_rate
+            );
+        }
+        return response()->json(['status' => 200 ,'data' => $data]);
+      } else {
+        return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+
+      }
+    }
+
+    public function getReportByPerimeter($id_perimeter,Request $request){
+        $limit = null;
+        $page = null;
+        $search = null;
+        $endpage = 1;
+        $str = "_get_report_by_perimeter_". $id_perimeter;
+        if(isset($request->limit)){
+            $str = $str.'_limit_'. $request->limit;
+            $limit=$request->limit;
+            if(isset($request->page)){
+                $str = $str.'_page_'. $request->page;
+                $page=$request->page;
+            }
+        }
+        //dd(str_replace(' ','_',$request->search));
+        if(isset($request->search)){
+            $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+            $search=$request->search;
+        }
+
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search) {
+            $data = array();
+            $report = new TrnReport;
+            $report->setConnection('pgsql2');
+            $report = $report->select('master_perimeter.mpm_id', 'master_perimeter.mpm_name',
+                'master_perimeter_level.mpml_id', 'master_perimeter_level.mpml_name',
+                'transaksi_report.tr_id', 'transaksi_report.tr_close')
+                ->join('master_perimeter_level', 'master_perimeter_level.mpml_id', 'transaksi_report.tr_mpml_id')
+                ->join('master_perimeter', 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_mpm_id')
+                ->where('master_perimeter.mpm_id', $id_perimeter);
+            if(isset($search)) {
+                $report = $report->where(DB::raw("lower(TRIM(master_perimeter.mpm_name))"),'like','%'.strtolower(trim($search)).'%');
+            }
+            $report = $report->orderBy('transaksi_report.tr_close', 'asc')
+                    ->orderBy('transaksi_report.tr_id', 'asc');
+
+            //total_jumlah
+            $jmltotal=($report->count());
+            if(isset($limit)) {
+                $report = $report->limit($limit);
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                if (isset($page)) {
+                    $offset = ((int)$page -1) * (int)$limit;
+                    $report = $report->offset($offset);
+                }
+            }
+            $report =$report->get();
+
+            foreach ($report as $itemreport) {
+                $data[] = array(
+                    "id_report" => $itemreport->tr_id,
+                    "id_perimeter" => $itemreport->mpm_id,
+                    "nama_perimeter" => $itemreport->mpm_name,
+                    "id_perimeter_level" => $itemreport->mpml_id,
+                    "nama_perimeter_level" => $itemreport->mpml_name,
+                    "status" => $itemreport->tr_close == 0 ? 'Belom Diproses':'Sudah Diproses',
+
+                );
+            }
+            return array('status' => 200,'page_end' => $endpage,'data' => $data);
+        });
+        return response()->json($datacache);
+
+    }
+
+    public function getReportPerimeterByID($id_report){
+
+        $data = array();
+
+        $report = new TrnReport;
+        $report->setConnection('pgsql2');
+        $report = $report->select('master_perimeter.mpm_id', 'master_perimeter.mpm_name',
+            'master_perimeter_level.mpml_id', 'master_perimeter_level.mpml_name',
+            'transaksi_report.tr_id', 'transaksi_report.tr_laporan','transaksi_report.tr_date_insert',
+            'transaksi_report.tr_file1','transaksi_report.tr_file2','transaksi_report.tr_tl_file1',
+            'transaksi_report.tr_tl_file2','transaksi_report.tr_no',
+            'transaksi_report.tr_date_update','transaksi_report.tr_close')
+            ->join('master_perimeter_level', 'master_perimeter_level.mpml_id', 'transaksi_report.tr_mpml_id')
+            ->join('master_perimeter', 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_mpm_id')
+            ->where('transaksi_report.tr_id', $id_report)->first();
+
+        //dd($rate);
+      if ($report != null){
+
+            $data = array(
+              "id_report" => $report->tr_id,
+              "id_perimeter" => $report->mpm_id,
+              "nama_perimeter" => $report->mpm_name,
+              "id_perimeter_level" => $report->mpml_id,
+              "nama_perimeter_level" => $report->mpml_name,
+              "no_report"=> $report->tr_no,
+              "tgl_lapor"=> date('Y-m-d', strtotime($report->tr_date_insert)),
+              "tgl_close"=> date('Y-m-d', strtotime($report->tr_date_update)),
+              "laporan" =>  $report->tr_laporan,
+              "file_1" =>  "/report/".$report->tr_file1,
+              "file_2" =>  "/report/".$report->tr_file2,
+              "file_tumb_1" =>  "/report/".$report->tr_tl_file1,
+              "file_tumb_2" =>  "/report/".$report->tr_tl_file2,
+              "status" => $report->tr_close == 0 ? 'Belom Diproses':'Sudah Diproses',
+            );
+
+        return response()->json(['status' => 200 ,'data' => $data]);
+      } else {
+        return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+
+      }
+    }
+
+    public function getReviewByPerimeter($id_perimeter,Request $request){
+        $limit = null;
+        $page = null;
+        $search = null;
+        $endpage = 1;
+        $str = "_get_review_by_perimeter_". $id_perimeter;
+        if(isset($request->limit)){
+            $str = $str.'_limit_'. $request->limit;
+            $limit=$request->limit;
+            if(isset($request->page)){
+                $str = $str.'_page_'. $request->page;
+                $page=$request->page;
+            }
+        }
+        //dd(str_replace(' ','_',$request->search));
+        if(isset($request->search)){
+            $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+            $search=$request->search;
+        }
+
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search) {
+            $data = array();
+            $report = new TblPerimeterRate;
+            $report->setConnection('pgsql2');
+            $report = $report->where('tbpmr_mpm_id', $id_perimeter);
+            if(isset($search)) {
+                $report = $report->where(DB::raw("lower(TRIM(tbpmr_feedback))"),'like','%'.strtolower(trim($search)).'%');
+            }
+            $report = $report->orderBy('tbpmr_id', 'desc');
+
+            //total_jumlah
+            $jmltotal=($report->count());
+            if(isset($limit)) {
+                $report = $report->limit($limit);
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                if (isset($page)) {
+                    $offset = ((int)$page -1) * (int)$limit;
+                    $report = $report->offset($offset);
+                }
+            }
+            $report =$report->get();
+
+            foreach ($report as $itemreport) {
+                $data[] = array(
+                    "id_review" => $itemreport->tbpmr_id,
+                    "rate" => $itemreport->tbpmr_rate,
+                    "feedback" => $itemreport->tbpmr_feedback
+
+                );
+            }
+            return array('status' => 200,'page_end' => $endpage,'data' => $data);
+        });
+        return response()->json($datacache);
+
+    }
+
+    public function getReviewPerimeterByID($id_review){
+
+        $data = array();
+
+        $report = new TblPerimeterRate;
+        $report->setConnection('pgsql2');
+        $report = $report->select('master_perimeter.mpm_id', 'master_perimeter.mpm_name',
+            'table_perimeter_rate.tbpmr_id', 'table_perimeter_rate.tbpmr_rate','table_perimeter_rate.tbpmr_feedback',
+            'table_perimeter_rate.tbpmr_date_insert','table_perimeter_rate.tbpmr_date_update')
+            ->join('master_perimeter', 'master_perimeter.mpm_id', 'table_perimeter_rate.tbpmr_mpm_id')
+            ->where('table_perimeter_rate.tbpmr_id', $id_review)->first();
+
+        //dd($rate);
+      if ($report != null){
+
+            $data = array(
+              "id_report" => $report->tbpmr_id,
+              "id_perimeter" => $report->mpm_id,
+              "nama_perimeter" => $report->mpm_name,
+              "tgl_review"=> date('Y-m-d', strtotime($report->tbpmr_date_insert)),
+              "feedback" =>  $report->tbpmr_feedback,
+              "rate" =>  $report->tbpmr_rate,
+
+            );
+
+        return response()->json(['status' => 200 ,'data' => $data]);
+      } else {
+        return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+
+      }
+    }
+    
+    
+    public function  getPerimeterListNew($kd_perusahaan,Request $request){ 
+        $limit = null;
+        $page = null;
+        $search = null;
+        $endpage = 1;
+        
+        $perimeter = new Perimeter;
+        $perimeter->setConnection('pgsql2');
+        $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
+        'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
+        'master_perimeter_kategori.mpmk_name',
+        'master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
+        ->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
+        ->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
+        ->join('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
+        ->join('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id')
+        ->where('master_perimeter.mpm_mc_id', $kd_perusahaan);
+        
+        if(isset($request->kabupaten)) {
+            $kabupaten_id = $request->kabupaten;
+            $perimeter = $perimeter->where('master_kabupaten.mkab_id', $kabupaten_id);
+        }
+        
+        if(isset($request->search)) {
+            $search = $request->search;
+            $perimeter = $perimeter->where(DB::raw("lower(TRIM(mpm_nama))"),'like','%'.strtolower(trim($search)).'%');
+        }
+        
+        if(isset($request->column_sort)) {
+            if(isset($request->p_sort)) {
+                $perimeter = $perimeter->orderBy($request->column_sort, $request->p_sort);
+            }else{
+                $perimeter = $perimeter->orderBy($request->column_sort, 'ASC');
+            }
+        }else{
+            $perimeter = $perimeter->orderBy('mpm_name', 'ASC');
+        }
+        
+        $jmltotal=($perimeter->count());
+        if(isset($request->limit)) {
+            $limit = $request->limit;
+            $perimeter = $perimeter->limit($limit);
+            $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+            
+            if (isset($request->page)) {
+                $page = $request->page;
+                $offset = ((int)$page -1) * (int)$limit;
+                $report = $perimeter->offset($offset);
+            }
+        }
+        $perimeter = $perimeter->get();
+        $totalperimeter = $perimeter->count();
+        
+        if (count($perimeter) > 0){
+            foreach($perimeter as $mpm){
+                $data[] = array(
+                    "kd_perusahaan" => $kd_perusahaan,
+                    "perimeter_id" => $mpm->mpm_id,
+                    "perimeter_name" => $mpm->mpm_name,
+                    "perimeter_kategori" => $mpm->mpm_name,
+                    "alamat" => $mpm->mpm_name,
+                    "kategori" => $mpm->mpmk_name,
+                    "provinsi" => $mpm->mpro_name,
+                    "kabupaten" => $mpm->mkab_name,
+                );
+            }
+        }else{
+            $data = array();
+        }
+        return response()->json(['status' => 200, 'page_end'=>$endpage, 'data' => $data]);
     }
 }
