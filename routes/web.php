@@ -44,7 +44,7 @@ $router->get('/storage/{jenis}/{kd_perusahaan}/{filename}', function ($jenis,$kd
     return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/'. $filename))->response();
 });
 
-$router->group(['prefix' => 'api/v1'], function () use ($router) {
+$router->group(['prefix' => 'apix/v1'], function () use ($router) {
 	//Perimeter
 	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
