@@ -67,6 +67,12 @@ class Handler extends ExceptionHandler
 							'status' => '404',
 							'message' => 'Data Tidak Ditemukan. '
 						])->setStatusCode(404);
+
+      /**return response()->json([
+							'status' => '500',
+							'message' => 'Sedang dilakukan Penyesuaian. Mohon Login kembali beberapa saat lagi. '
+						])->setStatusCode(404);
+      */
 		}
 		if ($exception instanceof NotReadableException) {
 

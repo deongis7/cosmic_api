@@ -158,7 +158,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->post('/list_perimeter/add', 'PerimeterListController@addPerimeterList');
     $router->post('/list_perimeter/update_gmap/{id_perimeter}', 'PerimeterListController@updatePerimeterListGmap');
     $router->get('/list_perimeter/rate_week/{id_perimeter}', 'PerimeterListController@getWeekPerimeterRate');
-    
+
     $router->get('/list_perimeter_new/{kd_perusahaan}', 'PerimeterListController@getPerimeterListNew');
 
     //report
