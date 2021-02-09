@@ -1482,6 +1482,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         $limit = null;
         $page = null;
         $search = null;
+        $status = null;
         $endpage = 1;
         $str = "_get_report_by_perimeter_". $id_perimeter;
         if(isset($request->limit)){
@@ -1497,8 +1498,12 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
             $str = $str.'_searh_'. str_replace(' ','_',$request->search);
             $search=$request->search;
         }
+        if(isset($request->status)){
+            $str = $str.'_status_'. str_replace(' ','_',$request->status);
+            $status=$request->status;
+        }
 
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search,$status) {
             $data = array();
             $report = new TrnReport;
             $report->setConnection('pgsql2');
@@ -1510,6 +1515,11 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
                 ->where('master_perimeter.mpm_id', $id_perimeter);
             if(isset($search)) {
                 $report = $report->where(DB::raw("lower(TRIM(master_perimeter.mpm_name))"),'like','%'.strtolower(trim($search)).'%');
+            }
+            if(isset($status)) {
+              if(($status)==0 || ($status)==1){
+                  $report = $report->where('transaksi_report.tr_close',$status);
+              }
             }
             $report = $report->orderBy('transaksi_report.tr_close', 'asc')
                     ->orderBy('transaksi_report.tr_id', 'asc');
