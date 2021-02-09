@@ -63,16 +63,16 @@ class Handler extends ExceptionHandler
 		}
 		if ($exception instanceof NotFoundHttpException) {
 
-			/**return response()->json([
+			return response()->json([
 							'status' => '404',
 							'message' => 'Data Tidak Ditemukan. '
 						])->setStatusCode(404);
-      */
-      return response()->json([
+
+      /**return response()->json([
 							'status' => '500',
 							'message' => 'Sedang dilakukan Penyesuaian. Mohon Login kembali beberapa saat lagi. '
 						])->setStatusCode(404);
-
+      */
 		}
 		if ($exception instanceof NotReadableException) {
 

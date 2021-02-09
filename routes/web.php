@@ -44,7 +44,7 @@ $router->get('/storage/{jenis}/{kd_perusahaan}/{filename}', function ($jenis,$kd
     return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/'. $filename))->response();
 });
 
-$router->group(['prefix' => 'apix/v1'], function () use ($router) {
+$router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Perimeter
 	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
@@ -158,7 +158,7 @@ $router->group(['prefix' => 'apix/v1'], function () use ($router) {
     $router->post('/list_perimeter/add', 'PerimeterListController@addPerimeterList');
     $router->post('/list_perimeter/update_gmap/{id_perimeter}', 'PerimeterListController@updatePerimeterListGmap');
     $router->get('/list_perimeter/rate_week/{id_perimeter}', 'PerimeterListController@getWeekPerimeterRate');
-    
+
     $router->get('/list_perimeter_new/{kd_perusahaan}', 'PerimeterListController@getPerimeterListNew');
 
     //report
