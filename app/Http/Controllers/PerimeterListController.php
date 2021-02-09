@@ -1466,7 +1466,12 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         }
         return response()->json(['status' => 200 ,'data' => $data]);
       } else {
-        return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+        return response()->json(['status' => 200 ,'data' => array(
+                    "id_perimeter" => $id_perimeter,
+                    "start_date" =>$startdate,
+                    "end_date" => $enddate,
+                    "rate" => 0)
+                  ]);
 
       }
     }
@@ -1668,14 +1673,14 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
 
       }
     }
-    
-    
-    public function  getPerimeterListNew($kd_perusahaan,Request $request){ 
+
+
+    public function  getPerimeterListNew($kd_perusahaan,Request $request){
         $limit = null;
         $page = null;
         $search = null;
         $endpage = 1;
-        
+
         $perimeter = new Perimeter;
         $perimeter->setConnection('pgsql2');
         $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
@@ -1687,17 +1692,17 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         ->join('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
         ->join('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id')
         ->where('master_perimeter.mpm_mc_id', $kd_perusahaan);
-        
+
         if(isset($request->kabupaten)) {
             $kabupaten_id = $request->kabupaten;
             $perimeter = $perimeter->where('master_kabupaten.mkab_id', $kabupaten_id);
         }
-        
+
         if(isset($request->search)) {
             $search = $request->search;
             $perimeter = $perimeter->where(DB::raw("lower(TRIM(mpm_nama))"),'like','%'.strtolower(trim($search)).'%');
         }
-        
+
         if(isset($request->column_sort)) {
             if(isset($request->p_sort)) {
                 $perimeter = $perimeter->orderBy($request->column_sort, $request->p_sort);
@@ -1707,13 +1712,13 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         }else{
             $perimeter = $perimeter->orderBy('mpm_name', 'ASC');
         }
-        
+
         $jmltotal=($perimeter->count());
         if(isset($request->limit)) {
             $limit = $request->limit;
             $perimeter = $perimeter->limit($limit);
             $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-            
+
             if (isset($request->page)) {
                 $page = $request->page;
                 $offset = ((int)$page -1) * (int)$limit;
@@ -1722,7 +1727,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         }
         $perimeter = $perimeter->get();
         $totalperimeter = $perimeter->count();
-        
+
         if (count($perimeter) > 0){
             foreach($perimeter as $mpm){
                 $data[] = array(
