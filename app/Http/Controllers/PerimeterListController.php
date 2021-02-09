@@ -1461,7 +1461,8 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
                         "id_perimeter" => $itemrate->v_mpm_id,
                         "start_date" =>$itemrate->v_start_date,
                         "end_date" => $itemrate->v_end_date,
-                        "rate" => $itemrate->v_mpm_rate
+                        "rate" => $itemrate->v_mpm_rate,
+                        "total_ulasan"=>$itemrate->v_count
             );
         }
         return response()->json(['status' => 200 ,'data' => $data]);
@@ -1470,7 +1471,8 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
                     "id_perimeter" => $id_perimeter,
                     "start_date" =>$startdate,
                     "end_date" => $enddate,
-                    "rate" => 0)
+                    "rate" => 0,
+                  "total_ulasan"=>0)
                   ]);
 
       }
