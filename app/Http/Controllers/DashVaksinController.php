@@ -204,8 +204,8 @@ class DashVaksinController extends Controller
         ->join('master_company AS mc','mc.mc_id','tv_mc_id')
         ->leftjoin('master_status_pegawai AS msp','msp.msp_id','tv_msp_id')
         ->leftjoin('master_kabupaten AS mkab','mkab.mkab_id','tv_mkab_id')
-        ->leftjoin('master_provinsi AS mpro','mpro.mpro_id','mkab.mkab_mpro_id')
-        ->where('mc.mc_level', 1);
+        ->leftjoin('master_provinsi AS mpro','mpro.mpro_id','mkab.mkab_mpro_id');
+        //->where('mc.mc_level', 1);
         if(isset($request->search)) {
             $search = $request->search;
             $vaksin = $vaksin->where(DB::raw("lower(TRIM(tv_nama))"),'like','%'.strtolower(trim($search)).'%');
@@ -229,7 +229,7 @@ class DashVaksinController extends Controller
         if (count($vaksin) > 0){
             foreach($vaksin as $vksn){
                 if($vksn->tv_file1 !=NULL || $vksn->tv_file1 !=''){
-                    if (!file_exists(base_path("storage/app/public/vaksin_eviden/".$vksn->tv_file1))) {
+                    if (!file_exists(base_path("storage/app/public/vaksin_eviden/".$vksn->tv_mc_id.'/'.$vksn->tv_file1))) {
                         $path_file404 = '/404/img404.jpg';
                         $filevksn1 = $path_file404;
                     }else{
@@ -241,15 +241,27 @@ class DashVaksinController extends Controller
                 }
                 
                 if($vksn->tv_file2 !=NULL || $vksn->tv_file2 !=''){
-                    if (!file_exists(base_path("storage/app/public/vaksin_eviden/".$vksn->tv_file2))) {
+                    if (!file_exists(base_path("storage/app/public/vaksin_eviden/".$vksn->tv_mc_id.'/'.$vksn->tv_file2))) {
                         $path_file404 = '/404/img404.jpg';
                         $filevksn2 = $path_file404;
                     }else{
                         $path_file2 = '/vaksin_eviden/'.$vksn->tv_file2;
-                        $filevksn2 = $path_file1;
+                        $filevksn2 = $path_file2;
                     }
                 }else{
                     $filevksn2 = '/404/img404.jpg';
+                }
+                
+                if($vksn->tv_file3 !=NULL || $vksn->tv_file3 !=''){
+                    if (!file_exists(base_path("storage/app/public/vaksin_eviden/".$vksn->tv_mc_id.'/'.$vksn->tv_file3))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filevksn3 = $path_file404;
+                    }else{
+                        $path_file3 = '/vaksin_eviden/'.$vksn->tv_file3;
+                        $filevksn3 = $path_file3;
+                    }
+                }else{
+                    $filevksn3 = '/404/img404.jpg';
                 }
                 
                 if($vksn->tv_mjk_id==1){
@@ -297,6 +309,7 @@ class DashVaksinController extends Controller
                     "lokasi_3" => $vksn->tv_lokasi3,
                     "file_1" => $filevksn1,
                     "file_2" => $filevksn2,
+                    "file_3" => $filevksn3,
                     "date_insert" =>$vksn->tv_date_insert,
                     "date_update" =>$vksn->tv_date_update,
                 );
