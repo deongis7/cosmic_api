@@ -72,7 +72,8 @@ class Handler extends ExceptionHandler
 							'status' => '500',
 							'message' => 'Sedang dilakukan Penyesuaian. Mohon Login kembali beberapa saat lagi. '
 						])->setStatusCode(404);
-      */
+      */      
+
 		}
 		if ($exception instanceof NotReadableException) {
 
