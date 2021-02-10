@@ -43,7 +43,7 @@ $router->get('/storage/{jenis}/{kd_perusahaan}/{filename}', function ($jenis,$kd
 {
     return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/'. $filename))->response();
 });
-$router->get('/storage/{jenis}/{kd_perusahaan}/{id}/{filename}', function ($jenis,$kd_perusahaan,$id,$filename)
+$router->get('/storage/{jenis}/{kd_perusahaan}/id-{id}/{filename}', function ($jenis,$kd_perusahaan,$id,$filename)
 {
     return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/'.$id.'/'. $filename))->response();
 });
@@ -248,8 +248,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/vaksin/vaksin_byid/{id}', 'VaksinController@getDataByid');
 	$router->get('/vaksin/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcid');
 	$router->get('/vaksin/vaksin_deletebyid/{id}', 'VaksinController@deleteVaksin');
-	
-	
+
+
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
 
