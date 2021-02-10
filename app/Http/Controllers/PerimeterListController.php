@@ -1560,7 +1560,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
 
         $report = new TrnReport;
         $report->setConnection('pgsql2');
-        $report = $report->select('master_perimeter.mpm_id', 'master_perimeter.mpm_name',
+        $report = $report->select('master_perimeter.mpm_id', 'master_perimeter.mpm_name','master_perimeter.mpm_mc_id',
             'master_perimeter_level.mpml_id', 'master_perimeter_level.mpml_name',
             'transaksi_report.tr_id', 'transaksi_report.tr_laporan','transaksi_report.tr_date_insert',
             'transaksi_report.tr_file1','transaksi_report.tr_file2','transaksi_report.tr_tl_file1',
@@ -1583,11 +1583,11 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
               "tgl_lapor"=> date('Y-m-d', strtotime($report->tr_date_insert)),
               "tgl_close"=> date('Y-m-d', strtotime($report->tr_date_update)),
               "laporan" =>  $report->tr_laporan,
-              "file_1" =>  "/report/".$report->tr_file1,
-              "file_2" =>  "/report/".$report->tr_file2,
-              "file_tumb_1" =>  "/report/".$report->tr_tl_file1,
-              "file_tumb_2" =>  "/report/".$report->tr_tl_file2,
-              "status" => $report->tr_close == 0 ? 'Belom Diproses':'Sudah Diproses',
+              "file_1" =>   isset($report->tr_file1) ? ("/report_protokol/". $report->mpm_mc_id."/".$report->mpml_id."/".$report->tr_file1) : null,
+              "file_2" =>   isset($report->tr_file2) ? ("/report_protokol/". $report->mpm_mc_id."/".$report->mpml_id."/".$report->tr_file2) : null,
+              "file_tumb_1" => isset($report->tr_tl_file1) ? ("/report_protokol/". $report->mpm_mc_id."/".$report->mpml_id."/".$report->tr_tl_file1) : null ,
+              "file_tumb_2" =>  isset($report->tr_tl_file2) ? ("/report_protokol/". $report->mpm_mc_id."/".$report->mpml_id."/".$report->tr_tl_file2) : null ,
+              "status" => $report->tr_close == 0 ? 'Belum Diproses':'Sudah Diproses',
             );
 
         return response()->json(['status' => 200 ,'data' => $data]);
