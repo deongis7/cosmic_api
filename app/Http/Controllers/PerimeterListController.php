@@ -1544,7 +1544,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
                     "nama_perimeter" => $itemreport->mpm_name,
                     "id_perimeter_level" => $itemreport->mpml_id,
                     "nama_perimeter_level" => $itemreport->mpml_name,
-                    "status" => $itemreport->tr_close == 0 ? 'Belom Diproses':'Sudah Diproses',
+                    "status" => $itemreport->tr_close == 0 ? 'Belum Diproses':'Sudah Diproses',
 
                 );
             }
