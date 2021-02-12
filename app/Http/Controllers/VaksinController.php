@@ -310,6 +310,16 @@ class VaksinController extends Controller
             $vaksin = $vaksin->where(DB::raw("LOWER(TRIM(tv_nama))"),'like','%'.strtolower(trim($search)).'%');
         }
         
+        if(isset($request->column_sort)) {
+            if(isset($request->p_sort)) {
+                $vaksin = $vaksin->orderBy($request->column_sort, $request->p_sort);
+            }else{
+                $vaksin = $vaksin->orderBy($request->column_sort, 'ASC');
+            }
+        }else{
+            $vaksin = $vaksin->orderBy('tv_nama', 'ASC');
+        }
+        
         $jmltotal=($vaksin->count());
         if(isset($request->limit)) {
             $limit = $request->limit;
@@ -442,6 +452,16 @@ class VaksinController extends Controller
         if(isset($request->search)) {
             $search = $request->search;
             $vaksin = $vaksin->where(DB::raw("LOWER(TRIM(tv_nama))"),'like','%'.strtolower(trim($search)).'%');
+        }
+        
+        if(isset($request->column_sort)) {
+            if(isset($request->p_sort)) {
+                $vaksin = $vaksin->orderBy($request->column_sort, $request->p_sort);
+            }else{
+                $vaksin = $vaksin->orderBy($request->column_sort, 'ASC');
+            }
+        }else{
+            $vaksin = $vaksin->orderBy('mc_name', 'ASC')->orderBy('tv_nama', 'ASC');
         }
         
         $jmltotal=($vaksin->count());
