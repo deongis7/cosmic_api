@@ -419,4 +419,82 @@ class VaksinController extends Controller
             return response()->json(['status' => 404, 'message' => 'Tidak ada data'])->setStatusCode(404);
         }
 	}
+	
+	public function getDataAllWLB(Request $request) {
+	    $limit = null;
+	    $page = null;
+	    $search = null;
+	    $endpage = 1;
+	    
+	    $vaksin = new Vaksin();
+	    $vaksin->setConnection('pgsql_vaksin');
+	    $vaksin = $vaksin->select('mc_id', 'mc_name',
+	        'tv_nik', 'tv_nama', 'tv_mjk_id', 'msp_name',  'mkab_name','mpro_name',
+	        'tv_jml_keluarga', 'tv_nik_pasangan','tv_nama_pasangan',
+	        'tv_nik_anak1', 'tv_nama_anak1', 'tv_nik_anak2', 'tv_nama_anak2',
+	        'tv_nik_anak3', 'tv_nama_anak3', 'tv_nik_anak4', 'tv_nama_anak4',
+	        'tv_nik_anak5', 'tv_nama_anak5', 'tv_no_hp')
+	        ->join('master_company AS mc','mc.mc_id','tv_mc_id')
+	        ->leftjoin('master_status_pegawai AS msp','msp.msp_id','tv_msp_id')
+	        ->leftjoin('master_kabupaten AS mkab','mkab.mkab_id','tv_mkab_id')
+	        ->leftjoin('master_provinsi AS mpro','mpro.mpro_id','mkab.mkab_mpro_id');
+        
+        if(isset($request->search)) {
+            $search = $request->search;
+            $vaksin = $vaksin->where(DB::raw("LOWER(TRIM(tv_nama))"),'like','%'.strtolower(trim($search)).'%');
+        }
+        
+        $jmltotal=($vaksin->count());
+        if(isset($request->limit)) {
+            $limit = $request->limit;
+            $vaksin = $vaksin->limit($limit);
+            $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+            
+            if (isset($request->page)) {
+                $page = $request->page;
+                $offset = ((int)$page -1) * (int)$limit;
+                $vaksin = $vaksin->offset($offset);
+            }
+        }
+        $vaksin = $vaksin->get();
+        $totalvaksin = $vaksin->count();
+        
+        if (count($vaksin) > 0){
+            foreach($vaksin as $vksn){
+                if($vksn->tv_mjk_id==1){
+                    $jns_kelamin='Laki-laki';
+                }else{
+                    $jns_kelamin='Perempuan';
+                }
+                
+                $data[] = array(
+                    "kode_perusahaan" => $vksn->mc_id,
+                    "nama_perusahaan" => $vksn->mc_name,
+                    "nama" => $vksn->tv_nama,
+                    "sts_pegawai" => $vksn->msp_name,
+                    "jns_kelamin" => $jns_kelamin,
+                    "kabupaten" => $vksn->mkab_name,
+                    "provinsi" => $vksn->mpro_name,
+                    "nik" => $vksn->tv_nik,
+                    "no_hp" => $vksn->tv_no_hp,
+                    "jml_keluarga" => $vksn->tv_jml_keluarga,
+                    "nik_pasangan" => $vksn->tv_nik_pasangan,
+                    "nama_pasangan" => $vksn->tv_nama_pasangan,
+                    "nik_anak_1" => $vksn->tv_nik_anak1,
+                    "nama_anak_1" => $vksn->tv_nama_anak1,
+                    "nik_anak_2" => $vksn->tv_nik_anak2,
+                    "nama_anak_2" => $vksn->tv_nama_ana2,
+                    "nik_anak_3" => $vksn->tv_nik_anak3,
+                    "nama_anak_3" => $vksn->tv_nama_anak3,
+                    "nik_anak_4" => $vksn->tv_nik_anak4,
+                    "nama_anak_4" => $vksn->tv_nama_anak4,
+                    "nik_anak_5" => $vksn->tv_nik_anak5,
+                    "nama_anak_5" => $vksn->tv_nama_anak5
+                );
+            }
+            return response()->json(['status' => 200, 'page_end'=> $endpage, 'data' => $data]);
+        }else{
+            return response()->json(['status' => 404, 'message' => 'Tidak ada data'])->setStatusCode(404);
+        }
+	}
 }
