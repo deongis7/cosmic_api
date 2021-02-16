@@ -939,7 +939,7 @@ class DashboardController extends Controller
             $str = $str."_".$startdate."_".$enddate;
         }
 
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 0 * 60, function()use($startdate,$enddate,$mc_id) {
+        //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 0 * 60, function()use($startdate,$enddate,$mc_id) {
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdatenow = $weeks['startweek'];
@@ -1008,9 +1008,10 @@ class DashboardController extends Controller
                 }
             }
 
-            return $datacache;
+            //return $datacache;
+            return $data;
         });
-            return response()->json(['status' => 200,'data' => $datacache]);
+            return response()->json(['status' => 200,'data' => $data]);
     }
 
     public function getCosmicIndexListbyCompany($kd_perusahaan, Request $request){
