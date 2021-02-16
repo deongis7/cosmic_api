@@ -251,7 +251,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/vaksin/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcid');
 	$router->get('/vaksin/vaksin_deletebyid/{id}', 'VaksinController@deleteVaksin');
 
-
+	$router->get('/vaksinwlb/vaksin_byid/{id}', 'VaksinController@getDataByidWLB');
+	$router->get('/vaksinwlb/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByidWLB');
+	$router->get('/vaksinwlb/vaksin', 'VaksinController@getDataAllWLB');
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
 
