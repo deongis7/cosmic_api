@@ -564,7 +564,8 @@ class PerimeterController extends Controller
 					"desc" => $exec->v_desc,
 					"color" => $exec->v_color,
 					"persen" => $exec->v_persen,
-				    "date_update" => $exec->v_update
+				    "date_update" => $exec->v_update,
+				    "update_every" => 'Data Cosmic Index diupdate setiap 2 Jam Sekali'
 				);
 			}
 			return $data;
