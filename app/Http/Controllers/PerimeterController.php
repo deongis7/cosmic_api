@@ -547,7 +547,7 @@ class PerimeterController extends Controller
 	}
 
 	public function getExecutionReport($id){
-		$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_exec_report_". $id, 15 * 60, function()use($id) {
+		$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_exec_report_". $id, 0 * 60, function()use($id) {
 			$data = array();
 			$execution = DB::select("
 						SELECT *, CASE
@@ -563,7 +563,8 @@ class PerimeterController extends Controller
 					"judul" => $exec->v_judul,
 					"desc" => $exec->v_desc,
 					"color" => $exec->v_color,
-					"persen" => $exec->v_persen
+					"persen" => $exec->v_persen,
+				    "date_update" => $exec->v_update
 				);
 			}
 			return $data;
