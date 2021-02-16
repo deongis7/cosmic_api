@@ -979,7 +979,7 @@ class DashboardController extends Controller
                             "pemenuhan_protokol" => $value->v_pemenuhan_protokol,
                             "pemenuhan_ceklist_monitoring" => $value->v_pemenuhan_ceklist_monitoring,
                             "pemenuhan_eviden" => $value->v_pemenuhan_eviden,
-                            "date_update" => $value->v_update,
+                            "date_update" => $value->v_date_update,
                             "update_every" => 'Data Cosmic Index diupdate setiap 2 Jam Sekali'
 
                         );
@@ -1008,9 +1008,9 @@ class DashboardController extends Controller
                 }
             }
 
-            return $data;
+            return $datacache;
         });
-        return response()->json(['status' => 200,'data' => $datacache]);
+            return response()->json(['status' => 200,'data' => $datacache]);
     }
 
     public function getCosmicIndexListbyCompany($kd_perusahaan, Request $request){
