@@ -958,7 +958,9 @@ class DashboardController extends Controller
                         a.v_cosmic_index,
                         a.v_pemenuhan_protokol,
                         a.v_pemenuhan_ceklist_monitoring,
-                        a.v_pemenuhan_eviden
+                        a.v_pemenuhan_eviden,
+                        a.v_date_update,
+                        'Data Cosmic Index diupdate setiap 2 Jam Sekali' AS update_every
                         FROM mv_cosmic_index_report a
                         where a.v_mc_id =?
 
@@ -976,7 +978,9 @@ class DashboardController extends Controller
                             "cosmic_index" => $value->v_cosmic_index,
                             "pemenuhan_protokol" => $value->v_pemenuhan_protokol,
                             "pemenuhan_ceklist_monitoring" => $value->v_pemenuhan_ceklist_monitoring,
-                            "pemenuhan_eviden" => $value->v_pemenuhan_eviden
+                            "pemenuhan_eviden" => $value->v_pemenuhan_eviden,
+                            "date_update" => $value->v_update,
+                            "update_every" => 'Data Cosmic Index diupdate setiap 2 Jam Sekali'
 
                         );
                     }
@@ -998,7 +1002,8 @@ class DashboardController extends Controller
                         "pemenuhan_protokol" => $itemrpi->rci_pemenuhan_protokol,
                         "pemenuhan_ceklist_monitoring" => $itemrpi->rci_pemenuhan_ceklist_monitoring,
                         "pemenuhan_eviden" => $itemrpi->rci_pemenuhan_eviden,
-
+                        "date_update" => $itemrpi->rci_date_update,
+                        "update_every" => $itemrpi->rci_date_update
                     );
                 }
             }
