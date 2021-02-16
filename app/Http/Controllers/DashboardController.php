@@ -1614,4 +1614,22 @@ class DashboardController extends Controller
         $export = new ExportVaksinTmpData(collect($data),$nama_perusahaan);
         return Excel::download($export, 'vaksin_data_report_upload_'.$nama_perusahaan.'.xlsx');
     }
+
+    public function getAverageCosmicIndexDetailbyCompany($kd_perusahaan){
+        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_".$id, 15 * 60, function()use($id){
+        $data = array();
+        $average = DB::connection('pgsql3')->select("SELECT * FROM month_average_cosmic_index_bymcid('".$kd_perusahaan."')");
+        //$dashvaksin = DB::select("SELECT * FROM vaksin_summary_bymcid('$id')");
+
+        foreach($average as $dv){
+                $data[] = array(
+                    "mc_id" => $dv->v_mc_id,
+                    "avg_cosmic_index" => $dv->v_avg_cosmic_index,
+                    "is_excellent" => $dv->v_is_excellent,
+                    "file" => ($dv->v_is_excellent==true)?'/profile/excellent.png':null,
+                );
+            }
+        //});
+        return response()->json(['status' => 200,'data' => $data]);
+    }
 }
