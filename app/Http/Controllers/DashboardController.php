@@ -45,7 +45,7 @@ class DashboardController extends Controller
 	}
 
 	public function getCosmicIndexAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_cosmicindex_all", 15 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_cosmicindex_all", 0 * 60, function() {
 	        $data = array();
 	        $cosmicindex_all = DB::connection('pgsql2')->select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
 
@@ -496,7 +496,7 @@ class DashboardController extends Controller
           $group_company = $request->group_company;
           $string = $string ."_group_company_".$group_company;
         }
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 15 * 60, function() use ($group_company){
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 0 * 60, function() use ($group_company){
 	        $data = array();
           if(isset($group_company)){
             if($group_company==2){
@@ -582,7 +582,7 @@ class DashboardController extends Controller
 	}
 
 	public function getDashboardHeadBUMN($id){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$id, 15 * 60, function()use($id) {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$id, 0 * 60, function()use($id) {
 	        $data = array();
 	        $dashboard_head =  DB::connection('pgsql2')->select("SELECT * FROM dashboardbumn_head('$id')");
 
