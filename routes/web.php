@@ -287,6 +287,12 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/report/picfobymcid/{id}', 'ReportController@getMobilePICFObyMcid');
 
     $router->get('/dashreport/mobileall_byjns/{id}', 'ReportController@getDashReportMobileByJns');
+
+    //User Reset Password
+    $router->post('/user/reset_password', 'UserController@postResetPassword');
+    $router->post('/user/cek_user', 'UserController@postCekUser');
+
+
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
 
