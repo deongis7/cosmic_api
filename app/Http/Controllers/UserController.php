@@ -272,4 +272,5 @@ class UserController extends Controller
             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
         }
     }
+
 }
