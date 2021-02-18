@@ -272,4 +272,50 @@ class UserController extends Controller
             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
         }
     }
+
+    public function postCekUser(Request $request) {
+        $user= new User();
+        $user->setConnection('pgsql2');
+        $user = User::JOIN('master_company as mc','mc.mc_id','app_users.mc_id')
+                  ->where("app_users.mc_id",$request->kd_perusahaan)
+                  ->whereRaw("trim(lower(username))='". trim(strtolower($request->username))."'")->first();
+                //  dd($user);
+          if ($user){
+            $data[] = array(
+                      "kd_perusahaan" => $user->mc_id,
+                      "nama_perusahaan" => $user->mc_name,
+                      "nama" => $user->first_name,
+                      "username" => $user->username
+                    );
+
+              return response()->json(['status' => 200, 'data' => $data]);
+          }else{
+              return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
+          }
+    }
+
+    public function postResetPassword(Request $request) {
+      $this->validate($request, [
+          'username' => 'required',
+          'kd_perusahaan' => 'required',
+      ]);
+      $user= new User();
+      $user->setConnection('pgsql2');
+      $user = $user->whereRaw("trim(lower(username))='". trim(strtolower($request->username))."'")->first();
+
+      if($user != null){
+        $user_id = $user->id;
+        $user->password = Hash::make('P@ssw0rd');
+        if(	$user->save()){
+            return response()->json(['status' => 200,  "message" => "Password Telah Direset"]);
+        }else{
+            return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
+        }
+      }else{
+          return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
+      }
+
+
+    }
+
 }
