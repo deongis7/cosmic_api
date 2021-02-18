@@ -61,8 +61,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->post('/perimeter_level/update', 'PerimeterController@updateDetailPerimeterLevel');
 	$router->post('/perimeter_level/add', 'PerimeterListController@addDetailPerimeter');
 	$router->post('/perimeter_level/add_file', 'PICController@addFilePerimeterLevel');
-  $router->get('/perimeter_level/get_file_by_id/{id_file}', 'PICController@getFilePerimeterLevelByID');
-  $router->get('/perimeter_level/get_file/{id_perimeter_level}', 'PICController@getFilePerimeterLevelByPerimeterLevel');
+    $router->get('/perimeter_level/get_file_by_id/{id_file}', 'PICController@getFilePerimeterLevelByID');
+    $router->get('/perimeter_level/get_file/{id_perimeter_level}', 'PICController@getFilePerimeterLevelByPerimeterLevel');
 	$router->post('/perimeter/update', 'PerimeterListController@updateDetailPerimeter');
 	$router->post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
 	$router->post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
@@ -166,13 +166,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/list_perimeter_new/{kd_perusahaan}', 'PerimeterListController@getPerimeterListNew');
 
     //report
-  $router->get('/report/perimeter/{id_perimeter}', 'PerimeterListController@getReportByPerimeter');
-  $router->get('/report/by_id/{id_report}', 'PerimeterListController@getReportPerimeterByID');
-  $router->get('/review/perimeter/{id_perimeter}', 'PerimeterListController@getReviewByPerimeter');
-  $router->get('/review/by_id/{id_review}', 'PerimeterListController@getReviewPerimeterByID');
+    $router->get('/report/perimeter/{id_perimeter}', 'PerimeterListController@getReportByPerimeter');
+    $router->get('/report/by_id/{id_report}', 'PerimeterListController@getReportPerimeterByID');
+    $router->get('/review/perimeter/{id_perimeter}', 'PerimeterListController@getReviewByPerimeter');
+    $router->get('/review/by_id/{id_review}', 'PerimeterListController@getReviewPerimeterByID');
 
-  //Region
-  $router->get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
+    //Region
+    $router->get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
 
 	//Kota
 	$router->get('/kota', 'MasterController@getAllKota');
@@ -224,7 +224,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/cosmic_index_detail/{kd_perusahaan}', 'DashboardController@getCosmicIndexbyCompanyAndDate');
 	$router->get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
 	$router->get('/dashboard/cosmic_index_detaillist/download/{kd_perusahaan}', 'DashboardController@getDownloadCosmicIndexListbyCompany');
-  $router->get('/dashboard/cosmic_index_detail_average/{kd_perusahaan}', 'DashboardController@getAverageCosmicIndexDetailbyCompany');
+    $router->get('/dashboard/cosmic_index_detail_average/{kd_perusahaan}', 'DashboardController@getAverageCosmicIndexDetailbyCompany');
 	//sprint18
 	$router->get('/dashboard/perusahaan_byprovinsi_all', 'DashboardController@getPerusahaanbyProvinsiAll');
 	$router->get('/dashboard/perusahaan_byindustri_all', 'DashboardController@getPerusahaanbyIndustriAll');
@@ -251,9 +251,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/vaksin/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcid');
 	$router->get('/vaksin/vaksin_deletebyid/{id}', 'VaksinController@deleteVaksin');
 
-	$router->get('/vaksinwlb/vaksin_byid/{id}', 'VaksinController@getDataByidWLB');
-	$router->get('/vaksinwlb/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByidWLB');
-	$router->get('/vaksinwlb/vaksin', 'VaksinController@getDataAllWLB');
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
 
@@ -313,5 +310,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
 		Route::post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
 		Route::post('/report/update_json/{id}', 'ReportController@updateReportJSON');
+		
+		Route::get('/vaksinwlb/vaksin_byid/{id}', 'VaksinController@getDataByidWLB');
+		Route::get('/vaksinwlb/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByidWLB');
+		Route::get('/vaksinwlb/vaksin', 'VaksinController@getDataAllWLB');
 	});
 });
