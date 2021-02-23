@@ -998,4 +998,59 @@ public function addFilePerimeterLevel(Request $request){
       }
       return response()->json(['status' => 200,'data' => $data]);
     }
+    
+    public function getAktifitasbyPerimeterBUMN($nik,$id_perimeter_level){
+        $user = User::where('username',$nik)->first();
+        $total_monitoring = 0;
+        $jml_monitoring = 0;
+        $dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
+        $data = array();
+        if ($user != null){
+            $role_id = $user->roles()->first()->id;
+            
+                $perimeter =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitasbumn_by_". $id_perimeter_level, 7 * 60, function()use($id_perimeter_level) {
+                return $cacheperimeter = DB::connection('pgsql2')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
+                    case when tsp.tbsp_status = 2 then true else false end as status_pic,
+                    case when tsp.tbsp_status = 1 then true when tsp.tbsp_status = 2 then true else false end as status_fo,
+                    tpd.tpmd_file_foto,tpd.tpmd_file_tumb, mpm.mpm_mc_id,
+                    tsp.updated_at as last_update
+                    from master_perimeter_level mpl
+					join master_perimeter mpm on mpm.mpm_id = mpl.mpml_mpm_id
+					join master_perimeter_kategori mpk on mpk.mpmk_id = mpm.mpm_mpmk_id
+					join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id and tpd.tpmd_cek=true
+					join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
+					left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
+					where mpl.mpml_id = ?
+					order by mpm.mpm_name asc,mpl.mpml_name asc, mcr.mcr_name asc, tpmd_order asc", [$id_perimeter_level]);
+            });
+                foreach($perimeter as $itemperimeter){
+                    $data_aktifitas_cluster = array();
+                    $data_aktifitas_cluster = $this->getClusterAktifitasMonitoring($itemperimeter->tpmd_id,$itemperimeter->mcr_id,$role_id,  $user->mc_id);
+                   
+                    $total_monitoring = $total_monitoring + 1;
+                    $jml_monitoring = $jml_monitoring + (($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo)==true?1:0);
+                    $data[] = array(
+                        "id_perimeter_level" => $itemperimeter->mpml_id,
+                        "level" => $itemperimeter->mpml_name,
+                        "id_perimeter_cluster" => $itemperimeter->tpmd_id,
+                        "id_cluster" => $itemperimeter->mcr_id,
+                        "cluster_ruangan" => (($itemperimeter->tpmd_order > 1)? ($itemperimeter->mcr_name.' - '.$itemperimeter->tpmd_order) :$itemperimeter->mcr_name),
+                        "order" => $itemperimeter->tpmd_order,
+                        "status_konfirmasi" => $itemperimeter->status_konfirmasi,
+                        "status" => ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo),
+                        "file_cluster" => $itemperimeter->tpmd_file_foto != null ? "/cluster_ruangan/".$itemperimeter->mpm_mc_id."/".$itemperimeter->tpmd_file_foto:null,
+                        "file_cluster_tumb" => $itemperimeter->tpmd_file_tumb != null ? "/cluster_ruangan/".$itemperimeter->mpm_mc_id."/".$itemperimeter->tpmd_file_tumb:null,
+                        "last_update" => $itemperimeter->last_update,
+                        "aktifitas" => $data_aktifitas_cluster,
+                    );
+                }
+                $dataprogress = array("total_monitor"=> $total_monitoring,
+                    "sudah_dimonitor"=> $jml_monitoring,
+                    "belum_dimonitor"=> $total_monitoring - $jml_monitoring );
+                
+                return response()->json(['status_monitoring' => $dataprogress,'status' => 200,'data' => $data]);
+        } else {
+            return response()->json(['status_monitoring' => $dataprogress,'status' => 200,'data' => $data]);
+        }
+    }
 }
