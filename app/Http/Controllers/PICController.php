@@ -18,6 +18,7 @@ use App\User;
 use App\UserGroup;
 use App\Helpers\AppHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -1001,7 +1002,8 @@ public function addFilePerimeterLevel(Request $request){
     
     public function getAktifitasbyPerimeterBUMN($nik,$id_perimeter_level){
         $user = User::where('username',$nik)->first();
-        //var_dump($user->mc_id);die;
+        $auth_mc_id =Auth::guard('api')->user()->mc_id;
+        //var_dump($auth_mc_id);die;
         //$mc_id = $user->mc_id;
         $total_monitoring = 0;
         $jml_monitoring = 0;
@@ -1023,8 +1025,8 @@ public function addFilePerimeterLevel(Request $request){
 					join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
 					left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
 					where mpl.mpml_id = ?
-                    and mpm.mpm_mc_id= '$user->mc_id'
-					order by mpm.mpm_name asc,mpl.mpml_name asc, mcr.mcr_name asc, tpmd_order asc", [$id_perimeter_level]);
+                    and mpm.mpm_mc_id= ?
+					order by mpm.mpm_name asc,mpl.mpml_name asc, mcr.mcr_name asc, tpmd_order asc", [$id_perimeter_level, $auth_mc_id]);
             });
                 foreach($perimeter as $itemperimeter){
                     $data_aktifitas_cluster = array();
