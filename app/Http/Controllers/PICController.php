@@ -1012,8 +1012,9 @@ public function addFilePerimeterLevel(Request $request){
         if ($user != null){
             $role_id = $user->roles()->first()->id;
             
-                $perimeter =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitasbumn_by_". $id_perimeter_level, 7 * 60, function()use($id_perimeter_level) {
-                return $cacheperimeter = DB::connection('pgsql2')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
+                $perimeter=Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitasbumn_by_". $id_perimeter_level, 7 * 60, function()use($id_perimeter_level) {
+                return $cacheperimeter 
+                    = DB::connection('pgsql2')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
                     case when tsp.tbsp_status = 2 then true else false end as status_pic,
                     case when tsp.tbsp_status = 1 then true when tsp.tbsp_status = 2 then true else false end as status_fo,
                     tpd.tpmd_file_foto,tpd.tpmd_file_tumb, mpm.mpm_mc_id,
@@ -1027,7 +1028,7 @@ public function addFilePerimeterLevel(Request $request){
 					where mpl.mpml_id = ?
                     and mpm.mpm_mc_id= ?
 					order by mpm.mpm_name asc,mpl.mpml_name asc, mcr.mcr_name asc, tpmd_order asc", [$id_perimeter_level, $auth_mc_id]);
-            });
+           }); 
                 foreach($perimeter as $itemperimeter){
                     $data_aktifitas_cluster = array();
                     $data_aktifitas_cluster = $this->getClusterAktifitasMonitoring($itemperimeter->tpmd_id,$itemperimeter->mcr_id,$role_id,  $user->mc_id);
