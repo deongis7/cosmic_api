@@ -314,5 +314,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::get('/vaksinwlb/vaksin_byid/{id}', 'VaksinController@getDataByidWLB');
 		Route::get('/vaksinwlb/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcidWLB');
 		Route::get('/vaksinwlb/vaksin', 'VaksinController@getDataAllWLB');
+		
+		Route::get('/monitoringbumn/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeterBUMN');
 	});
 });
