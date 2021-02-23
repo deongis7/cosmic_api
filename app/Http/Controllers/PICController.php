@@ -1001,6 +1001,7 @@ public function addFilePerimeterLevel(Request $request){
     
     public function getAktifitasbyPerimeterBUMN($nik,$id_perimeter_level){
         $user = User::where('username',$nik)->first();
+
         $total_monitoring = 0;
         $jml_monitoring = 0;
         $dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
@@ -1021,7 +1022,8 @@ public function addFilePerimeterLevel(Request $request){
 					join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
 					left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
 					where mpl.mpml_id = ?
-					order by mpm.mpm_name asc,mpl.mpml_name asc, mcr.mcr_name asc, tpmd_order asc", [$id_perimeter_level]);
+                    and mpm.mpm_mc_id= ?
+					order by mpm.mpm_name asc,mpl.mpml_name asc, mcr.mcr_name asc, tpmd_order asc", [$id_perimeter_level, $user->mc_id]);
             });
                 foreach($perimeter as $itemperimeter){
                     $data_aktifitas_cluster = array();
