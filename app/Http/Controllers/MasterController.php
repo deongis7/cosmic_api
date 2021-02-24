@@ -279,7 +279,7 @@ class MasterController extends Controller
                 });
             }
         }else{
-            $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai_".$request->type, 360 * 60, function() {
+            $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai", 360 * 60, function() {
                 $mststspegawai = DB::connection('pgsql')->select("SELECT msp_id, msp_name, msp_name2
                             FROM master_status_pegawai");
                 foreach($mststspegawai as $msp){
