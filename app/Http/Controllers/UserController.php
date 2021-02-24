@@ -272,6 +272,21 @@ class UserController extends Controller
             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
         }
     }
+    public function tokenUpdate(Request $request, $id) {
+	    $this->validate($request, [
+            'token' => 'required',
+        ]);
+
+		$user = User::find($id);
+		$user->token = $request->token;
+
+		if($user->save()){
+			//return response()->json(['status' => 200,'data' => $user]);
+			return response()->json(['status' => 200,'message' => 'Update Token Succesfully']);
+		} else {
+			return response()->json(['status' => 500,'message' => 'Failed Token'])->setStatusCode(500);
+		}
+	}
 
     public function postCekUser(Request $request) {
         $user= new User();
@@ -317,5 +332,4 @@ class UserController extends Controller
 
 
     }
-
 }

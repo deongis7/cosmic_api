@@ -293,6 +293,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
 
+    Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
+
+
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
 		Route::get('/user/detail', 'UserController@getDetailUser');
@@ -301,7 +304,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::post('/user/logout', 'UserController@logout');
 		Route::post('/user/detail_first/{id}', 'UserController@updateFirstDetailUser');
 		Route::post('/user/upload_foto_profile', 'UserController@uploadFotoProfile');
-
+		
 		//Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
 		Route::post('/terpapar/update/{id}', 'TerpaparController@UpdateKasus');
         Route::delete('/terpapar/delete/{id_kasus}', 'TerpaparController@deleteKasus');
