@@ -45,7 +45,7 @@ class DashboardController extends Controller
 	}
 
 	public function getCosmicIndexAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_cosmicindex_all", 15 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_cosmicindex_all", 0 * 60, function() {
 	        $data = array();
 	        $cosmicindex_all = DB::connection('pgsql2')->select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
 
@@ -496,7 +496,7 @@ class DashboardController extends Controller
           $group_company = $request->group_company;
           $string = $string ."_group_company_".$group_company;
         }
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 15 * 60, function() use ($group_company){
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 0 * 60, function() use ($group_company){
 	        $data = array();
           if(isset($group_company)){
             if($group_company==2){
@@ -582,7 +582,7 @@ class DashboardController extends Controller
 	}
 
 	public function getDashboardHeadBUMN($id){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$id, 15 * 60, function()use($id) {
+	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$id, 0 * 60, function()use($id) {
 	        $data = array();
 	        $dashboard_head =  DB::connection('pgsql2')->select("SELECT * FROM dashboardbumn_head('$id')");
 
@@ -939,7 +939,7 @@ class DashboardController extends Controller
             $str = $str."_".$startdate."_".$enddate;
         }
 
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate,$mc_id) {
+        //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 0 * 60, function()use($startdate,$enddate,$mc_id) {
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdatenow = $weeks['startweek'];
@@ -958,7 +958,9 @@ class DashboardController extends Controller
                         a.v_cosmic_index,
                         a.v_pemenuhan_protokol,
                         a.v_pemenuhan_ceklist_monitoring,
-                        a.v_pemenuhan_eviden
+                        a.v_pemenuhan_eviden,
+                        a.v_date_update,
+                        'Data Cosmic Index diupdate setiap 2 Jam Sekali' AS update_every
                         FROM mv_cosmic_index_report a
                         where a.v_mc_id =?
 
@@ -976,7 +978,9 @@ class DashboardController extends Controller
                             "cosmic_index" => $value->v_cosmic_index,
                             "pemenuhan_protokol" => $value->v_pemenuhan_protokol,
                             "pemenuhan_ceklist_monitoring" => $value->v_pemenuhan_ceklist_monitoring,
-                            "pemenuhan_eviden" => $value->v_pemenuhan_eviden
+                            "pemenuhan_eviden" => $value->v_pemenuhan_eviden,
+                            "date_update" => $value->v_date_update,
+                            "update_every" => 'Data Cosmic Index diupdate setiap 2 Jam Sekali'
 
                         );
                     }
@@ -998,14 +1002,16 @@ class DashboardController extends Controller
                         "pemenuhan_protokol" => $itemrpi->rci_pemenuhan_protokol,
                         "pemenuhan_ceklist_monitoring" => $itemrpi->rci_pemenuhan_ceklist_monitoring,
                         "pemenuhan_eviden" => $itemrpi->rci_pemenuhan_eviden,
-
+                        "date_update" => $itemrpi->rci_date_update,
+                        "update_every" => $itemrpi->rci_date_update
                     );
                 }
             }
 
-            return $data;
-        });
-        return response()->json(['status' => 200,'data' => $datacache]);
+            //return $datacache;
+         //   return $data;
+        //});
+            return response()->json(['status' => 200,'data' => $data]);
     }
 
     public function getCosmicIndexListbyCompany($kd_perusahaan, Request $request){
@@ -1613,5 +1619,23 @@ class DashboardController extends Controller
         //return response()->json(['status' => 200,'data' => $data]);
         $export = new ExportVaksinTmpData(collect($data),$nama_perusahaan);
         return Excel::download($export, 'vaksin_data_report_upload_'.$nama_perusahaan.'.xlsx');
+    }
+
+    public function getAverageCosmicIndexDetailbyCompany($kd_perusahaan){
+        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_".$id, 15 * 60, function()use($id){
+        $data = array();
+        $average = DB::connection('pgsql3')->select("SELECT * FROM month_average_cosmic_index_bymcid('".$kd_perusahaan."')");
+        //$dashvaksin = DB::select("SELECT * FROM vaksin_summary_bymcid('$id')");
+
+        foreach($average as $dv){
+                $data[] = array(
+                    "mc_id" => $dv->v_mc_id,
+                    "avg_cosmic_index" => $dv->v_avg_cosmic_index,
+                    "is_excellent" => $dv->v_is_excellent,
+                    "file" => ($dv->v_is_excellent==true)?'/profile/excellent.png':null,
+                );
+            }
+        //});
+        return response()->json(['status' => 200,'data' => $data]);
     }
 }

@@ -43,6 +43,10 @@ $router->get('/storage/{jenis}/{kd_perusahaan}/{filename}', function ($jenis,$kd
 {
     return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/'. $filename))->response();
 });
+$router->get('/storage/{jenis}/{kd_perusahaan}/id-{id}/{filename}', function ($jenis,$kd_perusahaan,$id,$filename)
+{
+    return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/'.$id.'/'. $filename))->response();
+});
 
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Perimeter
@@ -57,8 +61,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->post('/perimeter_level/update', 'PerimeterController@updateDetailPerimeterLevel');
 	$router->post('/perimeter_level/add', 'PerimeterListController@addDetailPerimeter');
 	$router->post('/perimeter_level/add_file', 'PICController@addFilePerimeterLevel');
-  $router->get('/perimeter_level/get_file_by_id/{id_file}', 'PICController@getFilePerimeterLevelByID');
-  $router->get('/perimeter_level/get_file/{id_perimeter_level}', 'PICController@getFilePerimeterLevelByPerimeterLevel');
+    $router->get('/perimeter_level/get_file_by_id/{id_file}', 'PICController@getFilePerimeterLevelByID');
+    $router->get('/perimeter_level/get_file/{id_perimeter_level}', 'PICController@getFilePerimeterLevelByPerimeterLevel');
 	$router->post('/perimeter/update', 'PerimeterListController@updateDetailPerimeter');
 	$router->post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
 	$router->post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
@@ -97,6 +101,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Data_detail /Terpapar /Kasus
 	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
 	$router->get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
+	$router->get('/terpapar/laporan_detail_new/{id}', 'TerpaparController@getDatadetailNew');
 	$router->get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
 
 	$router->get('/terpapar/laporan_home_all', 'TerpaparController@getDataHomeAll');
@@ -156,6 +161,15 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/list_perimeter_level_report/count/{kd_perusahaan}', 'PerimeterReportController@getStatusPerimeterLevel');
     $router->post('/list_perimeter/add', 'PerimeterListController@addPerimeterList');
     $router->post('/list_perimeter/update_gmap/{id_perimeter}', 'PerimeterListController@updatePerimeterListGmap');
+    $router->get('/list_perimeter/rate_week/{id_perimeter}', 'PerimeterListController@getWeekPerimeterRate');
+
+    $router->get('/list_perimeter_new/{kd_perusahaan}', 'PerimeterListController@getPerimeterListNew');
+
+    //report
+    $router->get('/report/perimeter/{id_perimeter}', 'PerimeterListController@getReportByPerimeter');
+    $router->get('/report/by_id/{id_report}', 'PerimeterListController@getReportPerimeterByID');
+    $router->get('/review/perimeter/{id_perimeter}', 'PerimeterListController@getReviewByPerimeter');
+    $router->get('/review/by_id/{id_review}', 'PerimeterListController@getReviewPerimeterByID');
 
     //Region
     $router->get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
@@ -202,6 +216,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/listmonitoring_bymciddate/{id}/{tgl}', 'DashboardController@getListMonitoring_ByMcidWeek');
 	$router->get('/dashboard/cosmic_index_report', 'DashboardController@getCosmicIndexReport');
 	$router->get('/dashboard/cosmic_index_report_average', 'DashboardController@getCosmicIndexReportAverage');
+
 	//sprint16
 	$router->get('/dashboard/perimeter_bykategoriperusahaan/{name}', 'DashboardController@getPerimeter_bykategoriperusahaan');
 	$router->get('/dashboard/perimeter_bykategoriperusahaanProv/{id}', 'DashboardController@getPerimeter_bykategoriperusahaanProv');
@@ -209,6 +224,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/cosmic_index_detail/{kd_perusahaan}', 'DashboardController@getCosmicIndexbyCompanyAndDate');
 	$router->get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
 	$router->get('/dashboard/cosmic_index_detaillist/download/{kd_perusahaan}', 'DashboardController@getDownloadCosmicIndexListbyCompany');
+    $router->get('/dashboard/cosmic_index_detail_average/{kd_perusahaan}', 'DashboardController@getAverageCosmicIndexDetailbyCompany');
 	//sprint18
 	$router->get('/dashboard/perusahaan_byprovinsi_all', 'DashboardController@getPerusahaanbyProvinsiAll');
 	$router->get('/dashboard/perusahaan_byindustri_all', 'DashboardController@getPerusahaanbyIndustriAll');
@@ -230,6 +246,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashvaksin/dashvaksin_lokasi3', 'DashVaksinController@getDashVaksinLokasi3');
 	$router->get('/dashvaksin/download/{kd_perusahaan}', 'DashboardController@getDownloadVaksinbyCompany');
 	$router->get('/dashvaksin/downloadtmp/{kd_perusahaan}', 'DashboardController@getDownloadVaksinTmpbyCompany');
+
+	$router->get('/vaksin/vaksin_byid/{id}', 'VaksinController@getDataByid');
+	$router->get('/vaksin/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcid');
+	$router->get('/vaksin/vaksin_deletebyid/{id}', 'VaksinController@deleteVaksin');
 
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
@@ -264,6 +284,12 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/report/picfobymcid/{id}', 'ReportController@getMobilePICFObyMcid');
 
     $router->get('/dashreport/mobileall_byjns/{id}', 'ReportController@getDashReportMobileByJns');
+
+    //User Reset Password
+    $router->post('/user/reset_password', 'UserController@postResetPassword');
+    $router->post('/user/cek_user', 'UserController@postCekUser');
+
+
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
 
@@ -287,5 +313,11 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
 		Route::post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
 		Route::post('/report/update_json/{id}', 'ReportController@updateReportJSON');
+		
+		Route::get('/vaksinwlb/vaksin_byid/{id}', 'VaksinController@getDataByidWLB');
+		Route::get('/vaksinwlb/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcidWLB');
+		Route::get('/vaksinwlb/vaksin', 'VaksinController@getDataAllWLB');
+		
+		Route::get('/monitoringbumn/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeterBUMN');
 	});
 });

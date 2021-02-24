@@ -106,18 +106,30 @@ class MasterController extends Controller
 		return response()->json(['status' => 200,'data' => $datacache]);
 	}
 
-	public function getAllCompany(){
+	public function getAllCompany(Request $request){
+      $search = null;
 	    $Path = '/foto_bumn/';
-        $data=[];
-	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_company", 360 * 60, function() use($Path) {
-	        $company = Company::all();
+      $str ="_get_all_company";
 
+      if(isset($request->search)){
+            $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+            $search=$request->search;
+      }
+	    $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 360 * 60, function() use($Path,$search  ) {
+        $data=[];
+        if(isset($search)) {
+            $company = Company::where(DB::raw("lower(TRIM(master_company.mc_name))"),'like','%'.strtolower(trim($search)).'%')
+                            ->orWhere(DB::raw("lower(TRIM(master_company.mc_name2))"),'like','%'.strtolower(trim($search)).'%')->orderBy('mc_name')->get();
+        } else {
+          $company = Company::orderBy('mc_name')->get();
+        }
+        //dd($company);
 	        foreach($company as $com){
 	            $data[] = array(
 	                "id_perusahaan" => $com->mc_id,
 	                "kd_perusahaan" => $com->mc_code,
 	                "nm_perusahaan" => $com->mc_name,
-	                "foto" => $Path.$com->mc_foto
+	                "foto" =>(( $com->mc_foto == null)?null:$Path.$com->mc_foto)
 	            );
 	        }
 	        return $data;
@@ -213,7 +225,7 @@ class MasterController extends Controller
         });
         return response()->json(['status' => 200,'data' => $datacache]);
     }
-    
+
     public function getAllStsKasus2(){
         //$datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mskasus2", 360 * 60, function() {
             $data=[];
@@ -222,7 +234,7 @@ class MasterController extends Controller
                                     WHERE msk.msk_id IN (1,2,3)
     								UNION ALL
     								SELECT 0, 'SEMUA', 'SEMUA'");
-            
+
             foreach($mststskasus as $msk){
                 $data[] = array(
                     "id" => $msk->msk_id,
@@ -235,20 +247,50 @@ class MasterController extends Controller
             return response()->json(['status' => 200,'data' => $data]);
     }
 
-    public function getAllStsPegawai(){
+    public function getAllStsPegawai(Request $request){
         //var_dump();die;
         $data=[];
-        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai", 360 * 60, function() {
-            $mststspegawai = MstStsPegawai::all();
-
-            foreach($mststspegawai as $msp){
-                $data[] = array(
-                    "id" => $msp->msp_id,
-                    "name" => $msp->msp_name,
-                );
+        if(isset($request->type)){
+            if($request->type=='kasus' || $request->type=='vaksin'){
+                $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai_".$request->type, 360 * 60, function() {
+                    $mststspegawai = DB::connection('pgsql')->select("SELECT msp_id, msp_name, msp_name2
+                        FROM master_status_pegawai
+                        WHERE msp_id IN (1,2,3,7,8)");
+                    foreach($mststspegawai as $msp){
+                        $data[] = array(
+                            "id" => $msp->msp_id,
+                            "name" => $msp->msp_name,
+                        );
+                    }
+                    return $data;
+                });
+            }else if($request->type=='vaksinlansia'){
+                $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai_".$request->type, 360 * 60, function() {
+                    $mststspegawai = DB::connection('pgsql')->select("SELECT msp_id, msp_name, msp_name2
+                            FROM master_status_pegawai
+                            WHERE msp_id IN (5,6)");
+                    foreach($mststspegawai as $msp){
+                        $data[] = array(
+                            "id" => $msp->msp_id,
+                            "name" => $msp->msp_name,
+                        );
+                    }
+                    return $data;
+                });
             }
-            return $data;
-        });
+        }else{
+            $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai", 360 * 60, function() {
+                $mststspegawai = DB::connection('pgsql')->select("SELECT msp_id, msp_name, msp_name2
+                            FROM master_status_pegawai");
+                foreach($mststspegawai as $msp){
+                    $data[] = array(
+                        "id" => $msp->msp_id,
+                        "name" => $msp->msp_name,
+                    );
+                }
+                return $data;
+            });
+        }
         return response()->json(['status' => 200,'data' => $datacache]);
     }
 
