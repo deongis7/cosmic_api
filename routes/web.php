@@ -294,7 +294,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
 
     Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
+    Route::post('/user/sendfirebase/{id}', 'UserController@sendFirebase');
 
+    Route::get('/get_token', 'UserController@get_token');
+    Route::get('/notif_pic/{nik}', 'UserController@getNotifpic');
 
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
