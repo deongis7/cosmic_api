@@ -213,6 +213,26 @@ class PICController extends Controller
 			}
 
 			if($trn_aktifitas->save()) {
+
+				//get data perimeter
+				$get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name from transaksi_aktifitas ta
+                join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+                join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+                join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+                join app_users au on au.username = mpl.mpml_me_nik 
+                where tpd.tpmd_id = ?
+                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name ", [$id_perimeter_cluster]);
+        		// dd($get_perimeter[0]->mpml_name);
+
+
+				//lempar ke helper firebase
+                $token = "fYXTze1sRPyDDyUZwurszk:APA91bFwCJtFF0tyT2BSfG0UGgal8pCrgRtQyEsrcegBf_HB_BeoVreUG0iLNeMhWGH3_p-bXA1xpLjRIS8b0XueHMpW15WTwS1jtxz7mZbMmIJzoPZDYgC-5OsWaqrsdyiPW5rcSDgi";
+                $body = $get_perimeter[0]->mpml_name."<br /> Field Officer : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_me_nik;
+                $title = $get_perimeter[0]->mcr_name;
+
+                $weeks = AppHelper::sendFirebase($token, $body, $title);
+
 				return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
 			} else {
 				return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
@@ -598,6 +618,9 @@ class PICController extends Controller
 						left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
   					where mpl.mpml_id = ?
   					order by mcr.mcr_name asc, tpmd_order asc", [$id]);
+
+  				
+  			$no=1;
   			foreach($perimeter as $itemperimeter){
   				$data_aktifitas_cluster = array();
           //$aktifitas = new KonfigurasiCAR;
@@ -628,6 +651,29 @@ class PICController extends Controller
             $dataprogress = array("total_monitor"=> $total_monitoring,
                     "sudah_dimonitor"=> $jml_monitoring,
                     "belum_dimonitor"=> $total_monitoring - $jml_monitoring );
+	            
+	            if($no==3){
+	            	//Lempar ke firebase
+	  				//get data perimeter
+					$get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name from transaksi_aktifitas ta
+	                join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+	                join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+	                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+	                join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+	                join app_users au on au.username = mpl.mpml_pic_nik 
+	                where tpd.tpmd_id = ? and ta.ta_status = 1
+	                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name ", [$itemperimeter->tpmd_id]);
+	        		// dd($get_perimeter[0]->mpml_name);
+
+
+					//lempar ke helper firebase
+	                $token = "fYXTze1sRPyDDyUZwurszk:APA91bFwCJtFF0tyT2BSfG0UGgal8pCrgRtQyEsrcegBf_HB_BeoVreUG0iLNeMhWGH3_p-bXA1xpLjRIS8b0XueHMpW15WTwS1jtxz7mZbMmIJzoPZDYgC-5OsWaqrsdyiPW5rcSDgi";
+	                $body = $get_perimeter[0]->mpml_name."<br /> Field Officer : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
+	                $title = $get_perimeter[0]->mcr_name;
+
+	                $weeks = AppHelper::sendFirebase($token, $body, $title);
+	            }
+            $no++;
   			}
   			return array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
   		} else {
@@ -899,7 +945,7 @@ public function addFilePerimeterLevel(Request $request){
     	echo $nik;
 		/**/
   }
-  
+
   //Get File ID
   public function getFilePerimeterLevelByPerimeterLevel($id_perimeter_level){
     $data =[];

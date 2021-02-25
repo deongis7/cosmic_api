@@ -426,6 +426,7 @@ class UserController extends Controller
 
     //Get Notif PIC
     function getNotifpic($nik){
+        
         // return response()->json(['status' => 200,'data' => $nik]);
         $data = array();
 
