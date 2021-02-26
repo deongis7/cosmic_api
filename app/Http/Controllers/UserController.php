@@ -444,7 +444,8 @@ class UserController extends Controller
             return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
         }
 
-        $notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak from transaksi_aktifitas ta
+        $notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name 
+        from transaksi_aktifitas ta
         join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
         join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
         join master_car mcar on mcar.mcar_id = kcar_mcar_id
@@ -452,12 +453,18 @@ class UserController extends Controller
         join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
         join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id
         left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
+        left join app_users au on au.username = mpl.mpml_me_nik
         where tsp.tbsp_status = 1 and mpl.mpml_pic_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
         order by ta_date_update asc", [$nik,$startdate,$enddate]);
 
 
         foreach($notif as $itemnotif){
         //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
+            if($itemnotif->ta_status==0){
+                $status = "buka";
+            }else{
+                $status - "tutup";
+            }
             $data[] = array(
                 "id_perimeter_level" => $itemnotif->mpml_id,
                 "id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
@@ -467,10 +474,32 @@ class UserController extends Controller
                 "cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
                 "aktifitas" => $itemnotif->mcar_name,
                 "id_aktifitas" => $itemnotif->ta_id,
-                "status" => $itemnotif->ta_status
+                "status" => $status,
+                "fo_name" => $itemnotif->first_name,
+                "file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)
             );
         }
         return response()->json(['status' => 200,'data' => $data]);
     
+    }
+
+    //Get File Tolak
+    private function getFile($id_aktifitas,$id_perusahaan){
+        $data =[];
+        if ($id_aktifitas != null){
+        $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
+                        ->where("ta_status", "=", "2")
+                        ->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
+
+            foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){
+
+                $data[] = array(
+                        "id_file" => $itemtransaksi_aktifitas_file->taf_id,
+                        "file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
+                        "file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
+                    );
+            }
+        }
+        return $data;
     }
 }
