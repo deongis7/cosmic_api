@@ -426,7 +426,12 @@ class UserController extends Controller
 
     //Get Notif PIC
     function getNotifpic($nik){
-        
+        /*$token = "fYXTze1sRPyDDyUZwurszk:APA91bFwCJtFF0tyT2BSfG0UGgal8pCrgRtQyEsrcegBf_HB_BeoVreUG0iLNeMhWGH3_p-bXA1xpLjRIS8b0XueHMpW15WTwS1jtxz7mZbMmIJzoPZDYgC-5OsWaqrsdyiPW5rcSDgi";
+        $body = "tbody";
+        $title = "ttitle";
+
+        $weeks = AppHelper::sendFirebase($token, $body, $title);
+        print_r($weeks);die;*/
         // return response()->json(['status' => 200,'data' => $nik]);
         $data = array();
 
