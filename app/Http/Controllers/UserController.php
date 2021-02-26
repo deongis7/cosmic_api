@@ -463,7 +463,7 @@ class UserController extends Controller
             if($itemnotif->ta_status==0){
                 $status = "buka";
             }else{
-                $status - "tutup";
+                $status = "tutup";
             }
             $data[] = array(
                 "id_perimeter_level" => $itemnotif->mpml_id,
