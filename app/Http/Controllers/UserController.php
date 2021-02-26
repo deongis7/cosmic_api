@@ -444,7 +444,7 @@ class UserController extends Controller
             return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
         }
 
-        $notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name 
+        $notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , tbpc_status
         from transaksi_aktifitas ta
         join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
         join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
@@ -454,17 +454,13 @@ class UserController extends Controller
         join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id
         left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
         left join app_users au on au.username = mpl.mpml_me_nik
+        left join table_perimeter_closed tpc on tpc.tbpc_mpml_id = tpd.tpmd_mpml_id
         where tsp.tbsp_status = 1 and mpl.mpml_pic_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
         order by ta_date_update asc", [$nik,$startdate,$enddate]);
 
 
         foreach($notif as $itemnotif){
         //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
-            if($itemnotif->ta_status==0){
-                $status = "buka";
-            }else{
-                $status = "tutup";
-            }
             $data[] = array(
                 "id_perimeter_level" => $itemnotif->mpml_id,
                 "id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
@@ -474,7 +470,7 @@ class UserController extends Controller
                 "cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
                 "aktifitas" => $itemnotif->mcar_name,
                 "id_aktifitas" => $itemnotif->ta_id,
-                "status" => $status,
+                "status" => $itemnotif->tbpc_status,
                 "fo_name" => $itemnotif->first_name,
                 "file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)
             );
