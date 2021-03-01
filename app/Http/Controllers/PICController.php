@@ -55,7 +55,6 @@ class PICController extends Controller
 	public function store (Request $request){
 
 	}
-
 	 /**
 	 * @OA\post(
 	 *     path="/monitoring",
@@ -214,6 +213,26 @@ class PICController extends Controller
 			}
 
 			if($trn_aktifitas->save()) {
+
+				//get data perimeter
+				$get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token from transaksi_aktifitas ta
+                join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+                join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+                join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+                join app_users au on au.username = mpl.mpml_me_nik 
+                where tpd.tpmd_id = ?
+                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name ", [$id_perimeter_cluster]);
+        		// dd($get_perimeter[0]->mpml_name);
+
+
+				//lempar ke helper firebase
+                $token = $get_perimeter[0]->token;
+                $body = $get_perimeter[0]->mpml_name."<br /> Field Officer : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_me_nik;
+                $title = $get_perimeter[0]->mcr_name;
+
+                $weeks = AppHelper::sendFirebase($token, $body, $title);
+
 				return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
 			} else {
 				return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
@@ -599,6 +618,9 @@ class PICController extends Controller
 						left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
   					where mpl.mpml_id = ?
   					order by mcr.mcr_name asc, tpmd_order asc", [$id]);
+
+  				
+  			$no=1;
   			foreach($perimeter as $itemperimeter){
   				$data_aktifitas_cluster = array();
           //$aktifitas = new KonfigurasiCAR;
@@ -629,6 +651,29 @@ class PICController extends Controller
             $dataprogress = array("total_monitor"=> $total_monitoring,
                     "sudah_dimonitor"=> $jml_monitoring,
                     "belum_dimonitor"=> $total_monitoring - $jml_monitoring );
+	            
+	            if($total_monitoring==$jml_monitoring){
+	            	//Lempar ke firebase
+	  				//get data perimeter
+					$get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token from transaksi_aktifitas ta
+	                join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+	                join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+	                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+	                join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+	                join app_users au on au.username = mpl.mpml_pic_nik 
+	                where tpd.tpmd_id = ? and ta.ta_status = 1
+	                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name ", [$itemperimeter->tpmd_id]);
+	        		// dd($get_perimeter[0]->mpml_name);
+
+
+					//lempar ke helper firebase
+	                $token = $get_perimeter[0]->token;
+	                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
+	                $title = $get_perimeter[0]->mcr_name;
+
+	                $weeks = AppHelper::sendFirebase($token, $body, $title);
+	            }
+            $no++;
   			}
   			return array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
   		} else {
@@ -779,43 +824,7 @@ class PICController extends Controller
 
 	}
 
-	//Get Notif
-	public function getNotifFO($nik){
-		$data = array();
-
-		$weeks = AppHelper::Weeks();
-		$startdate = $weeks['startweek'];
-		$enddate = $weeks['endweek'];
-
-		$notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak from transaksi_aktifitas ta
-		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-		join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
-		join master_car mcar on mcar.mcar_id = kcar_mcar_id
-		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id
-		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
-		join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id
-		where ta.ta_status = 2 and ta.ta_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
-		order by ta_date_update asc", [$nik,$startdate,$enddate]);
-
-
-		foreach($notif as $itemnotif){
-		//dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
-			$data[] = array(
-					"id_perimeter_level" => $itemnotif->mpml_id,
-					"id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
-					"id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
-					"perimeter" => $itemnotif->mpm_name,
-			        "level" => $itemnotif->mpml_name,
-					"cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
-					"aktifitas" => $itemnotif->mcar_name,
-					"id_aktifitas" => $itemnotif->ta_id,
-					"status" => $itemnotif->ta_status,
-					"ket_tolak" => $itemnotif->ta_ket_tolak,
-					"file" => $this->getFileTolak($itemnotif->ta_id,$itemnotif->mpm_mc_id)
-				);
-		}
-		return response()->json(['status' => 200,'data' => $data]);
-	}
+	
 
 public function addFilePerimeterLevel(Request $request){
     $this->validate($request, [
@@ -892,6 +901,49 @@ public function addFilePerimeterLevel(Request $request){
       }
     }
     return response()->json(['status' => 200,'data' => $data]);
+  }
+
+  //Get Notif
+	public function getNotifFO($nik){
+		$data = array();
+
+		$weeks = AppHelper::Weeks();
+		$startdate = $weeks['startweek'];
+		$enddate = $weeks['endweek'];
+
+		$notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak from transaksi_aktifitas ta
+		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+		join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+		join master_car mcar on mcar.mcar_id = kcar_mcar_id
+		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id
+		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+		join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id
+		where ta.ta_status = 2 and ta.ta_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
+		order by ta_date_update asc", [$nik,$startdate,$enddate]);
+
+
+		foreach($notif as $itemnotif){
+		//dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
+			$data[] = array(
+					"id_perimeter_level" => $itemnotif->mpml_id,
+					"id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
+					"id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
+					"perimeter" => $itemnotif->mpm_name,
+			        "level" => $itemnotif->mpml_name,
+					"cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
+					"aktifitas" => $itemnotif->mcar_name,
+					"id_aktifitas" => $itemnotif->ta_id,
+					"status" => $itemnotif->ta_status,
+					"ket_tolak" => $itemnotif->ta_ket_tolak,
+					"file" => $this->getFileTolak($itemnotif->ta_id,$itemnotif->mpm_mc_id)
+				);
+		}
+		return response()->json(['status' => 200,'data' => $data]);
+	}
+
+  public function notif_pic($nik){
+    	echo $nik;
+		/**/
   }
 
   //Get File ID
@@ -1059,4 +1111,5 @@ public function addFilePerimeterLevel(Request $request){
             return response()->json(['status_monitoring' => $dataprogress,'status' => 200,'data' => $data]);
         }
     }
+	 
 }

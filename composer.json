@@ -8,6 +8,8 @@
         "php": "^7.2.5",
         "darkaonline/swagger-lume": "^7.0",
         "dusterio/lumen-passport": "^0.2.19",
+        "firebase/php-jwt": "^5.2",
+        "guzzlehttp/guzzle": "^7.0",
         "illuminate/redis": "^7.24",
         "intervention/image": "^2.5",
         "laravel/lumen-framework": "^7.0",
