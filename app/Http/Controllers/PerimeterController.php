@@ -873,4 +873,203 @@ class PerimeterController extends Controller
 	}
 
 
+	public function getTaskForce($id,Request $request){
+	    $param = [];
+	    $limit = null;
+	    $page = null;
+	    $search = null;
+	    $endpage = 1;
+	    if(isset($request->limit)){
+	        $limit=$request->limit;
+	        if(isset($request->page)){
+	            $page=$request->page;
+	        }
+	    }
+	    if(isset($request->search)){
+	        
+	        $search=$request->search;
+	    }
+	    $querycache = "_get_taskforce_by_company_id_". $id;
+	    $query = "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
+			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end) as mr_name,app.mc_id,aug.name,
+			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) AS unassigned
+		from app_users app
+		left JOIN (select mp1.mpm_mr_id , mr1.mr_name, mpl1.mpml_pic_nik, mkab1.mkab_id,mkab1.mkab_name,mp1.mpm_mc_id  from master_perimeter_level mpl1
+				join master_perimeter mp1 on mpl1.mpml_mpm_id = mp1.mpm_id
+				join master_region mr1 on mr1.mr_id = mp1.mpm_mr_id
+				left join master_kabupaten mkab1 on mkab1.mkab_id = mp1.mpm_mkab_id) a1 on a1.mpml_pic_nik = app.username and a1.mpm_mc_id = app.mc_id
+		left JOIN (select mp2.mpm_mr_id, mr2.mr_name, mpl2.mpml_me_nik, mkab2.mkab_id,mkab2.mkab_name,mp2.mpm_mc_id from master_perimeter_level mpl2
+				join master_perimeter mp2  on mpl2.mpml_mpm_id = mp2.mpm_id
+				join master_region mr2 on mr2.mr_id = mp2.mpm_mr_id
+				left join master_kabupaten mkab2 on mkab2.mkab_id = mp2.mpm_mkab_id) a2 on a2.mpml_me_nik = app.username and a2.mpm_mc_id = app.mc_id
+		join app_users_groups aup on aup.user_id = app.id ";
+	    //cek role
+	    //dd($request->id_kota);
+	    if(isset($request->id_role)){
+	        $querycache = $querycache ."_role_". $request->id_role;
+	        $query = $query . " and aup.group_id=?";
+	        $param[] = $request->id_role;
+	    } else {
+	        $query = $query . " and (aup.group_id=3 or aup.group_id=4)";
+	    }
+	    //klausul where
+	    $query = $query .  " join  app_groups aug on aup.group_id = aug.id  where app.mc_id = ?";
+	    $param[] = $id;
+	    
+	    //cek kota
+	    if(isset($request->id_kota) && $request->id_kota <> 'null'&& $request->id_kota <> ''){
+	        $querycache = $querycache ."_kota_". $request->id_kota;
+	        $query = $query . " and ((a1.mkab_id=? or a2.mkab_id=?) or (( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL )))";
+	        $param[] = $request->id_kota;
+	        $param[] = $request->id_kota;
+	    }
+	    if(isset($search)) {
+	        $querycache = $querycache.'_searh_'. str_replace(' ','_',$request->search);
+	        $query = $query ." and (lower(TRIM(app.username)) like ? or lower(TRIM(app.first_name)) like ?) ";
+	        $param[] = '%'.strtolower(trim($search)).'%';
+	        $param[] = '%'.strtolower(trim($search)).'%';
+	        
+	    }
+	    
+	    $query=$query ." GROUP BY app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) ,
+			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end),app.mc_id,aug.name,
+			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END )
+			order by
+			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) desc, aug.name desc,app.first_name asc ";
+	    $jmltotal=count(DB::connection('pgsql2')->select( $query , $param));
+	    
+	    if(isset($limit)) {
+	        $query=$query ." limit ". $limit;
+	        $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+	        
+	        if (isset($page)) {
+	            $offset = ((int)$page -1) * (int)$limit;
+	            $query=$query ." offset ". $offset;
+	            
+	        }
+	    }
+	    //$datacache = Cache::remember($querycache, 1 * 60, function()use($query,$param) {
+	    $data = array();
+	    $taskforce = DB::connection('pgsql2')->select( $query , $param);
+	    
+	    foreach($taskforce as $itemtaskforce){
+	        $data[] = array(
+	            "kd_perusahaan" => $itemtaskforce->mc_id,
+	            "kd_region" => $itemtaskforce->mpm_mr_id,
+	            "region" => $itemtaskforce->mr_name,
+	            "nik" => $itemtaskforce->username,
+	            "username" => $itemtaskforce->username,
+	            "nama" => $itemtaskforce->first_name,
+	            "role" => $itemtaskforce->name,
+	            "unassigned" => $itemtaskforce->unassigned,
+	            
+	        );
+	    }
+	    $data;
+	    //return $data;
+	    //});
+	    return response()->json(['status' => 200,'page_end' => $endpage,'data' => $data]);
+	    
+	}
+	
+	public function getTaskForceBUMN($id,Request $request){
+	    $user = User::where('username',$nik)->first();
+	    $auth_mc_id =Auth::guard('api')->user()->mc_id;
+	    $param = [];
+	    $limit = null;
+	    $page = null;
+	    $search = null;
+	    $endpage = 1;
+	    if(isset($request->limit)){
+	        $limit=$request->limit;
+	        if(isset($request->page)){
+	            $page=$request->page;
+	        }
+	    }
+	    if(isset($request->search)){
+	        
+	        $search=$request->search;
+	    }
+	    $querycache = "_get_taskforce_by_company_id_". $id;
+	    $query = "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
+			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end) as mr_name,app.mc_id,aug.name,
+			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) AS unassigned
+		from app_users app
+		left JOIN (select mp1.mpm_mr_id , mr1.mr_name, mpl1.mpml_pic_nik, mkab1.mkab_id,mkab1.mkab_name,mp1.mpm_mc_id  from master_perimeter_level mpl1
+				join master_perimeter mp1 on mpl1.mpml_mpm_id = mp1.mpm_id
+				join master_region mr1 on mr1.mr_id = mp1.mpm_mr_id
+				left join master_kabupaten mkab1 on mkab1.mkab_id = mp1.mpm_mkab_id) a1 on a1.mpml_pic_nik = app.username and a1.mpm_mc_id = app.mc_id
+		left JOIN (select mp2.mpm_mr_id, mr2.mr_name, mpl2.mpml_me_nik, mkab2.mkab_id,mkab2.mkab_name,mp2.mpm_mc_id from master_perimeter_level mpl2
+				join master_perimeter mp2  on mpl2.mpml_mpm_id = mp2.mpm_id
+				join master_region mr2 on mr2.mr_id = mp2.mpm_mr_id
+				left join master_kabupaten mkab2 on mkab2.mkab_id = mp2.mpm_mkab_id) a2 on a2.mpml_me_nik = app.username and a2.mpm_mc_id = app.mc_id
+		join app_users_groups aup on aup.user_id = app.id ";
+	    //cek role
+	    //dd($request->id_kota);
+	    if(isset($request->id_role)){
+	        $querycache = $querycache ."_role_". $request->id_role;
+	        $query = $query . " and aup.group_id=?";
+	        $param[] = $request->id_role;
+	    } else {
+	        $query = $query . " and (aup.group_id=3 or aup.group_id=4)";
+	    }
+	    //klausul where
+	    $query = $query .  " join  app_groups aug on aup.group_id = aug.id  where app.mc_id = ?";
+	    $param[] = $auth_mc_id;
+	    
+	    //cek kota
+	    if(isset($request->id_kota) && $request->id_kota <> 'null'&& $request->id_kota <> ''){
+	        $querycache = $querycache ."_kota_". $request->id_kota;
+	        $query = $query . " and ((a1.mkab_id=? or a2.mkab_id=?) or (( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL )))";
+	        $param[] = $request->id_kota;
+	        $param[] = $request->id_kota;
+	    }
+	    if(isset($search)) {
+	        $querycache = $querycache.'_searh_'. str_replace(' ','_',$request->search);
+	        $query = $query ." and (lower(TRIM(app.username)) like ? or lower(TRIM(app.first_name)) like ?) ";
+	        $param[] = '%'.strtolower(trim($search)).'%';
+	        $param[] = '%'.strtolower(trim($search)).'%';
+	        
+	    }
+	    
+	    $query=$query ." GROUP BY app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) ,
+			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end),app.mc_id,aug.name,
+			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END )
+			order by
+			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) desc, aug.name desc,app.first_name asc ";
+	    $jmltotal=count(DB::connection('pgsql2')->select( $query , $param));
+	    
+	    if(isset($limit)) {
+	        $query=$query ." limit ". $limit;
+	        $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+	        
+	        if (isset($page)) {
+	            $offset = ((int)$page -1) * (int)$limit;
+	            $query=$query ." offset ". $offset;
+	            
+	        }
+	    }
+	    //$datacache = Cache::remember($querycache, 1 * 60, function()use($query,$param) {
+	    $data = array();
+	    $taskforce = DB::connection('pgsql2')->select( $query , $param);
+	    
+	    foreach($taskforce as $itemtaskforce){
+	        $data[] = array(
+	            "kd_perusahaan" => $itemtaskforce->mc_id,
+	            "kd_region" => $itemtaskforce->mpm_mr_id,
+	            "region" => $itemtaskforce->mr_name,
+	            "nik" => $itemtaskforce->username,
+	            "username" => $itemtaskforce->username,
+	            "nama" => $itemtaskforce->first_name,
+	            "role" => $itemtaskforce->name,
+	            "unassigned" => $itemtaskforce->unassigned,
+	            
+	        );
+	    }
+	    $data;
+	    //return $data;
+	    //});
+	    return response()->json(['status' => 200,'page_end' => $endpage,'data' => $data]);
+	    
+	}
 }

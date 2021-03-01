@@ -316,5 +316,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::get('/vaksinwlb/vaksin', 'VaksinController@getDataAllWLB');
 		
 		Route::get('/monitoringbumn/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeterBUMN');
+		Route::get('/list_perimeterbumn/{kd_perusahaan}', 'PerimeterListController@getPerimeterListBUMN');
+		Route::get('/taskforcebumn/{id}', 'PerimeterController@getTaskForceBUMN');
 	});
 });
