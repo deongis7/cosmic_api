@@ -573,7 +573,7 @@ class PICController extends Controller
 
 	//Get Cluster per Perimeter Level
 	public function getClusterbyPerimeter($id,$nik){
-    $datacache =Cache::remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 3 * 60, function()use($id,$nik) {
+   /* $datacache =Cache::remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 3 * 60, function()use($id,$nik) {*/
 
   		$user = User::where('username',$nik)->first();
       $total_monitoring = 0;
@@ -620,12 +620,36 @@ class PICController extends Controller
                     "sudah_dimonitor"=> $jml_monitoring,
                     "belum_dimonitor"=> $total_monitoring - $jml_monitoring );
   			}
+
+  			if($status['status_konfirmasi']==1){
+            	//Lempar ke firebase
+  				//get data perimeter
+				$get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token from transaksi_aktifitas ta
+                join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+                join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+                join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+                join app_users au on au.username = mpl.mpml_pic_nik 
+                where tpd.tpmd_id = ? and ta.ta_status = 1
+                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token ", [$itemperimeter->tpmd_id]);
+        		// dd($get_perimeter[0]->mpml_name);
+
+
+				//lempar ke helper firebase
+                $token = $get_perimeter[0]->token;
+                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
+                $title = $get_perimeter[0]->mcr_name;
+                // echo $token;die;
+                $weeks = AppHelper::sendFirebase($token, $body, $title);
+                // print_r($weeks);die;
+            }
+
   			return array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
   		} else {
   			return  array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
   		}
-    });
-    return response()->json($datacache);
+    //});
+    // return response()->json($datacache);
 	}
 
 	//Get Cluster per Perimeter Level
