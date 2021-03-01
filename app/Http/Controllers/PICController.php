@@ -222,7 +222,7 @@ class PICController extends Controller
                 join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
                 join app_users au on au.username = mpl.mpml_me_nik 
                 where tpd.tpmd_id = ?
-                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name ", [$id_perimeter_cluster]);
+                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token ", [$id_perimeter_cluster]);
         		// dd($get_perimeter[0]->mpml_name);
 
 
