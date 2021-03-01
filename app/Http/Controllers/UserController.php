@@ -13,6 +13,9 @@ use \Firebase\JWT\JWT;
 use App\TrnAktifitasFile;
 use App\User;
 use App\UserGroup;
+
+use App\TrnAktifitas;
+use App\KonfigurasiCAR;
 use App\Helpers\AppHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -502,5 +505,58 @@ class UserController extends Controller
             }
         }
         return $data;
+    }
+
+    //Validasi
+    public function validasiMonitoring(Request $request){
+        $this->validate($request, [
+            'id_perimeter_cluster' => 'required',
+            'id_konfig_cluster_aktifitas' => 'required',
+            'status' => 'required',
+        ]);
+
+        $id_perimeter_cluster = $request->id_perimeter_cluster;
+        $id_konfig_cluster_aktifitas = $request->id_konfig_cluster_aktifitas;
+        $weeks = AppHelper::Weeks();
+        // dd($weeks['weeks']);
+
+        $trn_aktifitas= TrnAktifitas::where('ta_tpmd_id',$id_perimeter_cluster)
+                                    ->where('ta_kcar_id',$id_konfig_cluster_aktifitas)
+                                    ->where('ta_week',$weeks['weeks'])->first();
+        if($trn_aktifitas != null){
+            $trn_aktifitas->ta_status = $request->status;
+            if($request->status==2){
+                $trn_aktifitas->ta_ket_tolak = $request->keterangan;
+            }
+
+            if($trn_aktifitas->save()) {
+
+                //get data perimeter
+                $get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token from transaksi_aktifitas ta
+                join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+                join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+                join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+                join app_users au on au.username = mpl.mpml_me_nik 
+                where tpd.tpmd_id = ?
+                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token ", [$id_perimeter_cluster]);
+                //dd($get_perimeter[0]->mpml_name);
+
+
+                //lempar ke helper firebase
+                $token = $get_perimeter[0]->token;
+                $body = $get_perimeter[0]->mpml_name."<br /> Field Officer : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_me_nik;
+                $title = $get_perimeter[0]->mcr_name;
+
+                $weeks = AppHelper::sendFirebase($token, $body, $title);
+
+                return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+            } else {
+                return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+            }
+        } else {
+            return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+        }
+
     }
 }
