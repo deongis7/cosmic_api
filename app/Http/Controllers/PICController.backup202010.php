@@ -12,6 +12,7 @@ use App\TblPerimeterDetail;
 use App\TrnAktifitas;
 use App\TrnAktifitasFile;
 use App\KonfigurasiCAR;
+use App\PerimeterLevelFile;
 
 use App\User;
 use App\UserGroup;
@@ -820,5 +821,30 @@ class PICController extends Controller
 		return response()->json(['status' => 200,'data' => $data]);
 	}
 
-    //
+    //Get File ID
+	  public function getFilePerimeterLevelByPerimeterLevel($id_perimeter_level){
+	    $data =[];
+	    if ($id_perimeter_level != null){
+
+	    $perimeter_level_file = PerimeterLevelFile::select('master_perimeter_level_file.mpmlf_id','master_perimeter.mpm_mc_id','master_perimeter_level_file.mpmlf_file','master_perimeter_level_file.mpmlf_file_tumb')
+	          ->join('master_perimeter_level','master_perimeter_level.mpml_id','master_perimeter_level_file.mpmlf_mpml_id')
+	          ->join('master_perimeter','master_perimeter.mpm_id','master_perimeter_level.mpml_mpm_id')
+	          ->where('master_perimeter_level.mpml_id',$id_perimeter_level)
+	          ->orderBy('mpmlf_id','desc')
+	          ->limit(3)
+	          ->get();
+
+	      if ($perimeter_level_file->count() >0){
+	        foreach($perimeter_level_file as $plf){
+	          $data[] = array(
+	            "id_file" => $plf->mpmlf_id,
+	            "file" => "/perimeter_level/".$plf->mpm_mc_id."/".$plf->mpmlf_file,
+	            "file_tumb" => "/perimeter_level/".$plf->mpm_mc_id."/".$plf->mpmlf_file_tumb,
+	            );
+	        }
+
+	      }
+	    }
+	    return response()->json(['status' => 200,'data' => $data]);
+	  }
 }
