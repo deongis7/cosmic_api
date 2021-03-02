@@ -61,7 +61,7 @@ class AppHelper {
         return $title;
     }
 
-    public static function sendFirebase($token_device, $body, $title){
+    public static function sendFirebase($token_device, $body, $title, $role){
         
         $token = "AAAAIOJgA7s:APA91bGsiFlggeNexu_qv7QdxyEKeudNqJatbkZaMkMjI9dKJHjPDcQQdXOeCmlGiDsepZ2HkuLCFxzU6DiYMxn-2ZoueHFnGNTXlwY4krhF9HZ207WocMTamycUzk_vMQsz6wlLvasW";
         $headers = [
@@ -73,6 +73,9 @@ class AppHelper {
         // $token_device = "testtoken";
         $data_param = [
             "to" => $token_device,
+            "data" => [
+                "role" => $role
+            ],
             "notification" => [
                   "body" => $body,
                   "title" =>  $title
