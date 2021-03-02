@@ -619,8 +619,8 @@ class PICController extends Controller
 	                $token = $get_perimeter[0]->token;
 	                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
 	                $title = $get_perimeter[0]->mcr_name;
-
-	                $weeks = AppHelper::sendFirebase($token, $body, $title);
+	                $role="PIC";
+	                $weeks = AppHelper::sendFirebase($token, $body, $title,$role);
 	            }
             $no++;
   			}
