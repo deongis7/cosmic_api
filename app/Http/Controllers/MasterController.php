@@ -121,7 +121,7 @@ class MasterController extends Controller
             $company = Company::selectRaw('master_company.*,(master_company.mc_id)::varchar as mc_idx')->where(DB::raw("lower(TRIM(master_company.mc_name))"),'like','%'.strtolower(trim($search)).'%')
                             ->orWhere(DB::raw("lower(TRIM(master_company.mc_name2))"),'like','%'.strtolower(trim($search)).'%')->orderBy('mc_name')->get();
         } else {
-          $company = Company::orderBy('mc_name')->get();
+          $company = Company::selectRaw('master_company.*,(master_company.mc_id)::varchar as mc_idx')->orderBy('mc_name')->get();
         }
         //dd($company);
 	        foreach($company as $com){
