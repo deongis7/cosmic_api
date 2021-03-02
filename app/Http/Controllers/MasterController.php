@@ -118,7 +118,7 @@ class MasterController extends Controller
 	    $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 360 * 60, function() use($Path,$search  ) {
         $data=[];
         if(isset($search)) {
-            $company = Company::where(DB::raw("lower(TRIM(master_company.mc_name))"),'like','%'.strtolower(trim($search)).'%')
+            $company = Company::selectRaw('master_company.*,(master_company.mc_id)::varchar as mc_idx')->where(DB::raw("lower(TRIM(master_company.mc_name))"),'like','%'.strtolower(trim($search)).'%')
                             ->orWhere(DB::raw("lower(TRIM(master_company.mc_name2))"),'like','%'.strtolower(trim($search)).'%')->orderBy('mc_name')->get();
         } else {
           $company = Company::orderBy('mc_name')->get();
@@ -126,7 +126,7 @@ class MasterController extends Controller
         //dd($company);
 	        foreach($company as $com){
 	            $data[] = array(
-	                "id_perusahaan" => $com->mc_id,
+	                "id_perusahaan" => strval($com->mc_idx),
 	                "kd_perusahaan" => $com->mc_code,
 	                "nm_perusahaan" => $com->mc_name,
 	                "foto" =>(( $com->mc_foto == null)?null:$Path.$com->mc_foto)
