@@ -517,4 +517,213 @@ class VaksinController extends Controller
             return response()->json(['status' => 404, 'message' => 'Tidak ada data'])->setStatusCode(404);
         }
 	}
+	
+	public function getDataAllKEMENKES(Request $request) {
+	    $limit = null;
+	    $page = null;
+	    $search = null;
+	    $endpage = 1;
+	    
+	    $vaksin = new Vaksin();
+	    $vaksin->setConnection('pgsql_vaksin');
+	    $vaksin = $vaksin->select('tv_nik', 'tv_nama',
+	        'tv_ttl_date', 'tv_usia', 'msp.msp_name2', 
+	        'tv_no_hp', 'tv_alamat', 'tv_mjk_id',
+	        'tkc.tkc_mpro_id', 'tkc.tkc_mpro_name','tkc.tkc_mkab_id', 'tkc.tkc_mkab_name',
+	        'mc.mc_id', 'mc.mc_name'
+        )
+        ->join('master_company AS mc','mc.mc_id','tv_mc_id')
+        ->join('master_status_pegawai AS msp','msp.msp_id','tv_msp_id')
+        ->join('master_kabupaten AS mkab','mkab.mkab_id','tv_mkab_id')
+        ->join('master_provinsi AS mpro','mpro.mpro_id','mkab.mkab_mpro_id')
+        ->join('table_kawal_covid AS tkc','tkc.tkc_mkab_id','mkab.mkab_kawal_id');
+        
+        if(isset($request->search)) {
+            $search = $request->search;
+            $vaksin = $vaksin->where(DB::raw("LOWER(TRIM(tv_nama))"),'like','%'.strtolower(trim($search)).'%');
+        }
+        
+        if(isset($request->column_sort)) {
+            if(isset($request->p_sort)) {
+                $vaksin = $vaksin->orderBy($request->column_sort, $request->p_sort);
+            }else{
+                $vaksin = $vaksin->orderBy($request->column_sort, 'ASC');
+            }
+        }else{
+            $vaksin = $vaksin->orderBy('mc_name', 'ASC')->orderBy('tv_nama', 'ASC');
+        }
+        
+        $jmltotal=($vaksin->count());
+        if(isset($request->limit)) {
+            $limit = $request->limit;
+            $vaksin = $vaksin->limit($limit);
+            $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+            
+            if (isset($request->page)) {
+                $page = $request->page;
+                $offset = ((int)$page -1) * (int)$limit;
+                $vaksin = $vaksin->offset($offset);
+            }
+        }
+        $vaksin = $vaksin->get();
+        $totalvaksin = $vaksin->count();
+        
+        if (count($vaksin) > 0){
+            foreach($vaksin as $vksn){
+                if($vksn->tv_mjk_id==1){
+                    $jns_kelamin='L';
+                }else{
+                    $jns_kelamin='P';
+                }
+                
+                $data[] = array(
+                    "nik" => $vksn->tv_nik,
+                    "nama" => $vksn->tv_nama,
+                    "jenis_kelamin" => $jns_kelamin,
+                    "tanggal_lahir" => $vksn->tv_ttl_date,
+                    "umur" => $vksn->tv_usia,
+                    "instansi_pekerjaan" => $vksn->mc_name,
+                    "jenis_pekerjaan" => $vksn->msp_name2,
+                    "kode_kategori" => 16, 
+                    "no_hp" => $vksn->tv_no_hp,
+                    "alamat_ktp" => $vksn->tv_alamat,
+                    "kode_kab_kota_tempat_kerja" => $vksn->tkc_mkab_id,
+                    "nama_kab_kota_tempat_kerja" => $vksn->tkc_mkab_name,
+                    "kode_instansi_pekerjaan" => $vksn->mc_id,
+                );
+            }
+            return response()->json(['status' => 200, 'page_end'=> $endpage, 'data' => $data]);
+        }else{
+            return response()->json(['status' => 404, 'message' => 'Tidak ada data'])->setStatusCode(404);
+        }
+	}
+	
+	public function getDataByMcidKEMENKES($id,Request $request) {
+	    $limit = null;
+	    $page = null;
+	    $search = null;
+	    $endpage = 1;
+	    
+	    $vaksin = new Vaksin();
+	    $vaksin->setConnection('pgsql_vaksin');
+	    $vaksin = $vaksin->select('tv_nik', 'tv_nama',
+	        'tv_ttl_date', 'tv_usia', 'msp.msp_name2',
+	        'tv_no_hp', 'tv_alamat', 'tv_mjk_id',
+	        'tkc.tkc_mpro_id', 'tkc.tkc_mpro_name','tkc.tkc_mkab_id', 'tkc.tkc_mkab_name',
+	        'mc.mc_id', 'mc.mc_name'
+        )
+        ->join('master_company AS mc','mc.mc_id','tv_mc_id')
+        ->join('master_status_pegawai AS msp','msp.msp_id','tv_msp_id')
+        ->join('master_kabupaten AS mkab','mkab.mkab_id','tv_mkab_id')
+        ->join('master_provinsi AS mpro','mpro.mpro_id','mkab.mkab_mpro_id')
+        ->join('table_kawal_covid AS tkc','tkc.tkc_mkab_id','mkab.mkab_kawal_id')
+        ->where('tv_mc_id', $id);
+	        
+        if(isset($request->search)) {
+            $search = $request->search;
+            $vaksin = $vaksin->where(DB::raw("LOWER(TRIM(tv_nama))"),'like','%'.strtolower(trim($search)).'%');
+        }
+        
+        if(isset($request->column_sort)) {
+            if(isset($request->p_sort)) {
+                $vaksin = $vaksin->orderBy($request->column_sort, $request->p_sort);
+            }else{
+                $vaksin = $vaksin->orderBy($request->column_sort, 'ASC');
+            }
+        }else{
+            $vaksin = $vaksin->orderBy('tv_nama', 'ASC');
+        }
+        
+        $jmltotal=($vaksin->count());
+        if(isset($request->limit)) {
+            $limit = $request->limit;
+            $vaksin = $vaksin->limit($limit);
+            $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+            
+            if (isset($request->page)) {
+                $page = $request->page;
+                $offset = ((int)$page -1) * (int)$limit;
+                $vaksin = $vaksin->offset($offset);
+            }
+        }
+        $vaksin = $vaksin->get();
+        $totalvaksin = $vaksin->count();
+        
+        if (count($vaksin) > 0){
+            foreach($vaksin as $vksn){
+                if($vksn->tv_mjk_id==1){
+                    $jns_kelamin='L';
+                }else{
+                    $jns_kelamin='P';
+                }
+                
+                $data[] = array(
+                    "nik" => $vksn->tv_nik,
+                    "nama" => $vksn->tv_nama,
+                    "jenis_kelamin" => $jns_kelamin,
+                    "tanggal_lahir" => $vksn->tv_ttl_date,
+                    "umur" => $vksn->tv_usia,
+                    "instansi_pekerjaan" => $vksn->mc_name,
+                    "jenis_pekerjaan" => $vksn->msp_name2,
+                    "kode_kategori" => 16,
+                    "no_hp" => $vksn->tv_no_hp,
+                    "alamat_ktp" => $vksn->tv_alamat,
+                    "kode_kab_kota_tempat_kerja" => $vksn->tkc_mkab_id,
+                    "nama_kab_kota_tempat_kerja" => $vksn->tkc_mkab_name,
+                    "kode_instansi_pekerjaan" => $vksn->mc_id,
+                );
+            }
+            return response()->json(['status' => 200, 'page_end'=> $endpage, 'data' => $data]);
+        }else{
+            return response()->json(['status' => 404, 'message' => 'Tidak ada data'])->setStatusCode(404);
+        }
+	}
+	
+	public function getDataByNIKKEMENKES($id,Request $request) {
+	    $vaksin = new Vaksin();
+	    $vaksin->setConnection('pgsql_vaksin');
+	    $vaksin = $vaksin->select('tv_nik', 'tv_nama',
+	        'tv_ttl_date', 'tv_usia', 'msp.msp_name2',
+	        'tv_no_hp', 'tv_alamat', 'tv_mjk_id',
+	        'tkc.tkc_mpro_id', 'tkc.tkc_mpro_name','tkc.tkc_mkab_id', 'tkc.tkc_mkab_name',
+	        'mc.mc_id', 'mc.mc_name'
+	        )
+        ->join('master_company AS mc','mc.mc_id','tv_mc_id')
+        ->join('master_status_pegawai AS msp','msp.msp_id','tv_msp_id')
+        ->join('master_kabupaten AS mkab','mkab.mkab_id','tv_mkab_id')
+        ->join('master_provinsi AS mpro','mpro.mpro_id','mkab.mkab_mpro_id')
+        ->join('table_kawal_covid AS tkc','tkc.tkc_mkab_id','mkab.mkab_kawal_id')
+        ->where('tv_nik', $id);
+     
+        $vaksin = $vaksin->get();
+        
+        if (count($vaksin) > 0){
+            foreach($vaksin as $vksn){
+                if($vksn->tv_mjk_id==1){
+                    $jns_kelamin='L';
+                }else{
+                    $jns_kelamin='P';
+                }
+                
+                $data[] = array(
+                    "nik" => $vksn->tv_nik,
+                    "nama" => $vksn->tv_nama,
+                    "jenis_kelamin" => $jns_kelamin,
+                    "tanggal_lahir" => $vksn->tv_ttl_date,
+                    "umur" => $vksn->tv_usia,
+                    "instansi_pekerjaan" => $vksn->mc_name,
+                    "jenis_pekerjaan" => $vksn->msp_name2,
+                    "kode_kategori" => 16,
+                    "no_hp" => $vksn->tv_no_hp,
+                    "alamat_ktp" => $vksn->tv_alamat,
+                    "kode_kab_kota_tempat_kerja" => $vksn->tkc_mkab_id,
+                    "nama_kab_kota_tempat_kerja" => $vksn->tkc_mkab_name,
+                    "kode_instansi_pekerjaan" => $vksn->mc_id,
+                );
+            }
+            return response()->json(['status' => 200, 'data' => $data]);
+        }else{
+            return response()->json(['status' => 404, 'message' => 'Tidak ada data'])->setStatusCode(404);
+        }
+	}
 }
