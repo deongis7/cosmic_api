@@ -142,7 +142,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
 	$router->post('/monitoring/file','PICController@updateMonitoringFile');
-	$router->post('/validasi_monitoring', 'PICController@validasiMonitoring');
+	$router->post('/validasi_monitoring', 'UserController@validasiMonitoring');
 	$router->get('/monitoring/{nik}/{id_perimeter_cluster}', 'PICController@getAktifitasbyCluster');
 	$router->get('/monitoring/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeter');
 	$router->get('/monitoring_detail/{id_aktifitas}', 'PICController@getMonitoringDetail');
@@ -322,5 +322,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::get('/vaksinwlb/vaksin', 'VaksinController@getDataAllWLB');
 		
 		Route::get('/monitoringbumn/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeterBUMN');
+		Route::get('/list_perimeterbumn/{kd_perusahaan}', 'PerimeterListController@getPerimeterListBUMN');
+		Route::get('/taskforcebumn/{id}', 'PerimeterController@getTaskForceBUMN');
 	});
 });
