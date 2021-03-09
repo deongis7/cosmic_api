@@ -103,12 +103,12 @@ class PICController extends Controller
             $filedecode1 = base64_decode($image1);
 
 
-            Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+            /*Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1);
 			Image::make($filedecode1)->resize(50, NULL, function ($constraint) {
                 $constraint->aspectRatio();
-            })->save($destinationPath.'/'.$name2);
+            })->save($destinationPath.'/'.$name2);*/
         }
 
 		$trn_aktifitas= TrnAktifitas::updateOrCreate(
