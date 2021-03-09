@@ -94,8 +94,8 @@ class PICController extends Controller
 
         //$destinationPath = base_path("storage\app\public\aktifitas/").$kd_perusahaan.'/'.$tanggal;
 		$destinationPath = storage_path().'/app/public/aktifitas/' .$kd_perusahaan.'/'.$tanggal;
-		$name1 = round(microtime(true) * 1000).'.jpg';
-        $name2 = round(microtime(true) * 1000).'_tumb.jpg';
+		$name1 = round(microtime(true) * 1000).'.jpeg';
+        $name2 = round(microtime(true) * 1000).'_tumb.jpeg';
 
         if ($file != null || $file != '') {
             $img1 = explode(',', $file);
@@ -637,11 +637,11 @@ class PICController extends Controller
 
 
 				//lempar ke helper firebase
-                $token = $get_perimeter[0]->token;
-                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
-                $title = $get_perimeter[0]->mcr_name;
-                // echo $token;die;
-                $weeks = AppHelper::sendFirebase($token, $body, $title);
+	                $token = $get_perimeter[0]->token;
+	                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
+	                $title = $get_perimeter[0]->mcr_name;
+	                $role="PIC";
+	                $weeks = AppHelper::sendFirebase($token, $body, $title,$role);
                 // print_r($weeks);die;
             }
 
