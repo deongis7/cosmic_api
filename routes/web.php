@@ -289,7 +289,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->post('/user/reset_password', 'UserController@postResetPassword');
     $router->post('/user/cek_user', 'UserController@postCekUser');
 
-
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
 
@@ -321,8 +320,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::get('/vaksinwlb/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcidWLB');
 		Route::get('/vaksinwlb/vaksin', 'VaksinController@getDataAllWLB');
 		
+		Route::get('/vaksinkemenkes/vaksin', 'VaksinController@getDataAllKEMENKES');
+		Route::get('/vaksinkemenkes/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcidKEMENKES');
+		Route::get('/vaksinkemenkes/vaksin_bynik/{id}', 'VaksinController@getDataByNIKKEMENKES');
+		
 		Route::get('/monitoringbumn/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeterBUMN');
 		Route::get('/list_perimeterbumn/{kd_perusahaan}', 'PerimeterListController@getPerimeterListBUMN');
 		Route::get('/taskforcebumn/{id}', 'PerimeterController@getTaskForceBUMN');
+		
 	});
 });
