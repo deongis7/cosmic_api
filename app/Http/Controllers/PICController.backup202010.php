@@ -622,7 +622,7 @@ class PICController extends Controller
                     "belum_dimonitor"=> $total_monitoring - $jml_monitoring );
   			
 
-	  			if($status['status_konfirmasi']=="1"){
+	  			if($status['status_konfirmasi']!="0"){
 	  				//dd('test');
 	            	//Lempar ke firebase
 	  				//get data perimeter
