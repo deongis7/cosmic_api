@@ -76,9 +76,11 @@ class AppHelper {
             "data" => [
                 "role" => $role
             ],
+            "priority" => 'high',
             "notification" => [
                   "body" => $body,
-                  "title" =>  $title
+                  "title" =>  $title,
+                  "key1" => "val1"
               ]
           ];
 
