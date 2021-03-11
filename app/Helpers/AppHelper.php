@@ -80,7 +80,8 @@ class AppHelper {
             "notification" => [
                   "body" => $body,
                   "title" =>  $title,
-                  "key1" => "val1"
+                  "key1" => "val1",
+                  "sound" : "default"
               ]
           ];
 
