@@ -76,9 +76,12 @@ class AppHelper {
             "data" => [
                 "role" => $role
             ],
+            "priority" => 'high',
             "notification" => [
                   "body" => $body,
-                  "title" =>  $title
+                  "title" =>  $title,
+                  "key1" => "val1",
+                  "sound" : "default"
               ]
           ];
         var_dump($data_param);die;
