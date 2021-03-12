@@ -81,10 +81,9 @@ class AppHelper {
                   "body" => $body,
                   "title" =>  $title,
                   "key1" => "val1",
-                  "sound" : "default"
+                  "sound" => "default"
               ]
           ];
-        var_dump($data_param);die;
 
         $header_params = json_encode($data_param);
         // print_r($header_params);
