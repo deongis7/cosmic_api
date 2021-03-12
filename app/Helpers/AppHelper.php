@@ -81,7 +81,7 @@ class AppHelper {
                   "body" => $body,
                   "title" =>  $title,
                   "key1" => "val1",
-                  "sound" : "default"
+                  "sound" => "default"
               ]
           ];
 
