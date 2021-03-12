@@ -81,6 +81,7 @@ class AppHelper {
                   "title" =>  $title
               ]
           ];
+        var_dump($data_param);die;
 
         $header_params = json_encode($data_param);
         // print_r($header_params);
