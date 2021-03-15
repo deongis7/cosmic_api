@@ -432,4 +432,25 @@ class DashVaksinController extends Controller
 	    //});
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
+	
+	public function getDashVaksinMobileKabByProvinsi($id, Request $request) {
+	    if(isset($request->level)) {
+	        $level = $request->level;
+	    }else{
+	        $level = 0;
+	    }
+	    
+	    $data = array();
+	    $dash = DB::connection('pgsql_vaksin')->select("SELECT * FROM mobiledashvaksin_kabupaten_bylevelmproid($level,$id)");
+	    
+	    foreach($dash as $dvp){
+	        $data[] = array(
+	            "id" => $dvp->v_id,
+	            "judul" => $dvp->v_judul,
+	            "jml" => $dvp->v_jml
+	        );
+	    }
+	    //});
+	    return response()->json(['status' => 200,'data' => $data]);
+	}
 }
