@@ -251,6 +251,12 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/vaksin/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcid');
 	$router->get('/vaksin/vaksin_deletebyid/{id}', 'VaksinController@deleteVaksin');
 
+	$router->get('/mobiledashvaksin/jmlpegawai', 'DashVaksinController@getDataJmlPegawai');
+	$router->get('/mobiledashvaksin/groupbyjnskelamin', 'DashVaksinController@getDashVaksinMobileByJnsKelamin');
+	$router->get('/mobiledashvaksin/groupbystspegawai', 'DashVaksinController@getDashVaksinMobileByStsPegawai');
+	$router->get('/mobiledashvaksin/groupbyprovinsi', 'DashVaksinController@getDashVaksinMobileByProvinsi');
+	$router->get('/mobiledashvaksin/groupbyusia', 'DashVaksinController@getDashVaksinMobileByUsia');
+	
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
 
