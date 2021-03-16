@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return $fapp->version();
 });
 $router->get('/version', function () use ($router) {
     return  response()->json(['app' => env('APP_NAME', '1.0'),'version' => env('APP_VERSION', '1.0')]);;
@@ -48,7 +48,7 @@ $router->get('/storage/{jenis}/{kd_perusahaan}/id-{id}/{filename}', function ($j
     return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/'.$id.'/'. $filename))->response();
 });
 
-$router->group(['prefix' => 'api/v1'], function () use ($router) {
+$router->group(['prefix' => 'api/v1s'], function () use ($router) {
 	//Perimeter
 	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
