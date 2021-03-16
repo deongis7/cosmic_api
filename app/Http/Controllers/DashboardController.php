@@ -496,8 +496,9 @@ class DashboardController extends Controller
           $group_company = $request->group_company;
           $string = $string ."_group_company_".$group_company;
         }
-	     $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 0 * 60, function() use ($group_company){
-	        $data = array();
+	     // $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 0 * 60, function() use ($group_company){
+	        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
+          $data = array();
           if(isset($group_company)){
             if($group_company==2){
               $dashboard_string = "SELECT * FROM dashboard_head_nonbumn()";
@@ -556,7 +557,7 @@ class DashboardController extends Controller
               );
           }
 	         return $data_level;
-           
+
 	        /*return response()->json([
             'status' => 200,
             'data' => $data, 
@@ -565,6 +566,7 @@ class DashboardController extends Controller
             "jumlah_level" => $data_level
           ]);*/
         });
+          Cache::tags(['users'])->flush();
           return response()->json(['status' => 200,'data' => $datacache]);  
 	}
 
