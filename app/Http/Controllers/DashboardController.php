@@ -531,7 +531,7 @@ class DashboardController extends Controller
                   "v_filter_perusahaan" => $lvl->nama_level
               );
           }
-          return $data_perusahaan;
+          // return $data_perusahaan;
 
           //data status karyawan
           $data_status=[];
@@ -543,7 +543,7 @@ class DashboardController extends Controller
                   "v_status" => $lvl->msp_name2
               );
           }
-          return $data_status;
+          // return $data_status;
 
           //count level company
           $data_level=[];
@@ -556,18 +556,17 @@ class DashboardController extends Controller
                   "v_jml_level" => $lvl->v_jml
               );
           }
-	         return $data_level;
+	         // return $data_level;
 
-	        /*return response()->json([
-            'status' => 200,
+	        return array(
             'data' => $data, 
             "filter_perusahaan" => $data_perusahaan,
             "filter_status_pegawai" => $data_status,
             "jumlah_level" => $data_level
-          ]);*/
+          );
         });
           Cache::tags(['users'])->flush();
-          return response()->json(['status' => 200,'data' => $datacache]);  
+          return response()->json(['status' => 200,'data' =>$datacache['data'], 'filter_perusahaan' => $datacache['filter_perusahaan'], 'filter_status_pegawai' => $datacache['filter_status_pegawai'], 'jumlah_level'=> $datacache['jumlah_level']);  
 	}
 
 	public function getWeekList(){
