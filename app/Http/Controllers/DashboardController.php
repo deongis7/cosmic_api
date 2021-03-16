@@ -554,15 +554,7 @@ class DashboardController extends Controller
               );
           }
 	        
-	        return array(
-            'data' => $data, 
-            "filter_perusahaan" => $data_perusahaan,
-            "filter_status_pegawai" => $data_status,
-            "jumlah_level" => $data_level
-          );
-        });
-
-          //count level company
+	        //count level company
           $data_jml_company=[];
           $sql1 = "SELECT * FROM vaksin_dashboard_perusahaan()";
           $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
