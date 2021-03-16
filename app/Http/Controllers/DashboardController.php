@@ -496,8 +496,9 @@ class DashboardController extends Controller
           $group_company = $request->group_company;
           $string = $string ."_group_company_".$group_company;
         }
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 0 * 60, function() use ($group_company){
-	        $data = array();
+	     // $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 0 * 60, function() use ($group_company){
+	        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
+          $data = array();
           if(isset($group_company)){
             if($group_company==2){
               $dashboard_string = "SELECT * FROM dashboard_head_nonbumn()";
@@ -518,9 +519,64 @@ class DashboardController extends Controller
 	                "v_link" => $dh->x_link
 	            );
 	        }
-	        return $data;
-	    });
-	        return response()->json(['status' => 200,'data' => $datacache]);
+	        
+          //data filter perusahaan
+          $data_perusahaan=[];
+          $sql1 = "SELECT * FROM master_level_company";
+          $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
+          foreach($sql_level as $lvl){
+              $data_perusahaan[] = array(
+                  "v_id_filter" => $lvl->id,
+                  "v_filter_perusahaan" => $lvl->nama_level
+              );
+          }
+          
+          //data status karyawan
+          $data_status=[];
+          $sql1 = "SELECT * FROM master_status_pegawai";
+          $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
+          foreach($sql_level as $lvl){
+              $data_status[] = array(
+                  "v_id_status" => $lvl->msp_id,
+                  "v_status" => $lvl->msp_name2
+              );
+          }
+          
+          //count level company
+          $data_level=[];
+          $sql1 = "SELECT * FROM dashboard_company_level()";
+          $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
+          foreach($sql_level as $lvl){
+              $data_level[] = array(
+                  "v_id_level" => $lvl->v_id,
+                  "v_judul_level" => $lvl->v_judul,
+                  "v_jml_level" => $lvl->v_jml
+              );
+          }
+	        
+	        //count level company
+          $data_jml_company=[];
+          $sql1 = "SELECT * FROM vaksin_dashboard_perusahaan()";
+          $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
+          foreach($sql_level as $lvl){
+              $data_jml_company[] = array(
+                  "v_mc_id" => $lvl->v_mc_id,
+                  "v_mc_name" => $lvl->v_mc_name,
+                  "v_jml" => $lvl->v_jml
+              );
+          }
+          
+          return array(
+            'data' => $data, 
+            "filter_perusahaan" => $data_perusahaan,
+            "filter_status_pegawai" => $data_status,
+            "jumlah_level" => $data_level,
+            "get_count_company" => $data_jml_company
+          );
+        });
+
+          Cache::tags(['users'])->flush();
+          return response()->json(['status' => 200,'data' =>$datacache['data'], 'filter_perusahaan' => $datacache['filter_perusahaan'], 'filter_status_pegawai' => $datacache['filter_status_pegawai'], 'jumlah_level'=> $datacache['jumlah_level']]);  
 	}
 
 	public function getWeekList(){

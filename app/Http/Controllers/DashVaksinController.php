@@ -350,86 +350,204 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinMobileByJnsKelamin(Request $request) {
-	    if(isset($request->level)) {
+	    $query_level = ' ';
+	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	    }else{
-	        $level = 0;
+	        $query_level = ' AND mc.mc_level='.$level;
 	    }
 	    
+	    $query_msp = ' ';
+	    if(isset($request->stspegawai) && $request->stspegawai>0) {
+	        $msp = $request->stspegawai;
+	        $query_msp = ' AND tv.tv_msp_id='.$msp;
+	    }
+
 	    $data = array();
-	    $dash = DB::connection('pgsql_vaksin')->select("SELECT * FROM mobiledashvaksin_jnskelamin_bylevel($level)");
+	    $query = "SELECT mjk.mjk_id, mjk.mjk_name,
+			(SELECT COALESCE(COUNT(*)) 
+			FROM transaksi_vaksin tv 
+			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+			WHERE tv.is_lansia=0
+			AND mc.mc_flag=1
+			AND mc.mc_level IN (1,2,3)
+            $query_level
+            $query_msp
+			AND tv.tv_mjk_id = mjk.mjk_id
+			AND tv.tv_mjk_id IS NOT NULL) AS jml
+			FROM master_jenis_kelamin mjk
+			ORDER BY mjk.mjk_name;";
 	    
-	    foreach($dash as $dvp){
+	    $retdb = DB::connection('pgsql_vaksin')->select($query);
+	    foreach($retdb as $dvp){
 	        $data[] = array(
-	            "id" => $dvp->v_id,
-	            "judul" => $dvp->v_judul,
-	            "jml" => $dvp->v_jml
+	            "id" => $dvp->mjk_id,
+	            "judul" => $dvp->mjk_name,
+	            "jml" => $dvp->jml
 	        );
 	    }
-	    //});
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
 	
 	public function getDashVaksinMobileByStsPegawai(Request $request) {
-	    if(isset($request->level)) {
+	    $query_level = ' ';
+	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	    }else{
-	        $level = 0;
+	        $query_level = ' AND mc.mc_level='.$level;
+	    }
+	    
+	    $query_msp = ' ';
+	    if(isset($request->stspegawai) && $request->stspegawai>0) {
+	        $msp = $request->stspegawai;
+	        $query_msp = ' AND tv.tv_msp_id='.$msp;
 	    }
 	    
 	    $data = array();
-	    $dash = DB::connection('pgsql_vaksin')->select("SELECT * FROM mobiledashvaksin_stspegawai_bylevel($level)");
-	    
-	    foreach($dash as $dvp){
-	        $data[] = array(
-	            "id" => $dvp->v_id,
-	            "judul" => $dvp->v_judul,
-	            "jml" => $dvp->v_jml
-	        );
-	    }
-	    //});
-	    return response()->json(['status' => 200,'data' => $data]);
+	    $query = "SELECT msp.msp_id, msp.msp_name2,
+			(SELECT COALESCE(COUNT(*)) 
+			FROM transaksi_vaksin tv 
+			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+			WHERE tv.is_lansia=0
+			AND mc.mc_flag=1
+            AND mc.mc_level IN (1,2,3)
+            $query_level
+            $query_msp
+			AND msp.msp_id=tv.tv_msp_id
+			AND tv.tv_msp_id IS NOT NULL) AS jml
+			FROM master_status_pegawai msp
+			ORDER BY msp.msp_name2;";
+        
+        $retdb = DB::connection('pgsql_vaksin')->select($query);
+        foreach($retdb as $dvp){
+            $data[] = array(
+                "id" => $dvp->msp_id,
+                "judul" => $dvp->msp_name2,
+                "jml" => $dvp->jml
+            );
+        }
+        return response()->json(['status' => 200,'data' => $data]);
 	}
 	
 	public function getDashVaksinMobileByProvinsi(Request $request) {
-	    if(isset($request->level)) {
+	    $query_level = ' ';
+	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	    }else{
-	        $level = 0;
+	        $query_level = ' AND mc.mc_level='.$level;
+	    }
+	    
+	    $query_msp = ' ';
+	    if(isset($request->stspegawai) && $request->stspegawai>0) {
+	        $msp = $request->stspegawai;
+	        $query_msp = ' AND tv.tv_msp_id='.$msp;
 	    }
 	    
 	    $data = array();
-	    $dash = DB::connection('pgsql_vaksin')->select("SELECT * FROM mobiledashvaksin_provinsi_bylevel($level)");
-	    
-	    foreach($dash as $dvp){
-	        $data[] = array(
-	            "id" => $dvp->v_id,
-	            "judul" => $dvp->v_judul,
-	            "jml" => $dvp->v_jml
-	        );
-	    }
-	    //});
-	    return response()->json(['status' => 200,'data' => $data]);
+	    $query = "SELECT mu.mu_id, mu.mu_nama,
+			(SELECT COALESCE(COUNT(*)) 
+			FROM transaksi_vaksin tv 
+			INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+			WHERE tv.is_lansia=0
+			AND mc.mc_flag=1
+            AND mc.mc_level IN (1,2,3)
+            $query_level
+            $query_msp
+			AND mkab.mkab_id=tv.tv_mkab_id
+			AND tv.tv_mkab_id IS NOT NULL
+			AND mu.mu_awal <= tv.tv_usia
+			AND mu.mu_akhir >= tv.tv_usia) AS jml
+			FROM master_usia mu
+			ORDER BY mu.mu_id;";
+        
+        $retdb = DB::connection('pgsql_vaksin')->select($query);
+        foreach($retdb as $dvp){
+            $data[] = array(
+                "id" => $dvp->mpro_id,
+                "judul" => $dvp->mpro_name,
+                "jml" => $dvp->jml
+            );
+        }
+        return response()->json(['status' => 200,'data' => $data]);
 	}
 	
 	public function getDashVaksinMobileByUsia(Request $request) {
-	    if(isset($request->level)) {
+	    $query_level = ' ';
+	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	    }else{
-	        $level = 0;
+	        $query_level = ' AND mc.mc_level='.$level;
+	    }
+	    
+	    $query_msp = ' ';
+	    if(isset($request->stspegawai) && $request->stspegawai>0) {
+	        $msp = $request->stspegawai;
+	        $query_msp = ' AND tv.tv_msp_id='.$msp;
 	    }
 	    
 	    $data = array();
-	    $dash = DB::connection('pgsql_vaksin')->select("SELECT * FROM mobiledashvaksin_usia_bylevel($level)");
-	    
-	    foreach($dash as $dvp){
-	        $data[] = array(
-	            "id" => $dvp->v_id,
-	            "judul" => $dvp->v_judul,
-	            "jml" => $dvp->v_jml
-	        );
+	    $query = " SELECT mu.mu_id, mu.mu_nama,
+			(SELECT COALESCE(COUNT(*)) 
+			FROM transaksi_vaksin tv 
+			INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+			WHERE tv.is_lansia=0
+			AND mc.mc_flag=1
+            AND mc.mc_level IN (1,2,3)
+            $query_level
+            $query_msp
+			AND mkab.mkab_id=tv.tv_mkab_id
+			AND tv.tv_mkab_id IS NOT NULL
+			AND mu.mu_awal <= tv.tv_usia
+			AND mu.mu_akhir >= tv.tv_usia) AS jml
+			FROM master_usia mu
+			ORDER BY mu.mu_id;";
+            
+        $retdb = DB::connection('pgsql_vaksin')->select($query);
+        foreach($retdb as $dvp){
+            $data[] = array(
+                "id" => $dvp->mu_id,
+                "judul" => $dvp->mu_nama,
+                "jml" => $dvp->jml
+            );
+        }
+        return response()->json(['status' => 200,'data' => $data]);
+	}
+	
+	public function getDashVaksinMobileKabByProvinsi($id, Request $request) {
+	    $query_level = ' ';
+	    if(isset($request->level) && $request->level>0) {
+	        $level = $request->level;
+	        $query_level = ' AND mc.mc_level='.$level;
 	    }
-	    //});
-	    return response()->json(['status' => 200,'data' => $data]);
+	    
+	    $query_msp = ' ';
+	    if(isset($request->stspegawai) && $request->stspegawai>0) {
+	        $msp = $request->stspegawai;
+	        $query_msp = ' AND tv.tv_msp_id='.$msp;
+	    }
+	    
+	    $data = array();
+	    $query = "SELECT mkab.mkab_id, mkab.mkab_name,
+			(SELECT COALESCE(COUNT(*)) 
+			FROM transaksi_vaksin tv 
+			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+			WHERE tv.is_lansia=0
+			AND mc.mc_flag=1
+            AND mc.mc_level IN (1,2,3)
+		    $query_level
+            $query_msp
+			AND tv.tv_mkab_id IS NOT NULL
+			AND mkab.mkab_id=tv.tv_mkab_id) AS jml
+			FROM master_kabupaten mkab
+			WHERE mkab_mpro_id=$id
+			ORDER BY mkab.mkab_name;";
+        
+        $retdb = DB::connection('pgsql_vaksin')->select($query);
+        foreach($retdb as $dvp){
+            $data[] = array(
+                "id" => $dvp->mkab_id,
+                "judul" => $dvp->mkab_name,
+                "jml" => $dvp->jml
+            );
+        }
+        return response()->json(['status' => 200,'data' => $data]);
 	}
 }
