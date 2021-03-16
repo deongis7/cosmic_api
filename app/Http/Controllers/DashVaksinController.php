@@ -122,10 +122,10 @@ class DashVaksinController extends Controller
 	public function getDashVaksinLokasi1(){
 	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_lokasi1", 15 * 60, function() {
 	    $data = array();
-	    $dashkasus_lokasi1 = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_lokasi1()");
+	    $dashvaksin_lokasi1 = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_lokasi1()");
 	    //$dashkasus_kabupaten = DB::select("SELECT * FROM vaksin_dashboard_lokasi1()");
 	    
-	    foreach($dashkasus_lokasi1 as $dl1){
+	    foreach($dashvaksin_lokasi1 as $dl1){
 	        $data[] = array(
 	            "v_lokasi" => $dl1->v_lokasi,
 	            "v_jml" => $dl1->v_jml
@@ -138,10 +138,10 @@ class DashVaksinController extends Controller
 	public function getDashVaksinLokasi2(){
 	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_lokasi2", 15 * 60, function() {
 	    $data = array();
-	    $dashkasus_lokasi2 = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_lokasi2()");
+	    $dashvaksin_lokasi2 = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_lokasi2()");
 	    //$dashkasus_kabupaten = DB::select("SELECT * FROM vaksin_dashboard_lokasi2()");
 	    
-	    foreach($dashkasus_lokasi2 as $dl2){
+	    foreach($dashvaksin_lokasi2 as $dl2){
 	        $data[] = array(
 	            "v_lokasi" => $dl2->v_lokasi,
 	            "v_jml" => $dl2->v_jml
@@ -154,10 +154,10 @@ class DashVaksinController extends Controller
 	public function getDashVaksinLokasi3(){
 	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_lokasi3", 15 * 60, function() {
 	    $data = array();
-	    $dashkasus_lokasi3 = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_lokasi3()");
+	    $dashvaksin_lokasi3 = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_lokasi3()");
 	    //$dashkasus_kabupaten = DB::select("SELECT * FROM vaksin_dashboard_lokasi3()");
 	    
-	    foreach($dashkasus_lokasi3 as $dl3){
+	    foreach($dashvaksin_lokasi3 as $dl3){
 	        $data[] = array(
 	            "v_lokasi" => $dl3->v_lokasi,
 	            "v_jml" => $dl3->v_jml
@@ -319,5 +319,138 @@ class DashVaksinController extends Controller
         }
         return response()->json(['status' => 200, 'page_end'=> $endpage,
             'data' => $data]);
+	}
+	
+	public function getDataJmlPegawai(Request $request) {
+	    $vaksin = new Vaksin();
+	    $vaksin->setConnection('pgsql_vaksin');
+	    $vaksin = $vaksin->select(DB::raw("count(*) AS jml"))
+        ->join('master_company AS mc','mc.mc_id','tv_mc_id')
+        ->leftjoin('master_status_pegawai AS msp','msp.msp_id','tv_msp_id')
+        ->leftjoin('master_kabupaten AS mkab','mkab.mkab_id','tv_mkab_id')
+        ->leftjoin('master_provinsi AS mpro','mpro.mpro_id','mkab.mkab_mpro_id')
+        ->where('mc_flag', 1);
+        
+        if(isset($request->level)) {
+            $level = $request->level;
+            $vaksin = $vaksin->where('mc_level', $level);
+        }
+        
+        $vaksin = $vaksin->get();
+        if (count($vaksin) > 0){
+            foreach($vaksin as $vksn){
+                $data[] = array(
+                    "jumlah" => $vksn->jml
+                );
+            }
+            return response()->json(['status' => 200, 'data' => $data]);
+        }else{
+            return response()->json(['status' => 404, 'message' => 'Tidak ada data'])->setStatusCode(404);
+        }
+	}
+	
+	public function getDashVaksinMobileByJnsKelamin(Request $request) {
+	    if(isset($request->level)) {
+	        $level = $request->level;
+	    }else{
+	        $level = 0;
+	    }
+	    
+	    $data = array();
+	    $dash = DB::connection('pgsql_vaksin')->select("SELECT * FROM mobiledashvaksin_jnskelamin_bylevel($level)");
+	    
+	    foreach($dash as $dvp){
+	        $data[] = array(
+	            "id" => $dvp->v_id,
+	            "judul" => $dvp->v_judul,
+	            "jml" => $dvp->v_jml
+	        );
+	    }
+	    //});
+	    return response()->json(['status' => 200,'data' => $data]);
+	}
+	
+	public function getDashVaksinMobileByStsPegawai(Request $request) {
+	    if(isset($request->level)) {
+	        $level = $request->level;
+	    }else{
+	        $level = 0;
+	    }
+	    
+	    $data = array();
+	    $dash = DB::connection('pgsql_vaksin')->select("SELECT * FROM mobiledashvaksin_stspegawai_bylevel($level)");
+	    
+	    foreach($dash as $dvp){
+	        $data[] = array(
+	            "id" => $dvp->v_id,
+	            "judul" => $dvp->v_judul,
+	            "jml" => $dvp->v_jml
+	        );
+	    }
+	    //});
+	    return response()->json(['status' => 200,'data' => $data]);
+	}
+	
+	public function getDashVaksinMobileByProvinsi(Request $request) {
+	    if(isset($request->level)) {
+	        $level = $request->level;
+	    }else{
+	        $level = 0;
+	    }
+	    
+	    $data = array();
+	    $dash = DB::connection('pgsql_vaksin')->select("SELECT * FROM mobiledashvaksin_provinsi_bylevel($level)");
+	    
+	    foreach($dash as $dvp){
+	        $data[] = array(
+	            "id" => $dvp->v_id,
+	            "judul" => $dvp->v_judul,
+	            "jml" => $dvp->v_jml
+	        );
+	    }
+	    //});
+	    return response()->json(['status' => 200,'data' => $data]);
+	}
+	
+	public function getDashVaksinMobileByUsia(Request $request) {
+	    if(isset($request->level)) {
+	        $level = $request->level;
+	    }else{
+	        $level = 0;
+	    }
+	    
+	    $data = array();
+	    $dash = DB::connection('pgsql_vaksin')->select("SELECT * FROM mobiledashvaksin_usia_bylevel($level)");
+	    
+	    foreach($dash as $dvp){
+	        $data[] = array(
+	            "id" => $dvp->v_id,
+	            "judul" => $dvp->v_judul,
+	            "jml" => $dvp->v_jml
+	        );
+	    }
+	    //});
+	    return response()->json(['status' => 200,'data' => $data]);
+	}
+	
+	public function getDashVaksinMobileKabByProvinsi($id, Request $request) {
+	    if(isset($request->level)) {
+	        $level = $request->level;
+	    }else{
+	        $level = 0;
+	    }
+	    
+	    $data = array();
+	    $dash = DB::connection('pgsql_vaksin')->select("SELECT * FROM mobiledashvaksin_kabupaten_bylevelmproid($level,$id)");
+	    
+	    foreach($dash as $dvp){
+	        $data[] = array(
+	            "id" => $dvp->v_id,
+	            "judul" => $dvp->v_judul,
+	            "jml" => $dvp->v_jml
+	        );
+	    }
+	    //});
+	    return response()->json(['status' => 200,'data' => $data]);
 	}
 }

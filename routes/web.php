@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return $fapp->version();
 });
 $router->get('/version', function () use ($router) {
     return  response()->json(['app' => env('APP_NAME', '1.0'),'version' => env('APP_VERSION', '1.0')]);;
@@ -48,7 +48,7 @@ $router->get('/storage/{jenis}/{kd_perusahaan}/id-{id}/{filename}', function ($j
     return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/'.$id.'/'. $filename))->response();
 });
 
-$router->group(['prefix' => 'api/v1'], function () use ($router) {
+$router->group(['prefix' => 'api/v1s'], function () use ($router) {
 	//Perimeter
 	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
@@ -142,7 +142,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//PIC
 	$router->post('/monitoring', 'PICController@updateDailyMonitoring');
 	$router->post('/monitoring/file','PICController@updateMonitoringFile');
-	$router->post('/validasi_monitoring', 'PICController@validasiMonitoring');
+	$router->post('/validasi_monitoring', 'UserController@validasiMonitoring');
 	$router->get('/monitoring/{nik}/{id_perimeter_cluster}', 'PICController@getAktifitasbyCluster');
 	$router->get('/monitoring/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeter');
 	$router->get('/monitoring_detail/{id_aktifitas}', 'PICController@getMonitoringDetail');
@@ -251,6 +251,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/vaksin/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcid');
 	$router->get('/vaksin/vaksin_deletebyid/{id}', 'VaksinController@deleteVaksin');
 
+	$router->get('/mobiledashvaksin/jmlpegawai', 'DashVaksinController@getDataJmlPegawai');
+	$router->get('/mobiledashvaksin/groupbyjnskelamin', 'DashVaksinController@getDashVaksinMobileByJnsKelamin');
+	$router->get('/mobiledashvaksin/groupbystspegawai', 'DashVaksinController@getDashVaksinMobileByStsPegawai');
+	$router->get('/mobiledashvaksin/groupbyprovinsi', 'DashVaksinController@getDashVaksinMobileByProvinsi');
+	$router->get('/mobiledashvaksin/groupbyusia', 'DashVaksinController@getDashVaksinMobileByUsia');
+	$router->get('/mobiledashvaksin/groupbykabupaten/{id}', 'DashVaksinController@getDashVaksinMobileKabByProvinsi');
+	
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
 
@@ -289,12 +296,14 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->post('/user/reset_password', 'UserController@postResetPassword');
     $router->post('/user/cek_user', 'UserController@postCekUser');
 
-
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
 
     Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
+    Route::post('/user/sendfirebase/{id}', 'UserController@sendFirebase');
 
+    Route::get('/get_token', 'UserController@get_token');
+    Route::get('/notif_pic/{nik}', 'UserController@getNotifpic');
 
 	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
@@ -318,6 +327,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::get('/vaksinwlb/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcidWLB');
 		Route::get('/vaksinwlb/vaksin', 'VaksinController@getDataAllWLB');
 		
+		Route::get('/vaksinkemenkes/vaksin', 'VaksinController@getDataAllKEMENKES');
+		Route::get('/vaksinkemenkes/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcidKEMENKES');
+		Route::get('/vaksinkemenkes/vaksin_bynik/{id}', 'VaksinController@getDataByNIKKEMENKES');
+		
 		Route::get('/monitoringbumn/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeterBUMN');
+		Route::get('/list_perimeterbumn/{kd_perusahaan}', 'PerimeterListController@getPerimeterListBUMN');
+		Route::get('/taskforcebumn/{id}', 'PerimeterController@getTaskForceBUMN');
+		
 	});
 });

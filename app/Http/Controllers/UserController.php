@@ -3,10 +3,19 @@
 namespace App\Http\Controllers;
 
 
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client;
+
+use \Firebase\JWT\JWT;
 
 use App\TrnAktifitasFile;
 use App\User;
 use App\UserGroup;
+
+use App\TrnAktifitas;
+use App\KonfigurasiCAR;
 use App\Helpers\AppHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -330,6 +339,224 @@ class UserController extends Controller
           return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
       }
 
+
+    }
+
+    public function sendFirebase(Request $request, $id){
+    	
+    	$this->validate($request, [
+            'body' => 'required',
+        ]);
+        
+    	$token = "AAAAIOJgA7s:APA91bGsiFlggeNexu_qv7QdxyEKeudNqJatbkZaMkMjI9dKJHjPDcQQdXOeCmlGiDsepZ2HkuLCFxzU6DiYMxn-2ZoueHFnGNTXlwY4krhF9HZ207WocMTamycUzk_vMQsz6wlLvasW";
+    	$headers = [
+            'Authorization' => 'Key=' . $token,
+            'Accept'        => 'application/json',
+            'Content-Type' => 'application/json'
+        ];
+
+        /*{
+			 "to" : "YOUR_FCM_TOKEN_WILL_BE_HERE",
+			 "collapse_key" : "type_a",
+			 "notification" : {
+			     "body" : "Body of Your Notification",
+			     "title": "Title of Your Notification"
+			 },
+			 "data" : {
+			     "body" : "Body of Your Notification in Data",
+			     "title": "Title of Your Notification in Title",
+			     "key_1" : "Value for key_1",
+			     "key_2" : "Value for key_2"
+			 }
+			}*/
+
+   		$token_device = "testtoken";
+        $data_param = [
+        	"to" => $token_device,
+            "notification" => [
+                  "body" => $request->body,
+                  "title" =>  $request->title
+              ]
+          ];
+
+        $header_params = json_encode($data_param);
+        // print_r($header_params);
+        $client    = new Client();
+        $request = $client->request('POST', 'https://fcm.googleapis.com/fcm/send', [
+                  'headers' => $headers,
+                  'body' => $header_params
+            ]);
+
+        $response = $request->getBody()->getContents();
+        $result   = json_decode($response, true);
+        return response()->json(['status' => 200,'data' => $result]);
+        
+    }
+
+     public function get_token(){
+    	$key = "AAAAIOJgA7s:APA91bGsiFlggeNexu_qv7QdxyEKeudNqJatbkZaMkMjI9dKJHjPDcQQdXOeCmlGiDsepZ2HkuLCFxzU6DiYMxn-2ZoueHFnGNTXlwY4krhF9HZ207WocMTamycUzk_vMQsz6wlLvasW";
+
+
+
+    	$privateKey = "d79fb75acdb1d1650745699a252993e34745aa6c";
+
+		$publicKey = "<<<EOD
+		-----BEGIN PUBLIC KEY-----
+		MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC8kGa1pSjbSYZVebtTRBLxBz5H
+		4i2p/llLCrEeQhta5kaQu/RnvuER4W8oDH3+3iuIYW4VQAzyqFpwuzjkDI+17t5t
+		0tyazyZ8JXw+KgXTxldMPEL95+qVhgXvwtihXC1c5oGbRlEDvDF6Sa53rcFVsYJ4
+		ehde/zUxo6UvS7UrBQIDAQAB
+		-----END PUBLIC KEY-----
+		EOD";
+
+
+		$payload = array(
+		    "iss" => "https://securetoken.google.com/cosmic-a2227",
+		    "aud" => "firebase-adminsdk-vepka@cosmic-a2227.iam.gserviceaccount.com",
+		    "iat" => 1356999524,
+		    "nbf" => 1357000000
+		);
+
+		$jwt = JWT::encode($payload, $key);
+		$decoded = JWT::decode($jwt, $key, array('HS256'));
+		echo $jwt;
+
+		// $jwt = JWT::encode($payload, $privateKey, 'RS256');
+		// echo "Encode:\n" . print_r($jwt, true) . "\n";
+
+
+    }
+
+    //Get Notif PIC
+    function getNotifpic($nik){
+        /*$token = "fYXTze1sRPyDDyUZwurszk:APA91bFwCJtFF0tyT2BSfG0UGgal8pCrgRtQyEsrcegBf_HB_BeoVreUG0iLNeMhWGH3_p-bXA1xpLjRIS8b0XueHMpW15WTwS1jtxz7mZbMmIJzoPZDYgC-5OsWaqrsdyiPW5rcSDgi";
+        $body = "tbody";
+        $title = "ttitle";
+
+        $weeks = AppHelper::sendFirebase($token, $body, $title);
+        print_r($weeks);die;*/
+        // return response()->json(['status' => 200,'data' => $nik]);
+        $data = array();
+
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+        //get token
+        $user= new User();
+        $user->setConnection('pgsql2');
+        $user = $user->whereRaw("trim(lower(username))='". trim(strtolower($nik))."'")->first();
+        $token="";
+        if($user != null){
+            $token = $user->token;
+        }else{
+            return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
+        }
+
+        $notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , coalesce(tbpc_status,0)tbpc_status
+        from transaksi_aktifitas ta
+        join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+        join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+        join master_car mcar on mcar.mcar_id = kcar_mcar_id
+        join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id
+        join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+        join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id
+        left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
+        left join app_users au on au.username = mpl.mpml_me_nik
+        left join table_perimeter_closed tpc on tpc.tbpc_mpml_id = tpd.tpmd_mpml_id
+        where tsp.tbsp_status = 1 and mpl.mpml_pic_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
+        order by ta_date_update asc", [$nik,$startdate,$enddate]);
+
+
+        foreach($notif as $itemnotif){
+        //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
+            $data[] = array(
+                "id_perimeter_level" => $itemnotif->mpml_id,
+                "id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
+                "id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
+                "perimeter" => $itemnotif->mpm_name,
+                "level" => $itemnotif->mpml_name,
+                "cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
+                "aktifitas" => $itemnotif->mcar_name,
+                "id_aktifitas" => $itemnotif->ta_id,
+                "status" => $itemnotif->tbpc_status,
+                "fo_name" => $itemnotif->first_name,
+                "file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)
+            );
+        }
+        return response()->json(['status' => 200,'data' => $data]);
+    
+    }
+
+    //Get File Tolak
+    private function getFile($id_aktifitas,$id_perusahaan){
+        $data =[];
+        if ($id_aktifitas != null){
+        $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
+                        ->where("ta_status", "=", "2")
+                        ->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
+
+            foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){
+
+                $data[] = array(
+                        "id_file" => $itemtransaksi_aktifitas_file->taf_id,
+                        "file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
+                        "file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
+                    );
+            }
+        }
+        return $data;
+    }
+
+    //Validasi
+    public function validasiMonitoring(Request $request){
+        $this->validate($request, [
+            'id_perimeter_cluster' => 'required',
+            'id_konfig_cluster_aktifitas' => 'required',
+            'status' => 'required',
+        ]);
+
+        $id_perimeter_cluster = $request->id_perimeter_cluster;
+        $id_konfig_cluster_aktifitas = $request->id_konfig_cluster_aktifitas;
+        $weeks = AppHelper::Weeks();
+        // dd($weeks['weeks']);
+
+        $trn_aktifitas= TrnAktifitas::where('ta_tpmd_id',$id_perimeter_cluster)
+                                    ->where('ta_kcar_id',$id_konfig_cluster_aktifitas)
+                                    ->where('ta_week',$weeks['weeks'])->first();
+        if($trn_aktifitas != null){
+            $trn_aktifitas->ta_status = $request->status;
+            if($request->status==2){
+                $trn_aktifitas->ta_ket_tolak = $request->keterangan;
+            }
+
+            if($trn_aktifitas->save()) {
+
+                //get data perimeter
+                $get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token from transaksi_aktifitas ta
+                join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+                join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+                join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+                join app_users au on au.username = mpl.mpml_me_nik 
+                where tpd.tpmd_id = ?
+                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token ", [$id_perimeter_cluster]);
+                //dd($get_perimeter[0]->mpml_name);
+
+
+                //lempar ke helper firebase
+                $token = $get_perimeter[0]->token;
+                $body = $get_perimeter[0]->mpml_name."<br /> Field Officer : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_me_nik;
+                $title = $get_perimeter[0]->mcr_name;
+                $role="FO";
+                $weeks = AppHelper::sendFirebase($token, $body, $title, $role);
+
+                return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+            } else {
+                return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+            }
+        } else {
+            return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+        }
 
     }
 }

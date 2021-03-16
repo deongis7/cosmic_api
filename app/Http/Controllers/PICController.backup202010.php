@@ -12,6 +12,7 @@ use App\TblPerimeterDetail;
 use App\TrnAktifitas;
 use App\TrnAktifitasFile;
 use App\KonfigurasiCAR;
+use App\PerimeterLevelFile;
 
 use App\User;
 use App\UserGroup;
@@ -93,8 +94,8 @@ class PICController extends Controller
 
         //$destinationPath = base_path("storage\app\public\aktifitas/").$kd_perusahaan.'/'.$tanggal;
 		$destinationPath = storage_path().'/app/public/aktifitas/' .$kd_perusahaan.'/'.$tanggal;
-		$name1 = round(microtime(true) * 1000).'.jpg';
-        $name2 = round(microtime(true) * 1000).'_tumb.jpg';
+		$name1 = round(microtime(true) * 1000).'.jpeg';
+        $name2 = round(microtime(true) * 1000).'_tumb.jpeg';
 
         if ($file != null || $file != '') {
             $img1 = explode(',', $file);
@@ -102,12 +103,12 @@ class PICController extends Controller
             $filedecode1 = base64_decode($image1);
 
 
-            Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
+            /*Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1);
 			Image::make($filedecode1)->resize(50, NULL, function ($constraint) {
                 $constraint->aspectRatio();
-            })->save($destinationPath.'/'.$name2);
+            })->save($destinationPath.'/'.$name2);*/
         }
 
 		$trn_aktifitas= TrnAktifitas::updateOrCreate(
@@ -573,7 +574,7 @@ class PICController extends Controller
 
 	//Get Cluster per Perimeter Level
 	public function getClusterbyPerimeter($id,$nik){
-    $datacache =Cache::remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 3 * 60, function()use($id,$nik) {
+   /* $datacache =Cache::remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 3 * 60, function()use($id,$nik) {*/
 
   		$user = User::where('username',$nik)->first();
       $total_monitoring = 0;
@@ -610,7 +611,7 @@ class PICController extends Controller
   						"id_cluster" => $itemperimeter->mcr_id,
   						"cluster_ruangan" => (($itemperimeter->tpmd_order > 1)? ($itemperimeter->mcr_name.' - '.$itemperimeter->tpmd_order) :$itemperimeter->mcr_name),
   						"order" => $itemperimeter->tpmd_order,
-              "status_konfirmasi" => $status['status_konfirmasi'],
+              			"status_konfirmasi" => $status['status_konfirmasi'],
   						"status" => $status['status'],
   						"last_update" => $status['last_date'],
   						"aktifitas" => null,
@@ -619,13 +620,38 @@ class PICController extends Controller
             $dataprogress = array("total_monitor"=> $total_monitoring,
                     "sudah_dimonitor"=> $jml_monitoring,
                     "belum_dimonitor"=> $total_monitoring - $jml_monitoring );
-  			}
+  			
+
+	  			if($status['status_konfirmasi']!="0"){
+	  				//dd('test');
+	            	//Lempar ke firebase
+	  				//get data perimeter
+					$get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token from transaksi_aktifitas ta
+	                join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+	                join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+	                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+	                join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+	                join app_users au on au.username = mpl.mpml_pic_nik 
+	                where tpd.tpmd_id = ? and ta.ta_status = 1
+	                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token ", [$itemperimeter->tpmd_id]);
+	        		// dd($get_perimeter[0]->mpml_pic_nik);
+
+
+					//lempar ke helper firebase
+		                $token = $get_perimeter[0]->token;
+		                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
+		                $title = $get_perimeter[0]->mcr_name;
+		                $role="PIC";
+		                $weeks = AppHelper::sendFirebase($token, $body, $title,$role);
+	                // print_r($weeks);die;
+	            }
+        }
   			return array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
   		} else {
   			return  array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
   		}
-    });
-    return response()->json($datacache);
+    //});
+    // return response()->json($datacache);
 	}
 
 	//Get Cluster per Perimeter Level
@@ -796,5 +822,30 @@ class PICController extends Controller
 		return response()->json(['status' => 200,'data' => $data]);
 	}
 
-    //
+    //Get File ID
+	  public function getFilePerimeterLevelByPerimeterLevel($id_perimeter_level){
+	    $data =[];
+	    if ($id_perimeter_level != null){
+
+	    $perimeter_level_file = PerimeterLevelFile::select('master_perimeter_level_file.mpmlf_id','master_perimeter.mpm_mc_id','master_perimeter_level_file.mpmlf_file','master_perimeter_level_file.mpmlf_file_tumb')
+	          ->join('master_perimeter_level','master_perimeter_level.mpml_id','master_perimeter_level_file.mpmlf_mpml_id')
+	          ->join('master_perimeter','master_perimeter.mpm_id','master_perimeter_level.mpml_mpm_id')
+	          ->where('master_perimeter_level.mpml_id',$id_perimeter_level)
+	          ->orderBy('mpmlf_id','desc')
+	          ->limit(3)
+	          ->get();
+
+	      if ($perimeter_level_file->count() >0){
+	        foreach($perimeter_level_file as $plf){
+	          $data[] = array(
+	            "id_file" => $plf->mpmlf_id,
+	            "file" => "/perimeter_level/".$plf->mpm_mc_id."/".$plf->mpmlf_file,
+	            "file_tumb" => "/perimeter_level/".$plf->mpm_mc_id."/".$plf->mpmlf_file_tumb,
+	            );
+	        }
+
+	      }
+	    }
+	    return response()->json(['status' => 200,'data' => $data]);
+	  }
 }
