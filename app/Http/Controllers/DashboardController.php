@@ -519,8 +519,7 @@ class DashboardController extends Controller
 	                "v_link" => $dh->x_link
 	            );
 	        }
-	        // return $data;
-
+	        
           //data filter perusahaan
           $data_perusahaan=[];
           $sql1 = "SELECT * FROM master_level_company";
@@ -531,8 +530,7 @@ class DashboardController extends Controller
                   "v_filter_perusahaan" => $lvl->nama_level
               );
           }
-          // return $data_perusahaan;
-
+          
           //data status karyawan
           $data_status=[];
           $sql1 = "SELECT * FROM master_status_pegawai";
@@ -543,8 +541,7 @@ class DashboardController extends Controller
                   "v_status" => $lvl->msp_name2
               );
           }
-          // return $data_status;
-
+          
           //count level company
           $data_level=[];
           $sql1 = "SELECT * FROM dashboard_company_level()";
@@ -556,8 +553,7 @@ class DashboardController extends Controller
                   "v_jml_level" => $lvl->v_jml
               );
           }
-	         // return $data_level;
-
+	        
 	        return array(
             'data' => $data, 
             "filter_perusahaan" => $data_perusahaan,
@@ -565,8 +561,30 @@ class DashboardController extends Controller
             "jumlah_level" => $data_level
           );
         });
+
+          //count level company
+          $data_jml_company=[];
+          $sql1 = "SELECT * FROM vaksin_dashboard_perusahaan()";
+          $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
+          foreach($sql_level as $lvl){
+              $data_jml_company[] = array(
+                  "v_mc_id" => $lvl->v_mc_id,
+                  "v_mc_name" => $lvl->v_mc_name,
+                  "v_jml" => $lvl->v_jml
+              );
+          }
+          
+          return array(
+            'data' => $data, 
+            "filter_perusahaan" => $data_perusahaan,
+            "filter_status_pegawai" => $data_status,
+            "jumlah_level" => $data_level,
+            "get_count_company" => $data_jml_company
+          );
+        });
+
           Cache::tags(['users'])->flush();
-          return response()->json(['status' => 200,'data' =>$datacache['data'], 'filter_perusahaan' => $datacache['filter_perusahaan'], 'filter_status_pegawai' => $datacache['filter_status_pegawai'], 'jumlah_level'=> $datacache['jumlah_level']]);  
+          return response()->json(['status' => 200,'data' =>$datacache['data'], 'filter_perusahaan' => $datacache['filter_perusahaan'], 'filter_status_pegawai' => $datacache['filter_status_pegawai'], 'jumlah_level'=> $datacache['jumlah_level'], 'get_count_company' => $datacache['get_count_company']]);  
 	}
 
 	public function getWeekList(){
