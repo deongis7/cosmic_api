@@ -519,7 +519,7 @@ class DashboardController extends Controller
 	                "v_link" => $dh->x_link
 	            );
 	        }
-	        return $data;
+	        // return $data;
 
           //data filter perusahaan
           $data_perusahaan=[];
