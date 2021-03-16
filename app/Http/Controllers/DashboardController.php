@@ -496,7 +496,7 @@ class DashboardController extends Controller
           $group_company = $request->group_company;
           $string = $string ."_group_company_".$group_company;
         }
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 0 * 60, function() use ($group_company){
+	     $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 0 * 60, function() use ($group_company){
 	        $data = array();
           if(isset($group_company)){
             if($group_company==2){
@@ -519,8 +519,53 @@ class DashboardController extends Controller
 	            );
 	        }
 	        return $data;
-	    });
-	        return response()->json(['status' => 200,'data' => $datacache]);
+
+          //data filter perusahaan
+          $data_perusahaan=[];
+          $sql1 = "SELECT * FROM master_level_company";
+          $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
+          foreach($sql_level as $lvl){
+              $data_perusahaan[] = array(
+                  "v_id_filter" => $lvl->id,
+                  "v_filter_perusahaan" => $lvl->nama_level
+              );
+          }
+          return $data_perusahaan;
+
+          //data status karyawan
+          $data_status=[];
+          $sql1 = "SELECT * FROM master_status_pegawai";
+          $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
+          foreach($sql_level as $lvl){
+              $data_status[] = array(
+                  "v_id_status" => $lvl->msp_id,
+                  "v_status" => $lvl->msp_name2
+              );
+          }
+          return $data_status;
+
+          //count level company
+          $data_level=[];
+          $sql1 = "SELECT * FROM dashboard_company_level()";
+          $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
+          foreach($sql_level as $lvl){
+              $data_level[] = array(
+                  "v_id_level" => $lvl->v_id,
+                  "v_judul_level" => $lvl->v_judul,
+                  "v_jml_level" => $lvl->v_jml
+              );
+          }
+	         return $data_level;
+           
+	        /*return response()->json([
+            'status' => 200,
+            'data' => $data, 
+            "filter_perusahaan" => $data_perusahaan,
+            "filter_status_pegawai" => $data_status,
+            "jumlah_level" => $data_level
+          ]);*/
+        });
+          return response()->json(['status' => 200,'data' => $datacache]);  
 	}
 
 	public function getWeekList(){
