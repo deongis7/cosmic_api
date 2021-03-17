@@ -26,7 +26,7 @@ use Auth;
 use Validator;
 use DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Cache;
+
 use Intervention\Image\ImageManagerStatic as Image;
 
 class UserController extends Controller
@@ -436,58 +436,55 @@ class UserController extends Controller
         $weeks = AppHelper::sendFirebase($token, $body, $title);
         print_r($weeks);die;*/
         // return response()->json(['status' => 200,'data' => $nik]);
-        $string = $nik."1";
+        $data = array();
 
-            $data = array();
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+        //get token
+        $user= new User();
+        $user->setConnection('pgsql2');
+        $user = $user->whereRaw("trim(lower(username))='". trim(strtolower($nik))."'")->first();
+        $token="";
+        if($user != null){
+            $token = $user->token;
+        }else{
+            return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
+        }
 
-            $weeks = AppHelper::Weeks();
-            $startdate = $weeks['startweek'];
-            $enddate = $weeks['endweek'];
-            //get token
-            $user= new User();
-            $user->setConnection('pgsql2');
-            $user = $user->whereRaw("trim(lower(username))='". trim(strtolower($nik))."'")->first();
-            $token="";
-            if($user != null){
-                $token = $user->token;
-            }else{
-                return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
-            }
+        $notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , coalesce(tbpc_status,0)tbpc_status
+        from transaksi_aktifitas ta
+        join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+        join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+        join master_car mcar on mcar.mcar_id = kcar_mcar_id
+        join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id
+        join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+        join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id
+        left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
+        left join app_users au on au.username = mpl.mpml_me_nik
+        left join table_perimeter_closed tpc on tpc.tbpc_mpml_id = tpd.tpmd_mpml_id
+        where tsp.tbsp_status = 1 and mpl.mpml_pic_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
+        order by ta_date_update asc", [$nik,$startdate,$enddate]);
 
-            $notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , coalesce(tbpc_status,0)tbpc_status
-            from transaksi_aktifitas ta
-            join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-            join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
-            join master_car mcar on mcar.mcar_id = kcar_mcar_id
-            join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id
-            join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
-            join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id
-            left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
-            left join app_users au on au.username = mpl.mpml_me_nik
-            left join table_perimeter_closed tpc on tpc.tbpc_mpml_id = tpd.tpmd_mpml_id
-            where ta.ta_status = 1 and mpl.mpml_pic_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
-            order by ta_date_update asc", [$nik,$startdate,$enddate]);
 
-        
-
-            foreach($notif as $itemnotif){
-            //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
-                $data[] = array(
-                    "id_perimeter_level" => $itemnotif->mpml_id,
-                    "id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
-                    "id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
-                    "perimeter" => $itemnotif->mpm_name,
-                    "level" => $itemnotif->mpml_name,
-                    "cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
-                    "aktifitas" => $itemnotif->mcar_name,
-                    "id_aktifitas" => $itemnotif->ta_id,
-                    "status" => $itemnotif->tbpc_status,
-                    "fo_name" => $itemnotif->first_name,
-                    "file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)
-                );
-            }
-                // return $data; 
+        foreach($notif as $itemnotif){
+        //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
+            $data[] = array(
+                "id_perimeter_level" => $itemnotif->mpml_id,
+                "id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
+                "id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
+                "perimeter" => $itemnotif->mpm_name,
+                "level" => $itemnotif->mpml_name,
+                "cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
+                "aktifitas" => $itemnotif->mcar_name,
+                "id_aktifitas" => $itemnotif->ta_id,
+                "status" => $itemnotif->tbpc_status,
+                "fo_name" => $itemnotif->first_name,
+                "file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)
+            );
+        }
         return response()->json(['status' => 200,'data' => $data]);
+    
     }
 
     //Get File Tolak
