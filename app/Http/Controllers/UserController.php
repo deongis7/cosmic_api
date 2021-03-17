@@ -436,8 +436,8 @@ class UserController extends Controller
         $weeks = AppHelper::sendFirebase($token, $body, $title);
         print_r($weeks);die;*/
         // return response()->json(['status' => 200,'data' => $nik]);
-        $string = $nik;
-        
+        $string = $nik."1";
+
         $datacache = Cache::tags(['notification'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
             $data = array();
 
