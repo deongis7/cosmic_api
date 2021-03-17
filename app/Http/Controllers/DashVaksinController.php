@@ -135,10 +135,7 @@ class DashVaksinController extends Controller
 
 	
 	public function getDashVaksinPegawaiFilter($mc_id, $nama){
-		$this->validate($request, [
-            'mc_id' => 'required'
-        ]);
-        $filter_nama = $nama;
+		$filter_nama = $nama;
 		$filter_mc_id = $mc_id;
         $string = "_get_dashvaksin_pegawai".$filter_mc_id;
         $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () use($filter_nama, $filter_mc_id) {
