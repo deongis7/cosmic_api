@@ -437,8 +437,7 @@ class UserController extends Controller
         print_r($weeks);die;*/
         // return response()->json(['status' => 200,'data' => $nik]);
         $string = time();
-        $datacache = Cache::tags(['notification'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
-            $data = array();
+        
 
             $weeks = AppHelper::Weeks();
             $startdate = $weeks['startweek'];
@@ -453,6 +452,8 @@ class UserController extends Controller
             }else{
                 return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
             }
+            $datacache = Cache::tags(['notification'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
+            $data = array();
 
             $notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , coalesce(tbpc_status,0)tbpc_status
             from transaksi_aktifitas ta
