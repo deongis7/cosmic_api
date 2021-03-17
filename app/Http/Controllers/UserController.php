@@ -26,7 +26,7 @@ use Auth;
 use Validator;
 use DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Cache;
+// use Illuminate\Support\Facades\Cache;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class UserController extends Controller
