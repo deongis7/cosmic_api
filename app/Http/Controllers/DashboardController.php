@@ -555,7 +555,7 @@ class DashboardController extends Controller
           }
 	        
 	        //count level company
-          $data_jml_company=[];
+          /*$data_jml_company=[];
           $sql1 = "SELECT * FROM vaksin_dashboard_perusahaan()";
           $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
           foreach($sql_level as $lvl){
@@ -564,6 +564,20 @@ class DashboardController extends Controller
                   "v_mc_name" => $lvl->v_mc_name,
                   "v_jml" => $lvl->v_jml
               );
+          }*/
+
+          //count level company
+          $data_jml_company=[];
+          $sql1 = "SELECT * FROM vaksin_dashboard()";
+          $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
+          foreach($sql_level as $lvl){
+            if($lvl->v_id==0 || $lvl->v_id==4){
+
+              $data_jml_company[] = array(
+                  "v_judul" => $lvl->v_judul,
+                  "v_jml" => $lvl->v_jml
+              );
+            }
           }
           
           return array(
@@ -576,7 +590,7 @@ class DashboardController extends Controller
         });
 
           Cache::tags(['users'])->flush();
-          return response()->json(['status' => 200,'data' =>$datacache['data'], 'filter_perusahaan' => $datacache['filter_perusahaan'], 'filter_status_pegawai' => $datacache['filter_status_pegawai'], 'jumlah_level'=> $datacache['jumlah_level']]);  
+          return response()->json(['status' => 200,'data' =>$datacache['data'], 'filter_perusahaan' => $datacache['filter_perusahaan'], 'filter_status_pegawai' => $datacache['filter_status_pegawai'], 'jumlah_level'=> $datacache['jumlah_level'], 'get_count_company'=> $datacache['get_count_company']]);  
 	}
 
 	public function getWeekList(){
