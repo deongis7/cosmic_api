@@ -694,7 +694,7 @@ class PerimeterReportController extends Controller
               }
               $sql =  $sql. " group by rhw.rhw_mc_id";
               //dd($sql);
-              $perimeter = DB::connection('pgsql2')->select($sql, $param);
+              $perimeter = DB::connection('pgsql')->select($sql, $param);
               //dd($perimeter);
               foreach ($perimeter as $itemperimeter) {
                 $totalperimeter = $itemperimeter->total;
@@ -702,7 +702,7 @@ class PerimeterReportController extends Controller
               }
             } else {
               $perimeter = new Perimeter;
-              $perimeter->setConnection('pgsql2');
+              $perimeter->setConnection('pgsql');
               $perimeter = $perimeter->select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id')
                   ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
                   ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
@@ -723,7 +723,7 @@ class PerimeterReportController extends Controller
 
               foreach ($perimeter as $itemperimeter) {
                 $cluster = new TblPerimeterDetail;
-                $cluster->setConnection('pgsql2');
+                $cluster->setConnection('pgsql');
                   $cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
                   $status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
 
