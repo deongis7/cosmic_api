@@ -480,7 +480,7 @@ class UserController extends Controller
                 "id_aktifitas" => $itemnotif->ta_id,
                 "status" => $itemnotif->tbpc_status,
                 "fo_name" => $itemnotif->first_name,
-                "file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)
+                //"file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)
             );
         }
         return response()->json(['status' => 200,'data' => $data]);
