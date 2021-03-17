@@ -86,6 +86,51 @@ class DashVaksinController extends Controller
 	    //});
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
+
+	public function getDashVaksinPerusahaanFilter(Request $request){
+		$filter_perusahaan = $request->status_perusahaan;
+		$filter_pegawai = $request->status_pegawai;
+
+		$w1 = " WHERE mc_level IN (1,2,3)";
+		if(!empty($filter_perusahaan)){
+			$w1 = "WHERE mc_level = '$filter_perusahaan'";
+		}
+
+		$w2 = " ";
+		if(!empty($filter_pegawai)){
+			$w2 = " AND tv.tv_msp_id = '$filter_pegawai'";
+		}
+
+	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_perusahaan", 15 * 60, function() {
+	    $data = array();
+	    $dashkasus_perusahaan = DB::connection('pgsql_vaksin')->select("SELECT mc_id, mc_name, 
+				
+				(SELECT COUNT(*) 
+				FROM transaksi_vaksin tv
+				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+				--INNER JOIN master_sektor ms ON ms.ms_id=mc.mc_msc_id
+				WHERE 
+				--WHERE mc.mc_level IN (0,1,2,3,9) 
+				--AND ms.ms_type = 'CCOVID'
+				tv.tv_mc_id=mc.mc_id
+				$w2
+				AND is_lansia=0
+				AND mc.mc_id=mc1.mc_id) jml
+				FROM master_company mc1
+				$w1
+				ORDER BY mc_name ");
+	    //$dashkasus_perusahaan = DB::select("SELECT * FROM vaksin_dashboard_perusahaan()");
+	    
+	    foreach($dashkasus_perusahaan as $dvp){
+    	        $data[] = array(
+    	            "v_mc_id" => $dvp->mc_id,
+    	            "v_mc_name" => $dvp->mc_name,
+    	            "v_jml" => $dvp->jml
+    	        );
+    	    }
+	    //});
+	    return response()->json(['status' => 200,'data' => $data]);
+	}
 	
 	public function getDashVaksinProvinsi(){
 	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_provinsi", 15 * 60, function() {
