@@ -134,7 +134,7 @@ class DashVaksinController extends Controller
 	}
 
 	
-	public function getDashVaksinPegawaiFilter($nama, $mc_id){
+	public function getDashVaksinPegawaiFilter($mc_id, $nama){
 		$this->validate($request, [
             'mc_id' => 'required'
         ]);
