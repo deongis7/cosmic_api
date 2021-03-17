@@ -438,7 +438,7 @@ class UserController extends Controller
         // return response()->json(['status' => 200,'data' => $nik]);
         $string = $nik."1";
 
-        $datacache = Cache::tags(['notification'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
+       // $datacache = Cache::tags(['notification'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
             $data = array();
 
             $weeks = AppHelper::Weeks();
@@ -487,10 +487,10 @@ class UserController extends Controller
                     "file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)
                 );
             }
-                return $data; 
-        });
-        Cache::tags(['notification'])->flush();
-        return response()->json(['status' => 200,'data' => $datacache]);
+                // return $data; 
+        //});
+        //Cache::tags(['notification'])->flush();
+        return response()->json(['status' => 200,'data' => $data]);
     }
 
     //Get File Tolak
