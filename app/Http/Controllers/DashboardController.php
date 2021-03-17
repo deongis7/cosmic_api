@@ -571,7 +571,7 @@ class DashboardController extends Controller
           $sql1 = "SELECT * FROM vaksin_dashboard()";
           $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
           foreach($sql_level as $lvl){
-            if($lvl->v_id==0 && $lvl->v_id==4){
+            if($lvl->v_id==0 || $lvl->v_id==4){
 
               $data_jml_company[] = array(
                   "v_judul" => $lvl->v_judul,
