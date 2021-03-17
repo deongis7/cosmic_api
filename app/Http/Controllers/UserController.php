@@ -452,7 +452,7 @@ class UserController extends Controller
             return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
         }
 
-        $notif = DB::connection('pgsql')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , coalesce(tbpc_status,0)tbpc_status
+        $notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , coalesce(tbpc_status,0)tbpc_status
         from transaksi_aktifitas ta
         join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
         join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
@@ -489,6 +489,7 @@ class UserController extends Controller
 
     //Get File Tolak
     private function getFile($id_aktifitas,$id_perusahaan){
+        Config::set('database.default', 'pgsql2');
         $data =[];
         if ($id_aktifitas != null){
         $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
