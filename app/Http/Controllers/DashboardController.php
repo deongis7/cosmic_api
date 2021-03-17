@@ -754,6 +754,7 @@ class DashboardController extends Controller
         }
 
         //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate,$group_company) {
+        $datacache = Cache::tags(['cosmic_index'])->remember(env('APP_ENV', 'dev').$str, 10*60, function () use($startdate,$enddate,$group_company){
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdatenow = $weeks['startweek'];
@@ -890,9 +891,10 @@ class DashboardController extends Controller
                     );
                 }
             }
-           // return $data;
-        //});
-        return response()->json(['status' => 200,'data' => $data]);
+            return $data;
+        });
+        Cache::tags(['cosmic_index'])->flush();
+        return response()->json(['status' => 200,'data' => $datacache]);
     }
 
     public function getCosmicIndexReportAverage(Request $request){
