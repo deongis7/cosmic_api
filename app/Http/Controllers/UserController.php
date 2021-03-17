@@ -452,7 +452,7 @@ class UserController extends Controller
             return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
         }
 
-        $notif = DB::connection('pgsql')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , coalesce(tbpc_status,0)tbpc_status
+        $notif = DB::connection('pgsql3')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , coalesce(tbpc_status,0)tbpc_status
         from transaksi_aktifitas ta
         join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
         join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
@@ -465,8 +465,7 @@ class UserController extends Controller
         left join table_perimeter_closed tpc on tpc.tbpc_mpml_id = tpd.tpmd_mpml_id
         where ta.ta_status = 0 and mpl.mpml_pic_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
         order by ta_date_update asc", [$nik,$startdate,$enddate]);
-
-        if($notif->count>0){    
+        if(count($notif)>0){    
             foreach($notif as $itemnotif){
             //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
                 $data[] = array(
