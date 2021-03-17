@@ -463,28 +463,32 @@ class UserController extends Controller
         left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
         left join app_users au on au.username = mpl.mpml_me_nik
         left join table_perimeter_closed tpc on tpc.tbpc_mpml_id = tpd.tpmd_mpml_id
-        where tsp.tbsp_status = 1 and mpl.mpml_pic_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
+        where ta.ta_status = 1 and mpl.mpml_pic_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
         order by ta_date_update asc", [$nik,$startdate,$enddate]);
 
+        $string = time();
+        $datacache = Cache::tags(['notification'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
 
-        foreach($notif as $itemnotif){
-        //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
-            $data[] = array(
-                "id_perimeter_level" => $itemnotif->mpml_id,
-                "id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
-                "id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
-                "perimeter" => $itemnotif->mpm_name,
-                "level" => $itemnotif->mpml_name,
-                "cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
-                "aktifitas" => $itemnotif->mcar_name,
-                "id_aktifitas" => $itemnotif->ta_id,
-                "status" => $itemnotif->tbpc_status,
-                "fo_name" => $itemnotif->first_name,
-                "file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)
-            );
-        }
-        return response()->json(['status' => 200,'data' => $data]);
-    
+            foreach($notif as $itemnotif){
+            //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
+                $data[] = array(
+                    "id_perimeter_level" => $itemnotif->mpml_id,
+                    "id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
+                    "id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
+                    "perimeter" => $itemnotif->mpm_name,
+                    "level" => $itemnotif->mpml_name,
+                    "cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
+                    "aktifitas" => $itemnotif->mcar_name,
+                    "id_aktifitas" => $itemnotif->ta_id,
+                    "status" => $itemnotif->tbpc_status,
+                    "fo_name" => $itemnotif->first_name,
+                    "file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)
+                );
+            }
+                return $data; 
+        });
+        Cache::tags(['notification'])->flush();
+        return response()->json(['status' => 200,'data' => $datacache]);
     }
 
     //Get File Tolak
