@@ -474,7 +474,7 @@ class DashboardController extends Controller
               $dashboard_string = "SELECT * FROM dashboard_perimeter_byprovinsi_semua()";
           }
           //dd($dashboard_string);
-          $perimeter_byprovinsi_all =  DB::connection('pgsql2')->select($dashboard_string);
+          $perimeter_byprovinsi_all =  DB::connection('pgsql3')->select($dashboard_string);
 
 	        foreach($perimeter_byprovinsi_all as $ppa){
 	            $data[] = array(
