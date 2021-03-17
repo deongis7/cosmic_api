@@ -26,7 +26,7 @@ use Auth;
 use Validator;
 use DB;
 use Illuminate\Support\Facades\Storage;
-
+use Config;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class UserController extends Controller
@@ -452,7 +452,7 @@ class UserController extends Controller
             return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
         }
 
-        $notif = DB::connection('pgsql3')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , coalesce(tbpc_status,0)tbpc_status
+        $notif = DB::connection('pgsql')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , coalesce(tbpc_status,0)tbpc_status
         from transaksi_aktifitas ta
         join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
         join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
@@ -463,8 +463,8 @@ class UserController extends Controller
         left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
         left join app_users au on au.username = mpl.mpml_me_nik
         left join table_perimeter_closed tpc on tpc.tbpc_mpml_id = tpd.tpmd_mpml_id
-        where ta.ta_status = 0 and mpl.mpml_pic_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
-        order by ta_date_update asc", [$nik,$startdate,$enddate]);
+        where ta.ta_status = 0 and mpl.mpml_pic_nik = ? 
+        order by ta_date_update asc", [$nik]);
         if(count($notif)>0){    
             foreach($notif as $itemnotif){
             //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
@@ -489,7 +489,7 @@ class UserController extends Controller
 
     //Get File Tolak
     private function getFile($id_aktifitas,$id_perusahaan){
-        Config::set('database.default', 'pgsql2');
+        config(['database.default' => 'pgsql3']);
         $data =[];
         if ($id_aktifitas != null){
         $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
