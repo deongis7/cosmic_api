@@ -702,7 +702,7 @@ class PerimeterReportController extends Controller
               }
             } else {
               $perimeter = new Perimeter;
-              $perimeter->setConnection('pgsql3');
+              $perimeter->setConnection('pgsql');
               $perimeter = $perimeter->select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id')
                   ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
                   ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
@@ -723,7 +723,7 @@ class PerimeterReportController extends Controller
 
               foreach ($perimeter as $itemperimeter) {
                 $cluster = new TblPerimeterDetail;
-                $cluster->setConnection('pgsql3');
+                $cluster->setConnection('pgsql');
                   $cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
                   $status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
 
