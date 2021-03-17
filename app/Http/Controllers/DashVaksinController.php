@@ -87,10 +87,11 @@ class DashVaksinController extends Controller
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
 
-	public function getDashVaksinPerusahaanFilter(Request $request){
-		$filter_perusahaan = $request->status_perusahaan;
-		$filter_pegawai = $request->status_pegawai;
-
+	public function getDashVaksinPerusahaanFilter($sp1, $sp2){
+		// $filter_perusahaan = $request->status_perusahaan;
+		// $filter_pegawai = $request->status_pegawai;
+		$filter_perusahaan = $sp1;
+		$filter_pegawai = $sp2;
 		$w1 = " WHERE mc_level IN (1,2,3)";
 		if(!empty($filter_perusahaan)){
 			$w1 = "WHERE mc_level = '$filter_perusahaan'";
@@ -133,12 +134,12 @@ class DashVaksinController extends Controller
 	}
 
 	
-	public function getDashVaksinPegawaiFilter(Request $request){
+	public function getDashVaksinPegawaiFilter($nama, $mc_id){
 		$this->validate($request, [
             'mc_id' => 'required'
         ]);
-        $filter_nama = $request->nama;
-		$filter_mc_id = $request->mc_id;
+        $filter_nama = $nama;
+		$filter_mc_id = $mc_id;
         $string = "_get_dashvaksin_pegawai".$filter_mc_id;
         $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () use($filter_nama, $filter_mc_id) {
 		
