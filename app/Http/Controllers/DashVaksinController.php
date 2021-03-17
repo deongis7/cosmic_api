@@ -137,10 +137,11 @@ class DashVaksinController extends Controller
 		$this->validate($request, [
             'mc_id' => 'required'
         ]);
-        $string = "_get_dashvaksin_pegawai";
-        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
-		$filter_nama = $request->nama;
+        $filter_nama = $request->nama;
 		$filter_mc_id = $request->mc_id;
+        $string = "_get_dashvaksin_pegawai".$filter_mc_id;
+        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function ($filter_nama, $filter_mc_id) use() {
+		
 
 		$where_name = "";
 		if(!empty($filter_nama)){
