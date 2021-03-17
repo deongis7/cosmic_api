@@ -137,6 +137,8 @@ class DashVaksinController extends Controller
 		$this->validate($request, [
             'mc_id' => 'required'
         ]);
+        $string = "_get_dashvaksin_pegawai";
+        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
 		$filter_nama = $request->nama;
 		$filter_mc_id = $request->mc_id;
 
@@ -145,9 +147,9 @@ class DashVaksinController extends Controller
 			$where_name = " AND tv.tv_nama LIKE '%$filter_nama%'";
 		}
 
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_pegawai", 15 * 60, function() {
-		$string = "_get_dashvaksin_pegawai";
-	    // $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
+	    // $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_pegawai", 15 * 60, function() {
+		
+	    
 	    $data = array();
 	    $dashpegawai = DB::connection('pgsql_vaksin')->select("select tv_nik, tv_nama, msp_name2 from transaksi_vaksin tv 
 			join master_status_pegawai msp on msp.msp_id = tv.tv_msp_id 
@@ -163,7 +165,7 @@ class DashVaksinController extends Controller
     	    }
     	    return $data;
 	    });
-	    // Cache::tags(['users'])->flush();
+	    Cache::tags(['users'])->flush();
 	    return response()->json(['status' => 200,'data' => $datacache]);
 	}
 	
