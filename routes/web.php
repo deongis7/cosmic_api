@@ -247,7 +247,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashvaksin/download/{kd_perusahaan}', 'DashboardController@getDownloadVaksinbyCompany');
 	$router->get('/dashvaksin/downloadtmp/{kd_perusahaan}', 'DashboardController@getDownloadVaksinTmpbyCompany');
 	$router->get('/dashvaksin/dashvaksin_mc_filter/{sp1}/{sp2}', 'DashVaksinController@getDashVaksinPerusahaanFilter');
-	$router->get('/dashvaksin/dashvaksin_pegawai_filter/{nama}/{mc_id}', 'DashVaksinController@getDashVaksinPegawaiFilter');
+	$router->get('/dashvaksin/dashvaksin_pegawai_filter/{mc_id}/{nama}', 'DashVaksinController@getDashVaksinPegawaiFilter');
 
 	$router->get('/vaksin/vaksin_byid/{id}', 'VaksinController@getDataByid');
 	$router->get('/vaksin/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcid');
