@@ -466,22 +466,23 @@ class UserController extends Controller
         where ta.ta_status = 0 and mpl.mpml_pic_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
         order by ta_date_update asc", [$nik,$startdate,$enddate]);
 
-
-        foreach($notif as $itemnotif){
-        //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
-            $data[] = array(
-                "id_perimeter_level" => $itemnotif->mpml_id,
-                "id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
-                "id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
-                "perimeter" => $itemnotif->mpm_name,
-                "level" => $itemnotif->mpml_name,
-                "cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
-                "aktifitas" => $itemnotif->mcar_name,
-                "id_aktifitas" => $itemnotif->ta_id,
-                "status" => $itemnotif->tbpc_status,
-                "fo_name" => $itemnotif->first_name,
-                //"file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)
-            );
+        if($notif->count>0){    
+            foreach($notif as $itemnotif){
+            //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
+                $data[] = array(
+                    "id_perimeter_level" => $itemnotif->mpml_id,
+                    "id_perimeter_cluster" => $itemnotif->ta_tpmd_id,
+                    "id_konfig_cluster_aktifitas" => $itemnotif->ta_kcar_id,
+                    "perimeter" => $itemnotif->mpm_name,
+                    "level" => $itemnotif->mpml_name,
+                    "cluster" => $itemnotif->mcr_name. " ". $itemnotif->tpmd_order,
+                    "aktifitas" => $itemnotif->mcar_name,
+                    "id_aktifitas" => $itemnotif->ta_id,
+                    "status" => $itemnotif->tbpc_status,
+                    "fo_name" => $itemnotif->first_name,
+                    "file" => $this->getFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)
+                );
+            }
         }
         return response()->json(['status' => 200,'data' => $data]);
     
