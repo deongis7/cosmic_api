@@ -454,7 +454,7 @@ class UserController extends Controller
             }
             $datacache = Cache::tags(['notification'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
             $data = array();
-
+            $nik = $request->nik;
             $notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , coalesce(tbpc_status,0)tbpc_status
             from transaksi_aktifitas ta
             join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
