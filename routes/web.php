@@ -246,6 +246,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashvaksin/dashvaksin_lokasi3', 'DashVaksinController@getDashVaksinLokasi3');
 	$router->get('/dashvaksin/download/{kd_perusahaan}', 'DashboardController@getDownloadVaksinbyCompany');
 	$router->get('/dashvaksin/downloadtmp/{kd_perusahaan}', 'DashboardController@getDownloadVaksinTmpbyCompany');
+	$router->post('/dashvaksin/dashvaksin_mc_filter', 'DashVaksinController@getDashVaksinPerusahaanFilter');
 
 	$router->get('/vaksin/vaksin_byid/{id}', 'VaksinController@getDataByid');
 	$router->get('/vaksin/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcid');
@@ -257,6 +258,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/mobiledashvaksin/groupbyprovinsi', 'DashVaksinController@getDashVaksinMobileByProvinsi');
 	$router->get('/mobiledashvaksin/groupbyusia', 'DashVaksinController@getDashVaksinMobileByUsia');
 	$router->get('/mobiledashvaksin/groupbykabupaten/{id}', 'DashVaksinController@getDashVaksinMobileKabByProvinsi');
+	$router->get('/mobiledashvaksin/groupbykabpro', 'DashVaksinController@getDashVaksinMobileKabPro');
+	$router->get('/mobiledashvaksin/groupbycompany/{id}', 'DashVaksinController@getDashVaksinMobileCompanyByKabupaten');
 
 	//Materialized View
 	$router->get('/dashboard/refresh_mv_rangkumanall/', 'DashboardController@RefreshMvRangkumanAll');
