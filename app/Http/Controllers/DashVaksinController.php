@@ -140,7 +140,7 @@ class DashVaksinController extends Controller
         $filter_nama = $request->nama;
 		$filter_mc_id = $request->mc_id;
         $string = "_get_dashvaksin_pegawai".$filter_mc_id;
-        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function ($filter_nama, $filter_mc_id) use() {
+        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () use($filter_nama, $filter_mc_id) {
 		
 
 		$where_name = "";
