@@ -88,9 +88,10 @@ class DashVaksinController extends Controller
 	}
 
 	public function getDashVaksinPerusahaanFilter(Request $request){
-		$filter_perusahaan = $request->status_perusahaan;
-		$filter_pegawai = $request->status_pegawai;
-
+		 $filter_perusahaan = $request->status_perusahaan;
+		 $filter_pegawai = $request->status_pegawai;
+		/*$filter_perusahaan = $sp1;
+		$filter_pegawai = $sp2;*/
 		$w1 = " WHERE mc_level IN (1,2,3)";
 		if(!empty($filter_perusahaan)){
 			$w1 = "WHERE mc_level = '$filter_perusahaan'";
@@ -130,6 +131,41 @@ class DashVaksinController extends Controller
     	    }
 	    //});
 	    return response()->json(['status' => 200,'data' => $data]);
+	}
+
+	
+	public function getDashVaksinPegawaiFilter(Request $request){
+		$filter_nama = $request->nama;
+		$filter_mc_id = $request->mc_id;
+        $string = "_get_dashvaksin_pegawai".$filter_mc_id;
+        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () use($filter_nama, $filter_mc_id) {
+		
+
+		$where_name = "";
+		if(!empty($filter_nama)){
+			$where_name = " AND tv.tv_nama LIKE '%$filter_nama%'";
+		}
+
+	    // $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_pegawai", 15 * 60, function() {
+		
+	    
+	    $data = array();
+	    $dashpegawai = DB::connection('pgsql_vaksin')->select("select tv_nik, tv_nama, msp_name2 from transaksi_vaksin tv 
+			join master_status_pegawai msp on msp.msp_id = tv.tv_msp_id 
+			where tv.tv_mc_id = '".$filter_mc_id."' AND is_lansia=0 $where_name");
+	    //$dashkasus_perusahaan = DB::select("SELECT * FROM vaksin_dashboard_perusahaan()");
+	    
+	    foreach($dashpegawai as $dvp){
+    	        $data[] = array(
+    	            "nik" => $dvp->tv_nik,
+    	            "nama" => $dvp->tv_nama,
+    	            "status" => $dvp->msp_name2
+    	        );
+    	    }
+    	    return $data;
+	    });
+	    Cache::tags(['users'])->flush();
+	    return response()->json(['status' => 200,'data' => $datacache]);
 	}
 	
 	public function getDashVaksinProvinsi(){
