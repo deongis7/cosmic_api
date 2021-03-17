@@ -510,7 +510,7 @@ class DashVaksinController extends Controller
         return response()->json(['status' => 200,'data' => $data]);
 	}
 	
-	public function getDashVaksinMobileCompanyByProvinsi($id, Request $request) {
+	public function getDashVaksinMobileCompanyByKabupaten($id, Request $request) {
 	    $limit = '';
 	    $page = '';
 	    $endpage = 1;
@@ -630,7 +630,26 @@ class DashVaksinController extends Controller
 			FROM master_provinsi mpro
             WHERE 1=1
             $query_search_mpro
-			ORDER BY mpro.mpro_id;";
+			ORDER BY mpro.mpro_id ";
+
+        $retdbtotal = DB::connection('pgsql_vaksin')->select($query);
+        $jmltotal=(count($retdbtotal));
+        
+        if(isset($request->limit)) {
+            $limit = $request->limit;
+            $sql_limit = ' LIMIT '.$request->limit;
+            $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+            
+            $query .= $sql_limit;
+            
+            if (isset($request->page)) {
+                $page = $request->page;
+                $offset = ((int)$page-1) * (int)$limit;
+                $sql_offset= ' OFFSET '.$offset;
+                
+                $query .= $sql_offset;
+            }
+        }
         
         $retdb = DB::connection('pgsql_vaksin')->select($query);
         foreach($retdb as $dvp){
@@ -648,7 +667,7 @@ class DashVaksinController extends Controller
     			WHERE 1=1
                 $query_search_mkab
                 AND mkab_mpro_id=$dvp->mpro_id
-    			ORDER BY mkab.mkab_name;";
+    			ORDER BY mkab.mkab_name ";
     	    
             $retdb_kab = DB::connection('pgsql_vaksin')->select($query_kab);
             $data_kab = array();
@@ -667,6 +686,6 @@ class DashVaksinController extends Controller
                 "kab" => $data_kab
             );
         }
-        return response()->json(['status' => 200,'data' => $data]);
+        return response()->json(['status' => 200, 'page_end'=>$endpage, 'data' => $data]);
 	}
 }
