@@ -26,7 +26,7 @@ use Auth;
 use Validator;
 use DB;
 use Illuminate\Support\Facades\Storage;
-// use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Cache;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class UserController extends Controller
@@ -438,7 +438,6 @@ class UserController extends Controller
         // return response()->json(['status' => 200,'data' => $nik]);
         $string = $nik."1";
 
-       // $datacache = Cache::tags(['notification'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
             $data = array();
 
             $weeks = AppHelper::Weeks();
@@ -488,8 +487,6 @@ class UserController extends Controller
                 );
             }
                 // return $data; 
-        //});
-        //Cache::tags(['notification'])->flush();
         return response()->json(['status' => 200,'data' => $data]);
     }
 
