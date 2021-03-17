@@ -428,7 +428,7 @@ class UserController extends Controller
     }
 
     //Get Notif PIC
-    function getNotifpic($nik){
+    function getNotifpic(Request $request){
         /*$token = "fYXTze1sRPyDDyUZwurszk:APA91bFwCJtFF0tyT2BSfG0UGgal8pCrgRtQyEsrcegBf_HB_BeoVreUG0iLNeMhWGH3_p-bXA1xpLjRIS8b0XueHMpW15WTwS1jtxz7mZbMmIJzoPZDYgC-5OsWaqrsdyiPW5rcSDgi";
         $body = "tbody";
         $title = "ttitle";
@@ -437,7 +437,7 @@ class UserController extends Controller
         print_r($weeks);die;*/
         // return response()->json(['status' => 200,'data' => $nik]);
         $string = time();
-        
+        $nik = $request->nik;
 
             $weeks = AppHelper::Weeks();
             $startdate = $weeks['startweek'];
