@@ -331,6 +331,7 @@ class PICController extends Controller
 
 	//Get File
 	private function getFile($id_aktifitas,$id_perusahaan){
+		Config::set('database.default', 'pgsql3');
 		$data =[];
 
 		if ($id_aktifitas != null){
@@ -544,7 +545,8 @@ class PICController extends Controller
 
 	//Get Cluster per Perimeter Level
 	public function getClusterbyPerimeter($id,$nik){
-    $datacache =Cache::remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 3 * 60, function()use($id,$nik) {
+    //$datacache =Cache::remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 3 * 60, function()use($id,$nik) {
+	$datacache = Cache::tags(['cluster'.$nik])->remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 10*60, function () use($id,$nik){
 
   		$user = User::where('username',$nik)->first();
       $total_monitoring = 0;
@@ -555,7 +557,7 @@ class PICController extends Controller
   			$role_id = $user->roles()->first()->id;
 
 
-  			$perimeter = DB::connection('pgsql2')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo ,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
+  			$perimeter = DB::connection('pgsql')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo ,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
             case when tsp.tbsp_status = 2 then true else false end as status_pic,
             case when tsp.tbsp_status = 1 then true when tsp.tbsp_status = 2 then true else false end as status_fo,
             tsp.updated_at as last_update
@@ -604,7 +606,7 @@ class PICController extends Controller
 	            if($status['status_konfirmasi']==1){
 	            	//Lempar ke firebase
 	  				//get data perimeter
-					$get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token from transaksi_aktifitas ta
+					$get_perimeter = DB::connection('pgsql')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token from transaksi_aktifitas ta
 	                join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 	                join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 	                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
@@ -629,7 +631,8 @@ class PICController extends Controller
   			return  array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
   		}
     });
-    return response()->json($datacache);
+		Cache::tags(['cluster'.$nik])->flush();
+	    return response()->json($datacache);
 	}
 
 	//Get Cluster per Perimeter Level
@@ -683,7 +686,7 @@ class PICController extends Controller
 			$role_id = $user->roles()->first()->id;
 
             $perimeter =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 7 * 60, function()use($id_perimeter_level) {
-                return $cacheperimeter = DB::connection('pgsql2')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
+                return $cacheperimeter = DB::connection('pgsql3')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
           case when tsp.tbsp_status = 2 then true else false end as status_pic,
           case when tsp.tbsp_status = 1 then true when tsp.tbsp_status = 2 then true else false end as status_fo,
           tpd.tpmd_file_foto,tpd.tpmd_file_tumb, mpm.mpm_mc_id,
