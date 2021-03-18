@@ -570,7 +570,7 @@ class PICController extends Controller
   					join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
 						left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
   					where mpl.mpml_id = ?
-  					order by mcr.mcr_name asc, tpmd_order asc", [$id]);
+  					/*order by mcr.mcr_name asc, tpmd_order asc*/", [$id]);
 
   				
   			$no=1;
