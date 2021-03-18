@@ -474,7 +474,7 @@ class DashboardController extends Controller
               $dashboard_string = "SELECT * FROM dashboard_perimeter_byprovinsi_semua()";
           }
           //dd($dashboard_string);
-          $perimeter_byprovinsi_all =  DB::connection('pgsql2')->select($dashboard_string);
+          $perimeter_byprovinsi_all =  DB::connection('pgsql3')->select($dashboard_string);
 
 	        foreach($perimeter_byprovinsi_all as $ppa){
 	            $data[] = array(
@@ -497,7 +497,7 @@ class DashboardController extends Controller
           $string = $string ."_group_company_".$group_company;
         }
 	     // $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 0 * 60, function() use ($group_company){
-	        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
+	        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () use ($group_company) {
           $data = array();
           if(isset($group_company)){
             if($group_company==2){
@@ -754,6 +754,7 @@ class DashboardController extends Controller
         }
 
         //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate,$group_company) {
+        $datacache = Cache::tags(['cosmic_index'])->remember(env('APP_ENV', 'dev').$str, 10*60, function () use($startdate,$enddate,$group_company){
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdatenow = $weeks['startweek'];
@@ -890,9 +891,10 @@ class DashboardController extends Controller
                     );
                 }
             }
-           // return $data;
-        //});
-        return response()->json(['status' => 200,'data' => $data]);
+            return $data;
+        });
+        Cache::tags(['cosmic_index'])->flush();
+        return response()->json(['status' => 200,'data' => $datacache]);
     }
 
     public function getCosmicIndexReportAverage(Request $request){
