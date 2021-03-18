@@ -89,10 +89,10 @@ class PICController extends Controller
 		$weeks = AppHelper::Weeks();
 		//dd($weeks['weeks']);
 
-		$relPath = '/public/aktifitas/'.$kd_perusahaan.'/'.$tanggal;
+		/*$relPath = '/public/aktifitas/'.$kd_perusahaan.'/'.$tanggal;
 		if (!file_exists(public_path($relPath))) {
 		    mkdir(public_path($relPath), 777, true);
-		}
+		}*/
 
         if(!Storage::exists('/public/aktifitas/'.$kd_perusahaan.'/'.$tanggal)) {
             Storage::disk('public')->makeDirectory('/aktifitas/'.$kd_perusahaan.'/'.$tanggal);
