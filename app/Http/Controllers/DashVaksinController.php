@@ -90,16 +90,22 @@ class DashVaksinController extends Controller
 	public function getDashVaksinPerusahaanFilter(Request $request){
 		 $filter_perusahaan = $request->status_perusahaan;
 		 $filter_pegawai = $request->status_pegawai;
+		 $filter_name = $request->nama_perusahaan;
 		/*$filter_perusahaan = $sp1;
 		$filter_pegawai = $sp2;*/
-		$w1 = " WHERE mc_level IN (1,2,3)";
+		$w1 = " AND mc_level IN (1,2,3)";
 		if(!empty($filter_perusahaan)){
-			$w1 = "WHERE mc_level = '$filter_perusahaan'";
+			$w1 = " AND mc_level = '$filter_perusahaan'";
 		}
 
 		$w2 = " ";
 		if(!empty($filter_pegawai)){
 			$w2 = " AND tv.tv_msp_id = '$filter_pegawai'";
+		}
+
+		$w3 = " ";
+		if(!empty($filter_name)){
+			$w3 = " AND mc1.mc_name LIKE '%$filter_name%'";
 		}
 
 	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_perusahaan", 15 * 60, function() {
@@ -116,9 +122,13 @@ class DashVaksinController extends Controller
 				tv.tv_mc_id=mc.mc_id
 				$w2
 				AND is_lansia=0
-				AND mc.mc_id=mc1.mc_id) jml
+				AND mc.mc_id=mc1.mc_id
+				
+				) jml
 				FROM master_company mc1
+				where 1=1
 				$w1
+				$w3
 				ORDER BY mc_name ");
 	    //$dashkasus_perusahaan = DB::select("SELECT * FROM vaksin_dashboard_perusahaan()");
 	    
@@ -137,13 +147,19 @@ class DashVaksinController extends Controller
 	public function getDashVaksinPegawaiFilter(Request $request){
 		$filter_nama = $request->nama;
 		$filter_mc_id = $request->mc_id;
+		$filter_status = $request->status;
         $string = "_get_dashvaksin_pegawai".$filter_mc_id;
-        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () use($filter_nama, $filter_mc_id) {
+        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () use($filter_nama, $filter_mc_id, $filter_status) {
 		
 
 		$where_name = "";
 		if(!empty($filter_nama)){
 			$where_name = " AND tv.tv_nama LIKE '%$filter_nama%'";
+		}
+
+		$where_status = "";
+		if(!empty($filter_status)){
+			$where_status = " AND tv.tv_msp_id = '$filter_status'";
 		}
 
 	    // $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_pegawai", 15 * 60, function() {
@@ -152,7 +168,7 @@ class DashVaksinController extends Controller
 	    $data = array();
 	    $dashpegawai = DB::connection('pgsql_vaksin')->select("select tv_nik, tv_nama, msp_name2 from transaksi_vaksin tv 
 			join master_status_pegawai msp on msp.msp_id = tv.tv_msp_id 
-			where tv.tv_mc_id = '".$filter_mc_id."' AND is_lansia=0 $where_name");
+			where tv.tv_mc_id = '".$filter_mc_id."' AND is_lansia=0 $where_name $where_status");
 	    //$dashkasus_perusahaan = DB::select("SELECT * FROM vaksin_dashboard_perusahaan()");
 	    
 	    foreach($dashpegawai as $dvp){
