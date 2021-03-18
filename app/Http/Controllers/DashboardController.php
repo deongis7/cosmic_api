@@ -497,7 +497,7 @@ class DashboardController extends Controller
           $string = $string ."_group_company_".$group_company;
         }
 	     // $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 0 * 60, function() use ($group_company){
-	        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () {
+	        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () use ($group_company) {
           $data = array();
           if(isset($group_company)){
             if($group_company==2){
