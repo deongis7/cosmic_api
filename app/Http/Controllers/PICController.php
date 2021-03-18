@@ -336,7 +336,7 @@ class PICController extends Controller
 
 	//Get File
 	private function getFile($id_aktifitas,$id_perusahaan){
-		Config::set('database.default', 'pgsql3');
+		// Config::set('database.default', 'pgsql3');
 		$data =[];
 
 		if ($id_aktifitas != null){
