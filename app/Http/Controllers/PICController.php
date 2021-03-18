@@ -545,8 +545,10 @@ class PICController extends Controller
 
 	//Get Cluster per Perimeter Level
 	public function getClusterbyPerimeter($id,$nik){
+	try
+            {	
     //$datacache =Cache::remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 3 * 60, function()use($id,$nik) {
-	$datacache = Cache::tags(['cluster'.$nik])->remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 10*60, function () use($id,$nik){
+	// $datacache = Cache::tags(['cluster'.$nik])->remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 10*60, function () use($id,$nik){
 
   		$user = User::where('username',$nik)->first();
       $total_monitoring = 0;
@@ -630,9 +632,13 @@ class PICController extends Controller
   		} else {
   			return  array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
   		}
-    });
+   /* });
 		Cache::tags(['cluster'.$nik])->flush();
-	    return response()->json($datacache);
+	    return response()->json($datacache);*/
+    } catch (Throwable $e) {
+                DB::rollBack();
+                return redirect()->back()->with('success', $th->getMessage());
+        }
 	}
 
 	//Get Cluster per Perimeter Level
