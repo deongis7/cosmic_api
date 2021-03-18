@@ -605,7 +605,7 @@ class PICController extends Controller
                     "sudah_dimonitor"=> $jml_monitoring,
                     "belum_dimonitor"=> $total_monitoring - $jml_monitoring );
 	            
-	            if($status['status_konfirmasi']==1){
+	            if($itemperimeter->status_konfirmasi==1){
 	            	//Lempar ke firebase
 	  				//get data perimeter
 					$get_perimeter = DB::connection('pgsql')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token from transaksi_aktifitas ta
@@ -616,6 +616,7 @@ class PICController extends Controller
 	                join app_users au on au.username = mpl.mpml_pic_nik 
 	                where tpd.tpmd_id = ? and ta.ta_status = 1
 	                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token ", [$itemperimeter->tpmd_id]);
+	                
 	        		// dd($get_perimeter[0]->mpml_name);
 
 					// echo $token;die;
