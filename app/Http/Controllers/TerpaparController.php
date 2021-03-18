@@ -41,7 +41,7 @@ class TerpaparController extends Controller {
 
 	public function getDataHome($id) {
     //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_bymcid_".$id, 5 * 60, function()use($id){
-	    $terpapar = DB::connection('pgsql3')->select("SELECT msk_id, msk_name2,
+	    $terpapar = DB::connection('pgsql')->select("SELECT msk_id, msk_name2,
                         CASE WHEN jml IS NULL THEN 0 ELSE jml END AS jml
                         FROM master_status_kasus msk
                         LEFT JOIN (
