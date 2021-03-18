@@ -659,7 +659,7 @@ class PerimeterReportController extends Controller
         }
 
         if(isset($week)){
-            $str = $str.'_weekx_'. $week;
+            $str = $str.'_week_'. $week;
         }
         //dd($str_fnc);
         $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 40 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$week) {
@@ -694,7 +694,7 @@ class PerimeterReportController extends Controller
               }
               $sql =  $sql. " group by rhw.rhw_mc_id";
               //dd($sql);
-              $perimeter = DB::connection('pgsql3')->select($sql, $param);
+              $perimeter = DB::connection('pgsql2')->select($sql, $param);
               //dd($perimeter);
               foreach ($perimeter as $itemperimeter) {
                 $totalperimeter = $itemperimeter->total;
@@ -702,7 +702,7 @@ class PerimeterReportController extends Controller
               }
             } else {
               $perimeter = new Perimeter;
-              $perimeter->setConnection('pgsql');
+              $perimeter->setConnection('pgsql2');
               $perimeter = $perimeter->select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id')
                   ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
                   ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
@@ -723,7 +723,7 @@ class PerimeterReportController extends Controller
 
               foreach ($perimeter as $itemperimeter) {
                 $cluster = new TblPerimeterDetail;
-                $cluster->setConnection('pgsql');
+                $cluster->setConnection('pgsql2');
                   $cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
                   $status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
 
@@ -766,14 +766,14 @@ class PerimeterReportController extends Controller
         $enddate = $weeks['endweek'];
 
         if($id_role == 4){
-            $clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+            $clustertrans = DB::connection('pgsql2')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 		where tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4 and ta.ta_status <> 2
 		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
         } else {
-            $clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+            $clustertrans = DB::connection('pgsql2')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
