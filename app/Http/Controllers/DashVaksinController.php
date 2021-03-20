@@ -88,6 +88,19 @@ class DashVaksinController extends Controller
 	}
 
 	public function getDashVaksinPerusahaanFilter(Request $request){
+		$limit = null;
+        $page = null;
+        $endpage = 1;
+
+        if(isset($request->limit)){
+            // $str = $str.'_limit_'. $request->limit;
+            $limit=$request->limit;
+            if(isset($request->page)){
+                // $str = $str.'_page_'. $request->page;
+                $page=$request->page;
+            }
+        }
+
 		 $filter_perusahaan = $request->status_perusahaan;
 		 $filter_pegawai = $request->status_pegawai;
 		 $filter_name = $request->nama_perusahaan;
@@ -108,9 +121,7 @@ class DashVaksinController extends Controller
 			$w3 = " AND mc1.mc_name LIKE '%$filter_name%'";
 		}
 
-	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_perusahaan", 15 * 60, function() {
-	    $data = array();
-	    $dashkasus_perusahaan = DB::connection('pgsql_vaksin')->select("SELECT mc_id, mc_name, 
+		$string = "SELECT mc_id, mc_name, 
 				
 				(SELECT COUNT(*) 
 				FROM transaksi_vaksin tv
@@ -129,10 +140,37 @@ class DashVaksinController extends Controller
 				where 1=1
 				$w1
 				$w3
-				ORDER BY mc_name ");
-	    //$dashkasus_perusahaan = DB::select("SELECT * FROM vaksin_dashboard_perusahaan()");
-	    
-	    foreach($dashkasus_perusahaan as $dvp){
+				ORDER BY mc_name ";
+
+		$string_count = "SELECT count(*) count
+				FROM master_company mc1
+				where 1=1
+				$w1
+				$w3";		
+
+	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_perusahaan", 15 * 60, function() {
+	    $data = array();
+	    $count = DB::connection('pgsql_vaksin')->select($string_count);
+
+	    $jmltotal=$count[0]->count;
+            // dd($jmltotal);
+            if(isset($request->limit)) {
+                $limit = $request->limit;
+                $sql_limit = ' LIMIT '.$request->limit;
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                $string .= $sql_limit;
+
+                if (isset($request->page)) {
+                    $page = $request->page;
+                    $offset = ((int)$page-1) * (int)$limit;
+                    $sql_offset= ' OFFSET '.$offset;
+
+                    $string .= $sql_offset;
+                }
+            }
+	    $get_data = DB::connection('pgsql_vaksin')->select($string);
+	    foreach($get_data as $dvp){
     	        $data[] = array(
     	            "v_mc_id" => $dvp->mc_id,
     	            "v_mc_name" => $dvp->mc_name,
@@ -140,21 +178,33 @@ class DashVaksinController extends Controller
     	        );
     	    }
 	    //});
-	    return response()->json(['status' => 200,'data' => $data]);
+	    return response()->json(['status' => 200,'page_end' =>$endpage,'data' => $data]);
 	}
 
 	
 	public function getDashVaksinPegawaiFilter(Request $request){
-		$filter_nama = $request->nama;
+		$limit = null;
+        $page = null;
+        $endpage = 1;
+
+        if(isset($request->limit)){
+            $limit=$request->limit;
+            if(isset($request->page)){
+                $page=$request->page;
+            }
+        }
+
+      	$filter_nama = strtoupper($request->name);
 		$filter_mc_id = $request->mc_id;
 		$filter_status = $request->status;
-        $string = "_get_dashvaksin_pegawai".$filter_mc_id;
-        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () use($filter_nama, $filter_mc_id, $filter_status) {
+        $string = "_get_dashvaksin_pegawai".$filter_mc_id.$filter_nama;
+        //dd($string);
+        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 10, function () use($filter_nama, $filter_mc_id, $filter_status, $limit, $page, $endpage) {
 		
 
 		$where_name = "";
 		if(!empty($filter_nama)){
-			$where_name = " AND tv.tv_nama LIKE '%$filter_nama%'";
+			$where_name = " AND UPPER(tv.tv_nama) LIKE '%$filter_nama%'";
 		}
 
 		$where_status = "";
@@ -164,13 +214,36 @@ class DashVaksinController extends Controller
 
 	    // $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_pegawai", 15 * 60, function() {
 		
-	    
-	    $data = array();
-	    $dashpegawai = DB::connection('pgsql_vaksin')->select("select tv_nik, tv_nama, msp_name2 from transaksi_vaksin tv 
+	    $string = "select tv_nik, tv_nama, msp_name2 from transaksi_vaksin tv 
 			join master_status_pegawai msp on msp.msp_id = tv.tv_msp_id 
-			where tv.tv_mc_id = '".$filter_mc_id."' AND is_lansia=0 $where_name $where_status");
-	    //$dashkasus_perusahaan = DB::select("SELECT * FROM vaksin_dashboard_perusahaan()");
+			where tv.tv_mc_id = '".$filter_mc_id."' AND is_lansia=0 $where_name $where_status";
+
+		$string_count = "SELECT count(*) count
+			from transaksi_vaksin tv 
+			join master_status_pegawai msp on msp.msp_id = tv.tv_msp_id 
+			where tv.tv_mc_id = '".$filter_mc_id."' AND is_lansia=0 $where_name $where_status";	
+		$count = DB::connection('pgsql_vaksin')->select($string_count);
+
+	    $jmltotal=$count[0]->count;
+
+	    $data = array();
 	    
+	    if($limit>0) {
+                //$limit = $request->limit;
+                $sql_limit = ' LIMIT '.$limit;
+                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                $string .= $sql_limit;
+
+                if ($page>0) {
+                    // $page = $request->page;
+                    $offset = ((int)$page-1) * (int)$limit;
+                    $sql_offset= ' OFFSET '.$offset;
+
+                    $string .= $sql_offset;
+                }
+            }
+        $dashpegawai = DB::connection('pgsql_vaksin')->select($string);
 	    foreach($dashpegawai as $dvp){
     	        $data[] = array(
     	            "nik" => $dvp->tv_nik,
@@ -181,7 +254,7 @@ class DashVaksinController extends Controller
     	    return $data;
 	    });
 	    Cache::tags(['users'])->flush();
-	    return response()->json(['status' => 200,'data' => $datacache]);
+	    return response()->json(['status' => 200,'page_end' =>$endpage,'data' => $datacache]);
 	}
 	
 	public function getDashVaksinProvinsi(){
