@@ -89,6 +89,11 @@ class PICController extends Controller
 		$weeks = AppHelper::Weeks();
 		//dd($weeks['weeks']);
 
+		/*$relPath = '/public/aktifitas/'.$kd_perusahaan.'/'.$tanggal;
+		if (!file_exists(public_path($relPath))) {
+		    mkdir(public_path($relPath), 777, true);
+		}*/
+
         if(!Storage::exists('/public/aktifitas/'.$kd_perusahaan.'/'.$tanggal)) {
             Storage::disk('public')->makeDirectory('/aktifitas/'.$kd_perusahaan.'/'.$tanggal);
         }
@@ -331,7 +336,7 @@ class PICController extends Controller
 
 	//Get File
 	private function getFile($id_aktifitas,$id_perusahaan){
-		Config::set('database.default', 'pgsql3');
+		// Config::set('database.default', 'pgsql3');
 		$data =[];
 
 		if ($id_aktifitas != null){
@@ -616,7 +621,7 @@ class PICController extends Controller
 	                join app_users au on au.username = mpl.mpml_pic_nik 
 	                where tpd.tpmd_id = ? and ta.ta_status = 1
 	                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token ", [$itemperimeter->tpmd_id]);
-	                
+
 	        		// dd($get_perimeter[0]->mpml_name);
 
 					// echo $token;die;
