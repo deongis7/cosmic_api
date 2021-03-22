@@ -317,16 +317,33 @@ class DashVaksinController extends Controller
 	    return response()->json(['status' => 200,'page_end' =>$endpage,'data' => $datacache]);
 	}
 	
-	public function getDashVaksinProvinsi(){
-	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_provinsi", 15 * 60, function() {
-	    $data = array();
-	    $dashkasus_provinsi = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_provinsi()");
-	    //$dashkasus_provinsi = DB::select("SELECT * FROM vaksin_dashboard_provinsi()");
+	public function getDashVaksinProvinsi(Request $request){
+	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    if(isset($request->level) && $request->level>0) {
+	        $level = $request->level;
+	        $query_level = ' AND mc.mc_level='.$level;
+	    }
 	    
+	    $data = array();
+	    $query = "SELECT mpro.mpro_name::TEXT,
+					(SELECT COALESCE(COUNT(*)) 
+					FROM transaksi_vaksin tv 
+					INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+					INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+					WHERE tv.is_lansia=0
+					AND mc.mc_flag=1
+					$query_level
+					AND mkab.mkab_id=tv.tv_mkab_id
+					AND tv.tv_mkab_id IS NOT NULL
+					AND mkab.mkab_mpro_id=mpro.mpro_id)::int8 AS jml
+					FROM master_provinsi mpro
+					ORDER BY mpro.mpro_id";
+				
+		$dashkasus_provinsi = DB::connection('pgsql_vaksin')->select($query);
 	    foreach($dashkasus_provinsi as $dvp){
 	        $data[] = array(
-	            "v_mpro" => $dvp->v_mpro,
-	            "v_jml" => $dvp->v_jml
+	            "v_mpro" => $dvp->mpro_name,
+	            "v_jml" => $dvp->jml
 	        );
 	    }
 	    //});
