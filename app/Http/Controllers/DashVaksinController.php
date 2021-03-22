@@ -380,48 +380,58 @@ class DashVaksinController extends Controller
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
 	
-	public function getDashVaksinLokasi1(){
-	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_lokasi1", 15 * 60, function() {
-	    $data = array();
-	    $dashvaksin_lokasi1 = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_lokasi1()");
-	    //$dashkasus_kabupaten = DB::select("SELECT * FROM vaksin_dashboard_lokasi1()");
+	public function getDashVaksinLokasi1(Request $request){
+	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    if(isset($request->level) && $request->level>0) {
+	        $level = $request->level;
+	        $query_level = ' AND mc.mc_level='.$level;
+	    }
 	    
+	    $data = array();
+	    $query = "SELECT tv.tv_lokasi1::TEXT, COALESCE(COUNT(*))::int8 AS jml
+				FROM transaksi_vaksin tv 
+				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+				WHERE tv.is_lansia=0
+				AND mc.mc_flag=1
+				$query_level
+				AND (tv_lokasi1 !=NULL or tv_lokasi1 !='')
+				GROUP BY tv.tv_lokasi1
+				ORDER BY tv.tv_lokasi1";
+				
+		$dashvaksin_lokasi1 = DB::connection('pgsql_vaksin')->select($query);
 	    foreach($dashvaksin_lokasi1 as $dl1){
 	        $data[] = array(
-	            "v_lokasi" => $dl1->v_lokasi,
-	            "v_jml" => $dl1->v_jml
+	            "v_lokasi" => $dl1->tv_lokasi1,
+	            "v_jml" => $dl1->jml
 	        );
 	    }
 	    //});
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
 	
-	public function getDashVaksinLokasi2(){
-	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_lokasi2", 15 * 60, function() {
-	    $data = array();
-	    $dashvaksin_lokasi2 = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_lokasi2()");
-	    //$dashkasus_kabupaten = DB::select("SELECT * FROM vaksin_dashboard_lokasi2()");
+	public function getDashVaksinLokasi2(Request $request){
+	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    if(isset($request->level) && $request->level>0) {
+	        $level = $request->level;
+	        $query_level = ' AND mc.mc_level='.$level;
+	    }
 	    
+	    $data = array();
+	    $query = "SELECT tv.tv_lokasi2::TEXT, COALESCE(COUNT(*))::int8 AS jml
+				FROM transaksi_vaksin tv 
+				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+				WHERE tv.is_lansia=0
+				AND mc.mc_flag=1
+				$query_level
+				AND (tv_lokasi2 !=NULL or tv_lokasi2 !='')
+				GROUP BY tv.tv_lokasi2
+				ORDER BY tv.tv_lokasi2";
+				
+				$dashvaksin_lokasi2 = DB::connection('pgsql_vaksin')->select($query);
 	    foreach($dashvaksin_lokasi2 as $dl2){
 	        $data[] = array(
-	            "v_lokasi" => $dl2->v_lokasi,
-	            "v_jml" => $dl2->v_jml
-	        );
-	    }
-	    //});
-	    return response()->json(['status' => 200,'data' => $data]);
-	}
-	
-	public function getDashVaksinLokasi3(){
-	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_lokasi3", 15 * 60, function() {
-	    $data = array();
-	    $dashvaksin_lokasi3 = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_lokasi3()");
-	    //$dashkasus_kabupaten = DB::select("SELECT * FROM vaksin_dashboard_lokasi3()");
-	    
-	    foreach($dashvaksin_lokasi3 as $dl3){
-	        $data[] = array(
-	            "v_lokasi" => $dl3->v_lokasi,
-	            "v_jml" => $dl3->v_jml
+	            "v_lokasi" => $dl2->tv_lokasi2,
+	            "v_jml" => $dl2->jml
 	        );
 	    }
 	    //});
