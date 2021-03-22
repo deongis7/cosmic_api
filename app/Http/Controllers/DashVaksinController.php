@@ -117,17 +117,30 @@ class DashVaksinController extends Controller
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
 	
-	public function getDashVaksinPerusahaan(){
-	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_perusahaan", 15 * 60, function() {
-	    $data = array();
-	    $dashkasus_perusahaan = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_perusahaan()");
-	    //$dashkasus_perusahaan = DB::select("SELECT * FROM vaksin_dashboard_perusahaan()");
+	public function getDashVaksinPerusahaan(Request $request){
+	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    if(isset($request->level) && $request->level>0) {
+	        $level = $request->level;
+	        $query_level = ' AND mc.mc_level='.$level;
+	    }
 	    
-	    foreach($dashkasus_perusahaan as $dvp){
+	    $data = array();
+	    $query = "SELECT mc.mc_id, mc.mc_name,
+					(SELECT COALESCE(COUNT(*)) 
+					FROM transaksi_vaksin tv 
+					WHERE tv.is_lansia=0
+					AND tv.tv_mc_id=mc.mc_id) AS jml
+				FROM master_company mc
+				WHERE mc.mc_flag=1
+				$query_level
+				ORDER BY mc.mc_name ";
+            
+		$dashvaksin_perusahaan = DB::connection('pgsql_vaksin')->select($query);
+	    foreach($dashvaksin_perusahaan as $dvp){
     	        $data[] = array(
-    	            "v_mc_id" => $dvp->v_mc_id,
-    	            "v_mc_name" => $dvp->v_mc_name,
-    	            "v_jml" => $dvp->v_jml
+    	            "v_mc_id" => $dvp->mc_id,
+    	            "v_mc_name" => $dvp->mc_name,
+    	            "v_jml" => $dvp->jml
     	        );
     	    }
 	    //});
