@@ -765,6 +765,7 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinMobileKabPro(Request $request) {
+	    $endpage = 1;
 	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
