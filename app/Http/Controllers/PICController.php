@@ -564,7 +564,7 @@ class PICController extends Controller
   			$role_id = $user->roles()->first()->id;
 
 
-  			$perimeter = DB::connection('pgsql')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo ,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
+  			$perimeter = DB::connection('pgsql2')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo ,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
             case when tsp.tbsp_status = 2 then true else false end as status_pic,
             case when tsp.tbsp_status = 1 then true when tsp.tbsp_status = 2 then true else false end as status_fo,
             tsp.updated_at as last_update
