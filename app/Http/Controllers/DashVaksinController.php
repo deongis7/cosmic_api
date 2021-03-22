@@ -128,8 +128,8 @@ class DashVaksinController extends Controller
 	    $query = "SELECT mc.mc_id, mc.mc_name,
 					(SELECT COALESCE(COUNT(*)) 
 					FROM transaksi_vaksin tv 
+                    INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
 					WHERE tv.is_lansia=0
-	                AND (tv_mkab_id !=NULL OR tv_mkab_id !='')
 					AND tv.tv_mc_id=mc.mc_id) AS jml
 				FROM master_company mc
 				WHERE mc.mc_flag=1
