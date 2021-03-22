@@ -350,16 +350,30 @@ class DashVaksinController extends Controller
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
 	
-	public function getDashVaksinKabupaten(){
-	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_kabupaten", 15 * 60, function() {
-	    $data = array();
-	    $dashkasus_kabupaten = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_dashboard_kabupaten()");
-	    //$dashkasus_kabupaten = DB::select("SELECT * FROM vaksin_dashboard_kabupaten()");
+	public function getDashVaksinKabupaten(Request $request){
+	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    if(isset($request->level) && $request->level>0) {
+	        $level = $request->level;
+	        $query_level = ' AND mc.mc_level='.$level;
+	    }
 	    
+	    $data = array();
+	    $query = "SELECT mkab.mkab_name::TEXT,
+				(SELECT COALESCE(COUNT(*)) 
+				FROM transaksi_vaksin tv 
+				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+				WHERE tv.is_lansia=0
+				AND mc.mc_flag=1
+				$query_level
+				AND tv.tv_mkab_id=mkab.mkab_id)::int8 AS jml
+				FROM master_kabupaten mkab
+				ORDER BY mkab.mkab_name;";
+	    
+		$dashkasus_kabupaten = DB::connection('pgsql_vaksin')->select($query);
 	    foreach($dashkasus_kabupaten as $dvk){
 	        $data[] = array(
-	            "v_mkab" => $dvk->v_mkab,
-	            "v_jml" => $dvk->v_jml
+	            "v_mkab" => $dvk->mkab_name,
+	            "v_jml" => $dvk->jml
 	        );
 	    }
 	    //});
