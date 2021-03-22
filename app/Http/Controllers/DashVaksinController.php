@@ -129,6 +129,7 @@ class DashVaksinController extends Controller
 					(SELECT COALESCE(COUNT(*)) 
 					FROM transaksi_vaksin tv 
 					WHERE tv.is_lansia=0
+	                AND (tv_mkab_id !=NULL OR tv_mkab_id !='')
 					AND tv.tv_mc_id=mc.mc_id) AS jml
 				FROM master_company mc
 				WHERE mc.mc_flag=1
