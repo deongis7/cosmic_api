@@ -48,6 +48,18 @@ $router->get('/storage/{jenis}/{kd_perusahaan}/id-{id}/{filename}', function ($j
     return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/'.$id.'/'. $filename))->response();
 });
 
+$router->get('/download/template/{filename}', function ($filename)
+{
+
+    $path = storage_path('app/public/protokol/example/' . $filename);
+
+    // Download file with custom headers
+    return response()->download($path, $filename, [
+        'Content-Type' => 'application/vnd.ms-excel',
+        'Content-Disposition' => 'inline; filename="' . $filename . '"'
+    ]);
+});
+
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Perimeter
 	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
