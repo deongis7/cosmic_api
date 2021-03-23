@@ -275,76 +275,77 @@ class DashVaksinController extends Controller
 	public function getDashVaksinPegawaiFilter(Request $request){
 		$limit = null;
         $page = null;
-        $endpage = 1;
-
+        $endpage = 10;
+        $filter_nama = strtoupper($request->name);
+		$filter_mc_id = $request->mc_id;
+		$filter_status = $request->status;
+        
+        $str = "_get_dashvaksin_pegawai".$filter_mc_id.$filter_nama;
         if(isset($request->limit)){
+            $str = $str.'_limit_'. $request->limit;
             $limit=$request->limit;
             if(isset($request->page)){
+                $str = $str.'_page_'. $request->page;
                 $page=$request->page;
             }
         }
 
-      	$filter_nama = strtoupper($request->name);
-		$filter_mc_id = $request->mc_id;
-		$filter_status = $request->status;
-        $string = "_get_dashvaksin_pegawai".$filter_mc_id.$filter_nama;
-        //dd($string);
-        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 10, function () use($filter_nama, $filter_mc_id, $filter_status, $limit, $page, $endpage) {
-		
+      	if(isset($request->name)){
+            $str = $str.'_search_'. str_replace(' ','_',$request->name);
+            $filter_nama = strtoupper($request->name);
+        }
+        if(isset($request->status)){
+            $str = $str.'_status_'. str_replace(' ','_',$request->status);
+            $filter_status=$request->status;
+        }
 
-		$where_name = "";
-		if(!empty($filter_nama)){
-			$where_name = " AND UPPER(tv.tv_nama) LIKE '%$filter_nama%'";
-		}
+      	//dd($string);
+        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($filter_nama, $filter_mc_id, $filter_status, $limit, $page, $endpage) {
+		/*$datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 10, function()use($filter_nama, $filter_mc_id, $filter_status, $limit, $page, $endpage) {*/
+	        $data = array();
+			
+		    $vaksin = new Vaksin();
+		    $vaksin->setConnection('pgsql_vaksin');
+		    $vaksin = $vaksin->select('tv_nik', 'tv_nama', 'msp_name2')
+	        ->leftjoin('master_status_pegawai AS msp','msp.msp_id','tv_msp_id')
+	        ->where('tv_mc_id', $filter_mc_id)
+	        ->where('is_lansia', 0);
 
-		$where_status = "";
-		if(!empty($filter_status)){
-			$where_status = " AND tv.tv_msp_id = '$filter_status'";
-		}
+	        if(!empty($filter_nama)) {
+	            $search = $filter_nama;
+	            $vaksin = $vaksin->where(DB::raw("lower(TRIM(tv_nama))"),'like','%'.strtolower(trim($search)).'%');
+	        }
 
-	    // $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_pegawai", 15 * 60, function() {
-		
-	    $string = "select tv_nik, tv_nama, msp_name2 from transaksi_vaksin tv 
-			join master_status_pegawai msp on msp.msp_id = tv.tv_msp_id 
-			where tv.tv_mc_id = '".$filter_mc_id."' AND is_lansia=0 $where_name $where_status";
-
-		$string_count = "SELECT count(*) count
-			from transaksi_vaksin tv 
-			join master_status_pegawai msp on msp.msp_id = tv.tv_msp_id 
-			where tv.tv_mc_id = '".$filter_mc_id."' AND is_lansia=0 $where_name $where_status";	
-		$count = DB::connection('pgsql_vaksin')->select($string_count);
-
-	    $jmltotal=$count[0]->count;
-
-	    $data = array();
-	    
-	    if($limit>0) {
-                //$limit = $request->limit;
-                $sql_limit = ' LIMIT '.$limit;
-                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-
-                $string .= $sql_limit;
-
-                if ($page>0) {
-                    // $page = $request->page;
-                    $offset = ((int)$page-1) * (int)$limit;
-                    $sql_offset= ' OFFSET '.$offset;
-
-                    $string .= $sql_offset;
-                }
-            }
-        $dashpegawai = DB::connection('pgsql_vaksin')->select($string);
-	    foreach($dashpegawai as $dvp){
+	        if(!empty($filter_status)) {
+	            $vaksin = $vaksin->where(DB::raw("tv_msp_id"),'=',trim($filter_status));
+	        }
+	        $jmltotal=($vaksin->count());
+	        if(isset($limit)) {
+	            $vaksin = $vaksin->limit($limit);
+	            $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+	        	//dd($endpage);
+	            
+	            if (!empty($page)) {
+	                $offset = ((int)$page -1) * (int)$limit;
+	                $vaksin = $vaksin->offset($offset);
+	            }
+	        }
+	        
+		    
+		    $vaksin = $vaksin->get();
+	        foreach($vaksin as $dvp){
     	        $data[] = array(
     	            "nik" => $dvp->tv_nik,
     	            "nama" => $dvp->tv_nama,
-    	            "status" => $dvp->msp_name2
+    	            "status" => $dvp->msp_name2,
+    	            "photo" => "https://png.pngtree.com/png-clipart/20190924/original/pngtree-user-vector-avatar-png-image_4830521.jpg"
     	        );
     	    }
-    	    return $data;
-	    });
-	    Cache::tags(['users'])->flush();
-	    return response()->json(['status' => 200,'page_end' =>$endpage,'data' => $datacache]);
+	    	//return $data;
+		    return array('status' => 200,'page_end' =>$endpage,'data' => $data);
+		});
+		    Cache::tags([$str])->flush();
+	    return response()->json($datacache);
 	}
 	
 	public function getDashVaksinProvinsi(Request $request){
