@@ -519,7 +519,7 @@ class DashboardController extends Controller
 	                "v_link" => $dh->x_link
 	            );
 	        }
-	        
+
           //data filter perusahaan
           $data_perusahaan=[];
           $sql1 = "SELECT * FROM master_level_company";
@@ -530,7 +530,7 @@ class DashboardController extends Controller
                   "v_filter_perusahaan" => $lvl->nama_level
               );
           }
-          
+
           //data status karyawan
           $data_status=[];
           $sql1 = "SELECT * FROM master_status_pegawai";
@@ -541,7 +541,7 @@ class DashboardController extends Controller
                   "v_status" => $lvl->msp_name2
               );
           }
-          
+
           //count level company
           $data_level=[];
           $sql1 = "SELECT * FROM dashboard_company_level()";
@@ -553,7 +553,7 @@ class DashboardController extends Controller
                   "v_jml_level" => $lvl->v_jml
               );
           }
-	        
+
 	        //count level company
           /*$data_jml_company=[];
           $sql1 = "SELECT * FROM vaksin_dashboard_perusahaan()";
@@ -579,9 +579,9 @@ class DashboardController extends Controller
               );
             }
           }
-          
+
           return array(
-            'data' => $data, 
+            'data' => $data,
             "filter_perusahaan" => $data_perusahaan,
             "filter_status_pegawai" => $data_status,
             "jumlah_level" => $data_level,
@@ -590,7 +590,7 @@ class DashboardController extends Controller
         });
 
           Cache::tags(['users'])->flush();
-          return response()->json(['status' => 200,'data' =>$datacache['data'], 'filter_perusahaan' => $datacache['filter_perusahaan'], 'filter_status_pegawai' => $datacache['filter_status_pegawai'], 'jumlah_level'=> $datacache['jumlah_level'], 'get_count_company'=> $datacache['get_count_company']]);  
+          return response()->json(['status' => 200,'data' =>$datacache['data'], 'filter_perusahaan' => $datacache['filter_perusahaan'], 'filter_status_pegawai' => $datacache['filter_status_pegawai'], 'jumlah_level'=> $datacache['jumlah_level'], 'get_count_company'=> $datacache['get_count_company']]);
 	}
 
 	public function getWeekList(){
@@ -1694,20 +1694,23 @@ class DashboardController extends Controller
     }
 
     public function getAverageCosmicIndexDetailbyCompany($kd_perusahaan){
-        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_".$id, 15 * 60, function()use($id){
-        $data = array();
-        $average = DB::connection('pgsql3')->select("SELECT * FROM month_average_cosmic_index_bymcid('".$kd_perusahaan."')");
-        //$dashvaksin = DB::select("SELECT * FROM vaksin_summary_bymcid('$id')");
+        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_cosmic_index_detail_average_by_".$kd_perusahaan, 15 * 60, function()use($kd_perusahaan){
+          $data = array();
+          $average = DB::connection('pgsql3')->select("SELECT * FROM month_average_cosmic_index_bymcid('".$kd_perusahaan."')");
+          //$dashvaksin = DB::select("SELECT * FROM vaksin_summary_bymcid('$id')");
 
-        foreach($average as $dv){
-                $data[] = array(
-                    "mc_id" => $dv->v_mc_id,
-                    "avg_cosmic_index" => $dv->v_avg_cosmic_index,
-                    "is_excellent" => $dv->v_is_excellent,
-                    "file" => ($dv->v_is_excellent==true)?'/profile/excellent.png':null,
-                );
-            }
-        //});
-        return response()->json(['status' => 200,'data' => $data]);
+          foreach($average as $dv){
+                  $data[] = array(
+                      "mc_id" => $dv->v_mc_id,
+                      "avg_cosmic_index" => $dv->v_avg_cosmic_index,
+                      "is_excellent" => $dv->v_is_excellent,
+                      "file" => ($dv->v_is_excellent==true)?'/profile/excellent.png':null,
+                      "badge" => ($dv->v_avg_cosmic_index <= 100 ? 'Excellent Protocols':(($dv->v_avg_cosmic_index <= 80) ? 'Great Consistency':(($dv->v_avg_cosmic_index <= 65 )? 'Need to improve':(($dv->v_avg_cosmic_index <= 50 )? 'Ready to New Normal ':(($dv->v_avg_cosmic_index < 40) ? 'No Badge':'No Badge'))))),
+                      "file_badge" => ($dv->v_avg_cosmic_index <= 100 ? '/profile/badge-5.png':(($dv->v_avg_cosmic_index <= 80) ? '/profile/badge-4.png':(($dv->v_avg_cosmic_index <= 65 )? '/profile/badge-3.png':(($dv->v_avg_cosmic_index <= 50 )? '/profile/badge-2.png':(($dv->v_avg_cosmic_index < 40) ? null:null))))),
+                  );
+              }
+          return $data;
+        });
+        return response()->json(['status' => 200,'data' => $datacache]);
     }
 }
