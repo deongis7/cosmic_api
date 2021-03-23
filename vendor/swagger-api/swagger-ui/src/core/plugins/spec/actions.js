@@ -150,6 +150,7 @@ const debResolveSubtrees = debounce(async () => {
       errSelectors,
       fn: {
         resolveSubtree,
+        fetch,
         AST = {}
       },
       specSelectors,
@@ -206,6 +207,28 @@ const debResolveSubtrees = debounce(async () => {
         errActions.newThrownErrBatch(preparedErrors)
       }
 
+      if (spec && specSelectors.isOAS3() && path[0] === "components" && path[1] === "securitySchemes") {
+        // Resolve OIDC URLs if present
+        await Promise.all(Object.values(spec)
+          .filter((scheme) => scheme.type === "openIdConnect")
+          .map(async (oidcScheme) => {
+            const req = {
+              url: oidcScheme.openIdConnectUrl,
+              requestInterceptor: requestInterceptor,
+              responseInterceptor: responseInterceptor
+            }
+            try {
+              const res = await fetch(req)
+              if (res instanceof Error || res.status >= 400) {
+                console.error(res.statusText + " " + req.url)
+              } else {
+                oidcScheme.openIdConnectData = JSON.parse(res.text)
+              }
+            } catch (e) {
+              console.error(e)
+            }
+          }))
+      }
       set(resultMap, path, spec)
       set(specWithCurrentSubtrees, path, spec)
 
@@ -233,7 +256,7 @@ export const requestResolvedSubtree = path => system => {
   const isPathAlreadyBatched = requestBatch
     .map(arr => arr.join("@@"))
     .indexOf(path.join("@@")) > -1
-  
+
   if(isPathAlreadyBatched) {
     return
   }
@@ -353,9 +376,9 @@ export const executeRequest = (req) =>
     let { pathName, method, operation } = req
     let { requestInterceptor, responseInterceptor } = getConfigs()
 
-    
+
     let op = operation.toJS()
-    
+
     // ensure that explicitly-included params are in the request
 
     if (operation && operation.get("parameters")) {
@@ -416,7 +439,10 @@ export const executeRequest = (req) =>
             }
           )
           .filter(
-            (value, key) => !isEmptyValue(value) || requestBodyInclusionSetting.get(key)
+            (value, key) => (Array.isArray(value)
+              ? value.length !== 0
+              : !isEmptyValue(value)
+            ) || requestBodyInclusionSetting.get(key)
           )
           .toJS()
       } else{
@@ -450,7 +476,11 @@ export const executeRequest = (req) =>
     } )
     .catch(
       err => {
-        console.error(err)
+        // console.error(err)
+        if(err.message === "Failed to fetch") {
+          err.name = ""
+          err.message = "**Failed to fetch.**  \n**Possible Reasons:** \n  - CORS \n  - Network Failure \n  - URL scheme must be \"http\" or \"https\" for CORS request."
+        }
         specActions.setResponse(req.pathName, req.method, {
           error: true, err: serializeError(err)
         })

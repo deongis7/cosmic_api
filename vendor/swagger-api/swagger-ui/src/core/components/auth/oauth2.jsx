@@ -11,6 +11,7 @@ export default class Oauth2 extends React.Component {
     authSelectors: PropTypes.object.isRequired,
     authActions: PropTypes.object.isRequired,
     errSelectors: PropTypes.object.isRequired,
+    oas3Selectors: PropTypes.object.isRequired,
     specSelectors: PropTypes.object.isRequired,
     errActions: PropTypes.object.isRequired,
     getConfigs: PropTypes.any
@@ -51,12 +52,19 @@ export default class Oauth2 extends React.Component {
   }
 
   authorize =() => {
-    let { authActions, errActions, getConfigs, authSelectors } = this.props
+    let { authActions, errActions, getConfigs, authSelectors, oas3Selectors } = this.props
     let configs = getConfigs()
     let authConfigs = authSelectors.getConfigs()
 
     errActions.clear({authId: name,type: "auth", source: "auth"})
-    oauth2Authorize({auth: this.state, authActions, errActions, configs, authConfigs })
+    oauth2Authorize({
+      auth: this.state,
+      currentServer: oas3Selectors.serverEffectiveValue(oas3Selectors.selectedServer()),
+      authActions,
+      errActions,
+      configs,
+      authConfigs
+    })
   }
 
   onScopeChange =(e) => {
@@ -114,11 +122,13 @@ export default class Oauth2 extends React.Component {
 
     const { isOAS3 } = specSelectors
 
+    let oidcUrl = isOAS3() ? schema.get("openIdConnectUrl") : null
+
     // Auth type consts
     const IMPLICIT = "implicit"
     const PASSWORD = "password"
-    const ACCESS_CODE = isOAS3() ? "authorizationCode" : "accessCode"
-    const APPLICATION = isOAS3() ? "clientCredentials" : "application"
+    const ACCESS_CODE = isOAS3() ? (oidcUrl ? "authorization_code" : "authorizationCode") : "accessCode"
+    const APPLICATION = isOAS3() ? (oidcUrl ? "client_credentials" : "clientCredentials") : "application"
 
     let flow = schema.get("flow")
     let scopes = schema.get("allowedScopes") || schema.get("scopes")
@@ -136,6 +146,7 @@ export default class Oauth2 extends React.Component {
 
         { isAuthorized && <h6>Authorized</h6> }
 
+        { oidcUrl && <p>OpenID Connect URL: <code>{ oidcUrl }</code></p> }
         { ( flow === IMPLICIT || flow === ACCESS_CODE ) && <p>Authorization URL: <code>{ schema.get("authorizationUrl") }</code></p> }
         { ( flow === PASSWORD || flow === ACCESS_CODE || flow === APPLICATION ) && <p>Token URL:<code> { schema.get("tokenUrl") }</code></p> }
         <p className="flow">Flow: <code>{ schema.get("flow") }</code></p>
@@ -148,7 +159,7 @@ export default class Oauth2 extends React.Component {
                 {
                   isAuthorized ? <code> { this.state.username } </code>
                     : <Col tablet={10} desktop={10}>
-                      <input id="oauth_username" type="text" data-name="username" onChange={ this.onInputChange }/>
+                      <input id="oauth_username" type="text" data-name="username" onChange={ this.onInputChange } autoFocus/>
                     </Col>
                 }
               </Row>

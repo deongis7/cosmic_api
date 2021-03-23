@@ -1,5 +1,5 @@
 import { fromJS } from "immutable"
-import { createXMLExample, sampleFromSchema } from "corePlugins/samples/fn"
+import { createXMLExample, sampleFromSchema, memoizedCreateXMLExample, memoizedSampleFromSchema } from "corePlugins/samples/fn"
 
 describe("sampleFromSchema", () => {
   it("handles Immutable.js objects for nested schemas", function () {
@@ -24,6 +24,81 @@ describe("sampleFromSchema", () => {
       json: {
         a: "string"
       }
+    }
+
+    expect(sampleFromSchema(definition, { includeReadOnly: false })).toEqual(expected)
+  })
+
+  it("should return first enum value if only enum is provided", function () {
+    let definition = fromJS({
+      enum: ["probe"]
+    })
+
+    let expected = "probe"
+    expect(sampleFromSchema(definition, { includeReadOnly: false })).toEqual(expected)
+  })
+
+  it("combine first oneOf or anyOf with schema's definitions", function () {
+    let definition = {
+      type: "object",
+      anyOf: [
+        {
+          type: "object",
+          properties: {
+            test2: {
+              type: "string",
+              example: "anyOf"
+            },
+            test: {
+              type: "string",
+              example: "anyOf"
+            }
+          }
+        }
+      ],
+      properties: {
+        test: {
+          type: "string",
+          example: "schema"
+        }
+      }
+    }
+
+    let expected = {
+      test: "schema",
+      test2: "anyOf"
+    }
+
+    expect(sampleFromSchema(definition, { includeReadOnly: false })).toEqual(expected)
+
+    definition = {
+      type: "object",
+      oneOf: [
+        {
+          type: "object",
+          properties: {
+            test2: {
+              type: "string",
+              example: "oneOf"
+            },
+            test: {
+              type: "string",
+              example: "oneOf"
+            }
+          }
+        }
+      ],
+      properties: {
+        test: {
+          type: "string",
+          example: "schema"
+        }
+      }
+    }
+
+    expected = {
+      test: "schema",
+      test2: "oneOf"
     }
 
     expect(sampleFromSchema(definition, { includeReadOnly: false })).toEqual(expected)
@@ -511,6 +586,26 @@ describe("sampleFromSchema", () => {
 
       expect(sampleFromSchema(definition)).toEqual(expected)
     })
+  })
+
+  it("should use overrideExample when defined", () => {
+    const definition = {
+      type: "object",
+      properties: {
+        foo: {
+          type: "string"
+        }
+      },
+      example: {
+        foo: null
+      }
+    }
+
+    const expected = {
+      foo: "override"
+    }
+
+    expect(sampleFromSchema(definition, {}, expected)).toEqual(expected)
   })
 })
 
@@ -1007,7 +1102,49 @@ describe("createXMLExample", function () {
 
       expect(sut(definition)).toEqual(expected)
     })
+    it("should return additionalProperty example", () => {
+      let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<aliens>\n\t<notalien>test</notalien>\n</aliens>"
+      let definition = {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            alien: {
+              type: "string"
+            },
+            dog: {
+              type: "integer"
+            }
+          }
+        },
+        xml: {
+          name: "aliens"
+        }
+      }
 
+      expect(sut(definition, {}, [{ notalien: "test" }])).toEqual(expected)
+    })
+    it("should return literal example", () => {
+      let expected = "<notaliens>\n\t\n\t<dog>0</dog>\n</notaliens>"
+      let definition = {
+        type: "array",
+        items: {
+          properties: {
+            alien: {
+              type: "string"
+            },
+            dog: {
+              type: "integer"
+            }
+          }
+        },
+        xml: {
+          name: "aliens"
+        }
+      }
+
+      expect(sut(definition, {}, expected)).toEqual(expected)
+    })
 })
 
   describe("object", function () {
@@ -1337,7 +1474,7 @@ describe("createXMLExample", function () {
     })
 
     it("returns object with additional props", function () {
-      let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animals>\n\t<dog>string</dog>\n\t<additionalProp>string</additionalProp>\n</animals>"
+      let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animals>\n\t<dog>string</dog>\n\t<additionalProp1>string</additionalProp1>\n\t<additionalProp2>string</additionalProp2>\n\t<additionalProp3>string</additionalProp3>\n</animals>"
       let definition = {
         type: "object",
         properties: {
@@ -1394,7 +1531,7 @@ describe("createXMLExample", function () {
     })
 
     it("returns object with additional props with no type passed", function () {
-      let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animals>\n\t<additionalProp>string</additionalProp>\n</animals>"
+      let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animals>\n\t<additionalProp1>string</additionalProp1>\n\t<additionalProp2>string</additionalProp2>\n\t<additionalProp3>string</additionalProp3>\n</animals>"
       let definition = {
         additionalProperties: {
           type: "string"
@@ -1406,5 +1543,134 @@ describe("createXMLExample", function () {
 
       expect(sut(definition)).toEqual(expected)
     })
+
+
+    it("should use overrideExample when defined", () => {
+      const expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bar>\n\t<foo>override</foo>\n</bar>"
+
+      const definition = {
+        type: "object",
+        properties: {
+          foo: {
+            type: "string",
+            xml: {
+              name: "foo"
+            }
+          }
+        },
+        example: {
+          foo: null
+        },
+        xml: {
+          name: "bar"
+        }
+      }
+
+      const overrideExample = {
+        foo: "override"
+      }
+
+      expect(sut(definition, {}, overrideExample)).toEqual(expected)
+    })
+
+    it("should return additionalProperty example", () => {
+      let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<aliens>\n\t<alien>test</alien>\n\t<dog>1</dog>\n</aliens>"
+      let definition = {
+        type: "object",
+        properties: {
+          alien: {
+            type: "string"
+          },
+          dog: {
+            type: "integer"
+          }
+        },
+        xml: {
+          name: "aliens"
+        }
+      }
+
+      expect(sut(definition, {}, { alien: "test", dog: 1 })).toEqual(expected)
+    })
+    it("should return literal example", () => {
+      let expected = "<notaliens>\n\t\n\t<dog>0</dog>\n</notaliens>"
+      let definition = {
+        type: "object",
+        properties: {
+          alien: {
+            type: "string"
+          },
+          dog: {
+            type: "integer"
+          }
+        },
+        xml: {
+          name: "aliens"
+        }
+      }
+
+      expect(sut(definition, {}, expected)).toEqual(expected)
+    })
+  })
+})
+
+describe("memoizedSampleFromSchema", () => {
+  it("should sequentially update memoized overrideExample", () => {
+    const definition = {
+      type: "object",
+      properties: {
+        foo: {
+          type: "string"
+        }
+      },
+      example: {
+        foo: null
+      }
+    }
+
+    const expected = {
+      foo: "override"
+    }
+    expect(memoizedSampleFromSchema(definition, {}, expected)).toEqual(expected)
+
+    const updatedExpected = {
+      foo: "cat"
+    }
+    expect(memoizedSampleFromSchema(definition, {}, updatedExpected)).toEqual(updatedExpected)
+  })
+})
+
+describe("memoizedCreateXMLExample", () => {
+  it("should sequentially update memoized overrideExample", () => {
+    const expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bar>\n\t<foo>override</foo>\n</bar>"
+
+    const definition = {
+      type: "object",
+      properties: {
+        foo: {
+          type: "string",
+          xml: {
+            name: "foo"
+          }
+        }
+      },
+      example: {
+        foo: null
+      },
+      xml: {
+        name: "bar"
+      }
+    }
+
+    const overrideExample = {
+      foo: "override"
+    }
+    expect(memoizedCreateXMLExample(definition, {}, overrideExample)).toEqual(expected)
+
+    const updatedOverrideExample = {
+      foo: "cat"
+    }
+    const updatedExpected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bar>\n\t<foo>cat</foo>\n</bar>"
+    expect(memoizedCreateXMLExample(definition, {}, updatedOverrideExample)).toEqual(updatedExpected)
   })
 })

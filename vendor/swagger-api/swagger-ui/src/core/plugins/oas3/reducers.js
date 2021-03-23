@@ -10,6 +10,7 @@ import {
   UPDATE_RESPONSE_CONTENT_TYPE,
   SET_REQUEST_BODY_VALIDATE_ERROR,
   CLEAR_REQUEST_BODY_VALIDATE_ERROR,
+  CLEAR_REQUEST_BODY_VALUE, UPDATE_REQUEST_BODY_VALUE_RETAIN_FLAG,
 } from "./actions"
 
 export default {
@@ -40,6 +41,10 @@ export default {
       }
     })
     return state.setIn(["requestData", path, method, "bodyValue"], newVal)
+  },
+  [UPDATE_REQUEST_BODY_VALUE_RETAIN_FLAG]: (state, { payload: { value, pathMethod } } ) =>{
+    let [path, method] = pathMethod
+    return state.setIn(["requestData", path, method, "retainBodyValue"], value)
   },
   [UPDATE_REQUEST_BODY_INCLUSION]: (state, { payload: { value, pathMethod, name } } ) =>{
     let [path, method] = pathMethod
@@ -94,4 +99,15 @@ export default {
       }, bodyValues)
     })
   },
+  [CLEAR_REQUEST_BODY_VALUE]: (state, { payload: { pathMethod }}) => {
+    let [path, method] = pathMethod
+    const requestBodyValue = state.getIn(["requestData", path, method, "bodyValue"])
+    if (!requestBodyValue) {
+      return state
+    }
+    if (!Map.isMap(requestBodyValue)) {
+      return state.setIn(["requestData", path, method, "bodyValue"], "")
+    }
+    return state.setIn(["requestData", path, method, "bodyValue"], Map())
+  }
 }
