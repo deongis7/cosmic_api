@@ -116,7 +116,7 @@ class DashVaksinController extends Controller
                         "v_jml" => $dv->jml
                     );
                 }
-            return $data;
+         //   return $data;
 	    //});
         //Cache::tags(['users'])->flush();
         //return response()->json(['status' => 200,'data' => $datacache]);
