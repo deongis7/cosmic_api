@@ -38,6 +38,86 @@ class DashVaksinController extends Controller
 
 	}
 
+<<<<<<< HEAD
+	public function getDashVaksin(Request $request){
+	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    if(isset($request->level) && $request->level>0) {
+	        $level = $request->level;
+	        $query_level = ' AND mc.mc_level='.$level;
+	    }else{
+	        $level = 0;
+	    }
+
+	    $query_mc_id = ' ';
+	    if(isset($request->kd_perusahaan)) {
+	        $mc_id = $request->kd_perusahaan;
+	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	    }else{
+	        $mc_id = 'ALL';
+	    }
+	    
+	    $string = "_get_dashvaksinhead_".$level.'_'.$mc_id;
+	    //$datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 10, function () use($level, $mc_id) {
+
+    	    $data = array();
+            $query = "
+                SELECT 0::int2, 'Total Pegawai BUMN' judul, 
+                    COALESCE(COUNT(*))  AS jml
+                FROM transaksi_vaksin tv 
+                INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+                WHERE tv.is_lansia=0
+                AND mc.mc_flag=1
+                $query_level
+                $query_mc_id
+                UNION ALL 
+                SELECT 1::int2, 'SIAP VAKSIN' judul, 
+                    COALESCE(COUNT(*))  AS jml
+                FROM transaksi_vaksin tv 
+                INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+                WHERE tv.is_lansia=0
+                AND mc.mc_flag=1
+                $query_level
+                $query_mc_id
+                AND tv.tv_status_vaksin_pcare=0
+                UNION ALL 
+                SELECT 2::int2, 'SUDAH VAKSIN 1' judul, 
+                    COALESCE(COUNT(*))  AS jml
+                FROM transaksi_vaksin tv 
+                INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+                WHERE tv.is_lansia=0
+                AND mc.mc_flag=1
+                $query_level
+                $query_mc_id
+                AND tv.tv_status_vaksin_pcare=1
+                UNION ALL 
+                SELECT 3::int2, 'SUDAH VAKSIN 2' judul, 
+                    COALESCE(COUNT(*))  AS jml
+                FROM transaksi_vaksin tv 
+                INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+                WHERE tv.is_lansia=0
+                AND mc.mc_flag=1
+                $query_level
+                $query_mc_id
+                AND tv.tv_status_vaksin_pcare=2
+                UNION ALL 
+                SELECT 4::int2, 'Total Keluarga inti Pegawai' judul, 
+                     COALESCE(SUM(tv_jml_keluarga),0) AS jml
+                FROM transaksi_vaksin tv 
+                INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+                WHERE tv.is_lansia=0
+                AND mc.mc_flag=1
+                $query_level 
+                $query_mc_id ";
+        
+                $dashvaksin = DB::connection('pgsql_vaksin')->select($query);
+                foreach($dashvaksin as $dv){
+                    $data[] = array(
+                        "v_judul" => $dv->judul,
+                        "v_jml" => $dv->jml
+                    );
+                }
+            return $data;
+=======
 	public function getDashVaksin(){
 	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin", 15 * 60, function() {
 	        $data = array();
@@ -50,6 +130,7 @@ class DashVaksinController extends Controller
 	                "v_jml" => $dv->v_jml
 	            );
 	        }
+>>>>>>> 7f923fa8716e6bfdf63b680fd22c8ada42dbe896
 	    //});
         return response()->json(['status' => 200,'data' => $data]);
 	}
