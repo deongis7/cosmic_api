@@ -46,7 +46,7 @@ class DashVaksinController extends Controller
 	    }else{
 	        $level = 0;
 	    }
-	    
+
 	    $query_mc_id = ' ';
 	    if(isset($request->kd_perusahaan)) {
 	        $mc_id = $request->kd_perusahaan;
@@ -100,7 +100,7 @@ class DashVaksinController extends Controller
                 AND tv.tv_status_vaksin_pcare=2
                 UNION ALL 
                 SELECT 4::int2, 'Total Keluarga inti Pegawai' judul, 
-                    SUM(COALESCE(tv_jml_keluarga,0)) AS jml
+                     COALESCE(SUM(tv_jml_keluarga),0) AS jml
                 FROM transaksi_vaksin tv 
                 INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
                 WHERE tv.is_lansia=0
