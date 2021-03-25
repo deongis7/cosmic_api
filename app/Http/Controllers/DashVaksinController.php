@@ -754,6 +754,7 @@ class DashVaksinController extends Controller
 			AND msp.msp_id=tv.tv_msp_id
 			AND tv.tv_msp_id IS NOT NULL) AS jml
 			FROM master_status_pegawai msp
+            WHERE msp.msp_id NOT IN (4,5,6)
 			ORDER BY msp.msp_name2;";
         
         $retdb = DB::connection('pgsql_vaksin')->select($query);
