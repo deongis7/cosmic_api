@@ -261,9 +261,7 @@ class OAuthServerException extends Exception
     public static function invalidGrant($hint = '')
     {
         return new static(
-            'The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token '
-                . 'is invalid, expired, revoked, does not match the redirection URI used in the authorization request, '
-                . 'or was issued to another client.',
+            'Salah Username atau Password',
             10,
             'invalid_grant',
             400,
@@ -357,6 +355,16 @@ class OAuthServerException extends Exception
     public function hasRedirect()
     {
         return $this->redirectUri !== null;
+    }
+
+    /**
+     * Returns the Redirect URI used for redirecting.
+     *
+     * @return string|null
+     */
+    public function getRedirectUri()
+    {
+        return $this->redirectUri;
     }
 
     /**
