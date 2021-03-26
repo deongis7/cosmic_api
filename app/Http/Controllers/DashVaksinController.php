@@ -49,14 +49,20 @@ class DashVaksinController extends Controller
 	    }
 
 	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan) && isset($request->level) && $request->level>0) {
-	        $mc_id = $request->kd_perusahaan;
-	        $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	    if(isset($request->kd_perusahaan)) {
+	        if(isset($request->level) && $request->level>1){
+	            $mc_id = $request->kd_perusahaan;
+	            $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	        }else{
+	            $mc_id = $request->kd_perusahaan;
+	            $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        }
 	    }else{
-	        $mc_id = 'ALL';
-	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        $mc_id ='ALL';
+	        $query_mc_id = " ";
 	    }
 	    
+	    //var_dump($query_level);  var_dump($query_mc_id);die;
 	    $string = "_get_dashvaksinhead_".$level.'_'.$mc_id;
 	    //$datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 10, function () use($level, $mc_id) {
 
@@ -150,12 +156,17 @@ class DashVaksinController extends Controller
 	    }
 	    
 	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan) && isset($request->level) && $request->level>0) {
-	        $mc_id = $request->kd_perusahaan;
-	        $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	    if(isset($request->kd_perusahaan)) {
+	        if(isset($request->level) && $request->level>1){
+	            $mc_id = $request->kd_perusahaan;
+	            $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	        }else{
+	            $mc_id = $request->kd_perusahaan;
+	            $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        }
 	    }else{
-	        $mc_id = 'ALL';
-	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        $mc_id ='ALL';
+	        $query_mc_id = " ";
 	    }
 	    
 	    $data = array();
@@ -375,12 +386,17 @@ class DashVaksinController extends Controller
 	    }
 	    
 	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan) && isset($request->level) && $request->level>0) {
-	        $mc_id = $request->kd_perusahaan;
-	        $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	    if(isset($request->kd_perusahaan)) {
+	        if(isset($request->level) && $request->level>1){
+	            $mc_id = $request->kd_perusahaan;
+	            $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	        }else{
+	            $mc_id = $request->kd_perusahaan;
+	            $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        }
 	    }else{
-	        $mc_id = 'ALL';
-	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        $mc_id ='ALL';
+	        $query_mc_id = " ";
 	    }
 	    
 	    $data = array();
@@ -420,12 +436,17 @@ class DashVaksinController extends Controller
 	    }
 	    
 	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan) && isset($request->level) && $request->level>0) {
-	        $mc_id = $request->kd_perusahaan;
-	        $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	    if(isset($request->kd_perusahaan)) {
+	        if(isset($request->level) && $request->level>1){
+	            $mc_id = $request->kd_perusahaan;
+	            $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	        }else{
+	            $mc_id = $request->kd_perusahaan;
+	            $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        }
 	    }else{
-	        $mc_id = 'ALL';
-	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        $mc_id ='ALL';
+	        $query_mc_id = " ";
 	    }
 	    
 	    $data = array();
@@ -462,12 +483,17 @@ class DashVaksinController extends Controller
 	    }
 	    
 	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan) && isset($request->level) && $request->level>0) {
-	        $mc_id = $request->kd_perusahaan;
-	        $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	    if(isset($request->kd_perusahaan)) {
+	        if(isset($request->level) && $request->level>1){
+	            $mc_id = $request->kd_perusahaan;
+	            $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	        }else{
+	            $mc_id = $request->kd_perusahaan;
+	            $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        }
 	    }else{
-	        $mc_id = 'ALL';
-	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        $mc_id ='ALL';
+	        $query_mc_id = " ";
 	    }
 	    
 	    $data = array();
@@ -503,12 +529,17 @@ class DashVaksinController extends Controller
 	    }
 	    
 	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan) && isset($request->level) && $request->level>0) {
-	        $mc_id = $request->kd_perusahaan;
-	        $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	    if(isset($request->kd_perusahaan)) {
+	        if(isset($request->level) && $request->level>1){
+	            $mc_id = $request->kd_perusahaan;
+	            $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	        }else{
+	            $mc_id = $request->kd_perusahaan;
+	            $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        }
 	    }else{
-	        $mc_id = 'ALL';
-	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        $mc_id ='ALL';
+	        $query_mc_id = " ";
 	    }
 	    
 	    $data = array();
