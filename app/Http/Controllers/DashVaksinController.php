@@ -49,11 +49,12 @@ class DashVaksinController extends Controller
 	    }
 
 	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan)) {
+	    if(isset($request->kd_perusahaan) && isset($request->level) && $request->level>0) {
 	        $mc_id = $request->kd_perusahaan;
-	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	        $query_mc_id = " AND mc.mc_id= '$mc_id'";
 	    }else{
 	        $mc_id = 'ALL';
+	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
 	    }
 	    
 	    $string = "_get_dashvaksinhead_".$level.'_'.$mc_id;
@@ -140,17 +141,20 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinPerusahaan(Request $request){
-	    $level = 0;
 	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
 	        $query_level = ' AND mc.mc_level='.$level;
+	    }else{
+	        $level = 0;
 	    }
 	    
-	    $mc_id = 'ALL';
 	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan)) {
+	    if(isset($request->kd_perusahaan) && isset($request->level) && $request->level>0) {
 	        $mc_id = $request->kd_perusahaan;
+	        $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	    }else{
+	        $mc_id = 'ALL';
 	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
 	    }
 	    
@@ -362,17 +366,20 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinProvinsi(Request $request){
-	    $level = 0;
 	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
 	        $query_level = ' AND mc.mc_level='.$level;
+	    }else{
+	        $level = 0;
 	    }
 	    
-	    $mc_id = 'ALL';
 	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan)) {
+	    if(isset($request->kd_perusahaan) && isset($request->level) && $request->level>0) {
 	        $mc_id = $request->kd_perusahaan;
+	        $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	    }else{
+	        $mc_id = 'ALL';
 	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
 	    }
 	    
@@ -404,17 +411,20 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinKabupaten(Request $request){
-	    $level = 0;
 	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
 	        $query_level = ' AND mc.mc_level='.$level;
+	    }else{
+	        $level = 0;
 	    }
 	    
-	    $mc_id = 'ALL';
 	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan)) {
+	    if(isset($request->kd_perusahaan) && isset($request->level) && $request->level>0) {
 	        $mc_id = $request->kd_perusahaan;
+	        $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	    }else{
+	        $mc_id = 'ALL';
 	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
 	    }
 	    
@@ -443,17 +453,20 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinLokasi1(Request $request){
-	    $level = 0;
 	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
 	        $query_level = ' AND mc.mc_level='.$level;
+	    }else{
+	        $level = 0;
 	    }
 	    
-	    $mc_id = 'ALL';
 	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan)) {
+	    if(isset($request->kd_perusahaan) && isset($request->level) && $request->level>0) {
 	        $mc_id = $request->kd_perusahaan;
+	        $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	    }else{
+	        $mc_id = 'ALL';
 	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
 	    }
 	    
@@ -481,17 +494,20 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinLokasi2(Request $request){
-	    $level = 0;
 	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
 	        $query_level = ' AND mc.mc_level='.$level;
+	    }else{
+	        $level = 0;
 	    }
 	    
-	    $mc_id = 'ALL';
 	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan)) {
+	    if(isset($request->kd_perusahaan) && isset($request->level) && $request->level>0) {
 	        $mc_id = $request->kd_perusahaan;
+	        $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	    }else{
+	        $mc_id = 'ALL';
 	        $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
 	    }
 	    
