@@ -231,7 +231,7 @@ class DashVaksinController extends Controller
 				where 1=1
 				$w1
 				$w3
-				ORDER BY mc_name ";
+				";
 
 		$string_count = "SELECT count(*) count
 				FROM master_company mc1
@@ -245,6 +245,19 @@ class DashVaksinController extends Controller
 
 	    $jmltotal=$count[0]->count;
             // dd($jmltotal);
+
+	    //order by / sort
+	      if(isset($request->column_sort)) {
+              if(isset($request->p_sort)) {
+                  $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
+              }else{
+                  $sql_sort = ' ORDER BY '.$request->column_sort.' DESC';
+              }
+          }else{
+              $sql_sort = ' ORDER BY mc_name';
+          }
+          	$string .= $sql_sort;
+
             if(isset($request->limit)) {
                 $limit = $request->limit;
                 $sql_limit = ' LIMIT '.$request->limit;
