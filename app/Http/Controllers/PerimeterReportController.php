@@ -663,6 +663,8 @@ class PerimeterReportController extends Controller
         }
         //dd($str_fnc);
         // $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 40 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$week) {
+        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 10, function () use($kd_perusahaan,$nik,$user,$role_id,$week) {
+
           //current week
           $crweeks = AppHelper::Weeks();
           $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
@@ -742,8 +744,9 @@ class PerimeterReportController extends Controller
 
             return $data;
 
-        /*});
-        return ($datacache);*/
+        });
+        Cache::tags([$str])->flush();
+        return ($datacache);
 
     }
 
