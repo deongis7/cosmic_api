@@ -364,10 +364,23 @@ class DashVaksinController extends Controller
             }
         $dashpegawai = DB::connection('pgsql_vaksin')->select($string);
 	    foreach($dashpegawai as $dvp){
+	    	if($dvp->tv_file1 !=NULL || $dvp->tv_file1 !=''){
+                if (!file_exists(base_path("storage/app/public/vaksin_eviden/".$dvp->tv_mc_id.'/'.$dvp->tv_file1))) {
+                    $path_file404 = '/404/img404.jpg';
+                    $filevksn1 = $path_file404;
+                }else{
+                    $path_file1 = '/vaksin_eviden/'.$dvp->tv_file1;
+                    $filevksn1 = $path_file1;
+                }
+            }else{
+                $filevksn1 = '/404/img404.jpg';
+            }
+                
     	        $data[] = array(
     	            "nik" => $dvp->tv_nik,
     	            "nama" => $dvp->tv_nama,
-    	            "status" => $dvp->msp_name2
+    	            "status" => $dvp->msp_name2,
+    	            "photo" => $filevksn1
     	        );
     	    }
     	    return $data;
