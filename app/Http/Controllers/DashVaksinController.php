@@ -131,7 +131,7 @@ class DashVaksinController extends Controller
                 foreach($dashvaksin as $dv){
                     $data[] = array(
                         "v_judul" => $dv->judul,
-                        "v_jml" => $dv->jml
+                        "v_jml" => number_format($dv->jml,0,".",",")
                     );
                 }
            return $data;
@@ -147,7 +147,7 @@ class DashVaksinController extends Controller
 	    foreach($dashvaksin as $dv){
     	        $data[] = array(
     	            "v_judul" => $dv->v_judul,
-    	            "v_jml" => $dv->v_jml
+    	            "v_jml" => number_format($dv->jml,0,".",",")
     	        );
     	    }
 	    return response()->json(['status' => 200,'data' => $data]);
@@ -209,7 +209,7 @@ class DashVaksinController extends Controller
     	        $data[] = array(
     	            "v_mc_id" => $dvp->mc_id,
     	            "v_mc_name" => $dvp->mc_name,
-    	            "v_jml" => $dvp->jml
+    	            "v_jml" => number_format($dvp->jml,0,".",",")
     	        );
     	    }
             return $data;
@@ -317,7 +317,7 @@ class DashVaksinController extends Controller
     	        $data[] = array(
     	            "v_mc_id" => $dvp->mc_id,
     	            "v_mc_name" => $dvp->mc_name,
-    	            "v_jml" => $dvp->jml
+    	            "v_jml" => number_format($dvp->jml,0,".",",")
     	        );
     	    }
 	    //});
@@ -471,7 +471,7 @@ class DashVaksinController extends Controller
     	    foreach($dashkasus_provinsi as $dvp){
     	        $data[] = array(
     	            "v_mpro" => $dvp->mpro_name,
-    	            "v_jml" => $dvp->jml
+    	            "v_jml" => number_format($dvp->jml,0,".",",") 
     	        );
     	    }
     	    return $data;
@@ -535,7 +535,7 @@ class DashVaksinController extends Controller
     	    foreach($dashkasus_kabupaten as $dvk){
     	        $data[] = array(
     	            "v_mkab" => $dvk->mkab_name,
-    	            "v_jml" => $dvk->jml
+    	            "v_jml" => number_format($dvk->jml,0,".",",")
     	        );
     	    }
     	    return $data;
@@ -598,7 +598,7 @@ class DashVaksinController extends Controller
     	    foreach($dashvaksin_lokasi1 as $dl1){
     	        $data[] = array(
     	            "v_lokasi" => $dl1->tv_lokasi1,
-    	            "v_jml" => $dl1->jml
+    	            "v_jml" => number_format($dl1->jml,0,".",",")
     	        );
     	    }
     	    return $data;
@@ -661,7 +661,7 @@ class DashVaksinController extends Controller
 			foreach($dashvaksin_lokasi2 as $dl2){
 			    $data[] = array(
 			        "v_lokasi" => $dl2->tv_lokasi2,
-			        "v_jml" => $dl2->jml
+			        "v_jml" => number_format($dl2->jml,0,".",",")
 			    );
 			}
             return $data;
@@ -850,7 +850,7 @@ class DashVaksinController extends Controller
         $retdb = DB::connection('pgsql_vaksin')->select($query);
         foreach($retdb as $dvp){
             $data[] = array(
-                "jml" => $dvp->jml
+                "jml" => number_format($dvp->jml,0,".",",") 
             );
         }
         return response()->json(['status' => 200,'data' => $data]);
