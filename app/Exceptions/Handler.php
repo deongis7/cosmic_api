@@ -57,7 +57,7 @@ class Handler extends ExceptionHandler
 
 			return response()->json([
 							'status' => '500',
-							//'message' => 'Data Mengalami Kesalahan.'
+							//'message' => 'Sedang dilakukan Penyesuaian. Mohon Login kembali beberapa saat lagi.'
 							'message' => 'Internal Service Error. '.$exception->getMessage()
 						])->setStatusCode(500);
 		}
