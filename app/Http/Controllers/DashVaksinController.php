@@ -62,7 +62,8 @@ class DashVaksinController extends Controller
 	        $query_mc_id = " ";
 	    }
 	    
-	    //var_dump($query_level);  var_dump($query_mc_id);die;
+	    //var_dump($query_level);
+	    //var_dump($query_mc_id);die;
 	    $string = "_get_dashvaksinhead_".$level.'_'.$mc_id;
 	    //$datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 10, function () use($level, $mc_id) {
 
@@ -131,6 +132,7 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksin_bymcid($id){
+	    //var_dump($id);die;
 	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_".$id, 15 * 60, function()use($id){
 	    $data = array();
 	    $dashvaksin = DB::connection('pgsql_vaksin')->select("SELECT * FROM vaksin_summary_bymcid('$id')");
