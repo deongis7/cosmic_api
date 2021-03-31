@@ -619,22 +619,43 @@ class DashVaksinController extends Controller
 	        $mc_id ='ALL';
 	    }
 	    
-	    $string = "_get_dashvaksin_bylokasi1_".$level.'_'.$mc_id;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id) {
-	        if($level > 0){
-	            $query_level = ' AND mc.mc_level='.$level;
+	    $query_lansia_id = ' ';
+	    if(isset($request->lansia)) {
+	        if(isset($request->lansia) && $request->lansia!='ALL'){
+	            $lansia = $request->lansia;
 	        }else{
-	            $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	            $lansia = $request->lansia;
+	        }
+	    }else{
+	        $lansia ='ALL';
+	    }
+	    
+	    $string = "_get_dashvaksin_bylokasi1_".$level.'_'.$mc_id.'_'.$lansia;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
+	        if($level > 0){
+	            $query_level = ' AND mav.v_mc_level='.$level;
+	        }else{
+	            $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	        }
 	        
 	        if($mc_id!='ALL'){
 	            if(isset($request->level) && $request->level>1){
-	                $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
 	            }else{
-	                $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id_induk = '$mc_id' ";
 	            }
 	        }else{
 	            $query_mc_id = " ";
+	        }
+	        
+	        if($lansia!='ALL'){
+	            if(isset($request->lansia) && $request->lansia!='ALL'){
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }else{
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }
+	        }else{
+	            $query_lansia = " ";
 	        }
 	    
     	    $data = array();
@@ -682,22 +703,43 @@ class DashVaksinController extends Controller
 	        $mc_id ='ALL';
 	    }
 	    
-	    $string = "_get_dashvaksin_bylokasi2_".$level.'_'.$mc_id;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id) {
-	        if($level > 0){
-	            $query_level = ' AND mc.mc_level='.$level;
+	    $query_lansia_id = ' ';
+	    if(isset($request->lansia)) {
+	        if(isset($request->lansia) && $request->lansia!='ALL'){
+	            $lansia = $request->lansia;
 	        }else{
-	            $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	            $lansia = $request->lansia;
+	        }
+	    }else{
+	        $lansia ='ALL';
+	    }
+	    
+	    $string = "_get_dashvaksin_bylokasi2_".$level.'_'.$mc_id.'_'.$lansia;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
+	        if($level > 0){
+	            $query_level = ' AND mav.v_mc_level='.$level;
+	        }else{
+	            $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	        }
 	        
 	        if($mc_id!='ALL'){
 	            if(isset($request->level) && $request->level>1){
-	                $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
 	            }else{
-	                $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id_induk = '$mc_id' ";
 	            }
 	        }else{
 	            $query_mc_id = " ";
+	        }
+	        
+	        if($lansia!='ALL'){
+	            if(isset($request->lansia) && $request->lansia!='ALL'){
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }else{
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }
+	        }else{
+	            $query_lansia = " ";
 	        }
 	        
 	        $data = array();
