@@ -626,11 +626,11 @@ class PICController extends Controller
 
 					// echo $token;die;
 					//lempar ke helper firebase
-	                $token = $get_perimeter[0]->token;
+	               /* $token = $get_perimeter[0]->token;
 	                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
 	                $title = $get_perimeter[0]->mcr_name;
 	                $role="PIC";
-	                $weeks = AppHelper::sendFirebase($token, $body, $title,$role);
+	                $weeks = AppHelper::sendFirebase($token, $body, $title,$role);*/
 	            }
             $no++;
   			}
