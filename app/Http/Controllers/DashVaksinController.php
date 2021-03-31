@@ -70,7 +70,7 @@ class DashVaksinController extends Controller
 	        $lansia ='ALL';
 	    }
 	    
-	    $string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia;
+	    $string = "_get_dashvaksinhead1_".$level.'_'.$mc_id.'_'.$lansia;
 	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
@@ -165,7 +165,7 @@ class DashVaksinController extends Controller
 	    foreach($dashvaksin as $dv){
     	        $data[] = array(
     	            "v_judul" => $dv->v_judul,
-    	            "v_jml" => number_format($dv->jml,0,".",",")
+    	            "v_jml" => number_format($dv->v_jml,0,".",",")
     	        );
     	    }
 	    return response()->json(['status' => 200,'data' => $data]);
