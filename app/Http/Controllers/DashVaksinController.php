@@ -224,15 +224,15 @@ class DashVaksinController extends Controller
 	        }
     	    $data = array();
     	    $query = "SELECT mc.mc_id, mc.mc_name,
-    					(SELECT COALESCE(COUNT(*)) 
-    					FROM transaksi_vaksin tv 
-                        INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
-    					WHERE tv.is_lansia=0
-    					AND tv.tv_mc_id=mc.mc_id) AS jml
+    					(SELECT COALESCE(SUM(v_jml_pegawai),0)
+                        FROM mvt_admin_vaksin mav
+                        INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
+        				WHERE 1=1
+                        $query_level
+                        $query_lansia
+                        $query_mc_id) AS jml
     				FROM master_company mc
     				WHERE mc.mc_flag=1
-    				$query_level
-    				$query_mc_id
     				ORDER BY mc.mc_name ";
                 
     		$dashvaksin_perusahaan = DB::connection('pgsql_vaksin')->select($query);
