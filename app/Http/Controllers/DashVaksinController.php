@@ -62,7 +62,7 @@ class DashVaksinController extends Controller
         }
 	    
 	    $string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level, $mc_id, $lansia) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
 	        }else{
@@ -196,7 +196,7 @@ class DashVaksinController extends Controller
 	    }
 	    
 	    $string = "_get_dashvaksin_byperusahaan_".$level.'_'.$mc_id.'_'.$lansia;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level, $mc_id, $lansia) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
 	            $query_level1 = ' AND mc1.mc_level='.$level;
@@ -471,7 +471,7 @@ class DashVaksinController extends Controller
 	    }
 	    
 	    $string = "_get_dashvaksin_byprovinsi_".$level.'_'.$mc_id.'_'.$lansia;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level, $mc_id, $lansia) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
 	        }else{
@@ -510,7 +510,7 @@ class DashVaksinController extends Controller
                     $query_mc_id)::int8 AS jml
         		FROM master_provinsi mpro
         		ORDER BY mpro.mpro_id";
-    				
+                    var_dump($query);die;
     		$dashkasus_provinsi = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashkasus_provinsi as $dvp){
     	        $data[] = array(
@@ -547,7 +547,7 @@ class DashVaksinController extends Controller
 	    }
 	    
 	    $string = "_get_dashvaksin_bykabupaten_".$level.'_'.$mc_id.'_'.$lansia;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level, $mc_id, $lansia) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
 	        }else{
@@ -623,7 +623,7 @@ class DashVaksinController extends Controller
 	    }
 	    
 	    $string = "_get_dashvaksin_bylokasi1_".$level.'_'.$mc_id.'_'.$lansia;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level, $mc_id, $lansia) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mc.mc_level='.$level;
 	        }else{
@@ -698,7 +698,7 @@ class DashVaksinController extends Controller
 	    }
 	    
 	    $string = "_get_dashvaksin_bylokasi2_".$level.'_'.$mc_id.'_'.$lansia;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level, $mc_id, $lansia) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mc.mc_level='.$level;
 	        }else{
