@@ -510,7 +510,7 @@ class DashVaksinController extends Controller
                     $query_mc_id)::int8 AS jml
         		FROM master_provinsi mpro
         		ORDER BY mpro.mpro_id";
-                    var_dump($query);die;
+                //var_dump($query);die;
     		$dashkasus_provinsi = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashkasus_provinsi as $dvp){
     	        $data[] = array(
