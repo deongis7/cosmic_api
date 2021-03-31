@@ -625,9 +625,9 @@ class DashVaksinController extends Controller
 	    $string = "_get_dashvaksin_bylokasi1_".$level.'_'.$mc_id.'_'.$lansia;
 	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
-	            $query_level = ' AND mav.v_mc_level='.$level;
+	            $query_level = ' AND mc.mc_level='.$level;
 	        }else{
-	            $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
+	            $query_level = ' AND mc.mc_level IN (1,2,3) ';
 	        }
 	        
 	        if($mc_id!='ALL'){
@@ -642,9 +642,9 @@ class DashVaksinController extends Controller
 	        
 	        if($lansia!='ALL'){
 	            if(isset($request->lansia) && $request->lansia!='ALL'){
-	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	                $query_lansia = " AND tv.is_lansia = $lansia ";
 	            }else{
-	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	                $query_lansia = " AND tv.is_lansia = $lansia ";
 	            }
 	        }else{
 	            $query_lansia = " ";
@@ -654,9 +654,9 @@ class DashVaksinController extends Controller
     	    $query = "SELECT tv.tv_lokasi1::TEXT, COALESCE(COUNT(*))::int8 AS jml
 				FROM transaksi_vaksin tv 
 				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-				WHERE tv.is_lansia=0
-				AND mc.mc_flag=1
+				WHERE mc.mc_flag=1
 				$query_level
+				$query_lansia
 				$query_mc_id
 				AND (tv_lokasi1 !=NULL or tv_lokasi1 !='')
 				GROUP BY tv.tv_lokasi1
@@ -700,9 +700,9 @@ class DashVaksinController extends Controller
 	    $string = "_get_dashvaksin_bylokasi2_".$level.'_'.$mc_id.'_'.$lansia;
 	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
-	            $query_level = ' AND mav.v_mc_level='.$level;
+	            $query_level = ' AND mc.mc_level='.$level;
 	        }else{
-	            $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
+	            $query_level = ' AND mc.mc_level IN (1,2,3) ';
 	        }
 	        
 	        if($mc_id!='ALL'){
@@ -717,9 +717,9 @@ class DashVaksinController extends Controller
 	        
 	        if($lansia!='ALL'){
 	            if(isset($request->lansia) && $request->lansia!='ALL'){
-	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	                $query_lansia = " AND tv.is_lansia = $lansia ";
 	            }else{
-	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	                $query_lansia = " AND tv.is_lansia = $lansia ";
 	            }
 	        }else{
 	            $query_lansia = " ";
@@ -732,6 +732,7 @@ class DashVaksinController extends Controller
 				WHERE tv.is_lansia=0
 				AND mc.mc_flag=1
 				$query_level
+				$query_lansia
 				$query_mc_id
 				AND (tv_lokasi2 !=NULL or tv_lokasi2 !='')
 				GROUP BY tv.tv_lokasi2
