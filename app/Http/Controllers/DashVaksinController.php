@@ -61,8 +61,8 @@ class DashVaksinController extends Controller
             $lansia ='ALL';
         }
 	    
-	    //$string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia;
-	    //$datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
+	    $string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
 	        }else{
@@ -145,10 +145,10 @@ class DashVaksinController extends Controller
                     );
                 }
            return $data;
-	    //});
-        //Cache::tags(['users'])->flush();
-        //return response()->json(['status' => 200,'data' => $datacache]);
-        return response()->json(['status' => 200,'data' => $data]);
+	    });
+        Cache::tags(['users'])->flush();
+        return response()->json(['status' => 200,'data' => $datacache]);
+        //return response()->json(['status' => 200,'data' => $data]);
 	}
 	
 	public function getDashVaksin_bymcid($id){
