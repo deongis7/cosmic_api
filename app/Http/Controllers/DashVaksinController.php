@@ -43,35 +43,26 @@ class DashVaksinController extends Controller
 	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	       
 	    }else{
 	        $level = 0;
 	    }
 
 	    $query_mc_id = ' ';
 	    if(isset($request->kd_perusahaan)) {
-	        if(isset($request->level) && $request->level>1){
-	            $mc_id = $request->kd_perusahaan;
-	        }else{
-	            $mc_id = $request->kd_perusahaan;
-	        }
+	           $mc_id = $request->kd_perusahaan;
 	    }else{
 	        $mc_id ='ALL';
 	    }
 	    
 	    $query_lansia_id = ' ';
-	    if(isset($request->lansia)) {
-	        if(isset($request->lansia) && $request->lansia!='ALL'){
-	            $lansia = $request->lansia;
-	        }else{
-	            $lansia = $request->lansia;
-	        }
-	    }else{
-	        $lansia ='ALL';
-	    }
+        if(isset($request->lansia) && $request->lansia!='ALL'){
+            $lansia = $request->lansia;
+        }else{
+            $lansia ='ALL';
+        }
 	    
-	    $string = "_get_dashvaksinhead1_".$level.'_'.$mc_id.'_'.$lansia;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
+	    //$string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia;
+	    //$datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
 	        }else{
@@ -145,6 +136,7 @@ class DashVaksinController extends Controller
                 $query_lansia
                 $query_mc_id ";
         
+                //var_dump($query);die;
                 $dashvaksin = DB::connection('pgsql_vaksin')->select($query);
                 foreach($dashvaksin as $dv){
                     $data[] = array(
@@ -153,9 +145,10 @@ class DashVaksinController extends Controller
                     );
                 }
            return $data;
-	    });
-        Cache::tags(['users'])->flush();
-        return response()->json(['status' => 200,'data' => $datacache]);
+	    //});
+        //Cache::tags(['users'])->flush();
+        //return response()->json(['status' => 200,'data' => $datacache]);
+        return response()->json(['status' => 200,'data' => $data]);
 	}
 	
 	public function getDashVaksin_bymcid($id){
@@ -518,29 +511,20 @@ class DashVaksinController extends Controller
 	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	        
 	    }else{
 	        $level = 0;
 	    }
 	    
 	    $query_mc_id = ' ';
 	    if(isset($request->kd_perusahaan)) {
-	        if(isset($request->level) && $request->level>1){
-	            $mc_id = $request->kd_perusahaan;
-	        }else{
-	            $mc_id = $request->kd_perusahaan;
-	        }
+	        $mc_id = $request->kd_perusahaan;
 	    }else{
 	        $mc_id ='ALL';
 	    }
 	    
 	    $query_lansia_id = ' ';
-	    if(isset($request->lansia)) {
-	        if(isset($request->lansia) && $request->lansia!='ALL'){
-	            $lansia = $request->lansia;
-	        }else{
-	            $lansia = $request->lansia;
-	        }
+	    if(isset($request->lansia) && $request->lansia!='ALL'){
+	        $lansia = $request->lansia;
 	    }else{
 	        $lansia ='ALL';
 	    }
@@ -600,32 +584,23 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinLokasi1(Request $request){
-	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	        
 	    }else{
 	        $level = 0;
 	    }
 	    
 	    $query_mc_id = ' ';
 	    if(isset($request->kd_perusahaan)) {
-	        if(isset($request->level) && $request->level>1){
-	            $mc_id = $request->kd_perusahaan;
-	        }else{
-	            $mc_id = $request->kd_perusahaan;
-	        }
+	        $mc_id = $request->kd_perusahaan;
 	    }else{
 	        $mc_id ='ALL';
 	    }
 	    
 	    $query_lansia_id = ' ';
-	    if(isset($request->lansia)) {
-	        if(isset($request->lansia) && $request->lansia!='ALL'){
-	            $lansia = $request->lansia;
-	        }else{
-	            $lansia = $request->lansia;
-	        }
+	    if(isset($request->lansia) && $request->lansia!='ALL'){
+	        $lansia = $request->lansia;
 	    }else{
 	        $lansia ='ALL';
 	    }
@@ -684,32 +659,23 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinLokasi2(Request $request){
-	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	        
 	    }else{
 	        $level = 0;
 	    }
 	    
 	    $query_mc_id = ' ';
 	    if(isset($request->kd_perusahaan)) {
-	        if(isset($request->level) && $request->level>1){
-	            $mc_id = $request->kd_perusahaan;
-	        }else{
-	            $mc_id = $request->kd_perusahaan;
-	        }
+	        $mc_id = $request->kd_perusahaan;
 	    }else{
 	        $mc_id ='ALL';
 	    }
 	    
 	    $query_lansia_id = ' ';
-	    if(isset($request->lansia)) {
-	        if(isset($request->lansia) && $request->lansia!='ALL'){
-	            $lansia = $request->lansia;
-	        }else{
-	            $lansia = $request->lansia;
-	        }
+	    if(isset($request->lansia) && $request->lansia!='ALL'){
+	        $lansia = $request->lansia;
 	    }else{
 	        $lansia ='ALL';
 	    }
