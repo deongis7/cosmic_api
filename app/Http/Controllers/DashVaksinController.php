@@ -651,21 +651,21 @@ class DashVaksinController extends Controller
 	        }
 	    
     	    $data = array();
-    	    $query = "SELECT tv.tv_lokasi1::TEXT, COALESCE(COUNT(*))::int8 AS jml
+    	    $query = "SELECT tv.tv_lokasi_vaksin_pcare1::TEXT, COALESCE(COUNT(*))::int8 AS jml
 				FROM transaksi_vaksin tv 
 				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
 				WHERE mc.mc_flag=1
 				$query_level
 				$query_lansia
 				$query_mc_id
-				AND (tv_lokasi1 !=NULL or tv_lokasi1 !='')
-				GROUP BY tv.tv_lokasi1
-				ORDER BY tv.tv_lokasi1";
+				AND (tv_lokasi_vaksin_pcare1 !=NULL or tv_lokasi_vaksin_pcare1 !='')
+				GROUP BY tv.tv_lokasi_vaksin_pcare1
+				ORDER BY tv.tv_lokasi_vaksin_pcare1";
     				
     		$dashvaksin_lokasi1 = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashvaksin_lokasi1 as $dl1){
     	        $data[] = array(
-    	            "v_lokasi" => $dl1->tv_lokasi1,
+    	            "v_lokasi" => $dl1->tv_lokasi_vaksin_pcare1,
     	            "v_jml" => number_format($dl1->jml,0,".",",")
     	        );
     	    }
@@ -726,7 +726,7 @@ class DashVaksinController extends Controller
 	        }
 	        
 	        $data = array();
-	        $query = "SELECT tv.tv_lokasi2::TEXT, COALESCE(COUNT(*))::int8 AS jml
+	        $query = "SELECT tv.tv_lokasi_vaksin_pcare2::TEXT, COALESCE(COUNT(*))::int8 AS jml
 				FROM transaksi_vaksin tv
 				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
 				WHERE tv.is_lansia=0
@@ -734,14 +734,14 @@ class DashVaksinController extends Controller
 				$query_level
 				$query_lansia
 				$query_mc_id
-				AND (tv_lokasi2 !=NULL or tv_lokasi2 !='')
-				GROUP BY tv.tv_lokasi2
-				ORDER BY tv.tv_lokasi2";
+				AND (tv_lokasi_vaksin_pcare2 !=NULL or tv_lokasi_vaksin_pcare2 !='')
+				GROUP BY tv.tv_lokasi_vaksin_pcare2
+				ORDER BY tv.tv_lokasi_vaksin_pcare2";
     				
 			$dashvaksin_lokasi2 = DB::connection('pgsql_vaksin')->select($query);
 			foreach($dashvaksin_lokasi2 as $dl2){
 			    $data[] = array(
-			        "v_lokasi" => $dl2->tv_lokasi2,
+			        "v_lokasi" => $dl2->tv_lokasi_vaksin_pcare2,
 			        "v_jml" => number_format($dl2->jml,0,".",",")
 			    );
 			}
