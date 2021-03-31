@@ -199,8 +199,10 @@ class DashVaksinController extends Controller
 	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
+	            $query_level1 = ' AND mc1.mc_level='.$level;
 	        }else{
 	            $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
+	            $query_level1 = ' AND mc1.mc_level IN (1,2,3) ';
 	        }
 	        
 	        if($mc_id!='ALL'){
@@ -223,18 +225,20 @@ class DashVaksinController extends Controller
 	            $query_lansia = " ";
 	        }
     	    $data = array();
-    	    $query = "SELECT mc.mc_id, mc.mc_name,
+    	    $query = "SELECT mc1.mc_id, mc1.mc_name,
     					(SELECT COALESCE(SUM(v_jml_pegawai),0)
                         FROM mvt_admin_vaksin mav
                         INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
-        				WHERE 1=1
+        				WHERE mc.mc_id=mc1.mc_id
                         $query_level
                         $query_lansia
                         $query_mc_id) AS jml
-    				FROM master_company mc
-    				WHERE mc.mc_flag=1
-    				ORDER BY mc.mc_name ";
+    				FROM master_company mc1
+    				WHERE mc1.mc_flag=1
+                    $query_level1
+    				ORDER BY mc1.mc_name ";
                 
+                    //var_dump($query);die;
     		$dashvaksin_perusahaan = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashvaksin_perusahaan as $dvp){
     	        $data[] = array(
