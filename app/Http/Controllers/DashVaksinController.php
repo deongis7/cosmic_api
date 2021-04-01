@@ -367,8 +367,9 @@ class DashVaksinController extends Controller
         $filter_nama = strtoupper($request->name);
 		$filter_mc_id = $request->mc_id;
 		$filter_status = $request->status;
+		$filter_status_vaksin = $request->status_vaksin;
         
-        $str = "_get_dashvaksin_pegawai".$filter_mc_id.$filter_nama;
+        $str = "_get_dashvaksin_pegawai".$filter_mc_id.$filter_nama.$filter_status_vaksin;
         if(isset($request->limit)){
             $str = $str.'_limit_'. $request->limit;
             $limit=$request->limit;
@@ -386,9 +387,13 @@ class DashVaksinController extends Controller
             $str = $str.'_status_'. str_replace(' ','_',$request->status);
             $filter_status=$request->status;
         }
+        if(isset($request->status_vaksin)){
+            $str = $str.'_status_'. str_replace(' ','_',$request->status_vaksin);
+            $filter_status_vaksin=$request->status_vaksin;
+        }
 
       	//dd($string);
-        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($filter_nama, $filter_mc_id, $filter_status, $limit, $page, $endpage) {
+        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($filter_nama, $filter_mc_id, $filter_status, $filter_status_vaksin, $limit, $page, $endpage) {
 		/*$datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 10, function()use($filter_nama, $filter_mc_id, $filter_status, $limit, $page, $endpage) {*/
 	        $data = array();
 			
@@ -396,6 +401,7 @@ class DashVaksinController extends Controller
 		    $vaksin->setConnection('pgsql_vaksin');
 		    $vaksin = $vaksin->select('tv_nik', 'tv_nama', 'msp_name2', 'tv_file1','tv_mc_id')
 	        ->leftjoin('master_status_pegawai AS msp','msp.msp_id','tv_msp_id')
+	        ->leftjoin('master_status_vaksin AS msv','msv.msv_id','tv_status_vaksin_pcare')
 	        ->where('tv_mc_id', $filter_mc_id)
 	        ->where('is_lansia', 0);
 
@@ -407,6 +413,11 @@ class DashVaksinController extends Controller
 	        if(!empty($filter_status)) {
 	            $vaksin = $vaksin->where(DB::raw("tv_msp_id"),'=',trim($filter_status));
 	        }
+
+	        if(!empty($filter_status_vaksin)) {
+	            $vaksin = $vaksin->where(DB::raw("tv_status_vaksin_pcare"),'=',trim($filter_status_vaksin));
+	        }
+
 	        $jmltotal=($vaksin->count());
 	        if(isset($limit)) {
 	            $vaksin = $vaksin->limit($limit);
