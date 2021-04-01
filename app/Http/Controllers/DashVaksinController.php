@@ -40,93 +40,103 @@ class DashVaksinController extends Controller
 	
 	
 	public function getDashVaksin(Request $request){
-	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	       
 	    }else{
 	        $level = 0;
 	    }
 
 	    $query_mc_id = ' ';
 	    if(isset($request->kd_perusahaan)) {
-	        if(isset($request->level) && $request->level>1){
-	            $mc_id = $request->kd_perusahaan;
-	        }else{
-	            $mc_id = $request->kd_perusahaan;
-	        }
+            $mc_id = $request->kd_perusahaan;
 	    }else{
-	        $mc_id ='ALL';
+            $mc_id ='ALL';
 	    }
 	    
-	    $string = "_get_dashvaksinhead_".$level.'_'.$mc_id;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id) {
+	    $query_lansia_id = ' ';
+        if(isset($request->lansia) && $request->lansia!='ALL'){
+            $lansia = $request->lansia;
+        }else{
+            $lansia ='ALL';
+        }
+	    
+	    $string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
-	            $query_level = ' AND mc.mc_level='.$level;
+	            $query_level = ' AND mav.v_mc_level='.$level;
 	        }else{
-	            $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	            $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	        }
 	        
 	        if($mc_id!='ALL'){
 	            if(isset($request->level) && $request->level>1){
-	                $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
 	            }else{
-	                $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id_induk = '$mc_id' ";
 	            }
 	        }else{
 	            $query_mc_id = " ";
 	        }
 	        
+	        if($lansia!='ALL'){
+	            if(isset($request->lansia) && $request->lansia!='ALL'){
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }else{
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }
+	        }else{
+	            $query_lansia = " ";
+	        }
+	        
     	    $data = array();
             $query = "
                 SELECT 0::int2, 'Total Pegawai' judul, 
-                    COALESCE(COUNT(*))  AS jml
-                FROM transaksi_vaksin tv 
-                INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-                WHERE tv.is_lansia=0
-                AND mc.mc_flag=1
+                    COALESCE(SUM(v_jml_pegawai),0) AS jml
+                FROM mvt_admin_vaksin mav
+                INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
+                WHERE 1=1
                 $query_level
+                $query_lansia
                 $query_mc_id
                 UNION ALL 
                 SELECT 1::int2, 'Total Siap Vaksin' judul, 
-                    COALESCE(COUNT(*))  AS jml
-                FROM transaksi_vaksin tv 
-                INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-                WHERE tv.is_lansia=0
-                AND mc.mc_flag=1
+                    COALESCE(SUM(v_jml_siap_vaksin),0) AS jml
+                FROM mvt_admin_vaksin mav
+                INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
+                WHERE 1=1
                 $query_level
-                $query_mc_id
-                AND tv.tv_status_vaksin_pcare=0
+                $query_lansia
+                $query_mc_id                
                 UNION ALL 
                 SELECT 2::int2, 'Total Sudah Vaksin 1' judul, 
-                    COALESCE(COUNT(*))  AS jml
-                FROM transaksi_vaksin tv 
-                INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-                WHERE tv.is_lansia=0
-                AND mc.mc_flag=1
+                    COALESCE(SUM(v_jml_sudah_vaksin1),0) AS jml
+                FROM mvt_admin_vaksin mav
+                INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
+                WHERE 1=1
                 $query_level
-                $query_mc_id
-                AND tv.tv_status_vaksin_pcare=1
+                $query_lansia
+                $query_mc_id   
                 UNION ALL 
-                SELECT 3::int2, 'Total Sudah Vaksin 2' judul, 
-                    COALESCE(COUNT(*))  AS jml
-                FROM transaksi_vaksin tv 
-                INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-                WHERE tv.is_lansia=0
-                AND mc.mc_flag=1
+                SELECT 3::int2, 'Total Sudah Vaksin 2' judul,   
+                    COALESCE(SUM(v_jml_sudah_vaksin1),0) AS jml
+                FROM mvt_admin_vaksin mav
+                INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
+                WHERE 1=1
                 $query_level
-                $query_mc_id
-                AND tv.tv_status_vaksin_pcare=2
+                $query_lansia
+                $query_mc_id   
                 UNION ALL 
                 SELECT 4::int2, 'Jumlah Keluarga Inti Pegawai' judul, 
-                     COALESCE(SUM(tv_jml_keluarga),0) AS jml
-                FROM transaksi_vaksin tv 
-                INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-                WHERE tv.is_lansia=0
-                AND mc.mc_flag=1
-                $query_level 
+                    COALESCE(SUM(v_jml_keluargainti),0) AS jml
+                FROM mvt_admin_vaksin mav
+                INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
+                WHERE 1=1
+                $query_level
+                $query_lansia
                 $query_mc_id ";
         
+                //var_dump($query);die;
                 $dashvaksin = DB::connection('pgsql_vaksin')->select($query);
                 foreach($dashvaksin as $dv){
                     $data[] = array(
@@ -138,6 +148,7 @@ class DashVaksinController extends Controller
 	    });
         Cache::tags(['users'])->flush();
         return response()->json(['status' => 200,'data' => $datacache]);
+        //return response()->json(['status' => 200,'data' => $data]);
 	}
 	
 	public function getDashVaksin_bymcid($id){
@@ -147,14 +158,14 @@ class DashVaksinController extends Controller
 	    foreach($dashvaksin as $dv){
     	        $data[] = array(
     	            "v_judul" => $dv->v_judul,
-    	            "v_jml" => number_format($dv->jml,0,".",",")
+    	            "v_jml" => number_format($dv->v_jml,0,".",",")
     	        );
     	    }
 	    return response()->json(['status' => 200,'data' => $data]);
 	}
 	
 	public function getDashVaksinPerusahaan(Request $request){
-	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
 	        
@@ -173,37 +184,61 @@ class DashVaksinController extends Controller
 	        $mc_id ='ALL';
 	    }
 	    
-	    $string = "_get_dashvaksin_byperusahaan_".$level.'_'.$mc_id;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id) {
-	        if($level > 0){
-	            $query_level = ' AND mc.mc_level='.$level;
+	    $query_lansia_id = ' ';
+	    if(isset($request->lansia)) {
+	        if(isset($request->lansia) && $request->lansia!='ALL'){
+	            $lansia = $request->lansia;
 	        }else{
-	            $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	            $lansia = $request->lansia;
+	        }
+	    }else{
+	        $lansia ='ALL';
+	    }
+	    
+	    $string = "_get_dashvaksin_byperusahaan_".$level.'_'.$mc_id.'_'.$lansia;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
+	        if($level > 0){
+	            $query_level = ' AND mav.v_mc_level='.$level;
+	            $query_level1 = ' AND mc1.mc_level='.$level;
+	        }else{
+	            $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
+	            $query_level1 = ' AND mc1.mc_level IN (1,2,3) ';
 	        }
 	        
 	        if($mc_id!='ALL'){
 	            if(isset($request->level) && $request->level>1){
-	                $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
 	            }else{
-	                $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id_induk = '$mc_id' ";
 	            }
 	        }else{
 	            $query_mc_id = " ";
 	        }
 	        
+	        if($lansia!='ALL'){
+	            if(isset($request->lansia) && $request->lansia!='ALL'){
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }else{
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }
+	        }else{
+	            $query_lansia = " ";
+	        }
     	    $data = array();
-    	    $query = "SELECT mc.mc_id, mc.mc_name,
-    					(SELECT COALESCE(COUNT(*)) 
-    					FROM transaksi_vaksin tv 
-                        INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
-    					WHERE tv.is_lansia=0
-    					AND tv.tv_mc_id=mc.mc_id) AS jml
-    				FROM master_company mc
-    				WHERE mc.mc_flag=1
-    				$query_level
-    				$query_mc_id
-    				ORDER BY mc.mc_name ";
+    	    $query = "SELECT mc1.mc_id, mc1.mc_name,
+    					(SELECT COALESCE(SUM(v_jml_pegawai),0)
+                        FROM mvt_admin_vaksin mav
+                        INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
+        				WHERE mc.mc_id=mc1.mc_id
+                        $query_level
+                        $query_lansia
+                        $query_mc_id) AS jml
+    				FROM master_company mc1
+    				WHERE mc1.mc_flag=1
+                    $query_level1
+    				ORDER BY mc1.mc_name ";
                 
+                    //var_dump($query);die;
     		$dashvaksin_perusahaan = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashvaksin_perusahaan as $dvp){
     	        $data[] = array(
@@ -414,59 +449,68 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinProvinsi(Request $request){
-	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	        
 	    }else{
 	        $level = 0;
 	    }
 	    
 	    $query_mc_id = ' ';
 	    if(isset($request->kd_perusahaan)) {
-	        if(isset($request->level) && $request->level>1){
-	            $mc_id = $request->kd_perusahaan;
-	        }else{
-	            $mc_id = $request->kd_perusahaan;
-	        }
+	        $mc_id = $request->kd_perusahaan;
 	    }else{
 	        $mc_id ='ALL';
 	    }
 	    
-	    $string = "_get_dashvaksin_byprovinsi_".$level.'_'.$mc_id;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id) {
+	    $query_lansia_id = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL'){
+	        $lansia = $request->lansia;
+	    }else{
+	        $lansia ='ALL';
+	    }
+	    
+	    $string = "_get_dashvaksin_byprovinsi_".$level.'_'.$mc_id.'_'.$lansia;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
-	            $query_level = ' AND mc.mc_level='.$level;
+	            $query_level = ' AND mav.v_mc_level='.$level;
 	        }else{
-	            $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	            $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	        }
 	        
 	        if($mc_id!='ALL'){
 	            if(isset($request->level) && $request->level>1){
-	                $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
 	            }else{
-	                $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
 	            }
 	        }else{
 	            $query_mc_id = " ";
 	        }
 	        
+	        if($lansia!='ALL'){
+	            if(isset($request->lansia) && $request->lansia!='ALL'){
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }else{
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }
+	        }else{
+	            $query_lansia = " ";
+	        }
+	        
+	        
     	    $data = array();
     	    $query = "SELECT mpro.mpro_name::TEXT,
-        		(SELECT COALESCE(COUNT(*)) 
-        		FROM transaksi_vaksin tv 
-        		INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
-        		INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-        		WHERE tv.is_lansia=0
-        		AND mc.mc_flag=1
-        		$query_level
-        		$query_mc_id
-        		AND mkab.mkab_id=tv.tv_mkab_id
-        		AND tv.tv_mkab_id IS NOT NULL
-        		AND mkab.mkab_mpro_id=mpro.mpro_id)::int8 AS jml
+        		(SELECT COALESCE(SUM(v_jml_pegawai),0)
+                    FROM mvt_admin_vaksin mav
+                    INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
+    				WHERE mav.v_mpro_id=mpro.mpro_id
+                    $query_level
+                    $query_lansia
+                    $query_mc_id)::int8 AS jml
         		FROM master_provinsi mpro
         		ORDER BY mpro.mpro_id";
-    				
+                //var_dump($query);die;
     		$dashkasus_provinsi = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashkasus_provinsi as $dvp){
     	        $data[] = array(
@@ -481,56 +525,68 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinKabupaten(Request $request){
-	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	        
 	    }else{
 	        $level = 0;
 	    }
 	    
 	    $query_mc_id = ' ';
 	    if(isset($request->kd_perusahaan)) {
-	        if(isset($request->level) && $request->level>1){
-	            $mc_id = $request->kd_perusahaan;
-	        }else{
-	            $mc_id = $request->kd_perusahaan;
-	        }
+	        $mc_id = $request->kd_perusahaan;
 	    }else{
 	        $mc_id ='ALL';
 	    }
 	    
-	    $string = "_get_dashvaksin_bykabupaten_".$level.'_'.$mc_id;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id) {
+	    $query_lansia_id = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL'){
+	        $lansia = $request->lansia;
+	    }else{
+	        $lansia ='ALL';
+	    }
+	    
+	    $string = "_get_dashvaksin_bykabupaten_".$level.'_'.$mc_id.'_'.$lansia;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
-	            $query_level = ' AND mc.mc_level='.$level;
+	            $query_level = ' AND mav.v_mc_level='.$level;
 	        }else{
-	            $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	            $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	        }
 	        
 	        if($mc_id!='ALL'){
 	            if(isset($request->level) && $request->level>1){
-	                $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
 	            }else{
-	                $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id_induk = '$mc_id' ";
 	            }
 	        }else{
 	            $query_mc_id = " ";
 	        }
 	        
+	        if($lansia!='ALL'){
+	            if(isset($request->lansia) && $request->lansia!='ALL'){
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }else{
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }
+	        }else{
+	            $query_lansia = " ";
+	        }
+	        
     	    $data = array();
-    	    $query = "SELECT mkab.mkab_name::TEXT,
-				(SELECT COALESCE(COUNT(*)) 
-				FROM transaksi_vaksin tv 
-				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-				WHERE tv.is_lansia=0
-				AND mc.mc_flag=1
-				$query_level
-				$query_mc_id
-				AND tv.tv_mkab_id=mkab.mkab_id)::int8 AS jml
+    	    $query = "
+                SELECT mkab.mkab_name::TEXT,
+    				(SELECT COALESCE(SUM(v_jml_pegawai),0)
+                    FROM mvt_admin_vaksin mav
+                    INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
+    				WHERE mav.v_mkab_id=mkab.mkab_id
+                    $query_level
+                    $query_lansia
+                    $query_mc_id)::int8 AS jml
 				FROM master_kabupaten mkab
-				ORDER BY mkab.mkab_name;";
-    	    
+				ORDER BY mkab.mkab_name ";
+                    //var_dump($query);die;
     		$dashkasus_kabupaten = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashkasus_kabupaten as $dvk){
     	        $data[] = array(
@@ -545,27 +601,29 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinLokasi1(Request $request){
-	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	        
 	    }else{
 	        $level = 0;
 	    }
 	    
 	    $query_mc_id = ' ';
 	    if(isset($request->kd_perusahaan)) {
-	        if(isset($request->level) && $request->level>1){
-	            $mc_id = $request->kd_perusahaan;
-	        }else{
-	            $mc_id = $request->kd_perusahaan;
-	        }
+	        $mc_id = $request->kd_perusahaan;
 	    }else{
 	        $mc_id ='ALL';
 	    }
 	    
-	    $string = "_get_dashvaksin_bylokasi1_".$level.'_'.$mc_id;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id) {
+	    $query_lansia_id = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL'){
+	        $lansia = $request->lansia;
+	    }else{
+	        $lansia ='ALL';
+	    }
+	    
+	    $string = "_get_dashvaksin_bylokasi1_".$level.'_'.$mc_id.'_'.$lansia;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mc.mc_level='.$level;
 	        }else{
@@ -574,30 +632,40 @@ class DashVaksinController extends Controller
 	        
 	        if($mc_id!='ALL'){
 	            if(isset($request->level) && $request->level>1){
-	                $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
 	            }else{
-	                $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id_induk = '$mc_id' ";
 	            }
 	        }else{
 	            $query_mc_id = " ";
 	        }
+	        
+	        if($lansia!='ALL'){
+	            if(isset($request->lansia) && $request->lansia!='ALL'){
+	                $query_lansia = " AND tv.is_lansia = $lansia ";
+	            }else{
+	                $query_lansia = " AND tv.is_lansia = $lansia ";
+	            }
+	        }else{
+	            $query_lansia = " ";
+	        }
 	    
     	    $data = array();
-    	    $query = "SELECT tv.tv_lokasi1::TEXT, COALESCE(COUNT(*))::int8 AS jml
+    	    $query = "SELECT tv.tv_lokasi_vaksin_pcare1::TEXT, COALESCE(COUNT(*))::int8 AS jml
 				FROM transaksi_vaksin tv 
 				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-				WHERE tv.is_lansia=0
-				AND mc.mc_flag=1
+				WHERE mc.mc_flag=1
 				$query_level
+				$query_lansia
 				$query_mc_id
-				AND (tv_lokasi1 !=NULL or tv_lokasi1 !='')
-				GROUP BY tv.tv_lokasi1
-				ORDER BY tv.tv_lokasi1";
+				AND (tv_lokasi_vaksin_pcare1 !=NULL or tv_lokasi_vaksin_pcare1 !='')
+				GROUP BY tv.tv_lokasi_vaksin_pcare1
+				ORDER BY tv.tv_lokasi_vaksin_pcare1";
     				
     		$dashvaksin_lokasi1 = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashvaksin_lokasi1 as $dl1){
     	        $data[] = array(
-    	            "v_lokasi" => $dl1->tv_lokasi1,
+    	            "v_lokasi" => $dl1->tv_lokasi_vaksin_pcare1,
     	            "v_jml" => number_format($dl1->jml,0,".",",")
     	        );
     	    }
@@ -608,27 +676,29 @@ class DashVaksinController extends Controller
 	}
 	
 	public function getDashVaksinLokasi2(Request $request){
-	    $query_level = ' AND mc.mc_level IN (1,2,3) ';
+	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
-	        
 	    }else{
 	        $level = 0;
 	    }
 	    
 	    $query_mc_id = ' ';
 	    if(isset($request->kd_perusahaan)) {
-	        if(isset($request->level) && $request->level>1){
-	            $mc_id = $request->kd_perusahaan;
-	        }else{
-	            $mc_id = $request->kd_perusahaan;
-	        }
+	        $mc_id = $request->kd_perusahaan;
 	    }else{
 	        $mc_id ='ALL';
 	    }
 	    
-	    $string = "_get_dashvaksin_bylokasi2_".$level.'_'.$mc_id;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id) {
+	    $query_lansia_id = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL'){
+	        $lansia = $request->lansia;
+	    }else{
+	        $lansia ='ALL';
+	    }
+	    
+	    $string = "_get_dashvaksin_bylokasi2_".$level.'_'.$mc_id.'_'.$lansia;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mc.mc_level='.$level;
 	        }else{
@@ -637,30 +707,41 @@ class DashVaksinController extends Controller
 	        
 	        if($mc_id!='ALL'){
 	            if(isset($request->level) && $request->level>1){
-	                $query_mc_id = " AND mc.mc_id= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
 	            }else{
-	                $query_mc_id = " AND mc.mc_id_induk= '$mc_id'";
+	                $query_mc_id = " AND mc.mc_id_induk = '$mc_id' ";
 	            }
 	        }else{
 	            $query_mc_id = " ";
 	        }
 	        
+	        if($lansia!='ALL'){
+	            if(isset($request->lansia) && $request->lansia!='ALL'){
+	                $query_lansia = " AND tv.is_lansia = $lansia ";
+	            }else{
+	                $query_lansia = " AND tv.is_lansia = $lansia ";
+	            }
+	        }else{
+	            $query_lansia = " ";
+	        }
+	        
 	        $data = array();
-	        $query = "SELECT tv.tv_lokasi2::TEXT, COALESCE(COUNT(*))::int8 AS jml
+	        $query = "SELECT tv.tv_lokasi_vaksin_pcare2::TEXT, COALESCE(COUNT(*))::int8 AS jml
 				FROM transaksi_vaksin tv
 				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
 				WHERE tv.is_lansia=0
 				AND mc.mc_flag=1
 				$query_level
+				$query_lansia
 				$query_mc_id
-				AND (tv_lokasi2 !=NULL or tv_lokasi2 !='')
-				GROUP BY tv.tv_lokasi2
-				ORDER BY tv.tv_lokasi2";
+				AND (tv_lokasi_vaksin_pcare2 !=NULL or tv_lokasi_vaksin_pcare2 !='')
+				GROUP BY tv.tv_lokasi_vaksin_pcare2
+				ORDER BY tv.tv_lokasi_vaksin_pcare2";
     				
 			$dashvaksin_lokasi2 = DB::connection('pgsql_vaksin')->select($query);
 			foreach($dashvaksin_lokasi2 as $dl2){
 			    $data[] = array(
-			        "v_lokasi" => $dl2->tv_lokasi2,
+			        "v_lokasi" => $dl2->tv_lokasi_vaksin_pcare2,
 			        "v_jml" => number_format($dl2->jml,0,".",",")
 			    );
 			}
