@@ -438,7 +438,7 @@ class PerimeterListController extends Controller
             $perimeter = new Perimeter;
             $perimeter->setConnection('pgsql2');
             $perimeter = $perimeter->select( "master_perimeter.mpm_id", "master_perimeter_level.mpml_id", "master_perimeter_level.mpml_name","master_perimeter.mpm_name",
-                        "master_perimeter_level.mpml_ket", "userpic.username as nik_pic", "userpic.first_name as pic", "userfo.username as nik_fo",
+                        "master_perimeter_level.mpml_ket", "userpic.username as nik_pic", "userpic.first_name as pic", "userfo.username as nik_fo","master_perimeter.mpm_gmap",
                         "userfo.first_name as fo",DB::raw("(CASE WHEN tpc.tbpc_status is null THEN 0 ELSE tpc.tbpc_status END) AS status_perimeter"),"tpc.tbpc_alasan",
                         DB::raw("status_monitoring_perimeter_level_pic(master_perimeter_level.mpml_id,userpic.username) as status_pic"),
                         DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status_fo")
@@ -501,6 +501,7 @@ class PerimeterListController extends Controller
                             "nik_fo" => $itemperimeter->nik_fo,
                             "fo" => $itemperimeter->fo,
                             //"status_monitoring" => ($status['status']),
+			     "gmap" => $itemperimeter->mpm_gmap,
                             "status_monitoring" => ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo),
                             "status_perimeter" => $itemperimeter->status_perimeter,
                             "alasan" => $itemperimeter->tbpc_alasan,
