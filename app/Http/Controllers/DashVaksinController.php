@@ -60,9 +60,16 @@ class DashVaksinController extends Controller
         }else{
             $lansia ='ALL';
         }
+        
+        $query_msp = ' ';
+        if(isset($request->sts_pegawai) && $request->sts_pegawai!='ALL'){
+            $sts_pegawai = $request->sts_pegawai;
+        }else{
+            $sts_pegawai ='ALL';
+        }
 	    
-	    $string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
+	    $string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia, $sts_pegawai) {
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
 	        }else{
@@ -89,6 +96,16 @@ class DashVaksinController extends Controller
 	            $query_lansia = " ";
 	        }
 	        
+	        if($sts_pegawai!='ALL'){
+	            if(isset($request->sts_pegawai) && $request->sts_pegawai!='ALL'){
+	                $query_stspegawai = " AND mav.v_msp_id = $sts_pegawai ";
+	            }else{
+	                $query_stspegawai = " AND mav.v_msp_id = $sts_pegawai ";
+	            }
+	        }else{
+	            $query_stspegawai = " ";
+	        }
+	        
     	    $data = array();
             $query = "
                 SELECT 0::int2, 'Total Pegawai' judul, 
@@ -99,6 +116,7 @@ class DashVaksinController extends Controller
                 $query_level
                 $query_lansia
                 $query_mc_id
+                $query_stspegawai
                 UNION ALL 
                 SELECT 1::int2, 'Total Siap Vaksin' judul, 
                     COALESCE(SUM(v_jml_siap_vaksin),0) AS jml
@@ -107,7 +125,8 @@ class DashVaksinController extends Controller
                 WHERE 1=1
                 $query_level
                 $query_lansia
-                $query_mc_id                
+                $query_mc_id   
+                $query_stspegawai             
                 UNION ALL 
                 SELECT 2::int2, 'Total Sudah Vaksin 1' judul, 
                     COALESCE(SUM(v_jml_sudah_vaksin1),0) AS jml
@@ -117,6 +136,7 @@ class DashVaksinController extends Controller
                 $query_level
                 $query_lansia
                 $query_mc_id   
+                $query_stspegawai
                 UNION ALL 
                 SELECT 3::int2, 'Total Sudah Vaksin 2' judul,   
                     COALESCE(SUM(v_jml_sudah_vaksin1),0) AS jml
@@ -126,6 +146,7 @@ class DashVaksinController extends Controller
                 $query_level
                 $query_lansia
                 $query_mc_id   
+                $query_stspegawai
                 UNION ALL 
                 SELECT 4::int2, 'Jumlah Keluarga Inti Pegawai' judul, 
                     COALESCE(SUM(v_jml_keluargainti),0) AS jml
@@ -134,7 +155,9 @@ class DashVaksinController extends Controller
                 WHERE 1=1
                 $query_level
                 $query_lansia
-                $query_mc_id ";
+                $query_mc_id 
+                $query_stspegawai
+                ";
         
                 //var_dump($query);die;
                 $dashvaksin = DB::connection('pgsql_vaksin')->select($query);
