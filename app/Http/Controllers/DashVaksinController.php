@@ -1285,4 +1285,64 @@ class DashVaksinController extends Controller
         }
         return response()->json(['status' => 200, 'page_end'=>$endpage, 'data' => $data]);
 	}
+
+	public function getDetailProfile(Request $request){
+		$tv_nik = $request->tv_nik;
+		
+        $str = "_get_dashvaksin_profile".$tv_nik;
+
+      	//dd($string);
+        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($tv_nik) {
+		/*$datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 10, function()use($filter_nama, $filter_mc_id, $filter_status, $limit, $page, $endpage) {*/
+	        $data = array();
+			
+		    $vaksin = new Vaksin();
+		    $vaksin->setConnection('pgsql_vaksin');
+		    $vaksin = $vaksin->select('*')
+	        ->leftjoin('master_status_pegawai AS msp','msp.msp_id','tv_msp_id')
+	        ->leftjoin('master_status_vaksin AS msv','msv.msv_id','tv_status_vaksin_pcare')
+	        ->leftjoin('master_company AS mc','mc.mc_id' ,'tv_mc_id')
+	        ->leftjoin('master_kabupaten AS mk','mk.mkab_id','tv_mkab_id')
+	        ->where('tv_nik', $tv_nik);
+ 
+		    $vaksin = $vaksin->get();
+	        foreach($vaksin as $dvp){
+	        	if($dvp->tv_file1 !=NULL || $dvp->tv_file1 !=''){
+                    if (!file_exists(base_path("storage/app/public/vaksin_eviden/".$dvp->tv_mc_id.'/'.$dvp->tv_file1))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filevksn1 = $path_file404;
+                    }else{
+                        $path_file1 = '/vaksin_eviden/'.$dvp->tv_file1;
+                        $filevksn1 = $path_file1;
+                    }
+                }else{
+                    $filevksn1 = '/404/img404.jpg';
+                }
+
+    	        $data[] = array(
+    	            "nik" => $dvp->tv_nik,
+    	            "nama" => $dvp->tv_nama,
+    	            "tgl_lahir" => $dvp->tv_ttl_date,
+    	            "nama_perusahaan" => $dvp->mc_name,
+    	            "no_hp" => $dvp->tv_no_hp,
+    	            "tgl_lahir" => $dvp->tv_ttl_date,
+    	            "kota" => $dvp->mkab_name,
+    	            "alamat" => $dvp->tv_alamat,
+    	            "keluarga_inti" => $dvp->tv_jml_keluarga,
+    	            "status_vaksin" => is_null($dvp->msv_name)?"Siap Vaksin":$dvp->msv_name,
+    	            "tanggal_vaksin1" => $dvp->tv_date1,
+    	            "jam_vaksin1" => $dvp->tv_jam_vaksin1,
+    	            "lokasi_vaksin1" => $dvp->tv_lokasi1,
+    	            "tanggal_vaksin2" => $dvp->tv_date2,
+    	            "jam_vaksin2" => $dvp->tv_jam_vaksin2,
+    	            "lokasi_vaksin2" => $dvp->tv_lokasi2,
+    	            "photo" => $filevksn1
+    	        );
+    	    }
+	    	//return $data;
+		    return array('status' => 200,'data' => $data);
+		});
+		    Cache::tags([$str])->flush();
+	    return response()->json($datacache);
+	}
 }
