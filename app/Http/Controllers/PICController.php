@@ -831,13 +831,13 @@ public function addFilePerimeterLevel(Request $request){
             $image1 = $img1[1];
             $filedecode1 = base64_decode($image1);
 
-/*
+
       Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1);
       Image::make($filedecode1)->resize(50, NULL, function ($constraint) {
                 $constraint->aspectRatio();
-            })->save($destinationPath.'/'.$name2);*/
+            })->save($destinationPath.'/'.$name2);
         }
 
     $perimeter_level_file= PerimeterLevelFile::create(
