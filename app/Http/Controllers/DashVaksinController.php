@@ -556,7 +556,7 @@ class DashVaksinController extends Controller
 	        
 	        
     	    $data = array();
-    	    $query = "SELECT mpro.mpro_name::TEXT,
+    	    $query = "SELECT mpro.mpro_id, mpro.mpro_name::TEXT,
         		(SELECT COALESCE(SUM(v_jml_pegawai),0)
                     FROM mvt_admin_vaksin mav
                     INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
@@ -570,6 +570,7 @@ class DashVaksinController extends Controller
     		$dashkasus_provinsi = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashkasus_provinsi as $dvp){
     	        $data[] = array(
+    	            "v_mpro_id" => $dvp->mpro_id,
     	            "v_mpro" => $dvp->mpro_name,
     	            "v_jml" => number_format($dvp->jml,0,".",",") 
     	        );
@@ -632,7 +633,7 @@ class DashVaksinController extends Controller
 	        
     	    $data = array();
     	    $query = "
-                SELECT mkab.mkab_name::TEXT,
+                SELECT mkab_id, mkab.mkab_name::TEXT,
     				(SELECT COALESCE(SUM(v_jml_pegawai),0)
                     FROM mvt_admin_vaksin mav
                     INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
@@ -646,6 +647,7 @@ class DashVaksinController extends Controller
     		$dashkasus_kabupaten = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashkasus_kabupaten as $dvk){
     	        $data[] = array(
+    	            "v_mkab_id" => $dvk->mkab_id,
     	            "v_mkab" => $dvk->mkab_name,
     	            "v_jml" => number_format($dvk->jml,0,".",",")
     	        );
