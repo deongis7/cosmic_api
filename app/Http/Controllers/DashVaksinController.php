@@ -1007,16 +1007,22 @@ class DashVaksinController extends Controller
 	        $msp = $request->stspegawai;
 	        $query_msp = ' AND tv.tv_msp_id='.$msp;
 	    }
+	    
+	    $query_lansia = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL') {
+	        $lansia = $request->lansia;
+	        $query_lansia = ' AND tv.is_lansia='.$lansia;
+	    }
 
 	    $data = array();
 	    $query = "SELECT mjk.mjk_id, mjk.mjk_name,
 			(SELECT COALESCE(COUNT(*)) 
 			FROM transaksi_vaksin tv 
 			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-			WHERE tv.is_lansia=0
-			AND mc.mc_flag=1
+			WHERE mc.mc_flag=1
             $query_level
             $query_msp
+            $query_lansia
 			AND tv.tv_mjk_id = mjk.mjk_id
 			AND tv.tv_mjk_id IS NOT NULL) AS jml
 			FROM master_jenis_kelamin mjk
@@ -1172,6 +1178,13 @@ class DashVaksinController extends Controller
 	        $query_msp = ' AND tv.tv_msp_id= '.$msp;
 	    }
 	    
+	    $query_lansia = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL'){
+	        $query_lansia = " AND tv.is_lansia=0 ";
+	    }else{
+	        $query_lansia = " ";
+	    }
+	    
 	    $query_search = ' ';
 	    if(isset($request->search)) {
 	        $query_search = " AND LOWER(TRIM(mc1.mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
@@ -1184,7 +1197,7 @@ class DashVaksinController extends Controller
 			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
 			INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
 			WHERE 1=1 
-            AND tv.is_lansia=0
+            $query_lansia
             $query_msp
             $query_level
 			AND tv.tv_mkab_id=$id
