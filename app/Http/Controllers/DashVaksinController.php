@@ -1469,21 +1469,21 @@ class DashVaksinController extends Controller
 	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $lansia, $kabupaten, $sts_vaksin) {
 
 	        if($level > 0){
-	            $query_level = ' AND mav.v_mc_level='.$level;
-	            $query_level1 = ' AND mc1.mc_level='.$level;
+	            $query_level   = ' AND mav.v_mc_level='.$level;
+	            $query_level1  = ' AND mc1.mc_level='.$level;
 	        }else{
-	            $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
-	            $query_level1 = ' AND mc1.mc_level IN (1,2,3) ';
+	            $query_level   = ' AND mav.v_mc_level IN (1,2,3) ';
+	            $query_level1  = ' AND mc1.mc_level IN (1,2,3) ';
 	        }
 	        
 	        if($lansia!='ALL'){
 	            if(isset($request->lansia) && $request->lansia!='ALL'){
 	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
 	            }else{
-	                $query_lansia = "  ";
+	                $query_lansia = ' ';
 	            }
 	        }else{
-	            $query_lansia = " ";
+	            $query_lansia = ' ';
 	        }
 	        
 	        if($kabupaten > 0){
