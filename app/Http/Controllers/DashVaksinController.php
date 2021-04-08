@@ -1359,6 +1359,8 @@ class DashVaksinController extends Controller
     	            "tanggal_vaksin2" => $dvp->tv_date2,
     	            "jam_vaksin2" => $dvp->tv_jam_vaksin2,
     	            "lokasi_vaksin2" => $dvp->tv_lokasi2,
+    	            "unit" => $dvp->tv_unit,
+    	            "id_pegawai" => $dvp->tv_nomor_pegawai,
     	            "photo" => $filevksn1
     	        );
     	    }
