@@ -68,8 +68,24 @@ class DashVaksinController extends Controller
             $sts_pegawai ='ALL';
         }
 	    
-	    $string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia, $sts_pegawai) {
+        $query_msv = ' ';
+        if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
+            $sts_vaksin = $request->sts_vaksin;
+        }else{
+            $sts_vaksin ='ALL';
+        }
+        
+        $query_mkab = ' ';
+        if(isset($request->kabupaten) && $request->kabupaten!='0'){
+            $kabupaten = $request->kabupaten;
+        }else{
+            $kabupaten ='0';
+        }
+        
+        $string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin.'_'.$kabupaten;
+        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, 
+            $mc_id, $lansia, $sts_pegawai, $sts_vaksin, $kabupaten) {
+            
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
 	        }else{
@@ -90,7 +106,7 @@ class DashVaksinController extends Controller
 	            if(isset($request->lansia) && $request->lansia!='ALL'){
 	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
 	            }else{
-	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	                $query_lansia = " ";
 	            }
 	        }else{
 	            $query_lansia = " ";
@@ -100,10 +116,30 @@ class DashVaksinController extends Controller
 	            if(isset($request->sts_pegawai) && $request->sts_pegawai!='ALL'){
 	                $query_stspegawai = " AND mav.v_msp_id = $sts_pegawai ";
 	            }else{
-	                $query_stspegawai = " AND mav.v_msp_id = $sts_pegawai ";
+	                $query_stspegawai = " ";
 	            }
 	        }else{
 	            $query_stspegawai = " ";
+	        }
+	        
+	        if($sts_vaksin!='ALL'){
+	            if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
+	                $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+	            }else{
+	                $query_stsvaksin = " ";
+	            }
+	        }else{
+	            $query_stsvaksin = " ";
+	        }
+	        
+	        if($kabupaten!='0'){
+	            if(isset($request->kabupaten) && $request->kabupaten!='0'){
+	                $query_kabupaten = " AND mav.v_mkab_id = $kabupaten ";
+	            }else{
+	                $query_kabupaten = " ";
+	            }
+	        }else{
+	            $query_kabupaten = " ";
 	        }
 	        
     	    $data = array();
@@ -117,6 +153,8 @@ class DashVaksinController extends Controller
                 $query_lansia
                 $query_mc_id
                 $query_stspegawai
+                $query_stsvaksin
+                $query_kabupaten
                 UNION ALL 
                 SELECT 1::int2, 'Total Siap Vaksin' judul, 
                     COALESCE(SUM(v_jml_siap_vaksin),0) AS jml
@@ -126,7 +164,9 @@ class DashVaksinController extends Controller
                 $query_level
                 $query_lansia
                 $query_mc_id   
-                $query_stspegawai             
+                $query_stspegawai 
+                $query_stsvaksin 
+                $query_kabupaten           
                 UNION ALL 
                 SELECT 2::int2, 'Total Sudah Vaksin 1' judul, 
                     COALESCE(SUM(v_jml_sudah_vaksin1),0) AS jml
@@ -137,6 +177,8 @@ class DashVaksinController extends Controller
                 $query_lansia
                 $query_mc_id   
                 $query_stspegawai
+                $query_stsvaksin
+                $query_kabupaten
                 UNION ALL 
                 SELECT 3::int2, 'Total Sudah Vaksin 2' judul,   
                     COALESCE(SUM(v_jml_sudah_vaksin1),0) AS jml
@@ -147,6 +189,8 @@ class DashVaksinController extends Controller
                 $query_lansia
                 $query_mc_id   
                 $query_stspegawai
+                $query_stsvaksin
+                $query_kabupaten
                 UNION ALL 
                 SELECT 4::int2, 'Jumlah Keluarga Inti Pegawai' judul, 
                     COALESCE(SUM(v_jml_keluargainti),0) AS jml
@@ -157,6 +201,8 @@ class DashVaksinController extends Controller
                 $query_lansia
                 $query_mc_id 
                 $query_stspegawai
+                $query_stsvaksin
+                $query_kabupaten
                 ";
         
                 //var_dump($query);die;
@@ -242,7 +288,7 @@ class DashVaksinController extends Controller
 	            if(isset($request->lansia) && $request->lansia!='ALL'){
 	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
 	            }else{
-	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	                $query_lansia = " ";
 	            }
 	        }else{
 	            $query_lansia = " ";
@@ -425,8 +471,8 @@ class DashVaksinController extends Controller
 		    $vaksin = $vaksin->select('tv_nik', 'tv_nama', 'msp_name2', 'tv_file1','tv_mc_id')
 	        ->leftjoin('master_status_pegawai AS msp','msp.msp_id','tv_msp_id')
 	        ->leftjoin('master_status_vaksin AS msv','msv.msv_id','tv_status_vaksin_pcare')
-	        ->where('tv_mc_id', $filter_mc_id)
-	        ->where('is_lansia', 0);
+	        ->where('tv_mc_id', $filter_mc_id);
+	        //->where('is_lansia', 0);
 
 	        if(!empty($filter_nama)) {
 	            $search = $filter_nama;
@@ -513,10 +559,10 @@ class DashVaksinController extends Controller
 	        }
 	        
 	        if($mc_id!='ALL'){
-	            if(isset($request->level) && $request->level>1){
+	            if(isset($request->kd_perusahaan) && $request->kd_perusahaan!='ALL'){
 	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
 	            }else{
-	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
+	                $query_mc_id = "  ";
 	            }
 	        }else{
 	            $query_mc_id = " ";
@@ -526,7 +572,7 @@ class DashVaksinController extends Controller
 	            if(isset($request->lansia) && $request->lansia!='ALL'){
 	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
 	            }else{
-	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	                $query_lansia = "  ";
 	            }
 	        }else{
 	            $query_lansia = " ";
@@ -534,7 +580,7 @@ class DashVaksinController extends Controller
 	        
 	        
     	    $data = array();
-    	    $query = "SELECT mpro.mpro_name::TEXT,
+    	    $query = "SELECT mpro.mpro_id, mpro.mpro_name::TEXT,
         		(SELECT COALESCE(SUM(v_jml_pegawai),0)
                     FROM mvt_admin_vaksin mav
                     INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
@@ -548,6 +594,7 @@ class DashVaksinController extends Controller
     		$dashkasus_provinsi = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashkasus_provinsi as $dvp){
     	        $data[] = array(
+    	            "v_mpro_id" => $dvp->mpro_id,
     	            "v_mpro" => $dvp->mpro_name,
     	            "v_jml" => number_format($dvp->jml,0,".",",") 
     	        );
@@ -602,7 +649,7 @@ class DashVaksinController extends Controller
 	            if(isset($request->lansia) && $request->lansia!='ALL'){
 	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
 	            }else{
-	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	                $query_lansia = "  ";
 	            }
 	        }else{
 	            $query_lansia = " ";
@@ -610,7 +657,7 @@ class DashVaksinController extends Controller
 	        
     	    $data = array();
     	    $query = "
-                SELECT mkab.mkab_name::TEXT,
+                SELECT mkab_id, mkab.mkab_name::TEXT,
     				(SELECT COALESCE(SUM(v_jml_pegawai),0)
                     FROM mvt_admin_vaksin mav
                     INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
@@ -624,6 +671,7 @@ class DashVaksinController extends Controller
     		$dashkasus_kabupaten = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashkasus_kabupaten as $dvk){
     	        $data[] = array(
+    	            "v_mkab_id" => $dvk->mkab_id,
     	            "v_mkab" => $dvk->mkab_name,
     	            "v_jml" => number_format($dvk->jml,0,".",",")
     	        );
@@ -678,7 +726,7 @@ class DashVaksinController extends Controller
 	            if(isset($request->lansia) && $request->lansia!='ALL'){
 	                $query_lansia = " AND tv.is_lansia = $lansia ";
 	            }else{
-	                $query_lansia = " AND tv.is_lansia = $lansia ";
+	                $query_lansia = " ";
 	            }
 	        }else{
 	            $query_lansia = " ";
@@ -753,7 +801,7 @@ class DashVaksinController extends Controller
 	            if(isset($request->lansia) && $request->lansia!='ALL'){
 	                $query_lansia = " AND tv.is_lansia = $lansia ";
 	            }else{
-	                $query_lansia = " AND tv.is_lansia = $lansia ";
+	                $query_lansia = "  ";
 	            }
 	        }else{
 	            $query_lansia = " ";
@@ -983,16 +1031,22 @@ class DashVaksinController extends Controller
 	        $msp = $request->stspegawai;
 	        $query_msp = ' AND tv.tv_msp_id='.$msp;
 	    }
+	    
+	    $query_lansia = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL') {
+	        $lansia = $request->lansia;
+	        $query_lansia = ' AND tv.is_lansia='.$lansia;
+	    }
 
 	    $data = array();
 	    $query = "SELECT mjk.mjk_id, mjk.mjk_name,
 			(SELECT COALESCE(COUNT(*)) 
 			FROM transaksi_vaksin tv 
 			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-			WHERE tv.is_lansia=0
-			AND mc.mc_flag=1
+			WHERE mc.mc_flag=1
             $query_level
             $query_msp
+            $query_lansia
 			AND tv.tv_mjk_id = mjk.mjk_id
 			AND tv.tv_mjk_id IS NOT NULL) AS jml
 			FROM master_jenis_kelamin mjk
@@ -1148,6 +1202,13 @@ class DashVaksinController extends Controller
 	        $query_msp = ' AND tv.tv_msp_id= '.$msp;
 	    }
 	    
+	    $query_lansia = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL'){
+	        $query_lansia = " AND tv.is_lansia=0 ";
+	    }else{
+	        $query_lansia = " ";
+	    }
+	    
 	    $query_search = ' ';
 	    if(isset($request->search)) {
 	        $query_search = " AND LOWER(TRIM(mc1.mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
@@ -1160,7 +1221,7 @@ class DashVaksinController extends Controller
 			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
 			INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
 			WHERE 1=1 
-            AND tv.is_lansia=0
+            $query_lansia
             $query_msp
             $query_level
 			AND tv.tv_mkab_id=$id
@@ -1369,5 +1430,121 @@ class DashVaksinController extends Controller
 		});
 		    Cache::tags([$str])->flush();
 	    return response()->json($datacache);
+	}
+	
+	
+	public function getDashVaksinKabPerusahaanWeb(Request $request){
+	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
+	    if(isset($request->level) && $request->level>0) {
+	        $level = $request->level;
+	        
+	    }else{
+	        $level = 0;
+	    }
+	    
+	    $query_lansia_id = ' ';
+	    if(isset($request->lansia)) {
+	        if(isset($request->lansia) && $request->lansia!='ALL'){
+	            $lansia = $request->lansia;
+	        }else{
+	            $lansia = $request->lansia;
+	        }
+	    }else{
+	        $lansia ='ALL';
+	    }
+	    
+	    $query_kabupaten = ' ';
+	    if(isset($request->kabupaten) && $request->kabupaten>0) {
+	        $kabupaten = $request->kabupaten;
+	    }else{
+	        $kabupaten = 0;
+	    }
+	    
+	    $query_msv = ' ';
+	    if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
+	        $sts_vaksin = $request->sts_vaksin;
+	    }else{
+	        $sts_vaksin ='ALL';
+	    }
+	    
+	    $string = "_get_dashvaksin_bykabperusahaanweb_".$level.'_'.$lansia.'_'.$kabupaten.'_'.$sts_vaksin;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $lansia, $kabupaten, $sts_vaksin) {
+
+	        if($level > 0){
+	            $query_level   = ' AND mav.v_mc_level='.$level;
+	            $query_level1  = ' AND mc1.mc_level='.$level;
+	        }else{
+	            $query_level   = ' AND mav.v_mc_level IN (1,2,3) ';
+	            $query_level1  = ' AND mc1.mc_level IN (1,2,3) ';
+	        }
+	        
+	        if($lansia!='ALL'){
+	            if(isset($request->lansia) && $request->lansia!='ALL'){
+	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+	            }else{
+	                $query_lansia = ' ';
+	            }
+	        }else{
+	            $query_lansia = ' ';
+	        }
+	        
+	        if($kabupaten > 0){
+	            $query_kabupaten = ' AND mav.v_mkab_id='.$kabupaten;
+	        }else{
+	            $query_kabupaten = ' ';
+	        }
+	        
+	        if($sts_vaksin!='ALL'){
+	            $query_sts_vaksin = ' AND mav.v_status_vaksin_pcare='.$sts_vaksin;
+	        }else{
+	            $query_sts_vaksin = ' ';
+	        }
+	        
+	        $data = array();
+	        $query = "
+                    SELECT mc1.mc_id, mc1.mc_name,
+                    (SELECT COALESCE(SUM(v_jml_siap_vaksin),0) 
+                    FROM mvt_admin_vaksin mav
+                    INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
+                    WHERE mc.mc_id=mc1.mc_id
+                    $query_level
+                    $query_lansia
+                    $query_kabupaten
+                    $query_sts_vaksin) AS jml_siap_vaksin,
+                    (SELECT COALESCE(SUM(v_jml_sudah_vaksin1),0)
+                    FROM mvt_admin_vaksin mav
+                    INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
+                    WHERE mc.mc_id=mc1.mc_id
+                    $query_level
+                    $query_lansia
+                    $query_kabupaten
+                    $query_sts_vaksin) AS jml_sudah_vaksin1,
+                    (SELECT COALESCE(SUM(v_jml_sudah_vaksin2),0)
+                    FROM mvt_admin_vaksin mav
+                    INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
+                    WHERE mc.mc_id=mc1.mc_id
+                    $query_level
+                    $query_lansia
+                    $query_kabupaten
+                    $query_sts_vaksin) AS jml_sudah_vaksin2
+                    FROM master_company mc1
+                    WHERE mc1.mc_flag=1
+                    $query_level1
+                    ORDER BY mc1.mc_name ";
+      
+            $dashvaksin_perusahaan = DB::connection('pgsql_vaksin')->select($query);
+            foreach($dashvaksin_perusahaan as $dvp){
+                $data[] = array(
+                    "v_mc_id" => $dvp->mc_id,
+                    "v_mc_name" => $dvp->mc_name,
+                    "v_jml_siap_vaksin" => number_format($dvp->jml_siap_vaksin,0,".",","),
+                    "v_jml_sudah_vaksin1" => number_format($dvp->jml_sudah_vaksin1,0,".",","),
+                    "v_jml_sudah_vaksin2" => number_format($dvp->jml_sudah_vaksin2,0,".",",")
+                );
+            }
+            return $data;
+	    });
+        Cache::tags(['users'])->flush();
+        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 }
