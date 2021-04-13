@@ -249,17 +249,21 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 	//DashboardVaksin
 	$router->get('/dashvaksin/dashvaksin', 'DashVaksinController@getDashVaksin');
-	$router->get('/dashvaksin/dashvaksin_bymcid/{id}', 'DashClusterController@getDashVaksin_bymcid');
+	$router->get('/dashvaksin/dashvaksin_bymcid/{id}', 'DashVaksinController@getDashVaksin_bymcid');
 	$router->get('/dashvaksin/dashvaksin_mc', 'DashVaksinController@getDashVaksinPerusahaan');
 	$router->get('/dashvaksin/dashvaksin_mpro', 'DashVaksinController@getDashVaksinProvinsi');
 	$router->get('/dashvaksin/dashvaksin_mkab', 'DashVaksinController@getDashVaksinKabupaten');
 	$router->get('/dashvaksin/dashvaksin_lokasi1', 'DashVaksinController@getDashVaksinLokasi1');
 	$router->get('/dashvaksin/dashvaksin_lokasi2', 'DashVaksinController@getDashVaksinLokasi2');
 	$router->get('/dashvaksin/dashvaksin_lokasi3', 'DashVaksinController@getDashVaksinLokasi3');
+	$router->get('/dashvaksin/dashvaksin_kabmc', 'DashVaksinController@getDashVaksinKabPerusahaanWeb');
+	
+	
 	$router->get('/dashvaksin/download/{kd_perusahaan}', 'DashboardController@getDownloadVaksinbyCompany');
 	$router->get('/dashvaksin/downloadtmp/{kd_perusahaan}', 'DashboardController@getDownloadVaksinTmpbyCompany');
 	$router->get('/dashvaksin/dashvaksin_mc_filter', 'DashVaksinController@getDashVaksinPerusahaanFilter');
 	$router->get('/dashvaksin/dashvaksin_pegawai_filter', 'DashVaksinController@getDashVaksinPegawaiFilter');
+	$router->get('/detail_profile', 'DashVaksinController@getDetailProfile');
 
 	$router->get('/vaksin/vaksin_byid/{id}', 'VaksinController@getDataByid');
 	$router->get('/vaksin/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcid');

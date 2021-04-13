@@ -626,11 +626,11 @@ class PICController extends Controller
 
 					// echo $token;die;
 					//lempar ke helper firebase
-	                $token = $get_perimeter[0]->token;
+	               /* $token = $get_perimeter[0]->token;
 	                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
 	                $title = $get_perimeter[0]->mcr_name;
 	                $role="PIC";
-	                $weeks = AppHelper::sendFirebase($token, $body, $title,$role);
+	                $weeks = AppHelper::sendFirebase($token, $body, $title,$role);*/
 	            }
             $no++;
   			}
@@ -649,6 +649,9 @@ class PICController extends Controller
 
 	//Get Cluster per Perimeter Level
 	public function getAktifitasbyCluster($nik,$id_perimeter_cluster){
+		$str = 'get_aktifitas_'.$nik.$id_perimeter_cluster;
+
+		 $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 0 * 10, function () use($nik,$id_perimeter_cluster) {
 		$user = User::where('username',$nik)->first();
 		$data = array();
 
@@ -680,11 +683,16 @@ class PICController extends Controller
 						"monitoring" => $data_monitoring,
 					);
 			}
-			return response()->json(['status' => 200,'data' => $data]);
+			//return response()->json(['status' => 200,'data' => $data]);
+			return array('status' => 200,'data' => $data);
 		} else {
-			return response()->json(['status' => 200,'data' => $data]);
+			//return response()->json(['status' => 200,'data' => $data]);
+			return array('status' => 200,'data' => $data);
 		}
 
+	  });
+		Cache::tags([$str])->flush();
+	    return response()->json($datacache);
 	}
 
 	//Get Cluster per Perimeter Level

@@ -663,6 +663,8 @@ class PerimeterReportController extends Controller
         }
         //dd($str_fnc);
         // $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 40 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$week) {
+        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 10, function () use($kd_perusahaan,$nik,$user,$role_id,$week) {
+
           //current week
           $crweeks = AppHelper::Weeks();
           $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
@@ -694,7 +696,7 @@ class PerimeterReportController extends Controller
               }
               $sql =  $sql. " group by rhw.rhw_mc_id";
               //dd($sql);
-              $perimeter = DB::connection('pgsql2')->select($sql, $param);
+              $perimeter = DB::connection('pgsql')->select($sql, $param);
               //dd($perimeter);
               foreach ($perimeter as $itemperimeter) {
                 $totalperimeter = $itemperimeter->total;
@@ -723,7 +725,7 @@ class PerimeterReportController extends Controller
 
               foreach ($perimeter as $itemperimeter) {
                 $cluster = new TblPerimeterDetail;
-                $cluster->setConnection('pgsql2');
+                $cluster->setConnection('pgsql3');
                   $cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
                   $status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
 
@@ -742,8 +744,9 @@ class PerimeterReportController extends Controller
 
             return $data;
 
-        /*});
-        return ($datacache);*/
+        });
+        Cache::tags([$str])->flush();
+        return ($datacache);
 
     }
 

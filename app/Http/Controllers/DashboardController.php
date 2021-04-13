@@ -496,8 +496,8 @@ class DashboardController extends Controller
           $group_company = $request->group_company;
           $string = $string ."_group_company_".$group_company;
         }
-	     // $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 0 * 60, function() use ($group_company){
-	        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*60, function () use ($group_company) {
+	     $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 0 * 10, function() use ($group_company){
+	        // $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*10, function () use ($group_company) {
           $data = array();
           if(isset($group_company)){
             if($group_company==2){
@@ -522,7 +522,7 @@ class DashboardController extends Controller
 
           //data filter perusahaan
           $data_perusahaan=[];
-          $sql1 = "SELECT * FROM master_level_company";
+          $sql1 = "SELECT id, nama_level FROM master_level_company";
           $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
           foreach($sql_level as $lvl){
               $data_perusahaan[] = array(
@@ -533,7 +533,7 @@ class DashboardController extends Controller
 
           //data status karyawan
           $data_status=[];
-          $sql1 = "SELECT * FROM master_status_pegawai";
+          $sql1 = "SELECT msp_id, msp_name2 FROM master_status_pegawai";
           $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
           foreach($sql_level as $lvl){
               $data_status[] = array(
@@ -544,7 +544,7 @@ class DashboardController extends Controller
 
           //count level company
           $data_level=[];
-          $sql1 = "SELECT * FROM dashboard_company_level()";
+          $sql1 = "SELECT v_id,v_judul,v_jml FROM dashboard_company_level()";
           $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
           foreach($sql_level as $lvl){
               $data_level[] = array(
@@ -568,7 +568,7 @@ class DashboardController extends Controller
 
           //count level company
           $data_jml_company=[];
-          $sql1 = "SELECT * FROM vaksin_dashboard()";
+          $sql1 = "SELECT v_id,v_judul,v_jml FROM vaksin_dashboard()";
           $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
           foreach($sql_level as $lvl){
             if($lvl->v_id==0 || $lvl->v_id==4){
@@ -580,17 +580,31 @@ class DashboardController extends Controller
             }
           }
 
+          //count level company
+          $data_statVaksin=[];
+          $sql1 = "SELECT msv_id, msv_status_vaksin FROM master_status_vaksin";
+          $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
+          foreach($sql_level as $s){
+            
+              $data_statVaksin[] = array(
+                  "v_id" => $s->msv_id,
+                  "v_status" => $s->msv_status_vaksin
+              );
+            
+          }
+
           return array(
             'data' => $data,
             "filter_perusahaan" => $data_perusahaan,
             "filter_status_pegawai" => $data_status,
             "jumlah_level" => $data_level,
-            "get_count_company" => $data_jml_company
+            "get_count_company" => $data_jml_company,
+            "get_status_vaksin" => $data_statVaksin
           );
         });
 
           Cache::tags(['users'])->flush();
-          return response()->json(['status' => 200,'data' =>$datacache['data'], 'filter_perusahaan' => $datacache['filter_perusahaan'], 'filter_status_pegawai' => $datacache['filter_status_pegawai'], 'jumlah_level'=> $datacache['jumlah_level'], 'get_count_company'=> $datacache['get_count_company']]);
+          return response()->json(['status' => 200,'data' =>$datacache['data'], 'filter_perusahaan' => $datacache['filter_perusahaan'], 'filter_status_pegawai' => $datacache['filter_status_pegawai'], 'jumlah_level'=> $datacache['jumlah_level'], 'get_count_company'=> $datacache['get_count_company'], 'get_status_vaksin'=> $datacache['get_status_vaksin']]);
 	}
 
 	public function getWeekList(){
