@@ -1719,8 +1719,8 @@ class DashboardController extends Controller
                       "avg_cosmic_index" => $dv->v_avg_cosmic_index,
                       "is_excellent" => $dv->v_is_excellent,
                       "file" => ($dv->v_is_excellent==true)?'/profile/excellent.png':null,
-                      "badge" => ($dv->v_avg_cosmic_index <= 100 ? 'Excellent Protocols':(($dv->v_avg_cosmic_index <= 80) ? 'Great Consistency':(($dv->v_avg_cosmic_index <= 65 )? 'Need to improve':(($dv->v_avg_cosmic_index <= 50 )? 'Ready to New Normal ':(($dv->v_avg_cosmic_index < 40) ? 'No Badge':'No Badge'))))),
-                      "file_badge" => ($dv->v_avg_cosmic_index <= 100 ? '/profile/badge-5.png':(($dv->v_avg_cosmic_index <= 80) ? '/profile/badge-4.png':(($dv->v_avg_cosmic_index <= 65 )? '/profile/badge-3.png':(($dv->v_avg_cosmic_index <= 50 )? '/profile/badge-2.png':(($dv->v_avg_cosmic_index < 40) ? null:null))))),
+                      "badge" => ($dv->v_avg_cosmic_index > 80 ? 'Excellent Protocols':(($dv->v_avg_cosmic_index > 65) ? 'Great Consistency':(($dv->v_avg_cosmic_index > 50 )? 'Need to improve':(($dv->v_avg_cosmic_index >= 40 )? 'Ready to New Normal ':'No Badge')))),
+                      "file_badge" => ($dv->v_avg_cosmic_index > 80 ? '/profile/badge-5.png':(($dv->v_avg_cosmic_index > 65) ? '/profile/badge-4.png':(($dv->v_avg_cosmic_index > 50 )? '/profile/badge-3.png':(($dv->v_avg_cosmic_index >= 40 )? '/profile/badge-2.png':null)))),
                   );
               }
           return $data;
@@ -1753,8 +1753,8 @@ class DashboardController extends Controller
                       "jml_perimeter" => $dv->rci_jml_perimeter,
                       "is_excellent" => $dv->rci_is_excellent,
                       "file" => ($dv->rci_is_excellent==true)?'/profile/excellent.png':null,
-                      "badge" => (($dv->rci_avg_cosmic_index == null) ? 'No Badge':($dv->rci_avg_cosmic_index <= 100 ? 'Excellent Protocols':(($dv->rci_avg_cosmic_index <= 80) ? 'Great Consistency':(($dv->rci_avg_cosmic_index <= 65 )? 'Need to improve':(($dv->rci_avg_cosmic_index <= 50 )? 'Ready to New Normal ':(($dv->rci_avg_cosmic_index < 40) ? 'No Badge':'No Badge')))))),
-                      "file_badge" => (($dv->rci_avg_cosmic_index == null) ? null:($dv->rci_avg_cosmic_index <= 100 ? '/profile/badge-5.png':(($dv->rci_avg_cosmic_index <= 80) ? '/profile/badge-4.png':(($dv->rci_avg_cosmic_index <= 65 )? '/profile/badge-3.png':(($dv->rci_avg_cosmic_index <= 50 )? '/profile/badge-2.png':(($dv->rci_avg_cosmic_index < 40) ? null:null))))) ),
+                      "badge" => (((int)$dv->rci_avg_cosmic_index == null) ? 'No Badge':((int)$dv->rci_avg_cosmic_index > 80 ? 'Excellent Protocols':(((int)$dv->rci_avg_cosmic_index > 65) ? 'Great Consistency':(((int)$dv->rci_avg_cosmic_index > 50 )? 'Need to improve':(((int)$dv->rci_avg_cosmic_index >= 40 )? 'Ready to New Normal ':'No Badge'))))),
+                      "file_badge" => (((int)$dv->rci_avg_cosmic_index == null) ? null:((int)$dv->rci_avg_cosmic_index > 80 ? '/profile/badge-5.png':(((int)$dv->rci_avg_cosmic_index > 65) ? '/profile/badge-4.png':(((int)$dv->rci_avg_cosmic_index > 50 )? '/profile/badge-3.png':(((int)$dv->rci_avg_cosmic_index >= 40 )? '/profile/badge-2.png': null)))) ),
                       "rank_now" => $dv->rank_now,
                       "rank_before" => $dv->rank_before,
                   );
