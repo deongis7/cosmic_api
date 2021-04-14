@@ -43,6 +43,7 @@ export default function SwaggerUI(opts) {
     displayOperationId: false,
     displayRequestDuration: false,
     deepLinking: false,
+    tryItOutEnabled: false,
     requestInterceptor: (a => a),
     responseInterceptor: (a => a),
     showMutatedRequest: true,
@@ -177,15 +178,15 @@ export default function SwaggerUI(opts) {
 
   const configUrl = queryConfig.config || constructorConfig.configUrl
 
-  if (!configUrl || !system.specActions || !system.specActions.getConfigByUrl || system.specActions.getConfigByUrl && !system.specActions.getConfigByUrl({
-    url: configUrl,
-    loadRemoteConfig: true,
-    requestInterceptor: constructorConfig.requestInterceptor,
-    responseInterceptor: constructorConfig.responseInterceptor,
-  }, downloadSpec)) {
-    return downloadSpec()
+  if (configUrl && system.specActions && system.specActions.getConfigByUrl) {
+    system.specActions.getConfigByUrl({
+      url: configUrl,
+      loadRemoteConfig: true,
+      requestInterceptor: constructorConfig.requestInterceptor,
+      responseInterceptor: constructorConfig.responseInterceptor,
+    }, downloadSpec)
   } else {
-    system.specActions.getConfigByUrl(configUrl, downloadSpec)
+    return downloadSpec()
   }
 
   return system
