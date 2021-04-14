@@ -585,12 +585,12 @@ class DashboardController extends Controller
           $sql1 = "SELECT msv_id, msv_status_vaksin FROM master_status_vaksin";
           $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
           foreach($sql_level as $s){
-            
+
               $data_statVaksin[] = array(
                   "v_id" => $s->msv_id,
                   "v_status" => $s->msv_status_vaksin
               );
-            
+
           }
 
           return array(
@@ -1721,6 +1721,42 @@ class DashboardController extends Controller
                       "file" => ($dv->v_is_excellent==true)?'/profile/excellent.png':null,
                       "badge" => ($dv->v_avg_cosmic_index <= 100 ? 'Excellent Protocols':(($dv->v_avg_cosmic_index <= 80) ? 'Great Consistency':(($dv->v_avg_cosmic_index <= 65 )? 'Need to improve':(($dv->v_avg_cosmic_index <= 50 )? 'Ready to New Normal ':(($dv->v_avg_cosmic_index < 40) ? 'No Badge':'No Badge'))))),
                       "file_badge" => ($dv->v_avg_cosmic_index <= 100 ? '/profile/badge-5.png':(($dv->v_avg_cosmic_index <= 80) ? '/profile/badge-4.png':(($dv->v_avg_cosmic_index <= 65 )? '/profile/badge-3.png':(($dv->v_avg_cosmic_index <= 50 )? '/profile/badge-2.png':(($dv->v_avg_cosmic_index < 40) ? null:null))))),
+                  );
+              }
+          return $data;
+        });
+        return response()->json(['status' => 200,'data' => $datacache]);
+    }
+
+    public function getAverageCosmicIndexList(){
+        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_cosmic_index_detail_average_list", 60 * 60, function(){
+          $data = array();
+          $crweeks = AppHelper::Weeks();
+          $startdate = $crweeks['startweek'];
+          $enddate = $crweeks['endweek'];
+
+          $average = DB::connection('pgsql3')->select("Select a.rci_week,a.rci_mc_id,a.rci_mc_name,a.rci_cosmic_index,            a.rci_jml_perimeter,a.rci_avg_cosmic_index,a.rci_is_excellent,a.rank_now,b.rank_before
+          from (select rci.*, ROW_NUMBER() OVER (ORDER BY rci_avg_cosmic_index desc,rci_jml_perimeter desc)as rank_now from report_cosmic_index rci
+            join (select max(rci_week) as rci_week from report_cosmic_index)d on d.rci_week = rci.rci_week
+            order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)a
+          left join(select rci.*,ROW_NUMBER() OVER (ORDER BY rci_avg_cosmic_index desc,rci_jml_perimeter desc) as rank_before from report_cosmic_index rci
+            join (select min(rci_week) as rci_week from report_cosmic_index order by rci_week desc limit 2)c on c.rci_week = rci.rci_week
+            order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)b on b.rci_mc_id = a.rci_mc_id");
+          //$dashvaksin = DB::select("SELECT * FROM vaksin_summary_bymcid('$id')");
+
+          foreach($average as $dv){
+                  $data[] = array(
+                      "mc_id" => $dv->rci_mc_id,
+                      "mc_name" => $dv->rci_mc_name,
+                      "cosmic_index" => $dv->rci_cosmic_index,
+                      "avg_cosmic_index" => $dv->rci_avg_cosmic_index,
+                      "jml_perimeter" => $dv->rci_jml_perimeter,
+                      "is_excellent" => $dv->rci_is_excellent,
+                      "file" => ($dv->rci_is_excellent==true)?'/profile/excellent.png':null,
+                      "badge" => (($dv->rci_avg_cosmic_index == null) ? 'No Badge':($dv->rci_avg_cosmic_index <= 100 ? 'Excellent Protocols':(($dv->rci_avg_cosmic_index <= 80) ? 'Great Consistency':(($dv->rci_avg_cosmic_index <= 65 )? 'Need to improve':(($dv->rci_avg_cosmic_index <= 50 )? 'Ready to New Normal ':(($dv->rci_avg_cosmic_index < 40) ? 'No Badge':'No Badge')))))),
+                      "file_badge" => (($dv->rci_avg_cosmic_index == null) ? null:($dv->rci_avg_cosmic_index <= 100 ? '/profile/badge-5.png':(($dv->rci_avg_cosmic_index <= 80) ? '/profile/badge-4.png':(($dv->rci_avg_cosmic_index <= 65 )? '/profile/badge-3.png':(($dv->rci_avg_cosmic_index <= 50 )? '/profile/badge-2.png':(($dv->rci_avg_cosmic_index < 40) ? null:null))))) ),
+                      "rank_now" => $dv->rank_now,
+                      "rank_before" => $dv->rank_before,
                   );
               }
           return $data;
