@@ -1728,20 +1728,54 @@ class DashboardController extends Controller
         return response()->json(['status' => 200,'data' => $datacache]);
     }
 
-    public function getAverageCosmicIndexList(){
-        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_cosmic_index_detail_average_list", 60 * 60, function(){
+    public function getAverageCosmicIndexList(Request $request){
+      $limit = null;
+      $page = null;
+      $search = null;
+      $endpage = 1;
+      $str = "_cosmic_index_detail_average_list";
+      if(isset($request->limit)){
+          $str = $str.'_limit_'. $request->limit;
+          $limit=$request->limit;
+          if(isset($request->page)){
+              $str = $str.'_page_'. $request->page;
+              $page=$request->page;
+          }
+      }
+      if(isset($request->search)){
+          $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+          $search=$request->search;
+      }
+
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 60 * 60, function() use($limit,$page,$endpage,$search){
           $data = array();
           $crweeks = AppHelper::Weeks();
           $startdate = $crweeks['startweek'];
           $enddate = $crweeks['endweek'];
-
-          $average = DB::connection('pgsql3')->select("Select a.rci_week,a.rci_mc_id,a.rci_mc_name,a.rci_cosmic_index,            a.rci_jml_perimeter,a.rci_avg_cosmic_index,a.rci_is_excellent,a.rank_now,b.rank_before
+          $query = "Select a.rci_week,a.rci_mc_id,a.rci_mc_name,a.rci_cosmic_index,            a.rci_jml_perimeter,a.rci_avg_cosmic_index,a.rci_is_excellent,a.rank_now,b.rank_before
           from (select rci.*, ROW_NUMBER() OVER (ORDER BY rci_avg_cosmic_index desc,rci_jml_perimeter desc)as rank_now from report_cosmic_index rci
             join (select max(rci_week) as rci_week from report_cosmic_index)d on d.rci_week = rci.rci_week
             order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)a
           left join(select rci.*,ROW_NUMBER() OVER (ORDER BY rci_avg_cosmic_index desc,rci_jml_perimeter desc) as rank_before from report_cosmic_index rci
             join (select min(rci_week) as rci_week from report_cosmic_index order by rci_week desc limit 2)c on c.rci_week = rci.rci_week
-            order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)b on b.rci_mc_id = a.rci_mc_id");
+            order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)b on b.rci_mc_id = a.rci_mc_id";
+
+          if(isset($search)) {
+                $query = $query." where lower(TRIM(a.rci_mc_name)) like '%".strtolower(trim($search))."%' ";
+          }
+
+          $jmltotal=(count(DB::connection('pgsql3')->select($query)));
+
+          if(isset($limit)) {
+              $query = $query . " limit ".$limit;
+              $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+              if (isset($page)) {
+                  $offset = ((int)$page -1) * (int)$limit;
+                  $query = $query . " offset ".$offset;
+              }
+          }
+          $average = DB::connection('pgsql3')->select($query);
           //$dashvaksin = DB::select("SELECT * FROM vaksin_summary_bymcid('$id')");
 
           foreach($average as $dv){
@@ -1759,8 +1793,8 @@ class DashboardController extends Controller
                       "rank_before" => $dv->rank_before,
                   );
               }
-          return $data;
+          return array('page_end'=> $endpage, 'data'=>$data);
         });
-        return response()->json(['status' => 200,'data' => $datacache]);
+        return response()->json(['status' => 200,'page_end' =>$datacache['page_end'],'data' => $datacache['data']]);
     }
 }
