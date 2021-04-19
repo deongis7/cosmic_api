@@ -11,7 +11,8 @@ export default class Execute extends Component {
     method: PropTypes.string.isRequired,
     oas3Selectors: PropTypes.object.isRequired,
     oas3Actions: PropTypes.object.isRequired,
-    onExecute: PropTypes.func
+    onExecute: PropTypes.func,
+    disabled: PropTypes.bool
   }
 
   handleValidateParameters = () => {
@@ -24,13 +25,14 @@ export default class Execute extends Component {
     let { path, method, specSelectors, oas3Selectors, oas3Actions } = this.props
     let validationErrors = {
       missingBodyValue: false,
-      missingRequiredKeys: [] 
+      missingRequiredKeys: []
     }
     // context: reset errors, then (re)validate
     oas3Actions.clearRequestBodyValidateError({ path, method })
     let oas3RequiredRequestBodyContentType = specSelectors.getOAS3RequiredRequestBodyContentType([path, method])
     let oas3RequestBodyValue = oas3Selectors.requestBodyValue(path, method)
     let oas3ValidateBeforeExecuteSuccess = oas3Selectors.validateBeforeExecute([path, method])
+    let oas3RequestContentType = oas3Selectors.requestContentType(path, method)
 
     if (!oas3ValidateBeforeExecuteSuccess) {
       validationErrors.missingBodyValue = true
@@ -40,7 +42,11 @@ export default class Execute extends Component {
     if (!oas3RequiredRequestBodyContentType) {
       return true
     }
-    let missingRequiredKeys = oas3Selectors.validateShallowRequired({ oas3RequiredRequestBodyContentType, oas3RequestBodyValue })
+    let missingRequiredKeys = oas3Selectors.validateShallowRequired({
+      oas3RequiredRequestBodyContentType,
+      oas3RequestContentType,
+      oas3RequestBodyValue
+    })
     if (!missingRequiredKeys || missingRequiredKeys.length < 1) {
       return true
     }
@@ -87,8 +93,9 @@ export default class Execute extends Component {
   onChangeProducesWrapper = ( val ) => this.props.specActions.changeProducesValue([this.props.path, this.props.method], val)
 
   render(){
+    const { disabled } = this.props
     return (
-        <button className="btn execute opblock-control__btn" onClick={ this.onClick }>
+        <button className="btn execute opblock-control__btn" onClick={ this.onClick } disabled={disabled}>
           Execute
         </button>
     )

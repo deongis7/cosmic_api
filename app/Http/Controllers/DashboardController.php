@@ -585,12 +585,12 @@ class DashboardController extends Controller
           $sql1 = "SELECT msv_id, msv_status_vaksin FROM master_status_vaksin";
           $sql_level =  DB::connection('pgsql_vaksin')->select($sql1);
           foreach($sql_level as $s){
-            
+
               $data_statVaksin[] = array(
                   "v_id" => $s->msv_id,
                   "v_status" => $s->msv_status_vaksin
               );
-            
+
           }
 
           return array(
@@ -1708,23 +1708,106 @@ class DashboardController extends Controller
     }
 
     public function getAverageCosmicIndexDetailbyCompany($kd_perusahaan){
-        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_cosmic_index_detail_average_by_".$kd_perusahaan, 15 * 60, function()use($kd_perusahaan){
+        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_cosmic_index_detail_average_by_".$kd_perusahaan, 60 * 60, function()use($kd_perusahaan){
           $data = array();
-          $average = DB::connection('pgsql3')->select("SELECT * FROM month_average_cosmic_index_bymcid('".$kd_perusahaan."')");
+          //$average = DB::connection('pgsql3')->select("SELECT * FROM month_average_cosmic_index_bymcid('".$kd_perusahaan."')");
+          $query = "Select a.rci_week,a.rci_mc_id,a.rci_mc_name,a.rci_cosmic_index,            a.rci_jml_perimeter,a.rci_avg_cosmic_index,a.rci_is_excellent,a.rank_now,b.rank_before
+          from (select rci.*, ROW_NUMBER() OVER (ORDER BY rci_avg_cosmic_index desc,rci_jml_perimeter desc)as rank_now from report_cosmic_index rci
+            join (select max(rci_week) as rci_week from report_cosmic_index)d on d.rci_week = rci.rci_week
+            order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)a
+          left join(select rci.*,ROW_NUMBER() OVER (ORDER BY rci_avg_cosmic_index desc,rci_jml_perimeter desc) as rank_before from report_cosmic_index rci
+            join (select min(rci_week) as rci_week from report_cosmic_index order by rci_week desc limit 2)c on c.rci_week = rci.rci_week
+            order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)b on b.rci_mc_id = a.rci_mc_id";
+          $jmltotal=(count(DB::connection('pgsql3')->select($query)));
+          $query = $query." where a.rci_mc_id = '".($kd_perusahaan)."' ";
+          $average = DB::connection('pgsql3')->select($query);
+
           //$dashvaksin = DB::select("SELECT * FROM vaksin_summary_bymcid('$id')");
 
           foreach($average as $dv){
                   $data[] = array(
-                      "mc_id" => $dv->v_mc_id,
-                      "avg_cosmic_index" => $dv->v_avg_cosmic_index,
-                      "is_excellent" => $dv->v_is_excellent,
-                      "file" => ($dv->v_is_excellent==true)?'/profile/excellent.png':null,
-                      "badge" => ($dv->v_avg_cosmic_index <= 100 ? 'Excellent Protocols':(($dv->v_avg_cosmic_index <= 80) ? 'Great Consistency':(($dv->v_avg_cosmic_index <= 65 )? 'Need to improve':(($dv->v_avg_cosmic_index <= 50 )? 'Ready to New Normal ':(($dv->v_avg_cosmic_index < 40) ? 'No Badge':'No Badge'))))),
-                      "file_badge" => ($dv->v_avg_cosmic_index <= 100 ? '/profile/badge-5.png':(($dv->v_avg_cosmic_index <= 80) ? '/profile/badge-4.png':(($dv->v_avg_cosmic_index <= 65 )? '/profile/badge-3.png':(($dv->v_avg_cosmic_index <= 50 )? '/profile/badge-2.png':(($dv->v_avg_cosmic_index < 40) ? null:null))))),
+                      "mc_id" => $dv->rci_mc_id,
+                      "avg_cosmic_index" => $dv->rci_avg_cosmic_index,
+                      "is_excellent" => $dv->rci_is_excellent,
+                      "file" => ($dv->rci_is_excellent==true)?'/profile/excellent.png':null,
+                      "badge" => (((int)$dv->rci_avg_cosmic_index == null) ? 'No Badge':((int)$dv->rci_avg_cosmic_index > 80 ? 'Excellent Protocols':(((int)$dv->rci_avg_cosmic_index > 65) ? 'Great Consistency':(((int)$dv->rci_avg_cosmic_index > 50 )? 'Need to improve':(((int)$dv->rci_avg_cosmic_index >= 40 )? 'Ready to New Normal ':'No Badge'))))),
+                      "file_badge" => (((int)$dv->rci_avg_cosmic_index == null) ? null:((int)$dv->rci_avg_cosmic_index > 80 ? '/profile/badge-5.png':(((int)$dv->rci_avg_cosmic_index > 65) ? '/profile/badge-4.png':(((int)$dv->rci_avg_cosmic_index > 50 )? '/profile/badge-3.png':(((int)$dv->rci_avg_cosmic_index >= 40 )? '/profile/badge-2.png': null)))) ),
+                      "rank" =>  $dv->rank_now,
+                      "total" =>  $jmltotal,
                   );
               }
           return $data;
         });
         return response()->json(['status' => 200,'data' => $datacache]);
+    }
+
+    public function getAverageCosmicIndexList(Request $request){
+      $limit = null;
+      $page = null;
+      $search = null;
+      $endpage = 1;
+      $str = "_cosmic_index_detail_average_list";
+      if(isset($request->limit)){
+          $str = $str.'_limit_'. $request->limit;
+          $limit=$request->limit;
+          if(isset($request->page)){
+              $str = $str.'_page_'. $request->page;
+              $page=$request->page;
+          }
+      }
+      if(isset($request->search)){
+          $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+          $search=$request->search;
+      }
+
+        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 60 * 60, function() use($limit,$page,$endpage,$search){
+          $data = array();
+          $crweeks = AppHelper::Weeks();
+          $startdate = $crweeks['startweek'];
+          $enddate = $crweeks['endweek'];
+          $query = "Select a.rci_week,a.rci_mc_id,a.rci_mc_name,a.rci_cosmic_index,            a.rci_jml_perimeter,a.rci_avg_cosmic_index,a.rci_is_excellent,a.rank_now,b.rank_before
+          from (select rci.*, ROW_NUMBER() OVER (ORDER BY rci_avg_cosmic_index desc,rci_jml_perimeter desc)as rank_now from report_cosmic_index rci
+            join (select max(rci_week) as rci_week from report_cosmic_index)d on d.rci_week = rci.rci_week
+            order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)a
+          left join(select rci.*,ROW_NUMBER() OVER (ORDER BY rci_avg_cosmic_index desc,rci_jml_perimeter desc) as rank_before from report_cosmic_index rci
+            join (select min(rci_week) as rci_week from report_cosmic_index order by rci_week desc limit 2)c on c.rci_week = rci.rci_week
+            order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)b on b.rci_mc_id = a.rci_mc_id";
+
+          if(isset($search)) {
+                $query = $query." where lower(TRIM(a.rci_mc_name)) like '%".strtolower(trim($search))."%' ";
+          }
+
+          $jmltotal=(count(DB::connection('pgsql3')->select($query)));
+
+          if(isset($limit)) {
+              $query = $query . " limit ".$limit;
+              $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+              if (isset($page)) {
+                  $offset = ((int)$page -1) * (int)$limit;
+                  $query = $query . " offset ".$offset;
+              }
+          }
+          $average = DB::connection('pgsql3')->select($query);
+          //$dashvaksin = DB::select("SELECT * FROM vaksin_summary_bymcid('$id')");
+
+          foreach($average as $dv){
+                  $data[] = array(
+                      "mc_id" => $dv->rci_mc_id,
+                      "mc_name" => $dv->rci_mc_name,
+                      "cosmic_index" => $dv->rci_cosmic_index,
+                      "avg_cosmic_index" => $dv->rci_avg_cosmic_index,
+                      "jml_perimeter" => $dv->rci_jml_perimeter,
+                      "is_excellent" => $dv->rci_is_excellent,
+                      "file" => ($dv->rci_is_excellent==true)?'/profile/excellent.png':null,
+                      "badge" => (((int)$dv->rci_avg_cosmic_index == null) ? 'No Badge':((int)$dv->rci_avg_cosmic_index > 80 ? 'Excellent Protocols':(((int)$dv->rci_avg_cosmic_index > 65) ? 'Great Consistency':(((int)$dv->rci_avg_cosmic_index > 50 )? 'Need to improve':(((int)$dv->rci_avg_cosmic_index >= 40 )? 'Ready to New Normal ':'No Badge'))))),
+                      "file_badge" => (((int)$dv->rci_avg_cosmic_index == null) ? null:((int)$dv->rci_avg_cosmic_index > 80 ? '/profile/badge-5.png':(((int)$dv->rci_avg_cosmic_index > 65) ? '/profile/badge-4.png':(((int)$dv->rci_avg_cosmic_index > 50 )? '/profile/badge-3.png':(((int)$dv->rci_avg_cosmic_index >= 40 )? '/profile/badge-2.png': null)))) ),
+                      "rank_now" => $dv->rank_now,
+                      "rank_before" => $dv->rank_before,
+                  );
+              }
+          return array('page_end'=> $endpage, 'data'=>$data);
+        });
+        return response()->json(['status' => 200,'page_end' =>$datacache['page_end'],'data' => $datacache['data']]);
     }
 }

@@ -613,7 +613,7 @@ class PICController extends Controller
 	            if($itemperimeter->status_konfirmasi==1){
 	            	//Lempar ke firebase
 	  				//get data perimeter
-					$get_perimeter = DB::connection('pgsql')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token from transaksi_aktifitas ta
+					$get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token from transaksi_aktifitas ta
 	                join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 	                join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 	                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id

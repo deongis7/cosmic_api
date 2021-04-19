@@ -236,7 +236,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/cosmic_index_detail/{kd_perusahaan}', 'DashboardController@getCosmicIndexbyCompanyAndDate');
 	$router->get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
 	$router->get('/dashboard/cosmic_index_detaillist/download/{kd_perusahaan}', 'DashboardController@getDownloadCosmicIndexListbyCompany');
-    $router->get('/dashboard/cosmic_index_detail_average/{kd_perusahaan}', 'DashboardController@getAverageCosmicIndexDetailbyCompany');
+  $router->get('/dashboard/cosmic_index_detail_average/{kd_perusahaan}', 'DashboardController@getAverageCosmicIndexDetailbyCompany');
+  $router->get('/dashboard/cosmic_index_list_average', 'DashboardController@getAverageCosmicIndexList');
 	//sprint18
 	$router->get('/dashboard/perusahaan_byprovinsi_all', 'DashboardController@getPerusahaanbyProvinsiAll');
 	$router->get('/dashboard/perusahaan_byindustri_all', 'DashboardController@getPerusahaanbyIndustriAll');
@@ -256,10 +257,14 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashvaksin/dashvaksin_lokasi1', 'DashVaksinController@getDashVaksinLokasi1');
 	$router->get('/dashvaksin/dashvaksin_lokasi2', 'DashVaksinController@getDashVaksinLokasi2');
 	$router->get('/dashvaksin/dashvaksin_lokasi3', 'DashVaksinController@getDashVaksinLokasi3');
+	$router->get('/dashvaksin/dashvaksin_kabmc', 'DashVaksinController@getDashVaksinKabPerusahaanWeb');
+
+
 	$router->get('/dashvaksin/download/{kd_perusahaan}', 'DashboardController@getDownloadVaksinbyCompany');
 	$router->get('/dashvaksin/downloadtmp/{kd_perusahaan}', 'DashboardController@getDownloadVaksinTmpbyCompany');
 	$router->get('/dashvaksin/dashvaksin_mc_filter', 'DashVaksinController@getDashVaksinPerusahaanFilter');
 	$router->get('/dashvaksin/dashvaksin_pegawai_filter', 'DashVaksinController@getDashVaksinPegawaiFilter');
+	$router->get('/detail_profile', 'DashVaksinController@getDetailProfile');
 
 	$router->get('/vaksin/vaksin_byid/{id}', 'VaksinController@getDataByid');
 	$router->get('/vaksin/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcid');
