@@ -696,7 +696,7 @@ class PerimeterReportController extends Controller
               }
               $sql =  $sql. " group by rhw.rhw_mc_id";
               //dd($sql);
-              $perimeter = DB::connection('pgsql')->select($sql, $param);
+              $perimeter = DB::connection('pgsql2')->select($sql, $param);
               //dd($perimeter);
               foreach ($perimeter as $itemperimeter) {
                 $totalperimeter = $itemperimeter->total;
