@@ -389,7 +389,7 @@ class PICController extends Controller
 	//Get File ID
 	public function getFileByID($id_file){
 		$str = "_getFileByID_".$id_file;
-		$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_file) {
+		//$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_file) {
 
 		$data =[];
 		if ($id_file != null){
@@ -413,10 +413,10 @@ class PICController extends Controller
 			}
 		}
 		// return response()->json(['status' => 200,'data' => $data]);
-		return $data;
-	});
+		//return $data;
+	/*});
 		Cache::tags([$str])->flush();
-			return response()->json(['status' => 200, 'data' => $datacache]);
+			return response()->json(['status' => 200, 'data' => $datacache]);*/
 
 	}
 
