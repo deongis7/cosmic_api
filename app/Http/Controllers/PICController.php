@@ -64,7 +64,7 @@ class PICController extends Controller
 	 */
 	//Daily Monitoring
 	public function updateDailyMonitoring(Request $request){
-		// Config::set('database.default', 'pgsql2');
+		Config::set('database.default', 'pgsql2');
 		$this->validate($request, [
             'id_perimeter_cluster' => 'required',
 			'id_konfig_cluster_aktifitas' => 'required',
@@ -103,7 +103,8 @@ class PICController extends Controller
 		$destinationPath = storage_path().'/app/public/aktifitas/' .$kd_perusahaan.'/'.$tanggal;
 		$name1 = round(microtime(true) * 1000).'.jpg';
         $name2 = round(microtime(true) * 1000).'_tumb.jpg';
-
+        
+        Config::set('database.default', 'pgsql');
         if ($file != null || $file != '') {
             $img1 = explode(',', $file);
             $image1 = $img1[1];
