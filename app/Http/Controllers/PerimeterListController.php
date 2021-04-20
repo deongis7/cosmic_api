@@ -1398,8 +1398,8 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
           }
         }
         return $data;
-      });
-      //Cache::tags([$str])->flush();
+      // });
+      // Cache::tags([$str])->flush();
       // return $datacache;
     }
 
