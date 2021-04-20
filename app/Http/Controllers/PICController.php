@@ -780,7 +780,7 @@ class PICController extends Controller
 					}
 
 		 });
-            return response()->json(['status' => 200,'data' => $datacache]);
+            return response()->json($datacache);
 	}
 
 	//Get ID
