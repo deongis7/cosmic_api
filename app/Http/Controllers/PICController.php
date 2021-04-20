@@ -336,9 +336,9 @@ class PICController extends Controller
 
 	//Get File
 	private function getFile($id_aktifitas,$id_perusahaan){
-		// Config::set('database.default', 'pgsql3');
+		
 		$str = "_get_perimeterlist_all_".$id_aktifitas."_".$id_perusahaan;
-		$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_aktifitas,$id_perusahaan) {
+		// $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_aktifitas,$id_perusahaan) {
 
 			$data =[];
 
@@ -358,10 +358,10 @@ class PICController extends Controller
 			}
 
 
-			return $data;
-		});
-		Cache::tags([$str])->flush();
-			return response()->json(['status' => 200, 'data' => $datacache]);
+			// return $data;
+		// });
+		// Cache::tags([$str])->flush();
+			return response()->json(['status' => 200, 'data' => $data]);
 	}
 
 	//Get File Tolak
@@ -386,6 +386,9 @@ class PICController extends Controller
 
 	//Get File ID
 	public function getFileByID($id_file){
+		$str = "_getFileByID_".$id_file;
+		$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_file) {
+
 		$data =[];
 		if ($id_file != null){
 
@@ -407,7 +410,12 @@ class PICController extends Controller
 					);
 			}
 		}
-		return response()->json(['status' => 200,'data' => $data]);
+		// return response()->json(['status' => 200,'data' => $data]);
+		return $data;
+	});
+		Cache::tags([$str])->flush();
+			return response()->json(['status' => 200, 'data' => $datacache]);
+
 	}
 
 	//Get Status Monitoring
@@ -771,6 +779,7 @@ class PICController extends Controller
 
 	//Get ID
 	public function getMonitoringDetail($id_aktifitas){
+		Config::set('database.default', 'pgsql3');
 		$str = "_get_monitoring_det_".$id_aktifitas;
 			$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_aktifitas) {
 			$data = array();
