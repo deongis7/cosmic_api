@@ -718,7 +718,7 @@ class PICController extends Controller
 		$dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0);
 		
 		$data = array();
-       	/*$datacache =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level, $user, $dataprogress, $data) {*/
+       	$datacache =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level, $user, $dataprogress, $data) {
 		if ($user != null){
 			$role_id = $user->roles()->first()->id;
 			    $cacheperimeter = DB::connection('pgsql3')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
@@ -772,15 +772,15 @@ class PICController extends Controller
 										"sudah_dimonitor"=> $jml_monitoring,
 										"belum_dimonitor"=> $total_monitoring - $jml_monitoring );
 
-						return response()->json(['status_monitoring' => $dataprogress,'status' => 200,'data' => $data]);
-						// return array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
+						// return response()->json(['status_monitoring' => $dataprogress,'status' => 200,'data' => $data]);
+						return array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
 					} else {
-						return response()->json(['status_monitoring' => $dataprogress,'status' => 200,'data' => $data]);
-						// return array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
+						// return response()->json(['status_monitoring' => $dataprogress,'status' => 200,'data' => $data]);
+						return array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
 					}
 
-		 /*});
-            return response()->json($datacache);*/
+		 });
+            return response()->json($datacache);
 	}
 
 	//Get ID
