@@ -104,7 +104,7 @@ class PICController extends Controller
 		$name1 = round(microtime(true) * 1000).'.jpg';
         $name2 = round(microtime(true) * 1000).'_tumb.jpg';
 
-        Config::set('database.default', 'pgsql');
+        Config::set('database.default', 'pgsql2');
         if ($file != null || $file != '') {
             $img1 = explode(',', $file);
             $image1 = $img1[1];
