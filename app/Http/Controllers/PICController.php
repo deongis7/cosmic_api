@@ -715,15 +715,13 @@ class PICController extends Controller
 	public function getAktifitasbyPerimeter($nik,$id_perimeter_level){
 		Config::set('database.default', 'pgsql3');
 		$user = User::where('username',$nik)->first();
-		$total_monitoring = 0;
-		$jml_monitoring = 0;
-		$dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
+		$dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0);
+		
 		$data = array();
-       	$datacache =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level, $user) {
+       	$datacache =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level, $user, $dataprogress, $data) {
 		if ($user != null){
 			$role_id = $user->roles()->first()->id;
-
-                $cacheperimeter = DB::connection('pgsql3')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
+			    $cacheperimeter = DB::connection('pgsql3')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
 			          case when tsp.tbsp_status = 2 then true else false end as status_pic,
 			          case when tsp.tbsp_status = 1 then true when tsp.tbsp_status = 2 then true else false end as status_fo,
 			          tpd.tpmd_file_foto,tpd.tpmd_file_tumb, mpm.mpm_mc_id,
@@ -736,7 +734,8 @@ class PICController extends Controller
 								left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
 								where mpl.mpml_id = ?
 								order by mpm.mpm_name asc,mpl.mpml_name asc, mcr.mcr_name asc, tpmd_order asc", [$id_perimeter_level]);
-			           
+			           $total_monitoring = 0;
+						$jml_monitoring = 0;
 						foreach($cacheperimeter as $itemperimeter){
 							$data_aktifitas_cluster = array();
 			        //$aktifitas = new KonfigurasiCAR;
