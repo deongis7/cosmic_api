@@ -295,6 +295,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
   	$router->get('/product/list_pengajuan_atestasi/{id_produk}', 'ProductController@getPengajuanAtestasi');
   	$router->get('/product/layanan_produk', 'ProductController@getLayananProduk');
   	$router->post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
+  	$router->post('/product/add_pengajuan_layanan/{id_produk}', 'ProductController@addPengajuanLayanan');
+  	$router->post('/product/add_pelaporan_mandiri/{id_produk}', 'ProductController@addPelaporanMandiri');
 
     //Sosialisasi Web
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
