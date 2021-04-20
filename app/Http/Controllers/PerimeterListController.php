@@ -1340,7 +1340,7 @@ class PerimeterListController extends Controller
 
     //Get Status Monitoring Perimeter Level
     private function getFotoByPerimeter($id_perimeter,$mc_id){
-/*$datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id_perimeter, 5 * 60, function()use($id_perimeter,$mc_id) {*/
+$datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id_perimeter, 5 * 60, function()use($id_perimeter,$mc_id) {
         $data = array();
         $weeks = AppHelper::Weeks();
         $startdate = $weeks['startweek'];
@@ -1371,14 +1371,16 @@ class PerimeterListController extends Controller
               );
         }
           return $data;
-      /*});
-      return $datacache;*/
+      });
+      return $datacache;
 
 
     }
 
     private function getFile($id_aktifitas,$id_perusahaan){
       // $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_file_by_akt_'.$id_aktifitas.'_'.$id_perusahaan, 5 * 60, function()use($id_aktifitas,$id_perusahaan) {
+      $str = "_getFile_".$id_aktifitas."_".$id_perusahaan;
+      $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 60, function () use($id_aktifitas,$id_perusahaan) {
         $data =[];
 
         if ($id_aktifitas != null){
@@ -1396,8 +1398,9 @@ class PerimeterListController extends Controller
           }
         }
         return $data;
-      // });
-      // return $datacache;
+      });
+      Cache::tags([$str])->flush();
+      return $datacache;
     }
 
     //POST
