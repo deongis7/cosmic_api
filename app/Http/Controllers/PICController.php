@@ -337,25 +337,31 @@ class PICController extends Controller
 	//Get File
 	private function getFile($id_aktifitas,$id_perusahaan){
 		// Config::set('database.default', 'pgsql3');
-		$data =[];
+		$str = "_get_perimeterlist_all_".$id_aktifitas."_".$id_perusahaan;
+		$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_aktifitas,$id_perusahaan) {
 
-		if ($id_aktifitas != null){
-		$transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
-						->where("ta_status", "<>", "2")
-						->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
+			$data =[];
 
-			foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){
+			if ($id_aktifitas != null){
+			$transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
+							->where("ta_status", "<>", "2")
+							->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
 
-				$data[] = array(
-						"id_file" => $itemtransaksi_aktifitas_file->taf_id,
-						"file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
-						"file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
-					);
+				foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){
+
+					$data[] = array(
+							"id_file" => $itemtransaksi_aktifitas_file->taf_id,
+							"file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
+							"file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
+						);
+				}
 			}
-		}
 
 
-		return $data;
+			return $data;
+		});
+		Cache::tags([$str])->flush();
+			return response()->json(['status' => 200, 'data' => $datacache]);
 	}
 
 	//Get File Tolak
@@ -705,7 +711,7 @@ class PICController extends Controller
 		if ($user != null){
 			$role_id = $user->roles()->first()->id;
 
-            $perimeter =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 7 * 60, function()use($id_perimeter_level) {
+            $perimeter =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level) {
                 return $cacheperimeter = DB::connection('pgsql3')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
           case when tsp.tbsp_status = 2 then true else false end as status_pic,
           case when tsp.tbsp_status = 1 then true when tsp.tbsp_status = 2 then true else false end as status_fo,
@@ -765,35 +771,39 @@ class PICController extends Controller
 
 	//Get ID
 	public function getMonitoringDetail($id_aktifitas){
-		$data = array();
+		$str = "_get_monitoring_det_".$id_aktifitas;
+			$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_aktifitas) {
+			$data = array();
 
 
-		$monitor = TrnAktifitas::join('konfigurasi_car','konfigurasi_car.kcar_id','transaksi_aktifitas.ta_kcar_id')
-					->join('master_car','master_car.mcar_id','konfigurasi_car.kcar_mcar_id')
-					->join('table_perimeter_detail','table_perimeter_detail.tpmd_id','transaksi_aktifitas.ta_tpmd_id')
-					->join('master_perimeter_level','master_perimeter_level.mpml_id','table_perimeter_detail.tpmd_mpml_id')
-					->join('master_perimeter','master_perimeter.mpm_id','master_perimeter_level.mpml_mpm_id')
-					->where('transaksi_aktifitas.ta_id',$id_aktifitas)
-					->first();
+			$monitor = TrnAktifitas::join('konfigurasi_car','konfigurasi_car.kcar_id','transaksi_aktifitas.ta_kcar_id')
+						->join('master_car','master_car.mcar_id','konfigurasi_car.kcar_mcar_id')
+						->join('table_perimeter_detail','table_perimeter_detail.tpmd_id','transaksi_aktifitas.ta_tpmd_id')
+						->join('master_perimeter_level','master_perimeter_level.mpml_id','table_perimeter_detail.tpmd_mpml_id')
+						->join('master_perimeter','master_perimeter.mpm_id','master_perimeter_level.mpml_mpm_id')
+						->where('transaksi_aktifitas.ta_id',$id_aktifitas)
+						->first();
 
-		if ($monitor != null) {
+			if ($monitor != null) {
 
-				$data = array(
-						"id_perimeter_cluster" => $monitor->ta_tpmd_id,
-						"id_konfig_cluster_aktifitas" => $monitor->ta_kcar_id,
-						"aktifitas" => $monitor->mcar_name,
-						"id_aktifitas" => $monitor->ta_id,
-						"status" => $monitor->ta_status,
-						"ket_tolak" => $monitor->ta_ket_tolak,
-						"file" => $this->getFile($id_aktifitas,$monitor->mpm_mc_id),
+					$data = array(
+							"id_perimeter_cluster" => $monitor->ta_tpmd_id,
+							"id_konfig_cluster_aktifitas" => $monitor->ta_kcar_id,
+							"aktifitas" => $monitor->mcar_name,
+							"id_aktifitas" => $monitor->ta_id,
+							"status" => $monitor->ta_status,
+							"ket_tolak" => $monitor->ta_ket_tolak,
+							"file" => $this->getFile($id_aktifitas,$monitor->mpm_mc_id),
 
-					);
+						);
 
-			return response()->json(['status' => 200,'data' => $data]);
-		}  else {
-			return response()->json(['status' => 200,'data' => $data]);
-		}
-
+				return $data;
+			}  else {
+				return $data;
+			}
+		});
+		Cache::tags([$str])->flush();
+			return response()->json(['status' => 200, 'data' => $datacache]);
 	}
 
 	
@@ -920,29 +930,35 @@ public function addFilePerimeterLevel(Request $request){
 
   //Get File ID
   public function getFilePerimeterLevelByPerimeterLevel($id_perimeter_level){
-    $data =[];
-    if ($id_perimeter_level != null){
+  	$str = "_get_perimeterlist_all_".$id_perimeter_level;
+		$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_perimeter_level) {
 
-    $perimeter_level_file = PerimeterLevelFile::select('master_perimeter_level_file.mpmlf_id','master_perimeter.mpm_mc_id','master_perimeter_level_file.mpmlf_file','master_perimeter_level_file.mpmlf_file_tumb')
-          ->join('master_perimeter_level','master_perimeter_level.mpml_id','master_perimeter_level_file.mpmlf_mpml_id')
-          ->join('master_perimeter','master_perimeter.mpm_id','master_perimeter_level.mpml_mpm_id')
-          ->where('master_perimeter_level.mpml_id',$id_perimeter_level)
-          ->orderBy('mpmlf_id','desc')
-          ->limit(3)
-          ->get();
+		    $data =[];
+		    if ($id_perimeter_level != null){
 
-      if ($perimeter_level_file->count() >0){
-        foreach($perimeter_level_file as $plf){
-          $data[] = array(
-            "id_file" => $plf->mpmlf_id,
-            "file" => "/perimeter_level/".$plf->mpm_mc_id."/".$plf->mpmlf_file,
-            "file_tumb" => "/perimeter_level/".$plf->mpm_mc_id."/".$plf->mpmlf_file_tumb,
-            );
-        }
+		    $perimeter_level_file = PerimeterLevelFile::select('master_perimeter_level_file.mpmlf_id','master_perimeter.mpm_mc_id','master_perimeter_level_file.mpmlf_file','master_perimeter_level_file.mpmlf_file_tumb')
+		          ->join('master_perimeter_level','master_perimeter_level.mpml_id','master_perimeter_level_file.mpmlf_mpml_id')
+		          ->join('master_perimeter','master_perimeter.mpm_id','master_perimeter_level.mpml_mpm_id')
+		          ->where('master_perimeter_level.mpml_id',$id_perimeter_level)
+		          ->orderBy('mpmlf_id','desc')
+		          ->limit(3)
+		          ->get();
 
-      }
-    }
-    return response()->json(['status' => 200,'data' => $data]);
+		      if ($perimeter_level_file->count() >0){
+		        foreach($perimeter_level_file as $plf){
+		          $data[] = array(
+		            "id_file" => $plf->mpmlf_id,
+		            "file" => "/perimeter_level/".$plf->mpm_mc_id."/".$plf->mpmlf_file,
+		            "file_tumb" => "/perimeter_level/".$plf->mpm_mc_id."/".$plf->mpmlf_file_tumb,
+		            );
+		        }
+
+		      }
+		    }
+		    return $data;
+		});
+			Cache::tags([$str])->flush();
+			return response()->json(['status' => 200, 'data' => $datacache]);
   }
 
   public function addFileClusterRuangan(Request $request){
