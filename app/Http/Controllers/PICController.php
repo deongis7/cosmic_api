@@ -29,7 +29,7 @@ use Illuminate\Support\Facades\Redis;
 
 use Storage;
 use DB;
-
+use Config;
 
 class PICController extends Controller
 {
