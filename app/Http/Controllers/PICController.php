@@ -412,7 +412,7 @@ class PICController extends Controller
 					);
 			}
 		}
-		// return response()->json(['status' => 200,'data' => $data]);
+		return response()->json(['status' => 200,'data' => $data]);
 		//return $data;
 	/*});
 		Cache::tags([$str])->flush();
