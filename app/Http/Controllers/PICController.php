@@ -64,6 +64,7 @@ class PICController extends Controller
 	 */
 	//Daily Monitoring
 	public function updateDailyMonitoring(Request $request){
+		Config::set('database.default', 'pgsql2');
 		$this->validate($request, [
             'id_perimeter_cluster' => 'required',
 			'id_konfig_cluster_aktifitas' => 'required',
