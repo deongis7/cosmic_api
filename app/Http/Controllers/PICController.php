@@ -719,7 +719,7 @@ class PICController extends Controller
 		$jml_monitoring = 0;
 		$dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
 		$data = array();
-       	$datacache =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level) {
+       	$datacache =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level, $user) {
 		if ($user != null){
 			$role_id = $user->roles()->first()->id;
 
