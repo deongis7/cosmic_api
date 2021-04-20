@@ -1378,25 +1378,27 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
     }
 
     private function getFile($id_aktifitas,$id_perusahaan){
+      $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_file_by_akt_'.$id_aktifitas.'_'.$id_perusahaan, 5 * 60, function()use($id_aktifitas,$id_perusahaan) {
+        $data =[];
 
-      $data =[];
+        if ($id_aktifitas != null){
+        $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
+                ->where("ta_status", "<>", "2")
+                ->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
 
-      if ($id_aktifitas != null){
-      $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
-              ->where("ta_status", "<>", "2")
-              ->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
+          foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){
 
-        foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){
-
-          $data[] = array(
-              "id_file" => $itemtransaksi_aktifitas_file->taf_id,
-              "file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
-              "file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
-            );
+            $data[] = array(
+                "id_file" => $itemtransaksi_aktifitas_file->taf_id,
+                "file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
+                "file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
+              );
+          }
         }
-      }
-      return $data;
-      }
+        return $data;
+      });
+      return $datacache;
+    }
 
     //POST
     public function openPerimeter(Request $request){

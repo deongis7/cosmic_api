@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Perimeter;
 use App\TblPengajuanAtestasi;
+use App\TblPengajuanSertifikasi;
 use App\Helpers\AppHelper;
 
 use Illuminate\Http\Request;
@@ -142,6 +143,8 @@ class ProductController extends Controller
             $pengajuan->tbpa_no_tlp_pj = $request->no_telp_pj;
             $pengajuan->tbpa_email_pj = $request->email_pj;
             $pengajuan->tbpa_perimeter = $request->perimeter;
+            $pengajuan->tbpa_user_insert = $request->user_id;
+
             $pengajuan->tbpa_status = 0;
 
         if($pengajuan->save()) {
@@ -150,6 +153,113 @@ class ProductController extends Controller
          else {
              return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
          }
+
+    }
+    //POST
+    public function addPengajuanLayanan($id_produk,Request $request){
+        $this->validate($request, [
+            'nama_pj' => 'required',
+            'no_telp_pj' => 'required',
+            'email_pj' => 'required',
+            'kd_perusahaan'=>'required'
+        ]);
+
+        if($id_produk=='1'){
+              $pengajuan= New TblPengajuanAtestasi();
+              $pengajuan->setConnection('pgsql');
+              $pengajuan->tbpa_mc_id = $request->kd_perusahaan;
+              $pengajuan->tbpa_mlp_id = $id_produk;
+              $pengajuan->tbpa_nama_pj = $request->nama_pj;
+              $pengajuan->tbpa_no_tlp_pj = $request->no_telp_pj;
+              $pengajuan->tbpa_email_pj = $request->email_pj;
+              $pengajuan->tbpa_perimeter = $request->perimeter;
+              $pengajuan->tbpa_user_insert = $request->user_id;
+
+              $pengajuan->tbpa_status = 0;
+
+          if($pengajuan->save()) {
+              return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
+          }
+           else {
+               return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+           }
+        } else if($id_produk=='2'||$id_produk=='3'){
+              $pengajuan= New TblPengajuanSertifikasi();
+              $pengajuan->setConnection('pgsql');
+              $pengajuan->tbps_mc_id = $request->kd_perusahaan;
+              $pengajuan->tbps_mlp_id = $id_produk;
+              $pengajuan->tbps_nama_pj = $request->nama_pj;
+              $pengajuan->tbps_no_tlp_pj = $request->no_telp_pj;
+              $pengajuan->tbps_email_pj = $request->email_pj;
+              $pengajuan->tbps_user_insert = $request->user_id;
+
+              $pengajuan->tbps_status = 0;
+
+          if($pengajuan->save()) {
+              return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
+          }
+           else {
+               return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+           }
+        } else {
+           return response()->json(['status' => 404,'message' => 'Data Layanan Tidak DItemukan'])->setStatusCode(404);
+        }
+
+    }
+    public function addPelaporanMandiri($id_produk,Request $request){
+        $this->validate($request, [
+            'tgl_terbit' => 'required',
+            'tgl_berlaku' => 'required',
+            'nomor_sertifikat' => 'required',
+            'kd_perusahaan'=>'required'
+        ]);
+
+        if($id_produk=='1'){
+              $pengajuan= New TblPengajuanAtestasi();
+              $pengajuan->setConnection('pgsql');
+              $pengajuan->tbpa_mc_id = $request->kd_perusahaan;
+              $pengajuan->tbpa_mlp_id = $id_produk;
+              $pengajuan->tbpa_nama_pj = '';
+              $pengajuan->tbpa_no_tlp_pj = '';
+              $pengajuan->tbpa_email_pj ='';
+              $pengajuan->tbpa_perimeter = $request->perimeter;
+              $pengajuan->tbpa_user_insert = $request->user_id;
+              $pengajuan->tbpa_tgl_terbit = $request->tgl_terbit;
+              $pengajuan->tbpa_tgl_berlaku = $request->tgl_berlaku;
+              $pengajuan->tbpa_nomor_sertifikat = $request->nomor_sertifikat;
+
+              $pengajuan->tbpa_status = 1;
+
+          if($pengajuan->save()) {
+              return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
+          }
+           else {
+               return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+           }
+        } else if($id_produk=='2'||$id_produk=='3'){
+              $pengajuan= New TblPengajuanSertifikasi();
+              $pengajuan->setConnection('pgsql');
+              $pengajuan->tbps_mc_id = $request->kd_perusahaan;
+              $pengajuan->tbps_mlp_id = $id_produk;
+              $pengajuan->tbps_nama_pj = '';
+              $pengajuan->tbps_no_tlp_pj = '';
+              $pengajuan->tbps_email_pj = '';
+              $pengajuan->tbps_user_insert = $request->user_id;
+              $pengajuan->tbps_tgl_terbit = $request->tgl_terbit;
+              $pengajuan->tbps_tgl_berlaku = $request->tgl_berlaku;
+              $pengajuan->tbps_nomor_sertifikat = $request->nomor_sertifikat;
+
+              $pengajuan->tbps_status = 1;
+
+          if($pengajuan->save()) {
+              return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
+          }
+           else {
+               return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+           }
+        } else {
+           return response()->json(['status' => 404,'message' => 'Data Layanan Tidak DItemukan'])->setStatusCode(404);
+        }
 
     }
 }
