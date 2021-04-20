@@ -1378,7 +1378,9 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
     }
 
     private function getFile($id_aktifitas,$id_perusahaan){
-      $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_file_by_akt_'.$id_aktifitas.'_'.$id_perusahaan, 5 * 60, function()use($id_aktifitas,$id_perusahaan) {
+      // $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_file_by_akt_'.$id_aktifitas.'_'.$id_perusahaan, 5 * 60, function()use($id_aktifitas,$id_perusahaan) {
+      $str = "_getFile_".$id_aktifitas."_".$id_perusahaan;
+      $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 60, function () use($id_aktifitas,$id_perusahaan) {
         $data =[];
 
         if ($id_aktifitas != null){
@@ -1397,6 +1399,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         }
         return $data;
       });
+      Cache::tags([$str])->flush();
       return $datacache;
     }
 
