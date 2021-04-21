@@ -324,7 +324,7 @@ class UserController extends Controller
           'kd_perusahaan' => 'required',
       ]);
       $user= new User();
-      $user->setConnection('pgsql2');
+      $user->setConnection('pgsql');
       $user = $user->whereRaw("trim(lower(username))='". trim(strtolower($request->username))."'")->first();
 
       if($user != null){
@@ -343,11 +343,11 @@ class UserController extends Controller
     }
 
     public function sendFirebase(Request $request, $id){
-    	
+
     	$this->validate($request, [
             'body' => 'required',
         ]);
-        
+
     	$token = "AAAAIOJgA7s:APA91bGsiFlggeNexu_qv7QdxyEKeudNqJatbkZaMkMjI9dKJHjPDcQQdXOeCmlGiDsepZ2HkuLCFxzU6DiYMxn-2ZoueHFnGNTXlwY4krhF9HZ207WocMTamycUzk_vMQsz6wlLvasW";
     	$headers = [
             'Authorization' => 'Key=' . $token,
@@ -390,7 +390,7 @@ class UserController extends Controller
         $response = $request->getBody()->getContents();
         $result   = json_decode($response, true);
         return response()->json(['status' => 200,'data' => $result]);
-        
+
     }
 
      public function get_token(){
@@ -463,9 +463,9 @@ class UserController extends Controller
         left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
         left join app_users au on au.username = mpl.mpml_me_nik
         left join table_perimeter_closed tpc on tpc.tbpc_mpml_id = tpd.tpmd_mpml_id
-        where ta.ta_status = 0 and mpl.mpml_pic_nik = ? 
+        where ta.ta_status = 0 and mpl.mpml_pic_nik = ?
         order by ta_date_update asc", [$nik]);
-        if(count($notif)>0){    
+        if(count($notif)>0){
             foreach($notif as $itemnotif){
             //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
                 $data[] = array(
@@ -484,7 +484,7 @@ class UserController extends Controller
             }
         }
         return response()->json(['status' => 200,'data' => $data]);
-    
+
     }
 
     //Get File Tolak
@@ -538,7 +538,7 @@ class UserController extends Controller
                 join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
                 join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
                 join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
-                join app_users au on au.username = mpl.mpml_me_nik 
+                join app_users au on au.username = mpl.mpml_me_nik
                 where tpd.tpmd_id = ?
                 group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token ", [$id_perimeter_cluster]);
                 //dd($get_perimeter[0]->mpml_name);
