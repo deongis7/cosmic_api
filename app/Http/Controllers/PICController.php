@@ -716,7 +716,7 @@ class PICController extends Controller
 		Config::set('database.default', 'pgsql2');
 		$user = User::where('username',$nik)->first();
 		$dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0);
-		$string = "_get_dashvaksin_byperusahaan_".$level.'_'.$mc_id.'_'.$lansia;
+		$string = "_perimeter_in_aktifitas_by_".$id_perimeter_level;
 		$data = array();
        	// $datacache =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level, $user, $dataprogress, $data) {
        	$datacache = Cache::tags(['_perimeter_in_aktifitas_by_'.$id_perimeter_level])->remember(env('APP_ENV', 'dev').$string, 60, function () use($id_perimeter_level, $user, $dataprogress, $data) {
