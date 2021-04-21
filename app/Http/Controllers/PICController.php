@@ -360,10 +360,10 @@ class PICController extends Controller
 			}
 
 
-			// return $data;
+			return $data;
 		// });
 		// Cache::tags([$str])->flush();
-			return response()->json(['status' => 200, 'data' => $data]);
+			// return response()->json(['status' => 200, 'data' => $data]);
 	}
 
 	//Get File Tolak
@@ -389,7 +389,7 @@ class PICController extends Controller
 	//Get File ID
 	public function getFileByID($id_file){
 		$str = "_getFileByID_".$id_file;
-		$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_file) {
+		//$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_file) {
 
 		$data =[];
 		if ($id_file != null){
@@ -412,11 +412,11 @@ class PICController extends Controller
 					);
 			}
 		}
-		// return response()->json(['status' => 200,'data' => $data]);
-		return $data;
-	});
+		return response()->json(['status' => 200,'data' => $data]);
+		//return $data;
+	/*});
 		Cache::tags([$str])->flush();
-			return response()->json(['status' => 200, 'data' => $datacache]);
+			return response()->json(['status' => 200, 'data' => $datacache]);*/
 
 	}
 
@@ -713,7 +713,7 @@ class PICController extends Controller
 
 	//Get Cluster per Perimeter Level
 	public function getAktifitasbyPerimeter($nik,$id_perimeter_level){
-		Config::set('database.default', 'pgsql3');
+		Config::set('database.default', 'pgsql2');
 		$user = User::where('username',$nik)->first();
 		$dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0);
 		
