@@ -389,10 +389,10 @@ class DashVaksinController extends Controller
     	            "v_jml" => number_format($dvp->jml,0,".",",")
     	        );
     	    }
-            return $data;
+            return array('data'=>$data,'page_end'=>$endpage);
 	    });
         Cache::tags(['users'])->flush();
-        return response()->json(['status' => 200,'data' => $datacache]);
+        return response()->json(['status' => 200,'page_end'=> $datacache['page_end'],'data' => $datacache['data']]);
 	}
 
 	public function getDashVaksinPerusahaanFilter(Request $request){
