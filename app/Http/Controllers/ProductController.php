@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Perimeter;
 use App\TblPengajuanAtestasi;
+use App\TblStatusPengajuanAtestasi;
 use App\TblPengajuanSertifikasi;
 use App\Helpers\AppHelper;
 
@@ -231,6 +232,20 @@ class ProductController extends Controller
               $pengajuan->tbpa_status = 1;
 
           if($pengajuan->save()) {
+
+            $idastetasi = $pengajuan->tbpa_id;
+
+            $myArray = explode(',', $request->perimeter);
+            foreach($myArray as $itemArray){
+              $stpengajuan= New TblStatusPengajuanAtestasi();
+              $stpengajuan->setConnection('pgsql');
+              $stpengajuan->tbspa_tbpa_id = $idastetasi;
+              $stpengajuan->tbspa_mpm_id = $itemArray;
+              $stpengajuan->tbspa_status = 1;
+              $stpengajuan->save();
+
+            }
+
               return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
           }
            else {
