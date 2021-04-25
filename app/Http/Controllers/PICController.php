@@ -788,7 +788,7 @@ class PICController extends Controller
 
 	//Get ID
 	public function getMonitoringDetail($id_aktifitas){
-		Config::set('database.default', 'pgsql3');
+		// Config::set('database.default', 'pgsql3');
 		$str = "_get_monitoring_det_".$id_aktifitas;
 			$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_aktifitas) {
 			$data = array();
