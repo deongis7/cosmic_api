@@ -202,7 +202,7 @@ class PICController extends Controller
 	//Get Perimeter per NIK
 	public function getPerimeterbyUser($nik){
     $user = new User;
-    $user->setConnection('pgsql2');
+    $user->setConnection('pgsql');
 		$user = $user->where('username',$nik)->first();
 
 
@@ -676,7 +676,7 @@ class PICController extends Controller
 			$weeks = AppHelper::Weeks();
 			$startdate = $weeks['startweek'];
 			$enddate = $weeks['endweek'];
-			$aktifitas = DB::connection('pgsql2')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from  table_perimeter_detail tpd
+			$aktifitas = DB::connection('pgsql')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from  table_perimeter_detail tpd
 			join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
 			join konfigurasi_car kc on kc.kcar_mcr_id = mcr.mcr_id
 			join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
@@ -713,7 +713,7 @@ class PICController extends Controller
 
 	//Get Cluster per Perimeter Level
 	public function getAktifitasbyPerimeter($nik,$id_perimeter_level){
-		Config::set('database.default', 'pgsql2');
+		Config::set('database.default', 'pgsql');
 		$user = User::where('username',$nik)->first();
 		$dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0);
 		$string = "_perimeter_in_aktifitas_by_".$id_perimeter_level;
@@ -1059,7 +1059,7 @@ public function addFilePerimeterLevel(Request $request){
     }
 
     public function getAktifitasbyPerimeterBUMN($nik,$id_perimeter_level){
-    	Config::set('database.default', 'pgsql3');
+    	Config::set('database.default', 'pgsql');
         $user = User::where('username',$nik)->first();
         $auth_mc_id =Auth::guard('api')->user()->mc_id;
         //var_dump($auth_mc_id);die;
