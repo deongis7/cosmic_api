@@ -238,6 +238,7 @@ class DashVaksinController extends Controller
       $page=null;
       $limit=null;
       $search=null;
+      $sort=null;
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
 
@@ -296,11 +297,21 @@ class DashVaksinController extends Controller
           $search=$request->search;
       }
 
+      if(isset($request->p_sort)){
+          $str = $str.'_sort_'. str_replace(' ','_',$request->p_sort);
+          $sort=$request->p_sort;
+      }
+
+      if(isset($request->column_sort)){
+          $str = $str.'_col_'. str_replace(' ','_',$request->column_sort);
+          $col=$request->column_sort;
+      }
+
 
 
 
 	    $string = "_get_dashvaksin_byperusahaan_".$level.'_'.$mc_id.'_'.$lansia.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin.$str;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia,$sts_pegawai,$sts_vaksin,$limit,$page,$search) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia,$sts_pegawai,$sts_vaksin,$limit,$page,$search,$sort,$col) {
         $query_search='';
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
@@ -350,8 +361,20 @@ class DashVaksinController extends Controller
               $query_stsvaksin = " ";
           }
           if(isset($search)) {
-              $query_search = $query_search ." AND lower(TRIM(mc1.mc_name)) like '%".strtolower(trim($search))."%' ";
+              $query_search = $query_search ." AND (lower(TRIM(mc1.mc_name)) like '%".strtolower(trim($search))."%' or lower(TRIM(mc1.mc_id)) like '%".strtolower(trim($search))."%')";
           }
+
+          //order by / sort
+            if(isset($col)) {
+                  if(isset($sort)) {
+                      $query_sort = ' ORDER BY '.$col.' '.$sort;
+                  }else{
+                      $query_sort = ' ORDER BY '.$col.' DESC';
+                  }
+              }else{
+                  $query_sort = ' ORDER BY mc_name';
+              }
+
 
     	    $data = array();
     	    $query = "SELECT mc1.mc_id, mc1.mc_name,
@@ -368,9 +391,10 @@ class DashVaksinController extends Controller
     				WHERE mc1.mc_flag=1
                     $query_level1
                     $query_search
-    				ORDER BY mc1.mc_name ";
+    				        $query_sort ";
 
             $jmltotal=(count(DB::connection('pgsql_vaksin')->select($query)));
+            $endpage=0;
             if(isset($limit)) {
                 $query = $query." limit ".$limit;
                 $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
