@@ -771,7 +771,8 @@ class PerimeterController extends Controller
 		$data = array();
         $datacluster=[];
         $perimeter = new Perimeter;
-        $perimeter->setConnection('pgsql2');
+        //test pindah ke master
+        $perimeter->setConnection('pgsql');
 		$perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
 		    'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
 		    'master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket','master_perimeter_kategori.mpmk_id',
