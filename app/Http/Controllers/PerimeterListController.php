@@ -210,6 +210,7 @@ class PerimeterListController extends Controller
             $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
 
             $perimeter = new Perimeter;
+             //test pindah ke master
             $perimeter->setConnection('pgsql2');
             $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
                 'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
