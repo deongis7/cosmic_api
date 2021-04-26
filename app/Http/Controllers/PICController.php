@@ -197,12 +197,12 @@ class PICController extends Controller
         }
 	}
 
-	
+
 
 	//Get Perimeter per NIK
 	public function getPerimeterbyUser($nik){
     $user = new User;
-    $user->setConnection('pgsql2');
+    $user->setConnection('pgsql');
 		$user = $user->where('username',$nik)->first();
 
 
@@ -286,7 +286,7 @@ class PICController extends Controller
 
 		$data = array();
 
-		$cluster = DB::connection('pgsql2')->select( "select  kc.kcar_id, kc.kcar_mcr_id, kc.kcar_ag_id, mcar.mcar_name from konfigurasi_car kc
+		$cluster = DB::connection('pgsql')->select( "select  kc.kcar_id, kc.kcar_mcr_id, kc.kcar_ag_id, mcar.mcar_name from konfigurasi_car kc
 		join  master_cluster_ruangan mcr on kc.kcar_mcr_id = mcr.mcr_id
 		join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
 		left join transaksi_aktifitas ta on  ta.ta_kcar_id = kc.kcar_id
@@ -313,7 +313,7 @@ class PICController extends Controller
 		$startdate = $weeks['startweek'];
 		$enddate = $weeks['endweek'];
 
-		$cluster = DB::connection('pgsql3')->select( "select  kc.kcar_id, kc.kcar_mcr_id, kc.kcar_ag_id, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from konfigurasi_car kc
+		$cluster = DB::connection('pgsql')->select( "select  kc.kcar_id, kc.kcar_mcr_id, kc.kcar_ag_id, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from konfigurasi_car kc
 		join  master_cluster_ruangan mcr on kc.kcar_mcr_id = mcr.mcr_id
 		join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
 		left join transaksi_aktifitas ta on  ta.ta_kcar_id = kc.kcar_id and (ta.ta_date >= ? and ta.ta_date <= ? ) and ta.ta_tpmd_id = ?
@@ -339,7 +339,7 @@ class PICController extends Controller
 
 	//Get File
 	private function getFile($id_aktifitas,$id_perusahaan){
-		
+
 		$str = "_get_perimeterlist_all_".$id_aktifitas."_".$id_perusahaan;
 		// $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_aktifitas,$id_perusahaan) {
 
@@ -532,7 +532,7 @@ class PICController extends Controller
 		$startdate = $weeks['startweek'];
 		$enddate = $weeks['endweek'];
 
-		$clustertrans = DB::connection('pgsql2')->select( "select tpd.tpmd_id,kc.kcar_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,ta.ta_id,taf.taf_id,taf.taf_file ,taf.taf_file_tumb , taf.taf_date from transaksi_aktifitas_file taf
+		$clustertrans = DB::connection('pgsql')->select( "select tpd.tpmd_id,kc.kcar_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,ta.ta_id,taf.taf_id,taf.taf_file ,taf.taf_file_tumb , taf.taf_date from transaksi_aktifitas_file taf
 		join transaksi_aktifitas ta on ta.ta_id = taf.taf_ta_id and ta.ta_status <> 2
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
@@ -568,7 +568,7 @@ class PICController extends Controller
 	//Get Cluster per Perimeter Level
 	public function getClusterbyPerimeter($id,$nik){
 	try
-            {	
+            {
     //$datacache =Cache::remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 3 * 60, function()use($id,$nik) {
 	$datacache = Cache::tags(['cluster'.$nik])->remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 10*60, function () use($id,$nik){
 
@@ -594,7 +594,7 @@ class PICController extends Controller
   					where mpl.mpml_id = ?
   					/*order by mcr.mcr_name asc, tpmd_order asc*/", [$id]);
 
-  				
+
   			$no=1;
   			foreach($perimeter as $itemperimeter){
   				$data_aktifitas_cluster = array();
@@ -626,7 +626,7 @@ class PICController extends Controller
             $dataprogress = array("total_monitor"=> $total_monitoring,
                     "sudah_dimonitor"=> $jml_monitoring,
                     "belum_dimonitor"=> $total_monitoring - $jml_monitoring );
-	            
+
 	            if($itemperimeter->status_konfirmasi==1){
 	            	//Lempar ke firebase
 	  				//get data perimeter
@@ -635,7 +635,7 @@ class PICController extends Controller
 	                join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 	                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 	                join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
-	                join app_users au on au.username = mpl.mpml_pic_nik 
+	                join app_users au on au.username = mpl.mpml_pic_nik
 	                where tpd.tpmd_id = ? and ta.ta_status = 1
 	                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token ", [$itemperimeter->tpmd_id]);
 
@@ -677,7 +677,7 @@ class PICController extends Controller
 			$weeks = AppHelper::Weeks();
 			$startdate = $weeks['startweek'];
 			$enddate = $weeks['endweek'];
-			$aktifitas = DB::connection('pgsql2')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from  table_perimeter_detail tpd
+			$aktifitas = DB::connection('pgsql')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from  table_perimeter_detail tpd
 			join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
 			join konfigurasi_car kc on kc.kcar_mcr_id = mcr.mcr_id
 			join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
@@ -714,14 +714,14 @@ class PICController extends Controller
 
 	//Get Cluster per Perimeter Level
 	public function getAktifitasbyPerimeter($nik,$id_perimeter_level){
-		Config::set('database.default', 'pgsql2');
+		Config::set('database.default', 'pgsql');
 		$user = User::where('username',$nik)->first();
 		$dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0);
 		$string = "_perimeter_in_aktifitas_by_".$id_perimeter_level;
 		$data = array();
        	// $datacache =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level, $user, $dataprogress, $data) {
        	$datacache = Cache::tags(['_perimeter_in_aktifitas_by_'.$id_perimeter_level])->remember(env('APP_ENV', 'dev').$string, 60, function () use($id_perimeter_level, $user, $dataprogress, $data) {
-       		
+
 		if ($user != null){
 			$role_id = $user->roles()->first()->id;
 			    $cacheperimeter = DB::connection('pgsql3')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
@@ -825,7 +825,7 @@ class PICController extends Controller
 			return response()->json(['status' => 200, 'data' => $datacache]);
 	}
 
-	
+
 
 public function addFilePerimeterLevel(Request $request){
     $this->validate($request, [
@@ -1058,9 +1058,9 @@ public function addFilePerimeterLevel(Request $request){
       }
       return response()->json(['status' => 200,'data' => $data]);
     }
-    
+
     public function getAktifitasbyPerimeterBUMN($nik,$id_perimeter_level){
-    	Config::set('database.default', 'pgsql3');
+    	Config::set('database.default', 'pgsql');
         $user = User::where('username',$nik)->first();
         $auth_mc_id =Auth::guard('api')->user()->mc_id;
         //var_dump($auth_mc_id);die;
@@ -1071,9 +1071,9 @@ public function addFilePerimeterLevel(Request $request){
         $data = array();
         if ($user != null){
             $role_id = $user->roles()->first()->id;
-            
+
                 $perimeter=Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitasbumn_by_". $id_perimeter_level, 7 * 60, function()use($id_perimeter_level) {
-                return $cacheperimeter 
+                return $cacheperimeter
                     = DB::connection('pgsql2')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
                     case when tsp.tbsp_status = 2 then true else false end as status_pic,
                     case when tsp.tbsp_status = 1 then true when tsp.tbsp_status = 2 then true else false end as status_fo,
@@ -1088,11 +1088,11 @@ public function addFilePerimeterLevel(Request $request){
 					where mpl.mpml_id = ?
                     and mpm.mpm_mc_id= ?
 					order by mpm.mpm_name asc,mpl.mpml_name asc, mcr.mcr_name asc, tpmd_order asc", [$id_perimeter_level, $auth_mc_id]);
-           }); 
+           });
                 foreach($perimeter as $itemperimeter){
                     $data_aktifitas_cluster = array();
                     $data_aktifitas_cluster = $this->getClusterAktifitasMonitoring($itemperimeter->tpmd_id,$itemperimeter->mcr_id,$role_id,  $user->mc_id);
-                   
+
                     $total_monitoring = $total_monitoring + 1;
                     $jml_monitoring = $jml_monitoring + (($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo)==true?1:0);
                     $data[] = array(
@@ -1113,11 +1113,11 @@ public function addFilePerimeterLevel(Request $request){
                 $dataprogress = array("total_monitor"=> $total_monitoring,
                     "sudah_dimonitor"=> $jml_monitoring,
                     "belum_dimonitor"=> $total_monitoring - $jml_monitoring );
-                
+
                 return response()->json(['status_monitoring' => $dataprogress,'status' => 200,'data' => $data]);
         } else {
             return response()->json(['status_monitoring' => $dataprogress,'status' => 200,'data' => $data]);
         }
     }
-	 
+
 }
