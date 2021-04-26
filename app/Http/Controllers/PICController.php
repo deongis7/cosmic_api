@@ -213,7 +213,8 @@ class PICController extends Controller
 
 			if ($role_id == 3 || $role_id == 4 ){
         $perimeter = new Perimeter;
-        $perimeter->setConnection('pgsql2');
+        //test pindah ke master
+        $perimeter->setConnection('pgsql');
 				$perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket','master_perimeter_kategori.mpmk_name','userpic.username as nik_pic','userpic.first_name as pic','userfo.username as nik_fo','userfo.first_name as fo','master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
 							->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 							->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
