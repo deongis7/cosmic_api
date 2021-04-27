@@ -362,7 +362,7 @@ class DashVaksinController extends Controller
               $query_stsvaksin = " ";
           }
           if(isset($search)) {
-              $query_search = $query_search ." AND (lower(TRIM(mc1.mc_name)) like '%".strtolower(trim($search))."%' or lower(TRIM(mc1.mc_id)) like '%".strtolower(trim($search))."%')";
+              $query_search = " AND (lower(TRIM(mc1.mc_name)) like '%".strtolower(trim($search))."%' or lower(TRIM(mc1.mc_id)) like '%".strtolower(trim($search))."%')";
           }
 
           //order by / sort
@@ -393,8 +393,8 @@ class DashVaksinController extends Controller
                     $query_level1
                     $query_search
     				        $query_sort ";
-
-            $jmltotal=(count(DB::connection('pgsql_vaksin')->select($query)));
+            $cnt = DB::connection('pgsql_vaksin')->select($query);
+            $jmltotal=$cnt[0]->count;
             $endpage=0;
             if(isset($limit)) {
                 $query = $query." limit ".$limit;
