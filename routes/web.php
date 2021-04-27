@@ -60,7 +60,7 @@ $router->get('/download/template/{filename}', function ($filename)
     ]);
 });
 
-$router->group(['prefix' => 'api/v1xx'], function () use ($router) {
+$router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Perimeter
 	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
