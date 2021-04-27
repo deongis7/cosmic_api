@@ -239,6 +239,7 @@ class DashVaksinController extends Controller
       $limit=null;
       $search=null;
       $sort=null;
+      $col=null;
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
 
