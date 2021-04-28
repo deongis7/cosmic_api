@@ -393,7 +393,12 @@ class DashVaksinController extends Controller
                     $query_level1
                     $query_search
     				        $query_sort ";
-            $cnt = DB::connection('pgsql_vaksin')->select($query);
+    	    $querycount = "SELECT count(*)
+    				FROM master_company mc1
+    				WHERE mc1.mc_flag=1
+                    $query_level1
+                    $query_search ";
+            $cnt = DB::connection('pgsql_vaksin')->select($querycount);
             $jmltotal=$cnt[0]->count;
             $endpage=0;
             if(isset($limit)) {
