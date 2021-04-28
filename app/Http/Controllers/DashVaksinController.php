@@ -93,7 +93,7 @@ class DashVaksinController extends Controller
 	        }
 
 	        if($mc_id!='ALL'){
-	            if(isset($request->level) && $request->level>1){
+	            if($level>1){
 	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
 	            }else{
 	                $query_mc_id = " AND mc.mc_id_induk = '$mc_id' ";
@@ -103,7 +103,7 @@ class DashVaksinController extends Controller
 	        }
 
 	        if($lansia!='ALL'){
-	            if(isset($request->lansia) && $request->lansia!='ALL'){
+	            if($lansia!='ALL'){
 	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
 	            }else{
 	                $query_lansia = " ";
@@ -113,7 +113,7 @@ class DashVaksinController extends Controller
 	        }
 
 	        if($sts_pegawai!='ALL'){
-	            if(isset($request->sts_pegawai) && $request->sts_pegawai!='ALL'){
+	            if($sts_pegawai!='ALL'){
 	                $query_stspegawai = " AND mav.v_msp_id = $sts_pegawai ";
 	            }else{
 	                $query_stspegawai = " ";
@@ -121,10 +121,11 @@ class DashVaksinController extends Controller
 	        }else{
 	            $query_stspegawai = " ";
 	        }
+	 
 
 	        if($sts_vaksin!='ALL'){
-	            if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
-	                if($request->sts_vaksin==2){
+	            if($sts_vaksin!='ALL'){
+	                if($sts_vaksin==2){
 	                   $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
 	                }else{
 	                   $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
@@ -135,7 +136,7 @@ class DashVaksinController extends Controller
 	        }else{
 	            $query_stsvaksin = " ";
 	        }
-
+	        
 	        if($kabupaten!='0'){
 	            if(isset($request->kabupaten) && $request->kabupaten!='0'){
 	                $query_kabupaten = " AND mav.v_mkab_id = $kabupaten ";
@@ -212,7 +213,7 @@ class DashVaksinController extends Controller
                 $query_kabupaten
                 ";
 
-                //var_dump($query);die;
+                var_dump($query);die;
                 $dashvaksin = DB::connection('pgsql_vaksin')->select($query);
                 foreach($dashvaksin as $dv){
                     $data[] = array(
@@ -316,8 +317,6 @@ class DashVaksinController extends Controller
       }
 
 
-
-
 	    $string = "_get_dashvaksin_byperusahaan_".$level.'_'.$mc_id.'_'.$lansia.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin.$str;
 	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia,$sts_pegawai,$sts_vaksin,$limit,$page,$search,$sort,$col) {
         $query_search='';
@@ -360,8 +359,8 @@ class DashVaksinController extends Controller
           }
 
           if($sts_vaksin!='ALL'){
-              if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
-                  if($request->sts_vaksin==2){
+              if($sts_vaksin!='ALL'){
+                  if($sts_vaksin==2){
                       $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
                   }else{
                       $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
@@ -372,6 +371,7 @@ class DashVaksinController extends Controller
           }else{
               $query_stsvaksin = " ";
           }
+          
           if(isset($search)) {
               $query_search = " AND (lower(TRIM(mc1.mc_name)) like '%".strtolower(trim($search))."%' or lower(TRIM(mc1.mc_id)) like '%".strtolower(trim($search))."%')";
           }
