@@ -213,7 +213,7 @@ class DashVaksinController extends Controller
                 $query_kabupaten
                 ";
 
-                var_dump($query);die;
+                //var_dump($query);die;
                 $dashvaksin = DB::connection('pgsql_vaksin')->select($query);
                 foreach($dashvaksin as $dv){
                     $data[] = array(
