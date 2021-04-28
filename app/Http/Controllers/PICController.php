@@ -677,7 +677,7 @@ class PICController extends Controller
 			$weeks = AppHelper::Weeks();
 			$startdate = $weeks['startweek'];
 			$enddate = $weeks['endweek'];
-			$aktifitas = DB::connection('pgsql')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from  table_perimeter_detail tpd
+			$aktifitas = DB::connection('pgsql2')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from  table_perimeter_detail tpd
 			join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
 			join konfigurasi_car kc on kc.kcar_mcr_id = mcr.mcr_id
 			join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
