@@ -1060,7 +1060,7 @@ public function addFilePerimeterLevel(Request $request){
     }
 
     public function getAktifitasbyPerimeterBUMN($nik,$id_perimeter_level){
-    	Config::set('database.default', 'pgsql');
+    	Config::set('database.default', 'pgsql2');
         $user = User::where('username',$nik)->first();
         $auth_mc_id =Auth::guard('api')->user()->mc_id;
         //var_dump($auth_mc_id);die;
