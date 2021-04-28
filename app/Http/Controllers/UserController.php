@@ -510,7 +510,7 @@ class UserController extends Controller
 
     //Validasi
     public function validasiMonitoring(Request $request){
-        Config::set('database.default', 'pgsql2');
+        // config(['database.default' => 'pgsql']);
         $this->validate($request, [
             'id_perimeter_cluster' => 'required',
             'id_konfig_cluster_aktifitas' => 'required',
