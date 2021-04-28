@@ -125,11 +125,11 @@ class DashVaksinController extends Controller
 
 	        if($sts_vaksin!='ALL'){
 	            if($sts_vaksin!='ALL'){
-	                if($sts_vaksin==2){
-	                   $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
-	                }else{
+// 	                if($sts_vaksin==1){
+// 	                   $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
+// 	                }else{
 	                   $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
-	                }
+// 	                }
 	            }else{
 	                $query_stsvaksin = " ";
 	            }
@@ -1608,16 +1608,19 @@ class DashVaksinController extends Controller
 	        }else{
 	            $query_kabupaten = ' ';
 	        }
-
+	        
 	        if($sts_vaksin!='ALL'){
-	            if($sts_vaksin==2){
-	                $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
+	            if($sts_vaksin!='ALL'){
+	                if($sts_vaksin==1){
+	                    $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
+	                }else{
+	                    $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+	                }
 	            }else{
-	                $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+	                $query_stsvaksin = " ";
 	            }
-	            $query_sts_vaksin = ' AND mav.v_status_vaksin_pcare='.$sts_vaksin;
 	        }else{
-	            $query_sts_vaksin = ' ';
+	            $query_stsvaksin = " ";
 	        }
 
 	        $data = array();
