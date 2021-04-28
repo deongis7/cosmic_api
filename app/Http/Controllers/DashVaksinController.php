@@ -124,7 +124,11 @@ class DashVaksinController extends Controller
 
 	        if($sts_vaksin!='ALL'){
 	            if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
-	                $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+	                if($request->sts_vaksin==2){
+	                   $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
+	                }else{
+	                   $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+	                }
 	            }else{
 	                $query_stsvaksin = " ";
 	            }
@@ -357,7 +361,11 @@ class DashVaksinController extends Controller
 
           if($sts_vaksin!='ALL'){
               if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
-                  $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+                  if($request->sts_vaksin==2){
+                      $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
+                  }else{
+                      $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+                  }
               }else{
                   $query_stsvaksin = " ";
               }
@@ -1602,6 +1610,11 @@ class DashVaksinController extends Controller
 	        }
 
 	        if($sts_vaksin!='ALL'){
+	            if($sts_vaksin==2){
+	                $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
+	            }else{
+	                $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+	            }
 	            $query_sts_vaksin = ' AND mav.v_status_vaksin_pcare='.$sts_vaksin;
 	        }else{
 	            $query_sts_vaksin = ' ';
@@ -1610,26 +1623,29 @@ class DashVaksinController extends Controller
 	        $data = array();
 	        $query = "
                     SELECT mc1.mc_id, mc1.mc_name,
-                    (SELECT COALESCE(SUM(v_jml_siap_vaksin),0)
+                    (SELECT COALESCE(SUM(v_jml_pegawai),0)
                     FROM mvt_admin_vaksin mav
                     INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                     WHERE mc.mc_id=mc1.mc_id
+                    AND mav.v_status_vaksin_pcare = 0
                     $query_level
                     $query_lansia
                     $query_kabupaten
                     $query_sts_vaksin) AS jml_siap_vaksin,
-                    (SELECT COALESCE(SUM(v_jml_sudah_vaksin1),0)
+                    (SELECT COALESCE(SUM(v_jml_pegawai),0)
                     FROM mvt_admin_vaksin mav
                     INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                     WHERE mc.mc_id=mc1.mc_id
+                    AND mav.v_status_vaksin_pcare = 1
                     $query_level
                     $query_lansia
                     $query_kabupaten
                     $query_sts_vaksin) AS jml_sudah_vaksin1,
-                    (SELECT COALESCE(SUM(v_jml_sudah_vaksin2),0)
+                    (SELECT COALESCE(SUM(v_jml_pegawai),0)
                     FROM mvt_admin_vaksin mav
                     INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                     WHERE mc.mc_id=mc1.mc_id
+                    AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)
                     $query_level
                     $query_lansia
                     $query_kabupaten
