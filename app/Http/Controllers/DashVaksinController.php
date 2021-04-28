@@ -157,10 +157,11 @@ class DashVaksinController extends Controller
                 $query_kabupaten
                 UNION ALL
                 SELECT 1::int2, 'Total Siap Vaksin' judul,
-                    COALESCE(SUM(v_jml_siap_vaksin),0) AS jml
+                    COALESCE(SUM(v_jml_pegawai),0) AS jml
                 FROM mvt_admin_vaksin mav
                 INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                 WHERE 1=1
+                AND v_status_vaksin_pcare = 0
                 $query_level
                 $query_lansia
                 $query_mc_id
@@ -169,10 +170,11 @@ class DashVaksinController extends Controller
                 $query_kabupaten
                 UNION ALL
                 SELECT 2::int2, 'Total Sudah Vaksin 1' judul,
-                    COALESCE(SUM(v_jml_sudah_vaksin1),0) AS jml
+                    COALESCE(SUM(v_jml_pegawai),0) AS jml
                 FROM mvt_admin_vaksin mav
                 INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                 WHERE 1=1
+                AND (v_status_vaksin_pcare = 1 OR v_status_vaksin_pcare = 2)
                 $query_level
                 $query_lansia
                 $query_mc_id
@@ -181,10 +183,11 @@ class DashVaksinController extends Controller
                 $query_kabupaten
                 UNION ALL
                 SELECT 3::int2, 'Total Sudah Vaksin 2' judul,
-                    COALESCE(SUM(v_jml_sudah_vaksin1),0) AS jml
+                    COALESCE(SUM(v_jml_pegawai),0) AS jml
                 FROM mvt_admin_vaksin mav
                 INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                 WHERE 1=1
+                AND v_status_vaksin_pcare = 2
                 $query_level
                 $query_lansia
                 $query_mc_id
