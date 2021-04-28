@@ -124,7 +124,11 @@ class DashVaksinController extends Controller
 
 	        if($sts_vaksin!='ALL'){
 	            if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
-	                $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+	                if($request->sts_vaksin==2){
+	                   $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
+	                }else{
+	                   $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+	                }
 	            }else{
 	                $query_stsvaksin = " ";
 	            }
@@ -157,10 +161,11 @@ class DashVaksinController extends Controller
                 $query_kabupaten
                 UNION ALL
                 SELECT 1::int2, 'Total Siap Vaksin' judul,
-                    COALESCE(SUM(v_jml_siap_vaksin),0) AS jml
+                    COALESCE(SUM(v_jml_pegawai),0) AS jml
                 FROM mvt_admin_vaksin mav
                 INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                 WHERE 1=1
+                AND v_status_vaksin_pcare = 0
                 $query_level
                 $query_lansia
                 $query_mc_id
@@ -169,10 +174,11 @@ class DashVaksinController extends Controller
                 $query_kabupaten
                 UNION ALL
                 SELECT 2::int2, 'Total Sudah Vaksin 1' judul,
-                    COALESCE(SUM(v_jml_sudah_vaksin1),0) AS jml
+                    COALESCE(SUM(v_jml_pegawai),0) AS jml
                 FROM mvt_admin_vaksin mav
                 INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                 WHERE 1=1
+                AND (v_status_vaksin_pcare = 1 OR v_status_vaksin_pcare = 2)
                 $query_level
                 $query_lansia
                 $query_mc_id
@@ -181,10 +187,11 @@ class DashVaksinController extends Controller
                 $query_kabupaten
                 UNION ALL
                 SELECT 3::int2, 'Total Sudah Vaksin 2' judul,
-                    COALESCE(SUM(v_jml_sudah_vaksin1),0) AS jml
+                    COALESCE(SUM(v_jml_pegawai),0) AS jml
                 FROM mvt_admin_vaksin mav
                 INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                 WHERE 1=1
+                AND v_status_vaksin_pcare = 2
                 $query_level
                 $query_lansia
                 $query_mc_id
@@ -239,6 +246,7 @@ class DashVaksinController extends Controller
       $limit=null;
       $search=null;
       $sort=null;
+      $col=null;
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
 
@@ -353,7 +361,11 @@ class DashVaksinController extends Controller
 
           if($sts_vaksin!='ALL'){
               if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
-                  $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+                  if($request->sts_vaksin==2){
+                      $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
+                  }else{
+                      $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+                  }
               }else{
                   $query_stsvaksin = " ";
               }
@@ -361,7 +373,7 @@ class DashVaksinController extends Controller
               $query_stsvaksin = " ";
           }
           if(isset($search)) {
-              $query_search = $query_search ." AND (lower(TRIM(mc1.mc_name)) like '%".strtolower(trim($search))."%' or lower(TRIM(mc1.mc_id)) like '%".strtolower(trim($search))."%')";
+              $query_search = " AND (lower(TRIM(mc1.mc_name)) like '%".strtolower(trim($search))."%' or lower(TRIM(mc1.mc_id)) like '%".strtolower(trim($search))."%')";
           }
 
           //order by / sort
@@ -392,8 +404,13 @@ class DashVaksinController extends Controller
                     $query_level1
                     $query_search
     				        $query_sort ";
-
-            $jmltotal=(count(DB::connection('pgsql_vaksin')->select($query)));
+    	    $querycount = "SELECT count(*)
+    				FROM master_company mc1
+    				WHERE mc1.mc_flag=1
+                    $query_level1
+                    $query_search ";
+            $cnt = DB::connection('pgsql_vaksin')->select($querycount);
+            $jmltotal=$cnt[0]->count;
             $endpage=0;
             if(isset($limit)) {
                 $query = $query." limit ".$limit;
@@ -1593,6 +1610,11 @@ class DashVaksinController extends Controller
 	        }
 
 	        if($sts_vaksin!='ALL'){
+	            if($sts_vaksin==2){
+	                $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
+	            }else{
+	                $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+	            }
 	            $query_sts_vaksin = ' AND mav.v_status_vaksin_pcare='.$sts_vaksin;
 	        }else{
 	            $query_sts_vaksin = ' ';
@@ -1601,26 +1623,29 @@ class DashVaksinController extends Controller
 	        $data = array();
 	        $query = "
                     SELECT mc1.mc_id, mc1.mc_name,
-                    (SELECT COALESCE(SUM(v_jml_siap_vaksin),0)
+                    (SELECT COALESCE(SUM(v_jml_pegawai),0)
                     FROM mvt_admin_vaksin mav
                     INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                     WHERE mc.mc_id=mc1.mc_id
+                    AND mav.v_status_vaksin_pcare = 0
                     $query_level
                     $query_lansia
                     $query_kabupaten
                     $query_sts_vaksin) AS jml_siap_vaksin,
-                    (SELECT COALESCE(SUM(v_jml_sudah_vaksin1),0)
+                    (SELECT COALESCE(SUM(v_jml_pegawai),0)
                     FROM mvt_admin_vaksin mav
                     INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                     WHERE mc.mc_id=mc1.mc_id
+                    AND mav.v_status_vaksin_pcare = 1
                     $query_level
                     $query_lansia
                     $query_kabupaten
                     $query_sts_vaksin) AS jml_sudah_vaksin1,
-                    (SELECT COALESCE(SUM(v_jml_sudah_vaksin2),0)
+                    (SELECT COALESCE(SUM(v_jml_pegawai),0)
                     FROM mvt_admin_vaksin mav
                     INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                     WHERE mc.mc_id=mc1.mc_id
+                    AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)
                     $query_level
                     $query_lansia
                     $query_kabupaten
