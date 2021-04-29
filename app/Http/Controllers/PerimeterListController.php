@@ -1446,7 +1446,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         //DB::connection('pgsql')->update($query_delete);
 
         if($open->save()) {
-            return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
+            return response()->json(['status' => 200, 'message' => 'Perimeter dibuka oleh PIC, segera lakukan Monitoring']);
         }
          else {
              return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
