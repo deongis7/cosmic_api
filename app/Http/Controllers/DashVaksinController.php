@@ -131,10 +131,11 @@ class DashVaksinController extends Controller
 	 
 	        if($sts_vaksin!='ALL'){
 	            if($sts_vaksin!='ALL'){
-// 	                if($sts_vaksin==1){
-// 	                   $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
+// 	                if($sts_vaksin=='1'){
+// 	                    $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR
+//                                         mav.v_status_vaksin_pcare = 2)";
 // 	                }else{
-	                   $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+	                    $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
 // 	                }
 	            }else{
 	                $query_stsvaksin = " ";
@@ -160,6 +161,8 @@ class DashVaksinController extends Controller
                 FROM mvt_admin_vaksin mav
                 INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
                 WHERE 1=1
+			    AND mc.mc_flag=1
+				AND mc.mc_level IN (1,2,3)
                 $query_level
                 $query_lansia
                 $query_mc_id
@@ -369,15 +372,12 @@ class DashVaksinController extends Controller
             }
             
             if($sts_vaksin!='ALL'){
-                if($sts_vaksin!='ALL'){
-                    // 	                if($sts_vaksin==1){
-                    // 	                   $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
-                    // 	                }else{
+//                 if($sts_vaksin=='1'){
+//                     $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR
+//                                         mav.v_status_vaksin_pcare = 2)";
+//                 }else{
                     $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
-                    // 	                }
-                }else{
-                    $query_stsvaksin = " ";
-                }
+//                 }
             }else{
                 $query_stsvaksin = " ";
             }
@@ -845,7 +845,7 @@ class DashVaksinController extends Controller
 	    }
 
 	    $string = "_get_dashvaksin_bylokasi1_".$level.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia, $sts_pegawai, $sts_vaksin) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level, $mc_id, $lansia, $sts_pegawai, $sts_vaksin) {
 	        if($level > 0){
 	            $query_level = ' AND mc.mc_level='.$level;
 	        }else{
@@ -879,12 +879,12 @@ class DashVaksinController extends Controller
             }
             
             if($sts_vaksin!='ALL'){
-                if($sts_vaksin=='1'){
-                    $query_stsvaksin = " AND (tv.tv_status_vaksin_pcare = 1 OR 
-                                        tv.tv_status_vaksin_pcare = 2)";
-                }else{
+//                 if($sts_vaksin=='1'){
+//                     $query_stsvaksin = " AND (tv.tv_status_vaksin_pcare = 1 OR 
+//                                         tv.tv_status_vaksin_pcare = 2)";
+//                 }else{
                     $query_stsvaksin = " AND tv.tv_status_vaksin_pcare = $sts_vaksin ";
-                }
+//                 }
             }else{
                 $query_stsvaksin = " ";
             }
@@ -899,10 +899,11 @@ class DashVaksinController extends Controller
 				$query_mc_id
                 $query_stspegawai				
                 $query_stsvaksin
-				AND (tv_lokasi_vaksin_pcare1 !=NULL or tv_lokasi_vaksin_pcare1 !='')
+				--AND (tv_lokasi_vaksin_pcare1 !=NULL or tv_lokasi_vaksin_pcare1 !='')
 				GROUP BY tv.tv_lokasi_vaksin_pcare1
 				ORDER BY tv.tv_lokasi_vaksin_pcare1";
 
+            //var_dump($query);die;
     		$dashvaksin_lokasi1 = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashvaksin_lokasi1 as $dl1){
     	        $data[] = array(
@@ -953,7 +954,7 @@ class DashVaksinController extends Controller
 	    }
 	    
 	    $string = "_get_dashvaksin_bylokasi2_".$level.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia, $sts_pegawai, $sts_vaksin) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level, $mc_id, $lansia, $sts_pegawai, $sts_vaksin) {
 	        if($level > 0){
 	            $query_level = ' AND mc.mc_level='.$level;
 	        }else{
@@ -987,18 +988,18 @@ class DashVaksinController extends Controller
 	        }
 	        
 	        if($sts_vaksin!='ALL'){
-	            if($sts_vaksin=='1'){
-	                $query_stsvaksin = " AND (tv.tv_status_vaksin_pcare = 1 OR
-                                        tv.tv_status_vaksin_pcare = 2)";
-	            }else{
+// 	            if($sts_vaksin=='1'){
+// 	                $query_stsvaksin = " AND (tv.tv_status_vaksin_pcare = 1 OR
+//                                         tv.tv_status_vaksin_pcare = 2)";
+// 	            }else{
 	                $query_stsvaksin = " AND tv.tv_status_vaksin_pcare = $sts_vaksin ";
-	            }
+// 	            }
 	        }else{
 	            $query_stsvaksin = " ";
 	        }
 	        
 	        $data = array();
-	        $query = "SELECT tv.tv_lokasi_vaksin_pcare1::TEXT, COALESCE(COUNT(*))::int8 AS jml
+	        $query = "SELECT tv.tv_lokasi_vaksin_pcare2::TEXT, COALESCE(COUNT(*))::int8 AS jml
 				FROM transaksi_vaksin tv
 				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
 				WHERE mc.mc_flag=1
@@ -1007,7 +1008,7 @@ class DashVaksinController extends Controller
 				$query_mc_id
                 $query_stspegawai
                 $query_stsvaksin
-				AND (tv_lokasi_vaksin_pcare1 !=NULL or tv_lokasi_vaksin_pcare1 !='')
+				--AND (tv_lokasi_vaksin_pcare2 !=NULL or tv_lokasi_vaksin_pcare2 !='')
 				GROUP BY tv.tv_lokasi_vaksin_pcare2
 				ORDER BY tv.tv_lokasi_vaksin_pcare2";
                 
