@@ -40,7 +40,6 @@ class DashVaksinController extends Controller
 
 
 	public function getDashVaksin(Request $request){
-	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
 	    if(isset($request->level) && $request->level>0) {
 	        $level = $request->level;
 	    }else{
@@ -81,48 +80,55 @@ class DashVaksinController extends Controller
         }else{
             $kabupaten ='0';
         }
+        
+        if(isset($request->mobile) && $request->mobile==1){
+            $mobile =1 ;
+        }else{
+            $mobile =0;
+        }
 
-        $string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin.'_'.$kabupaten;
-        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level,
-            $mc_id, $lansia, $sts_pegawai, $sts_vaksin, $kabupaten) {
+        $string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin.'_'.$kabupaten.'_'.$mobile;
+        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level,
+            $mc_id, $lansia, $sts_pegawai, $sts_vaksin, $kabupaten,$mobile) {
 
-	        if($level > 0){
-	            $query_level = ' AND mav.v_mc_level='.$level;
-	        }else{
-	            $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
-	        }
+            if($mobile==0){
+                if($level > 0){
+                    $query_level = ' AND mav.v_mc_level='.$level;
+                }else{
+                    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
+                }
+                
+                if($mc_id!='ALL'){
+                    if($level>1){
+                        $query_mc_id = " AND mc.mc_id = '$mc_id' ";
+                    }else{
+                        $query_mc_id = " AND mc.mc_id_induk = '$mc_id' ";
+                    }
+                }else{
+                    $query_mc_id = " ";
+                }
+            }else{
+                if($level > 0){
+                    $query_level = ' AND mav.v_mc_level='.$level;
+                }else{
+                    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
+                }
+                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
+            }
+	        
+	        //var_dump($level);var_dump($query_mc_id);die;
+            if($lansia!='ALL'){
+                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+            }else{
+                $query_lansia = " ";
+            }
 
-	        if($mc_id!='ALL'){
-	            if($level>1){
-	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
-	            }else{
-	                $query_mc_id = " AND mc.mc_id_induk = '$mc_id' ";
-	            }
-	        }else{
-	            $query_mc_id = " ";
-	        }
-
-	        if($lansia!='ALL'){
-	            if($lansia!='ALL'){
-	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
-	            }else{
-	                $query_lansia = " ";
-	            }
-	        }else{
-	            $query_lansia = " ";
-	        }
-
-	        if($sts_pegawai!='ALL'){
-	            if($sts_pegawai!='ALL'){
-	                $query_stspegawai = " AND mav.v_msp_id = $sts_pegawai ";
-	            }else{
-	                $query_stspegawai = " ";
-	            }
-	        }else{
-	            $query_stspegawai = " ";
-	        }
+            if($sts_pegawai!='ALL'){
+                $query_stspegawai = " AND mav.v_msp_id = $sts_pegawai ";
+            }else{
+                $query_stspegawai = " ";
+            }
 	 
-
 	        if($sts_vaksin!='ALL'){
 	            if($sts_vaksin!='ALL'){
 // 	                if($sts_vaksin==1){
@@ -242,151 +248,154 @@ class DashVaksinController extends Controller
 	}
 
 	public function getDashVaksinPerusahaan(Request $request){
-	    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
-      $page=null;
-      $limit=null;
-      $search=null;
-      $sort=null;
-      $col=null;
-	    if(isset($request->level) && $request->level>0) {
-	        $level = $request->level;
-
-	    }else{
-	        $level = 0;
-	    }
-
-	    $query_mc_id = ' ';
-	    if(isset($request->kd_perusahaan)) {
-	        if(isset($request->level) && $request->level>1){
-	            $mc_id = $request->kd_perusahaan;
-	        }else{
-	            $mc_id = $request->kd_perusahaan;
-	        }
-	    }else{
-	        $mc_id ='ALL';
-	    }
-
-	    $query_lansia_id = ' ';
-	    if(isset($request->lansia)) {
-	        if(isset($request->lansia) && $request->lansia!='ALL'){
-	            $lansia = $request->lansia;
-	        }else{
-	            $lansia = $request->lansia;
-	        }
-	    }else{
-	        $lansia ='ALL';
-	    }
-
-      $query_msp = ' ';
-      if(isset($request->sts_pegawai) && $request->sts_pegawai!='ALL'){
-          $sts_pegawai = $request->sts_pegawai;
-      }else{
-          $sts_pegawai ='ALL';
-      }
-
-      $query_msv = ' ';
-      if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
-          $sts_vaksin = $request->sts_vaksin;
-      }else{
-          $sts_vaksin ='ALL';
-      }
-
-      $str='';
-      if(isset($request->limit)){
+        $page=null;
+        $limit=null;
+        $search=null;
+        $sort=null;
+        $col=null;
+        
+        if(isset($request->level) && $request->level>0) {
+            $level = $request->level;
+        }else{
+            $level = 0;
+        }
+        
+        $query_mc_id = ' ';
+        if(isset($request->kd_perusahaan)) {
+            $mc_id = $request->kd_perusahaan;
+        }else{
+            $mc_id ='ALL';
+        }
+        
+        $query_lansia_id = ' ';
+        if(isset($request->lansia) && $request->lansia!='ALL'){
+            $lansia = $request->lansia;
+        }else{
+            $lansia ='ALL';
+        }
+        
+        $query_msp = ' ';
+        if(isset($request->sts_pegawai) && $request->sts_pegawai!='ALL'){
+            $sts_pegawai = $request->sts_pegawai;
+        }else{
+            $sts_pegawai ='ALL';
+        }
+        
+        $query_msv = ' ';
+        if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
+            $sts_vaksin = $request->sts_vaksin;
+        }else{
+            $sts_vaksin ='ALL';
+        }
+        
+        $str='';
+        if(isset($request->limit)){
           $str = $str.'_limit_'. $request->limit;
           $limit=$request->limit;
           if(isset($request->page)){
               $str = $str.'_page_'. $request->page;
               $page=$request->page;
           }
-      }
-
-      if(isset($request->search)){
-          $str = $str.'_searh_'. str_replace(' ','_',$request->search);
-          $search=$request->search;
-      }
-
-      if(isset($request->p_sort)){
-          $str = $str.'_sort_'. str_replace(' ','_',$request->p_sort);
-          $sort=$request->p_sort;
-      }
-
-      if(isset($request->column_sort)){
-          $str = $str.'_col_'. str_replace(' ','_',$request->column_sort);
-          $col=$request->column_sort;
-      }
-
-
-	    $string = "_get_dashvaksin_byperusahaan_".$level.'_'.$mc_id.'_'.$lansia.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin.$str;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia,$sts_pegawai,$sts_vaksin,$limit,$page,$search,$sort,$col) {
-        $query_search='';
-	        if($level > 0){
-	            $query_level = ' AND mav.v_mc_level='.$level;
-	            $query_level1 = ' AND mc1.mc_level='.$level;
-	        }else{
-	            $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
-	            $query_level1 = ' AND mc1.mc_level IN (1,2,3) ';
-	        }
-
-	        if($mc_id!='ALL'){
-	            if(isset($request->level) && $request->level>1){
-	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
-	            }else{
-	                $query_mc_id = " AND mc.mc_id_induk = '$mc_id' ";
-	            }
-	        }else{
-	            $query_mc_id = " ";
-	        }
-
-	        if($lansia!='ALL'){
-	            if(isset($request->lansia) && $request->lansia!='ALL'){
-	                $query_lansia = " AND mav.v_is_lansia = $lansia ";
-	            }else{
-	                $query_lansia = " ";
-	            }
-	        }else{
-	            $query_lansia = " ";
-	        }
-
-          if($sts_pegawai!='ALL'){
-              if(isset($request->sts_pegawai) && $request->sts_pegawai!='ALL'){
-                  $query_stspegawai = " AND mav.v_msp_id = $sts_pegawai ";
-              }else{
-                  $query_stspegawai = " ";
-              }
-          }else{
-              $query_stspegawai = " ";
-          }
-
-          if($sts_vaksin!='ALL'){
-              if($sts_vaksin!='ALL'){
-// 	                if($sts_vaksin==1){
-// 	                   $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
-// 	                }else{
-                  $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
-                  // 	                }
-              }else{
-                  $query_stsvaksin = " ";
-              }
-          }else{
-              $query_stsvaksin = " ";
-          }
+        }
+        
+        if(isset($request->search)){
+            $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+            $search=$request->search;
+        }
+        
+        if(isset($request->p_sort)){
+            $str = $str.'_sort_'. str_replace(' ','_',$request->p_sort);
+            $sort=$request->p_sort;
+        }
+        
+        if(isset($request->column_sort)){
+            $str = $str.'_col_'. str_replace(' ','_',$request->column_sort);
+            $col=$request->column_sort;
+        }
+        
+        if(isset($request->mobile) && $request->mobile==1){
+            $mobile =1 ;
+        }else{
+            $mobile =0;
+        }
+        
+        $string = "_get_dashvaksin_byperusahaan_".$level.'_'.$mc_id.'_'.$lansia.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin.'_'.$mobile.$str;
+        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level, $mc_id, $lansia,$sts_pegawai,$sts_vaksin,$mobile,$limit,$page,$search,$sort,$col) {
+            $query_search='';
+            if($mobile==0){
+                if($level > 0){
+                    $query_level = ' AND mav.v_mc_level='.$level;
+                    $query_level1 = ' AND mc1.mc_level='.$level;
+                }else{
+                    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
+                    $query_level1 = ' AND mc1.mc_level  IN (1,2,3) ';
+                }
+                
+                if($mc_id!='ALL'){
+                    if($level>1){
+                        $query_mc_id = " AND mc.mc_id = '$mc_id' ";
+                    }else{
+                        $query_mc_id = " AND mc.mc_id_induk = '$mc_id' ";
+                    }
+                }else{
+                    $query_mc_id = " ";
+                }
+            }else{
+                if($level > 0){
+                    $query_level = ' AND mav.v_mc_level='.$level;
+                    $query_level1 = ' AND mc1.mc_level='.$level;
+                }else{
+                    $query_level = ' AND mav.v_mc_level IN (1,2,3) ';
+                    $query_level1 = ' AND mc1.mc_level  IN (1,2,3) ';
+                }
+                if($mc_id!='ALL'){
+                    $query_mc_id = " AND mc.mc_id = '$mc_id' ";
+                }else{
+                    $query_mc_id = " ";
+                }
+            }
+            
+            //var_dump($query_mc_id);var_dump($query_level);;var_dump($query_level1);die;
+            if($lansia!='ALL'){
+                $query_lansia = " AND mav.v_is_lansia = $lansia ";
+            }else{
+                $query_lansia = " ";
+            }
+            
+            if($sts_pegawai!='ALL'){
+                $query_stspegawai = " AND mav.v_msp_id = $sts_pegawai ";
+            }else{
+                $query_stspegawai = " ";
+            }
+            
+            if($sts_vaksin!='ALL'){
+                if($sts_vaksin!='ALL'){
+                    // 	                if($sts_vaksin==1){
+                    // 	                   $query_stsvaksin = " AND (mav.v_status_vaksin_pcare = 1 OR mav.v_status_vaksin_pcare = 2)";
+                    // 	                }else{
+                    $query_stsvaksin = " AND mav.v_status_vaksin_pcare = $sts_vaksin ";
+                    // 	                }
+                }else{
+                    $query_stsvaksin = " ";
+                }
+            }else{
+                $query_stsvaksin = " ";
+            }
           
-          if(isset($search)) {
-              $query_search = " AND (lower(TRIM(mc1.mc_name)) like '%".strtolower(trim($search))."%' or lower(TRIM(mc1.mc_id)) like '%".strtolower(trim($search))."%')";
-          }
+            if(isset($search)) {
+                $query_search = " AND (lower(TRIM(mc1.mc_name)) like '%".strtolower(trim($search))."%' or lower(TRIM(mc1.mc_id)) like '%".strtolower(trim($search))."%')";
+            }
 
-          //order by / sort
+            //order by / sort
             if(isset($col)) {
-                  if(isset($sort)) {
-                      $query_sort = ' ORDER BY '.$col.' '.$sort;
-                  }else{
-                      $query_sort = ' ORDER BY '.$col.' DESC';
-                  }
+              if(isset($sort)) {
+                  $query_sort = ' ORDER BY '.$col.' '.$sort;
               }else{
-                  $query_sort = ' ORDER BY mc_name';
+                  $query_sort = ' ORDER BY '.$col.' DESC';
               }
-
+            }else{
+              $query_sort = ' ORDER BY mc_name';
+            }
 
     	    $data = array();
     	    $query = "SELECT mc1.mc_id, mc1.mc_name,
@@ -403,12 +412,14 @@ class DashVaksinController extends Controller
     				WHERE mc1.mc_flag=1
                     $query_level1
                     $query_search
-    				        $query_sort ";
+    				$query_sort ";
+    	    
     	    $querycount = "SELECT count(*)
     				FROM master_company mc1
     				WHERE mc1.mc_flag=1
                     $query_level1
                     $query_search ";
+    	    
             $cnt = DB::connection('pgsql_vaksin')->select($querycount);
             $jmltotal=$cnt[0]->count;
             $endpage=0;
@@ -421,7 +432,7 @@ class DashVaksinController extends Controller
                     $query = $query." offset ".$offset;
                 }
             }
-                    //var_dump($query);die;
+                   //var_dump($query);die;
     		$dashvaksin_perusahaan = DB::connection('pgsql_vaksin')->select($query);
     	    foreach($dashvaksin_perusahaan as $dvp){
     	        $data[] = array(
@@ -818,9 +829,23 @@ class DashVaksinController extends Controller
 	    }else{
 	        $lansia ='ALL';
 	    }
+	    
+	    $query_msp = ' ';
+	    if(isset($request->sts_pegawai) && $request->sts_pegawai!='ALL'){
+	        $sts_pegawai = $request->sts_pegawai;
+	    }else{
+	        $sts_pegawai ='ALL';
+	    }
+	    
+	    $query_msv = ' ';
+	    if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
+	        $sts_vaksin = $request->sts_vaksin;
+	    }else{
+	        $sts_vaksin ='ALL';
+	    }
 
-	    $string = "_get_dashvaksin_bylokasi1_".$level.'_'.$mc_id.'_'.$lansia;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
+	    $string = "_get_dashvaksin_bylokasi1_".$level.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia, $sts_pegawai, $sts_vaksin) {
 	        if($level > 0){
 	            $query_level = ' AND mc.mc_level='.$level;
 	        }else{
@@ -846,6 +871,23 @@ class DashVaksinController extends Controller
 	        }else{
 	            $query_lansia = " ";
 	        }
+	        
+            if($sts_pegawai!='ALL'){
+                $query_stspegawai = " AND tv.tv_msp_id = $sts_pegawai ";
+            }else{
+                $query_stspegawai = " ";
+            }
+            
+            if($sts_vaksin!='ALL'){
+                if($sts_vaksin=='1'){
+                    $query_stsvaksin = " AND (tv.tv_status_vaksin_pcare = 1 OR 
+                                        tv.tv_status_vaksin_pcare = 2)";
+                }else{
+                    $query_stsvaksin = " AND tv.tv_status_vaksin_pcare = $sts_vaksin ";
+                }
+            }else{
+                $query_stsvaksin = " ";
+            }
 
     	    $data = array();
     	    $query = "SELECT tv.tv_lokasi_vaksin_pcare1::TEXT, COALESCE(COUNT(*))::int8 AS jml
@@ -855,6 +897,8 @@ class DashVaksinController extends Controller
 				$query_level
 				$query_lansia
 				$query_mc_id
+                $query_stspegawai				
+                $query_stsvaksin
 				AND (tv_lokasi_vaksin_pcare1 !=NULL or tv_lokasi_vaksin_pcare1 !='')
 				GROUP BY tv.tv_lokasi_vaksin_pcare1
 				ORDER BY tv.tv_lokasi_vaksin_pcare1";
@@ -879,29 +923,43 @@ class DashVaksinController extends Controller
 	    }else{
 	        $level = 0;
 	    }
-
+	    
 	    $query_mc_id = ' ';
 	    if(isset($request->kd_perusahaan)) {
 	        $mc_id = $request->kd_perusahaan;
 	    }else{
 	        $mc_id ='ALL';
 	    }
-
+	    
 	    $query_lansia_id = ' ';
 	    if(isset($request->lansia) && $request->lansia!='ALL'){
 	        $lansia = $request->lansia;
 	    }else{
 	        $lansia ='ALL';
 	    }
-
-	    $string = "_get_dashvaksin_bylokasi2_".$level.'_'.$mc_id.'_'.$lansia;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
+	    
+	    $query_msp = ' ';
+	    if(isset($request->sts_pegawai) && $request->sts_pegawai!='ALL'){
+	        $sts_pegawai = $request->sts_pegawai;
+	    }else{
+	        $sts_pegawai ='ALL';
+	    }
+	    
+	    $query_msv = ' ';
+	    if(isset($request->sts_vaksin) && $request->sts_vaksin!='ALL'){
+	        $sts_vaksin = $request->sts_vaksin;
+	    }else{
+	        $sts_vaksin ='ALL';
+	    }
+	    
+	    $string = "_get_dashvaksin_bylokasi2_".$level.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin;
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia, $sts_pegawai, $sts_vaksin) {
 	        if($level > 0){
 	            $query_level = ' AND mc.mc_level='.$level;
 	        }else{
 	            $query_level = ' AND mc.mc_level IN (1,2,3) ';
 	        }
-
+	        
 	        if($mc_id!='ALL'){
 	            if(isset($request->level) && $request->level>1){
 	                $query_mc_id = " AND mc.mc_id = '$mc_id' ";
@@ -911,41 +969,59 @@ class DashVaksinController extends Controller
 	        }else{
 	            $query_mc_id = " ";
 	        }
-
+	        
 	        if($lansia!='ALL'){
 	            if(isset($request->lansia) && $request->lansia!='ALL'){
 	                $query_lansia = " AND tv.is_lansia = $lansia ";
 	            }else{
-	                $query_lansia = "  ";
+	                $query_lansia = " ";
 	            }
 	        }else{
 	            $query_lansia = " ";
 	        }
-
+	        
+	        if($sts_pegawai!='ALL'){
+	            $query_stspegawai = " AND tv.tv_msp_id = $sts_pegawai ";
+	        }else{
+	            $query_stspegawai = " ";
+	        }
+	        
+	        if($sts_vaksin!='ALL'){
+	            if($sts_vaksin=='1'){
+	                $query_stsvaksin = " AND (tv.tv_status_vaksin_pcare = 1 OR
+                                        tv.tv_status_vaksin_pcare = 2)";
+	            }else{
+	                $query_stsvaksin = " AND tv.tv_status_vaksin_pcare = $sts_vaksin ";
+	            }
+	        }else{
+	            $query_stsvaksin = " ";
+	        }
+	        
 	        $data = array();
-	        $query = "SELECT tv.tv_lokasi_vaksin_pcare2::TEXT, COALESCE(COUNT(*))::int8 AS jml
+	        $query = "SELECT tv.tv_lokasi_vaksin_pcare1::TEXT, COALESCE(COUNT(*))::int8 AS jml
 				FROM transaksi_vaksin tv
 				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-				WHERE tv.is_lansia=0
-				AND mc.mc_flag=1
+				WHERE mc.mc_flag=1
 				$query_level
 				$query_lansia
 				$query_mc_id
-				AND (tv_lokasi_vaksin_pcare2 !=NULL or tv_lokasi_vaksin_pcare2 !='')
+                $query_stspegawai
+                $query_stsvaksin
+				AND (tv_lokasi_vaksin_pcare1 !=NULL or tv_lokasi_vaksin_pcare1 !='')
 				GROUP BY tv.tv_lokasi_vaksin_pcare2
 				ORDER BY tv.tv_lokasi_vaksin_pcare2";
-
-			$dashvaksin_lokasi2 = DB::connection('pgsql_vaksin')->select($query);
-			foreach($dashvaksin_lokasi2 as $dl2){
-			    $data[] = array(
-			        "v_lokasi" => $dl2->tv_lokasi_vaksin_pcare2,
-			        "v_jml" => number_format($dl2->jml,0,".",",")
-			    );
-			}
-            return $data;
+                
+                $dashvaksin_lokasi1 = DB::connection('pgsql_vaksin')->select($query);
+                foreach($dashvaksin_lokasi1 as $dl1){
+                    $data[] = array(
+                        "v_lokasi" => $dl1->tv_lokasi_vaksin_pcare2,
+                        "v_jml" => number_format($dl1->jml,0,".",",")
+                    );
+                }
+                return $data;
 	    });
-        Cache::tags(['users'])->flush();
-        return response()->json(['status' => 200,'data' => $datacache]);
+	        Cache::tags(['users'])->flush();
+	        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 
 	public function qrcode_mpm($id) {
