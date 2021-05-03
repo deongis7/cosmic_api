@@ -443,7 +443,8 @@ class PerimeterListController extends Controller
                         "master_perimeter_level.mpml_ket", "userpic.username as nik_pic", "userpic.first_name as pic", "userfo.username as nik_fo","master_perimeter.mpm_gmap",
                         "userfo.first_name as fo",DB::raw("(CASE WHEN tpc.tbpc_status is null THEN 0 ELSE tpc.tbpc_status END) AS status_perimeter"),"tpc.tbpc_alasan",
                         DB::raw("status_monitoring_perimeter_level_pic(master_perimeter_level.mpml_id,userpic.username) as status_pic"),
-                        DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status_fo")
+                        DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status_fo"),
+                        DB::raw("status_monitoring_perimeter_level_last_update(master_perimeter_level.mpml_id) as last_update"),
                         )
                         ->join("master_perimeter_level", "master_perimeter_level.mpml_mpm_id", "master_perimeter.mpm_id")
                         ->leftjoin("app_users as userpic", "userpic.username", "master_perimeter_level.mpml_pic_nik")
@@ -507,6 +508,7 @@ class PerimeterListController extends Controller
                             "status_monitoring" => ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo),
                             "status_perimeter" => $itemperimeter->status_perimeter,
                             "alasan" => $itemperimeter->tbpc_alasan,
+                            "last_update" => $itemperimeter->last_update,
                             //"percentage" => ($status['percentage']),
                             "percentage" => 0,
 
