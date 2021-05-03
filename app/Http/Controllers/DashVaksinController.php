@@ -1191,14 +1191,19 @@ class DashVaksinController extends Controller
 	        $msp = $request->stspegawai;
 	        $query_msp = ' AND tv.tv_msp_id='.$msp;
 	    }
+	    
+	    $query_lansia = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL') {
+	        $lansia = $request->lansia;
+	        $query_lansia = ' AND tv.is_lansia='.$lansia;
+	    }
 
 	    $data = array();
 	    $query = "SELECT COALESCE(COUNT(*)) jml
 			FROM transaksi_vaksin tv
 			INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
 			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-			WHERE tv.is_lansia=0
-			AND mc.mc_flag=1
+			WHERE mc.mc_flag=1
             $query_level
             $query_msp ";
 
