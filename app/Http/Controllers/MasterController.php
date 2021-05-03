@@ -253,7 +253,7 @@ class MasterController extends Controller
         if(isset($request->type)){
             if($request->type=='kasus' || $request->type=='vaksin'){
                 $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai_".$request->type, 360 * 60, function() {
-                    $mststspegawai = DB::connection('pgsql')->select("SELECT msp_id, msp_name, msp_name2
+                    $mststspegawai = DB::connection('pgsql2')->select("SELECT msp_id, msp_name, msp_name2
                         FROM master_status_pegawai
                         WHERE msp_id IN (1,2,3,7,8)");
                     foreach($mststspegawai as $msp){
@@ -266,7 +266,7 @@ class MasterController extends Controller
                 });
             }else if($request->type=='vaksinlansia'){
                 $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai_".$request->type, 360 * 60, function() {
-                    $mststspegawai = DB::connection('pgsql')->select("SELECT msp_id, msp_name, msp_name2
+                    $mststspegawai = DB::connection('pgsql3')->select("SELECT msp_id, msp_name, msp_name2
                             FROM master_status_pegawai
                             WHERE msp_id IN (5,6)");
                     foreach($mststspegawai as $msp){

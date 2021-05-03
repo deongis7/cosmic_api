@@ -489,7 +489,7 @@ class UserController extends Controller
 
     //Get File Tolak
     private function getFile($id_aktifitas,$id_perusahaan){
-        // config(['database.default' => 'pgsql3']);
+        config(['database.default' => 'pgsql3']);
         $data =[];
         if ($id_aktifitas != null){
         $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
@@ -510,6 +510,7 @@ class UserController extends Controller
 
     //Validasi
     public function validasiMonitoring(Request $request){
+        // config(['database.default' => 'pgsql']);
         $this->validate($request, [
             'id_perimeter_cluster' => 'required',
             'id_konfig_cluster_aktifitas' => 'required',
