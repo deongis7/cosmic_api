@@ -1115,11 +1115,16 @@ class PerimeterListController extends Controller
 
     public function updatePerimeterListGmap($id_perimeter,Request $request){
         $this->validate($request, [
-            'gmap' => 'required',
-
+            'gmap' =>array('required',
+                          'regex:/^https?\:\/\/(www\.)?google\.(com|fr|de)\/maps\b/'
+                      )
         ]);
 
-        $perimeter =  Perimeter::where('mpm_id',$id_perimeter)->first();
+        $perimeter =  new Perimeter();
+        $perimeter =    $perimeter->where('mpm_id',$id_perimeter)->first();
+        if(  $perimeter== null){
+          return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+        }
         $perimeter->mpm_gmap =  $request->gmap;
 
         if($perimeter->save()){
