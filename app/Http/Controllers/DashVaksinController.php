@@ -1239,22 +1239,49 @@ class DashVaksinController extends Controller
 	    $query = "SELECT mjk.mjk_id, mjk.mjk_name,
 			(SELECT COALESCE(COUNT(*))
 			FROM transaksi_vaksin tv
-			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+		    INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+            INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+            INNER JOIN master_status_pegawai msp ON msp.msp_id=tv.tv_msp_id
+            INNER JOIN master_provinsi mpro ON mkab.mkab_mpro_id=mpro.mpro_id
 			WHERE mc.mc_flag=1
             $query_level
             $query_msp
             $query_lansia
 			AND tv.tv_mjk_id = mjk.mjk_id
-			AND tv.tv_mjk_id IS NOT NULL) AS jml
+			AND tv.tv_mjk_id IS NOT NULL
+	        AND tv.tv_mkab_id IS NOT NULL
+            AND tv.tv_usia >= 17) AS jml
 			FROM master_jenis_kelamin mjk
-			ORDER BY mjk.mjk_name;";
+			ORDER BY mjk.mjk_name
+        ";
 
+        $query_all = "SELECT COALESCE(COUNT(tv.tv_id)) jml_all
+			FROM transaksi_vaksin tv
+		    INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+            INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+            INNER JOIN master_status_pegawai msp ON msp.msp_id=tv.tv_msp_id
+            INNER JOIN master_provinsi mpro ON mkab.mkab_mpro_id=mpro.mpro_id
+			WHERE mc.mc_flag=1
+            $query_level
+            $query_msp
+            $query_lansia
+			AND tv.tv_mjk_id IS NOT NULL
+	        AND tv.tv_mkab_id IS NOT NULL
+            AND tv.tv_usia >= 17
+        ";
+            
 	    $retdb = DB::connection('pgsql_vaksin')->select($query);
+	    $retdb_all = DB::connection('pgsql_vaksin')->select($query_all);
+	    $jml_all = $retdb_all[0]->jml_all;
+	  
 	    foreach($retdb as $dvp){
+	        $persen = round($dvp->jml*100/$jml_all,1);
+	        
 	        $data[] = array(
 	            "id" => $dvp->mjk_id,
 	            "judul" => $dvp->mjk_name,
-	            "jml" => $dvp->jml
+	            "jml" => $dvp->jml,
+	            "persen" => $persen,
 	        );
 	    }
 	    return response()->json(['status' => 200,'data' => $data]);
@@ -1266,34 +1293,64 @@ class DashVaksinController extends Controller
 	        $level = $request->level;
 	        $query_level = ' AND mc.mc_level= '.$level;
 	    }
-
+	    
 	    $query_msp = ' ';
 	    if(isset($request->stspegawai) && $request->stspegawai>0) {
 	        $msp = $request->stspegawai;
 	        $query_msp = ' AND tv.tv_msp_id='.$msp;
 	    }
+	    
+	    $query_lansia = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL') {
+	        $lansia = $request->lansia;
+	        $query_lansia = ' AND tv.is_lansia='.$lansia;
+	    }
 
 	    $data = array();
-	    $query = "SELECT msp.msp_id, msp.msp_name2,
-			(SELECT COALESCE(COUNT(*))
-			FROM transaksi_vaksin tv
-			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-			WHERE tv.is_lansia=0
-			AND mc.mc_flag=1
+	    $query = "SELECT msp1.msp_id, msp1.msp_name2,
+            (SELECT COALESCE(COUNT(*))
+            FROM transaksi_vaksin tv
+            INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+            INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+            INNER JOIN master_status_pegawai msp ON msp.msp_id=tv.tv_msp_id
+            INNER JOIN master_provinsi mpro ON mkab.mkab_mpro_id=mpro.mpro_id
+            WHERE mc.mc_flag=1
             $query_level
             $query_msp
+            $query_lansia
+            AND msp.msp_id=tv.tv_msp_id
+            AND msp.msp_id=msp1.msp_id
+            AND tv.tv_msp_id IS NOT NULL) AS jml
+            FROM master_status_pegawai msp1
+            WHERE msp1.msp_id NOT IN (4,5,6,9)
+            ORDER BY msp1.msp_name2;";
+	    
+        $query_all = "SELECT COALESCE(COUNT(*)) jml_all
+			FROM transaksi_vaksin tv
+			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+            INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+            INNER JOIN master_status_pegawai msp ON msp.msp_id=tv.tv_msp_id
+            INNER JOIN master_provinsi mpro ON mkab.mkab_mpro_id=mpro.mpro_id
+			WHERE mc.mc_flag=1
+            $query_level
+            $query_msp
+            $query_lansia
 			AND msp.msp_id=tv.tv_msp_id
-			AND tv.tv_msp_id IS NOT NULL) AS jml
-			FROM master_status_pegawai msp
-            WHERE msp.msp_id NOT IN (4,5,6)
-			ORDER BY msp.msp_name2;";
-
+			AND tv.tv_msp_id IS NOT NULL
+            AND msp.msp_id NOT IN (4,5,6,9)";
+            
         $retdb = DB::connection('pgsql_vaksin')->select($query);
+        $retdb_all = DB::connection('pgsql_vaksin')->select($query_all);
+        $jml_all = $retdb_all[0]->jml_all;
+        
         foreach($retdb as $dvp){
+            $persen = round($dvp->jml*100/$jml_all,1);
+            
             $data[] = array(
                 "id" => $dvp->msp_id,
                 "judul" => $dvp->msp_name2,
-                "jml" => $dvp->jml
+                "jml" => $dvp->jml,
+                "persen" => $persen
             );
         }
         return response()->json(['status' => 200,'data' => $data]);
@@ -1305,35 +1362,67 @@ class DashVaksinController extends Controller
 	        $level = $request->level;
 	        $query_level = ' AND mc.mc_level= '.$level;
 	    }
-
+	    
 	    $query_msp = ' ';
 	    if(isset($request->stspegawai) && $request->stspegawai>0) {
 	        $msp = $request->stspegawai;
 	        $query_msp = ' AND tv.tv_msp_id='.$msp;
 	    }
+	    
+	    $query_lansia = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL') {
+	        $lansia = $request->lansia;
+	        $query_lansia = ' AND tv.is_lansia='.$lansia;
+	    }
 
 	    $data = array();
-	    $query = "SELECT mpro.mpro_id, mpro.mpro_name,
+	    $query = "SELECT mpro1.mpro_id, mpro1.mpro_name,
 			(SELECT COALESCE(COUNT(*))
 			FROM transaksi_vaksin tv
-			INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
-			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-			WHERE tv.is_lansia=0
-			AND mc.mc_flag=1
+		    INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+            INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+            INNER JOIN master_status_pegawai msp ON msp.msp_id=tv.tv_msp_id
+            INNER JOIN master_provinsi mpro ON mkab.mkab_mpro_id=mpro.mpro_id
+			WHERE mc.mc_flag=1
             $query_level
             $query_msp
+            $query_lansia
 			AND mkab.mkab_id=tv.tv_mkab_id
-			AND tv.tv_mkab_id IS NOT NULL
-			AND mkab.mkab_mpro_id=mpro.mpro_id) AS jml
-			FROM master_provinsi mpro
-			ORDER BY mpro.mpro_id;";
+			AND tv.tv_mjk_id IS NOT NULL
+	        AND tv.tv_mkab_id IS NOT NULL
+            AND tv.tv_usia >= 17
+			AND mkab.mkab_mpro_id=mpro.mpro_id
+            AND mpro.mpro_id=mpro1.mpro_id) AS jml
+			FROM master_provinsi mpro1
+			ORDER BY mpro1.mpro_id;";
 
+        $query_all = "SELECT COALESCE(COUNT(*)) jml_all
+			FROM transaksi_vaksin tv
+		    INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+            INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+            INNER JOIN master_status_pegawai msp ON msp.msp_id=tv.tv_msp_id
+            INNER JOIN master_provinsi mpro ON mkab.mkab_mpro_id=mpro.mpro_id
+			WHERE mc.mc_flag=1
+            $query_level
+            $query_msp
+            $query_lansia
+			AND mkab.mkab_id=tv.tv_mkab_id
+			AND tv.tv_mjk_id IS NOT NULL
+	        AND tv.tv_mkab_id IS NOT NULL
+            AND tv.tv_usia >= 17 ";
+            
         $retdb = DB::connection('pgsql_vaksin')->select($query);
+        $retdb_all = DB::connection('pgsql_vaksin')->select($query_all);
+        $jml_all = $retdb_all[0]->jml_all;
+        
         foreach($retdb as $dvp){
+            $persen = round($dvp->jml*100/$jml_all,1);
+            
             $data[] = array(
                 "id" => $dvp->mpro_id,
                 "judul" => $dvp->mpro_name,
-                "jml" => $dvp->jml
+                "jml" => $dvp->jml,
+                "persen" => $persen
             );
         }
         return response()->json(['status' => 200,'data' => $data]);
@@ -1345,36 +1434,66 @@ class DashVaksinController extends Controller
 	        $level = $request->level;
 	        $query_level = ' AND mc.mc_level= '.$level;
 	    }
-
+	    
 	    $query_msp = ' ';
 	    if(isset($request->stspegawai) && $request->stspegawai>0) {
 	        $msp = $request->stspegawai;
 	        $query_msp = ' AND tv.tv_msp_id='.$msp;
+	    }
+	    
+	    $query_lansia = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL') {
+	        $lansia = $request->lansia;
+	        $query_lansia = ' AND tv.is_lansia='.$lansia;
 	    }
 
 	    $data = array();
 	    $query = " SELECT mu.mu_id, mu.mu_nama,
 			(SELECT COALESCE(COUNT(*))
 			FROM transaksi_vaksin tv
-			INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
 			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-			WHERE tv.is_lansia=0
-			AND mc.mc_flag=1
+            INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+            INNER JOIN master_status_pegawai msp ON msp.msp_id=tv.tv_msp_id
+            INNER JOIN master_provinsi mpro ON mkab.mkab_mpro_id=mpro.mpro_id
+			WHERE mc.mc_flag=1
             $query_level
             $query_msp
+            $query_lansia
 			AND mkab.mkab_id=tv.tv_mkab_id
-			AND tv.tv_mkab_id IS NOT NULL
+			AND tv.tv_mjk_id IS NOT NULL
+	        AND tv.tv_mkab_id IS NOT NULL
 			AND mu.mu_awal <= tv.tv_usia
 			AND mu.mu_akhir >= tv.tv_usia) AS jml
 			FROM master_usia mu
 			ORDER BY mu.mu_id;";
+	    
+        $query_all = " SELECT COALESCE(COUNT(*)) jml_all
+			FROM transaksi_vaksin tv
+			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+            INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+            INNER JOIN master_status_pegawai msp ON msp.msp_id=tv.tv_msp_id
+            INNER JOIN master_provinsi mpro ON mkab.mkab_mpro_id=mpro.mpro_id
+			WHERE mc.mc_flag=1
+            $query_level
+            $query_msp
+            $query_lansia
+			AND mkab.mkab_id=tv.tv_mkab_id
+			AND tv.tv_mjk_id IS NOT NULL
+	        AND tv.tv_mkab_id IS NOT NULL
+			AND tv.tv_usia >= 17 ";
 
         $retdb = DB::connection('pgsql_vaksin')->select($query);
+        $retdb_all = DB::connection('pgsql_vaksin')->select($query_all);
+        $jml_all = $retdb_all[0]->jml_all;
+        
         foreach($retdb as $dvp){
+            $persen = round($dvp->jml*100/$jml_all,1);
+            
             $data[] = array(
                 "id" => $dvp->mu_id,
                 "judul" => $dvp->mu_nama,
-                "jml" => $dvp->jml
+                "jml" => $dvp->jml,
+                "persen" => $persen
             );
         }
         return response()->json(['status' => 200,'data' => $data]);
@@ -1416,8 +1535,10 @@ class DashVaksinController extends Controller
 			(SELECT COALESCE(COUNT(*))
 			FROM transaksi_vaksin tv
 			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-			INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
-			WHERE 1=1
+            INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+            INNER JOIN master_status_pegawai msp ON msp.msp_id=tv.tv_msp_id
+            INNER JOIN master_provinsi mpro ON mkab.mkab_mpro_id=mpro.mpro_id
+			WHERE mc.mc_flag=1
             $query_lansia
             $query_msp
             $query_level
@@ -1491,17 +1612,25 @@ class DashVaksinController extends Controller
 	        $query_search_mpro = " AND LOWER(TRIM(mpro.mpro_name)) LIKE LOWER(TRIM('%$request->search%')) ";
 	        $query_search_mkab = " AND LOWER(TRIM(mkab.mkab_name)) LIKE LOWER(TRIM('%$request->search%')) ";
 	    }
+	    
+	    $query_lansia = ' ';
+	    if(isset($request->lansia) && $request->lansia!='ALL') {
+	        $lansia = $request->lansia;
+	        $query_lansia = ' AND tv.is_lansia='.$lansia;
+	    }
 
 	    $data = array();
 	    $query = "SELECT mpro.mpro_id, mpro.mpro_name,
 			(SELECT COALESCE(COUNT(*))
 			FROM transaksi_vaksin tv
-			INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
 			INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
-			WHERE tv.is_lansia=0
-			AND mc.mc_flag=1
+            INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+            INNER JOIN master_status_pegawai msp ON msp.msp_id=tv.tv_msp_id
+            INNER JOIN master_provinsi mpro ON mkab.mkab_mpro_id=mpro.mpro_id
+			WHERE mc.mc_flag=1
             $query_level
             $query_msp
+            $query_lansia
 			AND mkab.mkab_id=tv.tv_mkab_id
 			AND tv.tv_mkab_id IS NOT NULL
 			AND mkab.mkab_mpro_id=mpro.mpro_id) AS jml
