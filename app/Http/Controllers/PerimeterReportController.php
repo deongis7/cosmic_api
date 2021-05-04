@@ -105,7 +105,7 @@ class PerimeterReportController extends Controller
             if (isset($week) && ($week != $currentweek)){
               $sql = "select rhw.rhw_mr_id, rhw_mr_name, rhw.rhw_mpm_id, rhw_mpm_name,'-'::varchar as alamat,'-'::varchar as kategori,
                     '-'::varchar  as provinsi, '-'::varchar  as kabupaten , (case when avg(rhw_mpml_cek)=1 then true else false end) as status_monitoring,
-                    round(avg(rhw_mpml_cek),2) as percentage from report_history_week rhw";
+                    round(avg(rhw_mpml_cek),2) as percentage,status_monitoring_perimeter_last_update(rhw.rhw_mpm_id) as last_update from report_history_week rhw";
 
              if(isset($monitoring)) {
                 if ($monitoring == 'true') {
@@ -161,6 +161,7 @@ class PerimeterReportController extends Controller
                     "alamat" => $itemperimeter->alamat,
                     "kategori" => $itemperimeter->kategori,
                     "status_monitoring" => $itemperimeter->status_monitoring,
+                    "last_update" => $itemperimeter->last_update,
                     "percentage" =>  $itemperimeter->percentage,
                     "provinsi" => $itemperimeter->provinsi,
                     "kabupaten" => $itemperimeter->kabupaten,
@@ -173,7 +174,7 @@ class PerimeterReportController extends Controller
             $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
                 'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                 'master_perimeter_kategori.mpmk_name',
-                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name'
+                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name',DB::raw("status_monitoring_perimeter_last_update(master_perimeter.mpm_id) as last_update")
             )
                 ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
                 ->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
@@ -238,6 +239,7 @@ class PerimeterReportController extends Controller
                                 "alamat" => $itemperimeter->mpm_name,
                                 "kategori" => $itemperimeter->mpmk_name,
                                 "status_monitoring" => ($status['status']),
+                                "last_update" => $itemperimeter->last_update,
                                 "percentage" => ($status['percentage']),
                                 "provinsi" => $itemperimeter->mpro_name,
                                 "kabupaten" => $itemperimeter->mkab_name,
@@ -257,6 +259,7 @@ class PerimeterReportController extends Controller
                                 "alamat" => $itemperimeter->mpm_name,
                                 "kategori" => $itemperimeter->mpmk_name,
                                 "status_monitoring" => ($status['status']),
+                                "last_update" => $itemperimeter->last_update,
                                 "percentage" => ($status['percentage']),
                                 "provinsi" => $itemperimeter->mpro_name,
                                 "kabupaten" => $itemperimeter->mkab_name,
@@ -274,6 +277,7 @@ class PerimeterReportController extends Controller
                         "alamat" => $itemperimeter->mpm_name,
                         "kategori" => $itemperimeter->mpmk_name,
                         "status_monitoring" => ($status['status']),
+                        "last_update" => $itemperimeter->last_update,
                         "percentage" => ($status['percentage']),
                         "provinsi" => $itemperimeter->mpro_name,
                         "kabupaten" => $itemperimeter->mkab_name,
