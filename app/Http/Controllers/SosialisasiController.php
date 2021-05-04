@@ -12,7 +12,7 @@ class SosialisasiController extends Controller {
     public function __construct() {
     }
 
-    public function getDataByMcid($id, $page,Request $request) {
+    public function getDataByMcid($id, $page, Request $request) {
       $search = null;
       if(isset($request->search)){
         $search=$request->search;
@@ -42,16 +42,18 @@ class SosialisasiController extends Controller {
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id= ?";
+        
         if(isset($search)) {
-            $string = $string ." and (lower(TRIM(ts_nama_kegiatan)) like ? or lower(TRIM(ts_deskripsi)) like ? ) ";
-            $param[] ="%".strtolower(trim($search))."%";
-            $param[] ="%".strtolower(trim($search))."%";
+            $string = $string ." and (lower(ts_nama_kegiatan) like ? or lower(ts_deskripsi) like ? ) ";
+            $param[] ="%".strtolower($search)."%";
+            $param[] ="%".strtolower($search)."%";
         }
+        
         $string = $string ." ORDER BY ts_tanggal DESC ";
 
         //get all
         $sosialisasiall = DB::connection('pgsql3')->select($string,$param);
-        //dd($sosialisasiall);
+        //var_dump($string);die;
         //page limit
         $string = $string ." OFFSET ? LIMIT ? ";
         $param[] =$pageq;

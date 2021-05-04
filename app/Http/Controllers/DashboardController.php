@@ -1365,11 +1365,8 @@ class DashboardController extends Controller
         $data = array();
         $alert_kasus =  DB::connection('pgsql2')->select("SELECT * FROM alertweek_kasus_mobile(?)",[$id]);
         foreach($alert_kasus as $ak){
-            if($ak->v_cnt>0){
-                $data = array();
-            }else{
+            if($ak->v_cnt==0 && $ak->v_tgl!=NULL){
                 $data[] = array(
-                    //"cnt" => $ak->v_cnt,
                     "judul" => 'Pegawai Terdampak',
                     "tgl" => 'Terakhir Diperbaharui : '.$this->tgl_indo($ak->v_tgl)
                 );
@@ -1377,12 +1374,10 @@ class DashboardController extends Controller
             }
         }
 
-
         $alert_protokol =  DB::connection('pgsql2')->select("SELECT * FROM alertweek_protokol_mobile(?)",[$id]);
         foreach($alert_protokol as $ap){
-            if($ap->v_cnt==0){
+            if($ap->v_cnt==0 && $ap->v_tgl!=NULL){
                 $data[] = array(
-                    //"cnt" => $ap->v_cnt,
                     "judul" => 'Protokol',
                     "tgl" => 'Terakhir Diperbaharui : '.$this->tgl_indo($ap->v_tgl)
                 );
@@ -1392,9 +1387,8 @@ class DashboardController extends Controller
 
         $alert_sosialisasi =  DB::connection('pgsql2')->select("SELECT * FROM alertweek_sosialisasi_mobile(?)",[$id]);
         foreach($alert_sosialisasi as $as){
-            if($as->v_cnt==0){
+            if($as->v_cnt==0 && $as->v_tgl!=NULL){
                 $data[] = array(
-                    //"cnt" => $as->v_cnt,
                     "judul" => 'Kegiatan / Event',
                     "tgl" => 'Terakhir Diperbaharui : '.$this->tgl_indo($as->v_tgl)
                 );
