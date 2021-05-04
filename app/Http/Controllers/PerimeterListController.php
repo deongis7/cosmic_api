@@ -171,6 +171,8 @@ class PerimeterListController extends Controller
         $page = null;
         $search = null;
         $endpage = 1;
+        $column = null;
+        $sort = null;
         $monitoring = $request->monitoring;
 
         $nik = $request->nik;
@@ -201,8 +203,16 @@ class PerimeterListController extends Controller
             $str = $str.'_week_'. str_replace(' ','_',$request->search);
             $week=$request->week;
         }
+        if(isset($request->column_sort)) {
+          $str = $str.'_sort_'. $request->column_sort;
+          $column=$request->column_sort;
+            if(isset($request->p_sort)) {
+              $str = $str.'_'. $request->p_sort;
+              $sort=$request->p_sort;
+            }
+        }
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search,$column,$sort) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
@@ -218,7 +228,8 @@ class PerimeterListController extends Controller
                 'master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
                 DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) as status_bumn"),
                 DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,max(userpic.username)) as status_pic"),
-                DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,max(userfo.username)) as status_fo")
+                DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,max(userfo.username)) as status_fo"),
+                DB::raw("status_monitoring_perimeter_last_update(master_perimeter.mpm_id) as last_update")
 
             )
                 ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
@@ -270,8 +281,19 @@ class PerimeterListController extends Controller
 
             $perimeter = $perimeter->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                     'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
-                    DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) "))
-                ->orderBy('master_perimeter.mpm_name', 'asc');
+                    DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) "));
+
+
+            if(isset($column)) {
+                if(isset($sort)) {
+                    $perimeter = $perimeter->orderBy($column,$sort);
+                }else{
+                    $perimeter = $perimeter->orderBy($column,"asc");
+                }
+            }else{
+                $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc');
+            }
+            
             //dd(count($perimeter->get()) );
             $jmltotal=(count($perimeter->get()));
             if(isset($limit)) {
@@ -366,6 +388,7 @@ class PerimeterListController extends Controller
                     "alamat" => $itemperimeter->mpm_name,
                     "kategori" => $itemperimeter->mpmk_name,
                     "status_monitoring" => $status_monitoring,
+                    "last_update" => $itemperimeter->last_update,
                     //"status_monitoring" => ($status['status']),
                     //"percentage" => ($status['percentage']),
                     "percentage" => 0,
@@ -409,6 +432,8 @@ class PerimeterListController extends Controller
         $endpage = 1;
         $user = null;
         $role_id = null;
+        $column = null;
+        $sort = null;
         $nik = $request->nik;
         $str = "_get_perimeterlevellist_by_perimeter_". $id_perimeter;
 
@@ -430,9 +455,17 @@ class PerimeterListController extends Controller
             $str = $str.'_searh_'. str_replace(' ','_',$request->search);
             $search=$request->search;
         }
+        if(isset($request->column_sort)) {
+          $str = $str.'_sort_'. $request->column_sort;
+          $column=$request->column_sort;
+            if(isset($request->p_sort)) {
+              $str = $str.'_'. $request->p_sort;
+              $sort=$request->p_sort;
+            }
+        }
         //dd($str);
         //dd($str_fnc);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 1 * 5, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 1 * 5, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search,$column,$sort) {
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
@@ -469,9 +502,20 @@ class PerimeterListController extends Controller
                 $perimeter = $perimeter->where(DB::raw("lower(TRIM(mpml_name))"),'like','%'.strtolower(trim($search)).'%');
             }
 
-            $perimeter = $perimeter->where('master_perimeter.mpm_id', $id_perimeter)
-                ->orderBy('master_perimeter.mpm_name', 'asc')
-                ->orderBy('master_perimeter_level.mpml_name', 'asc');
+            $perimeter = $perimeter->where('master_perimeter.mpm_id', $id_perimeter);
+
+
+            if(isset($column)) {
+                if(isset($sort)) {
+                    $perimeter = $perimeter->orderBy($column,$sort);
+                }else{
+                    $perimeter = $perimeter->orderBy($column,"asc");
+                }
+            }else{
+                  $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc')
+                                          ->orderBy('master_perimeter_level.mpml_name', 'asc');
+            }
+
             $jmltotal=($perimeter->count());
             if(isset($limit)) {
                 $perimeter = $perimeter->limit($limit);
