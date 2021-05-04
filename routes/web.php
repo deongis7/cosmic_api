@@ -302,6 +302,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
     Route::post('/sosialisasi/webupdate_json/{user_id}/{id}', 'SosialisasiController@WebupdateSosialisasiJSON');
 
+    //atestasi&sertifikasi
+    $router->get('/dashboard/card_atestasi', 'DashboardController@getCardAtestasi');
+    $router->get('/dashboard/card_sertifikasi', 'DashboardController@getCardSertifikasi');
 
     // Report Protokol
     $router->get('/dashreport/all_card_byjns/{id}', 'ReportController@getDashReportCardByJns');

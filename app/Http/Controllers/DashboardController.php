@@ -1810,4 +1810,36 @@ class DashboardController extends Controller
         });
         return response()->json(['status' => 200,'page_end' =>$datacache['page_end'],'data' => $datacache['data']]);
     }
+
+    public function getCardAtestasi(){
+      $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_CardAtestasi", 0 * 60, function() {
+          $data = array();
+          $cosmicindex_all = DB::connection('pgsql2')->select("SELECT * FROM getcardatestasi()");
+
+          foreach($cosmicindex_all as $cia){
+              $data[] = array(
+                  "v_judul" => $cia->v_judul,
+                  "v_jml" => $cia->v_jml
+              );
+          }
+          return $data;
+      });
+        return response()->json(['status' => 200,'data' => $datacache]);
+  }
+
+   public function getCardSertifikasi(){
+      $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_card_sertifikasi", 0 * 60, function() {
+          $data = array();
+          $cosmicindex_all = DB::connection('pgsql2')->select("SELECT * FROM getcardsertifikasi()");
+
+          foreach($cosmicindex_all as $cia){
+              $data[] = array(
+                  "v_judul" => $cia->v_judul,
+                  "v_jml" => $cia->v_jml
+              );
+          }
+          return $data;
+      });
+        return response()->json(['status' => 200,'data' => $datacache]);
+  }
 }
