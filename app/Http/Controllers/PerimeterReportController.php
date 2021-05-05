@@ -61,6 +61,8 @@ class PerimeterReportController extends Controller
         $limit = null;
         $page = null;
         $search = null;
+        $column = null;
+        $sort = null;
         $endpage = 1;
         $monitoring = $request->monitoring;
         $week=$request->week;
@@ -93,8 +95,17 @@ class PerimeterReportController extends Controller
             $str = $str.'_week_'. $request->week;
 
         }
+
+        if(isset($request->column_sort)) {
+          $str = $str.'_sort_'. $request->column_sort;
+          $column=$request->column_sort;
+            if(isset($request->p_sort)) {
+              $str = $str.'_'. $request->p_sort;
+              $sort=$request->p_sort;
+            }
+        }
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 60 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search,$week) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 60 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search,$week,$column,$sort) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
@@ -134,8 +145,17 @@ class PerimeterReportController extends Controller
                   $param[] = $searchparam;
               }
 
-              $sql = $sql." GROUP BY rhw.rhw_mr_id, rhw_mr_name, rhw.rhw_mpm_id, rhw_mpm_name,'-'::varchar ,'-'::varchar , '-'::varchar , '-'::varchar
-                    order by rhw_mpm_name asc";
+              $sql = $sql." GROUP BY rhw.rhw_mr_id, rhw_mr_name, rhw.rhw_mpm_id, rhw_mpm_name,'-'::varchar ,'-'::varchar , '-'::varchar , '-'::varchar";
+
+              if(isset($column)) {
+                  if(isset($sort)) {
+                      $sql = $sql. " order by ".$column." ".$sort ;
+                  }else{
+                      $sql = $sql . " order by ".$column." asc ";
+                  }
+              }else{
+                  $sql = $sql . " order by rhw_mpm_name asc ";
+              }
 
               $jmltotal=(count(DB::connection('pgsql3')->select($sql, $param)));
 
@@ -200,8 +220,19 @@ class PerimeterReportController extends Controller
             }
 
             $perimeter = $perimeter->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
-                    'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
-                ->orderBy('master_perimeter.mpm_name', 'asc');
+                    'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name');
+
+            if(isset($column)) {
+                if(isset($sort)) {
+                    $perimeter = $perimeter->orderBy($column,$sort);
+                }else{
+                    $perimeter = $perimeter->orderBy($column,"asc");
+                }
+            }else{
+                  $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc');
+            }
+
+
             //dd(count($perimeter->get()) );
             $jmltotal=(count($perimeter->get()));
             if(isset($limit)) {
