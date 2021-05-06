@@ -77,14 +77,14 @@ class ProductController extends Controller
               left join master_provinsi on master_provinsi.mpro_id = master_company.mc_prov_id
               left join app_users on master_company.mc_user_update_status = app_users.id
           join table_pengajuan_sertifikasi tps on master_company.mc_id = tps.tbps_mc_id 
-          where master_company.mc_id='3314'
+          where master_company.mc_id='".$mc_id."'
           order by tbps_id desc limit 5 offset 0)
           union
           (
           select tps.tbpa_id id, 'Atestasi SIBV' layanan, mc_id, mc_name, tbpa_date_insert, tbpa_status, '1' jenis
                           from master_company 
                       join table_pengajuan_atestasi tps on master_company.mc_id = tps.tbpa_mc_id 
-                      where mc_id='3314'
+                      where mc_id='".$mc_id."'
                   order by tbpa_id desc
                       limit 5 offset 0)
           ) as a"
