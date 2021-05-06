@@ -50,10 +50,10 @@ class ProductController extends Controller
       $str = "_daftar_riwayat_produk_2";
       $search = null;
       $mc_id = null;
-       if(isset($request->search)){
+       /*if(isset($request->search)){
             $str = $str.'_searh_'. str_replace(' ','_',$request->search);
             $search=$request->search;
-       }
+       }*/
 
        if(isset($request->mc_id)){
             $str = $str.'_mc_id_'. str_replace(' ','_',$request->mc_id);
@@ -69,7 +69,55 @@ class ProductController extends Controller
         $lastweek  =Carbon::parse($startdate)->subWeeks(1)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(1)->format('Y-m-d');
         $twoweek  =Carbon::parse($startdate)->subWeeks(2)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(2)->format('Y-m-d');
 
-        if($search=="sertifikasi"){
+        $pengajuan = DB::connection('pgsql2')->select( "select a.* from
+        (
+          (select 
+          tps.tbps_id id, 'Sertifikasi CHSE' layanan, master_company.mc_id, mc_name, tps.tbps_date_insert date_insert, tps.tbps_status status, '2' jenis
+              from master_company 
+              left join master_provinsi on master_provinsi.mpro_id = master_company.mc_prov_id
+              left join app_users on master_company.mc_user_update_status = app_users.id
+          join table_pengajuan_sertifikasi tps on master_company.mc_id = tps.tbps_mc_id 
+          where master_company.mc_id='3314'
+          order by tbps_id desc limit 5 offset 0)
+          union
+          (
+          select tps.tbpa_id id, 'Atestasi SIBV' layanan, mc_id, mc_name, tbpa_date_insert, tbpa_status, '1' jenis
+                          from master_company 
+                      join table_pengajuan_atestasi tps on master_company.mc_id = tps.tbpa_mc_id 
+                      where mc_id='3314'
+                  order by tbpa_id desc
+                      limit 5 offset 0)
+          ) as a"
+        );
+
+            foreach ($pengajuan as $field) {
+              if($field->status=="1"){
+                $status = "Disetujui";
+              }elseif ($field->status=="2") {
+                  $status = "Menunggu Persetujuan";
+              }elseif($field->status=="0"){
+                  $status = "Belum Disetujui";
+              }elseif($field->status==""){
+                  $status = "Belum Disetujui";
+              }elseif($field->status=="3"){
+                  $status = "Belum Disetujui";
+              }elseif($field->status=="4"){
+                  $status = "Di Tolak";
+              }
+
+                $data[] = array(
+                    "jenis"=>$field->jenis,
+                    "layanan" => $field->layanan,
+                    "id" => $field->id,
+                    "mc_id" => $field->mc_id,
+                    "nama_perusahaan" => $field->mc_name,
+                    "created" => $field->date_insert,
+                    "status" => $status
+                  );
+            }
+              return $data;
+
+        /*if($search=="sertifikasi"){
             $pengajuan = DB::connection('pgsql2')->select( "select master_company.mc_id as mc_idnya, mc_name, mc_user_update_date, mc_status_sertifikasi, username, mc_nama_pic_sertifikasi, tps.tbps_date_insert, tps.tbps_id, tps.tbps_date_verifikasi, tps.tbps_nama_verifikasi, tps.tbps_status
                 from master_company 
                 left join master_provinsi on master_provinsi.mpro_id = master_company.mc_prov_id
@@ -141,7 +189,7 @@ class ProductController extends Controller
                   );
             }
               return $data;
-          }    
+          }    */
        });
        return response()->json(['status' => 200, 'data' => $datacache]);
     }
