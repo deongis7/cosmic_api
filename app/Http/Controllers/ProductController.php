@@ -47,14 +47,20 @@ class ProductController extends Controller
 
   //Get Status Monitoring Perimeter Level
     public function getListRiwayatProduk(Request $request){
-      $str = "_daftar_riwayat_produk_";
+      $str = "_daftar_riwayat_produk_2";
       $search = null;
+      $mc_id = null;
        if(isset($request->search)){
             $str = $str.'_searh_'. str_replace(' ','_',$request->search);
             $search=$request->search;
-        }
+       }
 
-       $datacache =Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search) {
+       if(isset($request->mc_id)){
+            $str = $str.'_mc_id_'. str_replace(' ','_',$request->mc_id);
+            $mc_id=$request->mc_id;
+       }
+
+       $datacache =Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search, $mc_id) {
 
         $data = array();
         $weeks = AppHelper::Weeks();
@@ -68,7 +74,9 @@ class ProductController extends Controller
                 from master_company 
                 left join master_provinsi on master_provinsi.mpro_id = master_company.mc_prov_id
                 left join app_users on master_company.mc_user_update_status = app_users.id
-            join table_pengajuan_sertifikasi tps on master_company.mc_id = tps.tbps_mc_id ORDER BY tps.tbps_id LIMIT 10");
+            join table_pengajuan_sertifikasi tps on master_company.mc_id = tps.tbps_mc_id 
+            where master_company.mc_id=?
+            ORDER BY tps.tbps_id LIMIT 10",[$mc_id]);
 
             foreach ($pengajuan as $field) {
               if($field->tbps_status=="1"){
@@ -87,7 +95,9 @@ class ProductController extends Controller
 
                 $data[] = array(
                     "jenis"=>2,
+                    "layanan" => "Sertifikasi",
                     "id" => $field->tbps_id,
+                    "mc_id" => $field->mc_idnya,
                     "nama_perusahaan" => $field->mc_name,
                     "created" => $field->tbps_date_insert,
                     "status" => $status
@@ -100,7 +110,9 @@ class ProductController extends Controller
                 tps.tbpa_status, tps.tbpa_date_insert, tps.tbpa_nama_pj, tps.tbpa_id,
                 tps.tbpa_date_update 
                 from master_company 
-            join table_pengajuan_atestasi tps on master_company.mc_id = tps.tbpa_mc_id ORDER BY tps.tbpa_id LIMIT 10");
+            join table_pengajuan_atestasi tps on master_company.mc_id = tps.tbpa_mc_id 
+            where master_company.mc_id=?
+            ORDER BY tps.tbpa_id LIMIT 10",[$mc_id]);
 
             foreach ($pengajuan as $field) {
               $dataperimeter=[];
@@ -121,6 +133,8 @@ class ProductController extends Controller
                 $data[] = array(
                     "jenis"=>1,
                     "id" => $field->tbpa_id,
+                    "layanan" => "Atestasi",
+                    "mc_id" => $field->mc_id,
                     "nama_perusahaan" => $field->mc_name,
                     "created" => $field->tbpa_date_insert,
                     "status" => $status
