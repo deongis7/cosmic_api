@@ -60,7 +60,7 @@ class ProductController extends Controller
             $mc_id=$request->mc_id;
        }
 
-       //$datacache =Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search, $mc_id) {
+       $datacache =Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search, $mc_id) {
 
         $data = array();
         $weeks = AppHelper::Weeks();
@@ -214,8 +214,8 @@ class ProductController extends Controller
             }
               return $data;
           }    */
-       /*});
-       return response()->json(['status' => 200, 'data' => $datacache]);*/
+       });
+       return response()->json(['status' => 200, 'data' => $datacache]);
     }
 
     //GET DETAIL ATESTASI/SERTIFIKASI BY ID
