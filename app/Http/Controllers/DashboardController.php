@@ -1850,8 +1850,8 @@ class DashboardController extends Controller
               );
           }
           // dd($data2[0]['v_jml']);
-          $sertifikasi = DB::connection('pgsql2')->select("SELECT * FROM getcardsertifikasi()");
-
+          $sertifikasi = DB::connection('pgsql2')->select("SELECT * FROM getcardproduk()");
+          $total = 0;
           foreach($sertifikasi as $row => $cia){
             // echo $data[$row]['v_jml'];
               // if(isset($data[$row]['v_jml'])){
@@ -1860,11 +1860,16 @@ class DashboardController extends Controller
                   "v_judul" => $cia->v_judul,
                   "v_jml" => $cia->v_jml + $data2[$row]['v_jml']
               );
+
+              $total=$total+$cia->v_jml + $data2[$row]['v_jml'];
               // }
           }
 
-          return $data;
+          return [
+              "data"=>$data,
+              "total"=>$total
+          ];
       });
-        return response()->json(['status' => 200,'data' => $datacache]);
+        return response()->json(['status' => 200,'data' => $datacache['data'], 'total'=>$datacache['total']]);
   }
 }
