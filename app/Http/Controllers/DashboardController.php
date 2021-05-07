@@ -1870,6 +1870,6 @@ class DashboardController extends Controller
               // "total"=>$total
           ];
       });
-        return response()->json(['status' => 200,'data' => $datacache['data'], 'total'=>$datacache['total']]);
+        return response()->json(['status' => 200,'data' => $datacache['data']/*, 'total'=>$datacache['total']*/]);
   }
 }
