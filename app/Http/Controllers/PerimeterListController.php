@@ -293,7 +293,7 @@ class PerimeterListController extends Controller
             }else{
                 $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc');
             }
-            
+
             //dd(count($perimeter->get()) );
             $jmltotal=(count($perimeter->get()));
             if(isset($limit)) {
@@ -1160,7 +1160,7 @@ class PerimeterListController extends Controller
     public function updatePerimeterListGmap($id_perimeter,Request $request){
         $this->validate($request, [
             'gmap' =>array('required',
-                          'regex:/^https?\:\/\/(www\.)?google\.(com|fr|de)\/maps\b/'
+                          'regex:/^https?\:\/\/(www\.)?((google\.(com|fr|de)\/maps)|(maps\.app\.goo\.gl))\b/'
                       )
         ]);
 
