@@ -1824,14 +1824,45 @@ class DashboardController extends Controller
    public function getCardSertifikasi(){
       $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_card_sertifikasi", 0 * 60, function() {
           $data = array();
-          $cosmicindex_all = DB::connection('pgsql2')->select("SELECT * FROM getcardsertifikasi()");
+          $sertifikasi = DB::connection('pgsql2')->select("SELECT * FROM getcardsertifikasi()");
 
-          foreach($cosmicindex_all as $cia){
+          foreach($sertifikasi as $cia){
               $data[] = array(
                   "v_judul" => $cia->v_judul,
                   "v_jml" => $cia->v_jml
               );
           }
+          return $data;
+      });
+        return response()->json(['status' => 200,'data' => $datacache]);
+  }
+
+  public function getCardProduk(){
+     $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_CardAtestasi", 0 * 60, function() {
+          $data = array();
+          $data2 = array();
+          $cosmicindex_all = DB::connection('pgsql2')->select("SELECT * FROM getcardatestasi()");
+
+          foreach($cosmicindex_all as $cia){
+              $data2[] = array(
+                  "v_judul" => $cia->v_judul,
+                  "v_jml" => $cia->v_jml
+              );
+          }
+          // dd($data2[0]['v_jml']);
+          $sertifikasi = DB::connection('pgsql2')->select("SELECT * FROM getcardsertifikasi()");
+
+          foreach($sertifikasi as $row => $cia){
+            // echo $data[$row]['v_jml'];
+              // if(isset($data[$row]['v_jml'])){
+
+              $data[] = array(
+                  "v_judul" => $cia->v_judul,
+                  "v_jml" => $cia->v_jml + $data2[$row]['v_jml']
+              );
+              // }
+          }
+
           return $data;
       });
         return response()->json(['status' => 200,'data' => $datacache]);

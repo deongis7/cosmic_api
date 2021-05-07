@@ -297,12 +297,16 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
   	$router->post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
   	$router->post('/product/add_pengajuan_layanan/{id_produk}', 'ProductController@addPengajuanLayanan');
   	$router->post('/product/add_pelaporan_mandiri/{id_produk}', 'ProductController@addPelaporanMandiri');
+  	
+  	$router->get('/product/daftar_riwayat', 'ProductController@getListRiwayatProduk');
+  	$router->get('/product/detail_produk', 'ProductController@getPengajuanById');
 
     //Sosialisasi Web
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
     Route::post('/sosialisasi/webupdate_json/{user_id}/{id}', 'SosialisasiController@WebupdateSosialisasiJSON');
 
     //atestasi&sertifikasi
+    $router->get('/dashboard/card_produk', 'DashboardController@getCardProduk');
     $router->get('/dashboard/card_atestasi', 'DashboardController@getCardAtestasi');
     $router->get('/dashboard/card_sertifikasi', 'DashboardController@getCardSertifikasi');
 

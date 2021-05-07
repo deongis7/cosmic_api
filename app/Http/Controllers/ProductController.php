@@ -45,10 +45,280 @@ class ProductController extends Controller
 
 	}
 
+  //Get Status Monitoring Perimeter Level
+    public function getListRiwayatProduk(Request $request){
+      $str = "_daftar_riwayat_produk_2";
+      $search = null;
+      $mc_id = null;
+       /*if(isset($request->search)){
+            $str = $str.'_searh_'. str_replace(' ','_',$request->search);
+            $search=$request->search;
+       }*/
+
+       if(isset($request->mc_id)){
+            $str = $str.'_mc_id_'. str_replace(' ','_',$request->mc_id);
+            $mc_id=$request->mc_id;
+       }
+
+       $datacache =Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search, $mc_id) {
+
+        $data = array();
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+        $lastweek  =Carbon::parse($startdate)->subWeeks(1)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(1)->format('Y-m-d');
+        $twoweek  =Carbon::parse($startdate)->subWeeks(2)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(2)->format('Y-m-d');
+
+        $pengajuan = DB::connection('pgsql2')->select( "select a.* from
+        (
+          (select 
+          tps.tbps_id id, 'Sertifikasi CHSE' layanan, master_company.mc_id, mc_name, tps.tbps_date_insert date_insert, tps.tbps_status status, '2' jenis
+              from master_company 
+              left join master_provinsi on master_provinsi.mpro_id = master_company.mc_prov_id
+              left join app_users on master_company.mc_user_update_status = app_users.id
+          join table_pengajuan_sertifikasi tps on master_company.mc_id = tps.tbps_mc_id 
+          where master_company.mc_id='".$mc_id."'
+          order by tbps_id desc limit 5 offset 0)
+          union
+          (
+          select tps.tbpa_id id, 'Atestasi SIBV' layanan, mc_id, mc_name, tbpa_date_insert, tbpa_status, '1' jenis
+                          from master_company 
+                      join table_pengajuan_atestasi tps on master_company.mc_id = tps.tbpa_mc_id 
+                      where mc_id='".$mc_id."'
+                  order by tbpa_id desc
+                      limit 5 offset 0)
+          ) as a"
+        );
+
+            foreach ($pengajuan as $field) {
+              if($field->status=="1"){
+                $status = "Disetujui";
+              }elseif ($field->status=="2") {
+                  $status = "Menunggu Persetujuan";
+              }elseif($field->status=="0"){
+                  $status = "Belum Disetujui";
+              }elseif($field->status==""){
+                  $status = "Belum Disetujui";
+              }elseif($field->status=="3"){
+                  $status = "Belum Disetujui";
+              }elseif($field->status=="4"){
+                  $status = "Di Tolak";
+              }
+
+                $data[] = array(
+                    "jenis"=>$field->jenis,
+                    "layanan" => $field->layanan,
+                    "id" => $field->id,
+                    "mc_id" => $field->mc_id,
+                    "nama_perusahaan" => $field->mc_name,
+                    "created" => $field->date_insert,
+                    "status" => $status
+                  );
+            }
+              return $data;
+
+        /*if($search=="sertifikasi"){
+            $pengajuan = DB::connection('pgsql2')->select( "select master_company.mc_id as mc_idnya, mc_name, mc_user_update_date, mc_status_sertifikasi, username, mc_nama_pic_sertifikasi, tps.tbps_date_insert, tps.tbps_id, tps.tbps_date_verifikasi, tps.tbps_nama_verifikasi, tps.tbps_status
+                from master_company 
+                left join master_provinsi on master_provinsi.mpro_id = master_company.mc_prov_id
+                left join app_users on master_company.mc_user_update_status = app_users.id
+            join table_pengajuan_sertifikasi tps on master_company.mc_id = tps.tbps_mc_id 
+            where master_company.mc_id=?
+            ORDER BY tps.tbps_id LIMIT 10",[$mc_id]);
+
+            foreach ($pengajuan as $field) {
+              if($field->tbps_status=="1"){
+                $status = "Disetujui";
+              }elseif ($field->tbps_status=="2") {
+                  $status = "Menunggu Persetujuan";
+              }elseif($field->tbps_status=="0"){
+                  $status = "Belum Disetujui";
+              }elseif($field->tbps_status==""){
+                  $status = "Belum Disetujui";
+              }elseif($field->tbps_status=="3"){
+                  $status = "Belum Disetujui";
+              }elseif($field->tbps_status=="4"){
+                  $status = "Di Tolak";
+              }
+
+                $data[] = array(
+                    "jenis"=>2,
+                    "layanan" => "Sertifikasi",
+                    "id" => $field->tbps_id,
+                    "mc_id" => $field->mc_idnya,
+                    "nama_perusahaan" => $field->mc_name,
+                    "created" => $field->tbps_date_insert,
+                    "status" => $status
+                  );
+            }
+              return $data;
+          }else{
+            $pengajuan = DB::connection('pgsql2')->select( "select master_company.mc_name, master_company.mc_id, mc_user_update_date,
+                mc_nama_pic, mc_status_atestasi, mc_update_date_atestasi, mc_nama_pic_atestasi,
+                tps.tbpa_status, tps.tbpa_date_insert, tps.tbpa_nama_pj, tps.tbpa_id,
+                tps.tbpa_date_update 
+                from master_company 
+            join table_pengajuan_atestasi tps on master_company.mc_id = tps.tbpa_mc_id 
+            where master_company.mc_id=?
+            ORDER BY tps.tbpa_id LIMIT 10",[$mc_id]);
+
+            foreach ($pengajuan as $field) {
+              $dataperimeter=[];
+                if($field->tbpa_status=="1"){
+                    $status = "Disetujui";
+                }elseif ($field->tbpa_status=="2") {
+                    $status = "Menunggu Persetujuan";
+                }elseif($field->tbpa_status=="0"){
+                    $status = "Belum Disetujui";
+                }elseif($field->tbpa_status=="3"){
+                    $status = "Belum Disetujui";
+                }elseif($field->tbpa_status=="4"){
+                    $status = "Di Tolak";
+                }else{
+                    $status = "Belum Disetujui";
+                }
+
+                $data[] = array(
+                    "jenis"=>1,
+                    "id" => $field->tbpa_id,
+                    "layanan" => "Atestasi",
+                    "mc_id" => $field->mc_id,
+                    "nama_perusahaan" => $field->mc_name,
+                    "created" => $field->tbpa_date_insert,
+                    "status" => $status
+                  );
+            }
+              return $data;
+          }    */
+       });
+       return response()->json(['status' => 200, 'data' => $datacache]);
+    }
+
+    //GET DETAIL ATESTASI/SERTIFIKASI BY ID
+    public function getPengajuanById(Request $request){
+       $jenis = null;
+       $id_produk = null;
+       $str = "";
+       if(isset($request->jenis)){
+            $str = $str.'_jenis_'. str_replace(' ','_',$request->jenis);
+            $jenis=$request->jenis;
+        }
+
+        if(isset($request->id_produk)){
+            $str = $str.'_idProduk_'. str_replace(' ','_',$request->id_produk);
+            $id_produk=$request->id_produk;
+        }
+
+       $datacache =Cache::remember(env('APP_ENV', 'dev')."getPengajuanById". $str, 5 * 60, function()use($jenis, $id_produk) {
+
+        $data = array();
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+        $lastweek  =Carbon::parse($startdate)->subWeeks(1)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(1)->format('Y-m-d');
+        $twoweek  =Carbon::parse($startdate)->subWeeks(2)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(2)->format('Y-m-d');
+
+        //atestasi
+        if($jenis==1){
+
+          $pengajuan = DB::connection('pgsql2')->select( "select tpa.tbpa_id ,tpa.tbpa_mlp_id,mlp.mlp_name,tpa.tbpa_nama_pj ,
+          tpa.tbpa_no_tlp_pj,tpa.tbpa_email_pj , mc.mc_id, mc.mc_name, ms.ms_id,ms.ms_name,rci1.rci_cosmic_index as cosmic_index_lastweek,rci2.rci_cosmic_index as cosmic_index_twoweek,
+          tpa.tbpa_perimeter, tpa.tbpa_date_insert  from table_pengajuan_atestasi tpa
+          left join master_layanan_produk mlp on mlp.mlp_id = tpa.tbpa_mlp_id
+          join master_company mc on mc.mc_id = tpa.tbpa_mc_id
+          left join master_sektor ms on ms.ms_id = mc.mc_msc_id and ms.ms_type ='CCOVID'
+          left join report_cosmic_index rci1 on rci1.rci_mc_id = mc.mc_id and rci1.rci_week = ?
+          left join report_cosmic_index rci2 on rci2.rci_mc_id = mc.mc_id and rci2.rci_week = ?
+          where tpa.tbpa_id=?",
+          [$lastweek, $twoweek, $id_produk ]);
+
+          foreach ($pengajuan as $itempengajuan) {
+            $dataperimeter=[];
+            $perimeter = DB::connection('pgsql2')->select( "select * from list_perimeter_by_id_pengajuan(?,?)",
+              [ $itempengajuan->tbpa_id,$lastweek]);
+                foreach ($perimeter as $itemperimeter) {
+                  $dataperimeter[] = array(
+                    "id_perimeter" => $itemperimeter->v_mpm_id,
+                    "nama_perimeter" => $itemperimeter->v_mpm_name,
+                    "alamat" => $itemperimeter->v_mpm_alamat,
+                    "jml_level" => $itemperimeter->v_jml_mpml,
+                    "persen_monitoring" => $itemperimeter->v_mpm_persen
+                  );
+                }
+              $data[] = array(
+                  "id_pengajuan" => $itempengajuan->tbpa_id,
+                  "tgl_pengajuan" => Carbon::parse($itempengajuan->tbpa_date_insert)->format('Y-m-d'),
+                  //"id_produk" => $itempengajuan->tbpa_mlp_id,
+                  // "nama_produk" => $itempengajuan->mlp_name,
+                  // "kd_perusahaan" => $itempengajuan->mc_id,
+                  // "nama_perusahaan" => $itempengajuan->mc_name,
+                  // "kd_sektor" => $itempengajuan->ms_id,
+                  // "nama_sektor" => $itempengajuan->ms_name,
+                  "lastweek_cosmic_index" => $itempengajuan->cosmic_index_lastweek,
+                  "twoweek_cosmic_index" => $itempengajuan->cosmic_index_twoweek,
+                  "nama_penanggung_jawab" => $itempengajuan->tbpa_nama_pj,
+                  "no_telp_penanggung_jawab" => $itempengajuan->tbpa_no_tlp_pj,
+                  "email_penggung_jawab" => $itempengajuan->tbpa_email_pj,
+                  "perimeter" => $dataperimeter
+
+                );
+          }
+            return $data;
+        }else{
+          //sertifikasi
+          $pengajuan = DB::connection('pgsql2')->select( "select tps.tbps_id ,tps.tbps_mlp_id,tps.tbps_nama_pj ,
+          tps.tbps_no_tlp_pj,tps.tbps_email_pj , mc.mc_id, mc.mc_name, rci1.rci_cosmic_index as cosmic_index_lastweek,rci2.rci_cosmic_index as cosmic_index_twoweek, ms.ms_id, ms_name,
+          tps.tbps_perimeter, tps.tbps_date_insert 
+          from table_pengajuan_sertifikasi tps
+          join master_company mc on mc.mc_id = tps.tbps_mc_id
+          left join master_sektor ms on ms.ms_id = mc.mc_msc_id and ms.ms_type ='CCOVID'
+          left join report_cosmic_index rci1 on rci1.rci_mc_id = mc.mc_id and rci1.rci_week = ?
+          left join report_cosmic_index rci2 on rci2.rci_mc_id = mc.mc_id and rci2.rci_week = ?
+          where tps.tbps_id=?",
+          [$lastweek, $twoweek, $id_produk ]);
+
+          foreach ($pengajuan as $itempengajuan) {
+            $dataperimeter=[];
+            $perimeter = DB::connection('pgsql2')->select( "select * from list_perimeter_by_id_pengajuan(?,?)",
+              [ $itempengajuan->tbps_id,$lastweek]);
+                foreach ($perimeter as $itemperimeter) {
+                  $dataperimeter[] = array(
+                    "id_perimeter" => $itemperimeter->v_mpm_id,
+                    "nama_perimeter" => $itemperimeter->v_mpm_name,
+                    "alamat" => $itemperimeter->v_mpm_alamat,
+                    "jml_level" => $itemperimeter->v_jml_mpml,
+                    "persen_monitoring" => $itemperimeter->v_mpm_persen
+                  );
+                }
+              $data[] = array(
+                  "id_pengajuan" => $itempengajuan->tbps_id,
+                  "tgl_pengajuan" => Carbon::parse($itempengajuan->tbps_date_insert)->format('Y-m-d'),
+                  /*"id_produk" => $itempengajuan->tbps_mlp_id,
+                  "nama_produk" => "Sertifikasi",
+                  "kd_perusahaan" => $itempengajuan->mc_id,
+                  "nama_perusahaan" => $itempengajuan->mc_name,
+                  "kd_sektor" => $itempengajuan->ms_id,
+                  "nama_sektor" => $itempengajuan->ms_name,*/
+                  "lastweek_cosmic_index" => $itempengajuan->cosmic_index_lastweek,
+                  "twoweek_cosmic_index" => $itempengajuan->cosmic_index_twoweek,
+                  "nama_penanggung_jawab" => $itempengajuan->tbps_nama_pj,
+                  "no_telp_penanggung_jawab" => $itempengajuan->tbps_no_tlp_pj,
+                  "email_penggung_jawab" => $itempengajuan->tbps_email_pj,
+                  "perimeter" => $dataperimeter
+
+                );
+          }
+            return $data;
+        }    
+       });
+       return response()->json(['status' => 200, 'data' => $datacache]);
+    }
 
 
     //Get Status Monitoring Perimeter Level
     public function getPengajuanAtestasi($id_produk){
+       $datacache =Cache::remember(env('APP_ENV', 'dev')."_layanan_produk_by_". $id_produk, 5 * 60, function()use($id_produk) {
+
         $data = array();
         $weeks = AppHelper::Weeks();
         $startdate = $weeks['startweek'];
@@ -100,11 +370,14 @@ class ProductController extends Controller
               );
         }
           return $data;
-
+       });
+       return response()->json(['status' => 200, 'data' => $datacache]);
     }
 
     //Get Layanan Produk
     public function getLayananProduk(){
+      $id_produk=0;
+      $datacache =Cache::remember(env('APP_ENV', 'dev')."_layanan_produk_All_".$id_produk, 5 * 60, function()use($id_produk) {
         $data = array();
         $product = DB::connection('pgsql2')->select( "select mlp.* from  master_layanan_produk mlp
          order by mlp.mlp_id asc");
@@ -124,6 +397,8 @@ class ProductController extends Controller
               );
         }
           return $data;
+      });
+      return response()->json(['status' => 200, 'data' => $datacache]);
     }
 
     //POST
