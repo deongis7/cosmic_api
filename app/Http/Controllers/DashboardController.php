@@ -1867,7 +1867,7 @@ class DashboardController extends Controller
 
           return [
               "data"=>$data,
-              "total"=>$total
+              // "total"=>$total
           ];
       });
         return response()->json(['status' => 200,'data' => $datacache['data'], 'total'=>$datacache['total']]);
