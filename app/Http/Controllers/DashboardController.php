@@ -47,7 +47,7 @@ class DashboardController extends Controller
 	public function getCosmicIndexAll(){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_cosmicindex_all", 0 * 60, function() {
 	        $data = array();
-	        $cosmicindex_all = DB::connection('pgsql2')->select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
+	        $cosmicindex_all = DB::connection('pgsql3')->select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
 
 	        foreach($cosmicindex_all as $cia){
 	            $data[] = array(
@@ -350,7 +350,7 @@ class DashboardController extends Controller
                     $string = $string . " offset " .$offset;
                 }
             }
-            $perimeter_byperusahaan_all =  DB::connection('pgsql2')->select($string);
+            $perimeter_byperusahaan_all =  DB::connection('pgsql3')->select($string);
 
             foreach($perimeter_byperusahaan_all as $pka){
                 $data[] = array(
@@ -628,7 +628,7 @@ class DashboardController extends Controller
 	public function getMonitoring_ByMcidWeek($id, $tgl){
 	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_getmonitoring_bymcidweek_".$id."_".$tgl, 15 * 60, function()use($id, $tgl) {
 	        $data = array();
-	        $dashboard_head = DB::connection('pgsql2')->select("SELECT * FROM pemenuhan_monitoring_bymcidweek('$id','$tgl')");
+	        $dashboard_head = DB::connection('pgsql3')->select("SELECT * FROM pemenuhan_monitoring_bymcidweek('$id','$tgl')");
 
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
@@ -643,7 +643,7 @@ class DashboardController extends Controller
 	public function getListMonitoring_ByMcidWeek($id, $tgl){
 	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_getlistmonitoring_bymcidweek_".$id."_".$tgl, 15 * 60, function()use($id, $tgl) {
 	        $data = array();
-	        $dashboard_head =  DB::connection('pgsql2')->select("SELECT a.v_mpm_name, a.v_mpml_name, a.v_mpmk_name,
+	        $dashboard_head =  DB::connection('pgsql3')->select("SELECT a.v_mpm_name, a.v_mpml_name, a.v_mpmk_name,
                     a.v_pic, a.v_fo, a.v_cek, b.persen_det
                     FROM week_historymonitoring_level('$id','$tgl') a
                     INNER JOIN week_aktivitas_cnt_bymcid_weekdet_pic('$id','$tgl') b
@@ -962,7 +962,7 @@ class DashboardController extends Controller
                 }
                 $sql =$sql.$cc_string;
 
-                $result =  DB::connection('pgsql2')->select($sql);
+                $result =  DB::connection('pgsql3')->select($sql);
                 foreach ($result as $value) {
                     $data[] = array(
                         "week" =>  $week,

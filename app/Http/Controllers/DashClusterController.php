@@ -61,7 +61,7 @@ class DashClusterController extends Controller
 	public function getClusterPerimeterbyKategoriAll($id){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_getcluster_perimeter_bykategori_all".$id, 360 * 60, function()use($id){
 	        $data = array();
-	        $perimeter_bykategori_all = DB::connection('pgsql2')->select("SELECT * FROM cluster_dashboard_perimeter_bykategori('$id')");
+	        $perimeter_bykategori_all = DB::connection('pgsql3')->select("SELECT * FROM cluster_dashboard_perimeter_bykategori('$id')");
 	        
 	        foreach($perimeter_bykategori_all as $pka){
 	            $data[] = array(
