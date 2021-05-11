@@ -391,7 +391,7 @@ class DashboardController extends Controller
             if(isset($search)) {
                 $string = $string . " where lower(TRIM(v_judul)) like '%".strtolower(trim($search))."%' ";
             }
-            $jmltotal=(count( DB::connection('pgsql')->select($string)));
+            $jmltotal=(count( DB::connection('pgsql3')->select($string)));
             if(isset($limit)) {
                 $string = $string. " limit ".$limit;
                 $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
