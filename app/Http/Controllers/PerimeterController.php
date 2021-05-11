@@ -21,7 +21,7 @@ use Illuminate\Http\File;
 use Illuminate\Support\Facades\Cache;
 use Validator;
 use DB;
-
+use Illuminate\Support\Facades\Config;
 
 class PerimeterController extends Controller
 {
@@ -547,6 +547,7 @@ class PerimeterController extends Controller
 	}
 
 	public function getExecutionReport($id){
+		Config::set('database.default', 'pgsql3');
 		$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_exec_report_". $id, 0 * 60, function()use($id) {
 			$data = array();
 			$execution = DB::select("
