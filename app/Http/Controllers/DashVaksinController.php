@@ -893,6 +893,8 @@ class DashVaksinController extends Controller
     	    $query = "SELECT tv.tv_lokasi_vaksin_pcare1::TEXT, COALESCE(COUNT(*))::int8 AS jml
 				FROM transaksi_vaksin tv
 				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+                INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+                INNER JOIN master_provinsi mpro ON mpro.mpro_id=mkab.mkab_mpro_id
 				WHERE mc.mc_flag=1
 				$query_level
 				$query_lansia
@@ -1002,6 +1004,8 @@ class DashVaksinController extends Controller
 	        $query = "SELECT tv.tv_lokasi_vaksin_pcare2::TEXT, COALESCE(COUNT(*))::int8 AS jml
 				FROM transaksi_vaksin tv
 				INNER JOIN master_company mc ON mc.mc_id=tv.tv_mc_id
+                INNER JOIN master_kabupaten mkab ON mkab.mkab_id=tv.tv_mkab_id
+                INNER JOIN master_provinsi mpro ON mpro.mpro_id=mkab.mkab_mpro_id
 				WHERE mc.mc_flag=1
 				$query_level
 				$query_lansia
