@@ -517,7 +517,7 @@ class UserController extends Controller
             'status' => 'required',
         ]);
 
-        if(date('w')==3 OR date('w')==4){
+        if(date('w')==6 OR date('w')==7){
             return response()->json(['status' => 200,'message' => 'Mohon maaf, untuk monitoring hanya bisa dilakukan di hari Senin - Jumat']);
         }else{
             $id_perimeter_cluster = $request->id_perimeter_cluster;
