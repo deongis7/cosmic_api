@@ -517,7 +517,7 @@ class UserController extends Controller
             'status' => 'required',
         ]);
 
-        if(date('w')==6 OR date('w')==7){
+        if(date('w')==3 OR date('w')==4){
             return response()->json(['status' => 200,'message' => 'Mohon maaf, untuk monitoring hanya bisa dilakukan di hari Senin - Jumat']);
         }else{
             $id_perimeter_cluster = $request->id_perimeter_cluster;
@@ -547,11 +547,11 @@ class UserController extends Controller
         
         
                         //lempar ke helper firebase
-                        $token = $get_perimeter[0]->token;
-                        $body = $get_perimeter[0]->mpml_name."<br /> Field Officer : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_me_nik;
-                        $title = $get_perimeter[0]->mcr_name;
-                        $role="FO";
-                        $weeks = AppHelper::sendFirebase($token, $body, $title, $role);
+//                         $token = $get_perimeter[0]->token;
+//                         $body = $get_perimeter[0]->mpml_name."<br /> Field Officer : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_me_nik;
+//                         $title = $get_perimeter[0]->mcr_name;
+//                         $role="FO";
+//                         $weeks = AppHelper::sendFirebase($token, $body, $title, $role);
         
                         return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
                     } else {
