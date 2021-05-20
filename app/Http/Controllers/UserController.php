@@ -545,7 +545,6 @@ class UserController extends Controller
                         group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token ", [$id_perimeter_cluster]);
                         //dd($get_perimeter[0]->mpml_name);
         
-        
                         //lempar ke helper firebase
                         $token = $get_perimeter[0]->token;
                         $body = $get_perimeter[0]->mpml_name."<br /> Field Officer : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_me_nik;
