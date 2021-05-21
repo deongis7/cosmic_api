@@ -641,9 +641,9 @@ class PICController extends Controller
 
 	        		// dd($get_perimeter[0]->mpml_name);
 					//lempar ke helper firebase
-	                $token = $get_perimeter[0]->token;
+	                $token = isset($get_perimeter[0]->token)?$get_perimeter[0]->token:"";
 					if($token!=""){
-						
+
 		                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
 		                $title = $get_perimeter[0]->mcr_name;
 		                $role="PIC";
