@@ -640,14 +640,15 @@ class PICController extends Controller
 	                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token ", [$itemperimeter->tpmd_id]);
 
 	        		// dd($get_perimeter[0]->mpml_name);
-
-					// echo $token;die;
 					//lempar ke helper firebase
-	                // $token = $get_perimeter[0]->token;
-	                // $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
-	                // $title = $get_perimeter[0]->mcr_name;
-	                // $role="PIC";
-	                // $weeks = AppHelper::sendFirebase($token, $body, $title,$role);
+	                $token = $get_perimeter[0]->token;
+					if($token!=""){
+						
+		                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
+		                $title = $get_perimeter[0]->mcr_name;
+		                $role="PIC";
+		                $weeks = AppHelper::sendFirebase($token, $body, $title,$role);
+					}
 	            }
             $no++;
   			}
