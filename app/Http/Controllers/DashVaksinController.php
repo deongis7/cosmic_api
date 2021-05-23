@@ -1850,7 +1850,7 @@ class DashVaksinController extends Controller
                     $query_level
                     $query_lansia
                     $query_kabupaten
-                    $query_sts_vaksin) AS jml_siap_vaksin,
+                    $query_stsvaksin) AS jml_siap_vaksin,
                     (SELECT COALESCE(SUM(v_jml_pegawai),0)
                     FROM mvt_admin_vaksin mav
                     INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
@@ -1859,7 +1859,7 @@ class DashVaksinController extends Controller
                     $query_level
                     $query_lansia
                     $query_kabupaten
-                    $query_sts_vaksin) AS jml_sudah_vaksin1,
+                    $query_stsvaksin) AS jml_sudah_vaksin1,
                     (SELECT COALESCE(SUM(v_jml_pegawai),0)
                     FROM mvt_admin_vaksin mav
                     INNER JOIN master_company mc ON mc.mc_id=mav.v_mc_id
@@ -1868,7 +1868,7 @@ class DashVaksinController extends Controller
                     $query_level
                     $query_lansia
                     $query_kabupaten
-                    $query_sts_vaksin) AS jml_sudah_vaksin2
+                    $query_stsvaksin) AS jml_sudah_vaksin2
                     FROM master_company mc1
                     WHERE mc1.mc_flag=1
                     $query_level1
