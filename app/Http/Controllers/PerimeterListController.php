@@ -221,7 +221,7 @@ class PerimeterListController extends Controller
 
             $perimeter = new Perimeter;
              //test pindah ke master
-            $perimeter->setConnection('pgsql2');
+            $perimeter->setConnection('pgsql3');
             $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
                 'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                 'master_perimeter_kategori.mpmk_name',
@@ -1867,7 +1867,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
             $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
 
             $perimeter = new Perimeter;
-            $perimeter->setConnection('pgsql2');
+            $perimeter->setConnection('pgsql3');
             $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
                 'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                 'master_perimeter_kategori.mpmk_name',

@@ -47,7 +47,7 @@ class DashboardController extends Controller
 	public function getCosmicIndexAll(){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_cosmicindex_all", 0 * 60, function() {
 	        $data = array();
-	        $cosmicindex_all = DB::connection('pgsql2')->select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
+	        $cosmicindex_all = DB::connection('pgsql3')->select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
 
 	        foreach($cosmicindex_all as $cia){
 	            $data[] = array(
@@ -102,7 +102,7 @@ class DashboardController extends Controller
                 $string .= " WHERE LOWER(TRIM(v_judul)) LIKE '%".strtolower(trim($search))."%' ";
             }
 
-            $jmltotal=(count(DB::connection('pgsql2')->select($string)));
+            $jmltotal=(count(DB::connection('pgsql3')->select($string)));
             if(isset($request->column_sort)) {
                 if(isset($request->p_sort)) {
                     $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
@@ -172,7 +172,7 @@ class DashboardController extends Controller
             if(isset($search)) {
                 $string .= " WHERE lower(TRIM(v_nama_perusahaan)) like '%".strtolower(trim($search))."%' ";
             }
-            $jmltotal=(count(DB::connection('pgsql2')->select($string)));
+            $jmltotal=(count(DB::connection('pgsql3')->select($string)));
 
             if(isset($request->column_sort)) {
                 if(isset($request->p_sort)) {
@@ -201,7 +201,7 @@ class DashboardController extends Controller
                 }
             }
 
-            $perimeter_byperusahaan_all = DB::connection('pgsql2')->select($string);
+            $perimeter_byperusahaan_all = DB::connection('pgsql3')->select($string);
 
   	        foreach($perimeter_byperusahaan_all as $pka){
   	            $data[] = array(
@@ -350,7 +350,7 @@ class DashboardController extends Controller
                     $string = $string . " offset " .$offset;
                 }
             }
-            $perimeter_byperusahaan_all =  DB::connection('pgsql2')->select($string);
+            $perimeter_byperusahaan_all =  DB::connection('pgsql3')->select($string);
 
             foreach($perimeter_byperusahaan_all as $pka){
                 $data[] = array(
@@ -391,7 +391,7 @@ class DashboardController extends Controller
             if(isset($search)) {
                 $string = $string . " where lower(TRIM(v_judul)) like '%".strtolower(trim($search))."%' ";
             }
-            $jmltotal=(count( DB::connection('pgsql2')->select($string)));
+            $jmltotal=(count( DB::connection('pgsql3')->select($string)));
             if(isset($limit)) {
                 $string = $string. " limit ".$limit;
                 $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
@@ -418,7 +418,7 @@ class DashboardController extends Controller
 	public function getPerimeter_bykategoriperusahaan($name){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$name, 15 * 60, function()use($name){
 	        $data = array();
-	        $perimeter_bykategori_all =  DB::connection('pgsql2')->select("SELECT * FROM dashboard_perimeterbyperusahaan($name)");
+	        $perimeter_bykategori_all =  DB::connection('pgsql3')->select("SELECT * FROM dashboard_perimeterbyperusahaan($name)");
 
 	        foreach($perimeter_bykategori_all as $pka){
 	            $data[] = array(
@@ -437,7 +437,7 @@ class DashboardController extends Controller
 	public function getPerimeter_bykategoriperusahaanProv($id){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$id, 15 * 60, function()use($id){
 	        $data = array();
-	        $perimeter_bykategori_all = DB::connection('pgsql2')->select("SELECT * FROM dashboard_perimeterbyperusahaanprov($id)");
+	        $perimeter_bykategori_all = DB::connection('pgsql3')->select("SELECT * FROM dashboard_perimeterbyperusahaanprov($id)");
 
 	        foreach($perimeter_bykategori_all as $pka){
 	            $data[] = array(
@@ -508,7 +508,7 @@ class DashboardController extends Controller
           } else {
               $dashboard_string = "SELECT * FROM dashboard_head_semua()";
           }
-          $dashboard_head =  DB::connection('pgsql2')->select($dashboard_string);
+          $dashboard_head =  DB::connection('pgsql3')->select($dashboard_string);
 
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
@@ -628,7 +628,7 @@ class DashboardController extends Controller
 	public function getMonitoring_ByMcidWeek($id, $tgl){
 	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_getmonitoring_bymcidweek_".$id."_".$tgl, 15 * 60, function()use($id, $tgl) {
 	        $data = array();
-	        $dashboard_head = DB::connection('pgsql2')->select("SELECT * FROM pemenuhan_monitoring_bymcidweek('$id','$tgl')");
+	        $dashboard_head = DB::connection('pgsql3')->select("SELECT * FROM pemenuhan_monitoring_bymcidweek('$id','$tgl')");
 
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
@@ -643,7 +643,7 @@ class DashboardController extends Controller
 	public function getListMonitoring_ByMcidWeek($id, $tgl){
 	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_getlistmonitoring_bymcidweek_".$id."_".$tgl, 15 * 60, function()use($id, $tgl) {
 	        $data = array();
-	        $dashboard_head =  DB::connection('pgsql2')->select("SELECT a.v_mpm_name, a.v_mpml_name, a.v_mpmk_name,
+	        $dashboard_head =  DB::connection('pgsql3')->select("SELECT a.v_mpm_name, a.v_mpml_name, a.v_mpmk_name,
                     a.v_pic, a.v_fo, a.v_cek, b.persen_det
                     FROM week_historymonitoring_level('$id','$tgl') a
                     INNER JOIN week_aktivitas_cnt_bymcid_weekdet_pic('$id','$tgl') b
@@ -668,7 +668,7 @@ class DashboardController extends Controller
 	public function getDashboardHeadBUMN($id){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$id, 0 * 60, function()use($id) {
 	        $data = array();
-	        $dashboard_head =  DB::connection('pgsql2')->select("SELECT * FROM dashboardbumn_head('$id')");
+	        $dashboard_head =  DB::connection('pgsql3')->select("SELECT * FROM dashboardbumn_head('$id')");
 
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
@@ -962,7 +962,7 @@ class DashboardController extends Controller
                 }
                 $sql =$sql.$cc_string;
 
-                $result =  DB::connection('pgsql2')->select($sql);
+                $result =  DB::connection('pgsql3')->select($sql);
                 foreach ($result as $value) {
                     $data[] = array(
                         "week" =>  $week,
@@ -1850,8 +1850,8 @@ class DashboardController extends Controller
               );
           }
           // dd($data2[0]['v_jml']);
-          $sertifikasi = DB::connection('pgsql2')->select("SELECT * FROM getcardsertifikasi()");
-
+          $sertifikasi = DB::connection('pgsql2')->select("SELECT * FROM getcardproduk()");
+          $total = 0;
           foreach($sertifikasi as $row => $cia){
             // echo $data[$row]['v_jml'];
               // if(isset($data[$row]['v_jml'])){
@@ -1860,11 +1860,16 @@ class DashboardController extends Controller
                   "v_judul" => $cia->v_judul,
                   "v_jml" => $cia->v_jml + $data2[$row]['v_jml']
               );
+
+              $total=$total+$cia->v_jml + $data2[$row]['v_jml'];
               // }
           }
 
-          return $data;
+          return [
+              "data"=>$data,
+              // "total"=>$total
+          ];
       });
-        return response()->json(['status' => 200,'data' => $datacache]);
+        return response()->json(['status' => 200,'data' => $datacache['data']/*, 'total'=>$datacache['total']*/]);
   }
 }

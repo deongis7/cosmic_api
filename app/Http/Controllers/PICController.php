@@ -214,7 +214,7 @@ class PICController extends Controller
 			if ($role_id == 3 || $role_id == 4 ){
         $perimeter = new Perimeter;
         //test pindah ke master
-        $perimeter->setConnection('pgsql2');
+        $perimeter->setConnection('pgsql3');
 				$perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket','master_perimeter_kategori.mpmk_name','userpic.username as nik_pic','userpic.first_name as pic','userfo.username as nik_fo','userfo.first_name as fo','master_provinsi.mpro_name', 'master_kabupaten.mkab_name')
 							->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 							->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
@@ -237,7 +237,7 @@ class PICController extends Controller
 
 				foreach($perimeter as $itemperimeter){
           $cluster = new TblPerimeterDetail;
-          $cluster->setConnection('pgsql2');
+          $cluster->setConnection('pgsql3');
 					$cluster = $cluster->where('tpmd_mpml_id',$itemperimeter->mpml_id)->where('tpmd_cek',true)->count();
 
 					$status = $this->getStatusMonitoring($itemperimeter->mpml_id,$role_id,$cluster);
@@ -570,7 +570,7 @@ class PICController extends Controller
 	try
             {
     //$datacache =Cache::remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 3 * 60, function()use($id,$nik) {
-	$datacache = Cache::tags(['cluster'.$nik])->remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 10*60, function () use($id,$nik){
+	$datacache = Cache::tags(['cluster'.$nik])->remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by2_". $id."_".$nik, 10*60, function () use($id,$nik){
 
   		$user = User::where('username',$nik)->first();
       $total_monitoring = 0;
@@ -581,7 +581,7 @@ class PICController extends Controller
   			$role_id = $user->roles()->first()->id;
 
 
-  			$perimeter = DB::connection('pgsql2')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo ,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
+  			$perimeter = DB::connection('pgsql3')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo ,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
             case when tsp.tbsp_status = 2 then true else false end as status_pic,
             case when tsp.tbsp_status = 1 then true when tsp.tbsp_status = 2 then true else false end as status_fo,
             tsp.updated_at as last_update
@@ -630,7 +630,7 @@ class PICController extends Controller
 	            if($itemperimeter->status_konfirmasi==1){
 	            	//Lempar ke firebase
 	  				//get data perimeter
-					$get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token from transaksi_aktifitas ta
+					$get_perimeter = DB::connection('pgsql3')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token from transaksi_aktifitas ta
 	                join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 	                join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 	                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
@@ -640,14 +640,15 @@ class PICController extends Controller
 	                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token ", [$itemperimeter->tpmd_id]);
 
 	        		// dd($get_perimeter[0]->mpml_name);
-
-					// echo $token;die;
 					//lempar ke helper firebase
-	               /* $token = $get_perimeter[0]->token;
-	                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
-	                $title = $get_perimeter[0]->mcr_name;
-	                $role="PIC";
-	                $weeks = AppHelper::sendFirebase($token, $body, $title,$role);*/
+	                $token = isset($get_perimeter[0]->token)?$get_perimeter[0]->token:"";
+					if($token!=""){
+
+		                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
+		                $title = $get_perimeter[0]->mcr_name;
+		                $role="PIC";
+		                $weeks = AppHelper::sendFirebase($token, $body, $title,$role);
+					}
 	            }
             $no++;
   			}

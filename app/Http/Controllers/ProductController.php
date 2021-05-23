@@ -47,13 +47,13 @@ class ProductController extends Controller
 
   //Get Status Monitoring Perimeter Level
     public function getListRiwayatProduk(Request $request){
-      $str = "_daftar_riwayat_produk_2";
+      $str = "_daftar_riwayat_produk_";
       $search = null;
       $mc_id = null;
-       /*if(isset($request->search)){
+       if(isset($request->search)){
             $str = $str.'_searh_'. str_replace(' ','_',$request->search);
             $search=$request->search;
-       }*/
+       }
 
        if(isset($request->mc_id)){
             $str = $str.'_mc_id_'. str_replace(' ','_',$request->mc_id);
@@ -68,27 +68,51 @@ class ProductController extends Controller
         $enddate = $weeks['endweek'];
         $lastweek  =Carbon::parse($startdate)->subWeeks(1)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(1)->format('Y-m-d');
         $twoweek  =Carbon::parse($startdate)->subWeeks(2)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(2)->format('Y-m-d');
-
-        $pengajuan = DB::connection('pgsql2')->select( "select a.* from
-        (
-          (select 
-          tps.tbps_id id, 'Sertifikasi CHSE' layanan, master_company.mc_id, mc_name, tps.tbps_date_insert date_insert, tps.tbps_status status, '2' jenis
-              from master_company 
-              left join master_provinsi on master_provinsi.mpro_id = master_company.mc_prov_id
-              left join app_users on master_company.mc_user_update_status = app_users.id
-          join table_pengajuan_sertifikasi tps on master_company.mc_id = tps.tbps_mc_id 
-          where master_company.mc_id='".$mc_id."'
-          order by tbps_id desc limit 5 offset 0)
-          union
-          (
-          select tps.tbpa_id id, 'Atestasi SIBV' layanan, mc_id, mc_name, tbpa_date_insert, tbpa_status, '1' jenis
-                          from master_company 
-                      join table_pengajuan_atestasi tps on master_company.mc_id = tps.tbpa_mc_id 
-                      where mc_id='".$mc_id."'
-                  order by tbpa_id desc
-                      limit 5 offset 0)
-          ) as a"
-        );
+        if($search==""){
+            $pengajuan = DB::connection('pgsql2')->select( "select a.* from
+            (
+              (select 
+              tps.tbps_id id, 'Sertifikasi CHSE' layanan, master_company.mc_id, mc_name, tps.tbps_date_insert date_insert, tps.tbps_status status, '2' jenis
+                  from master_company 
+                  left join master_provinsi on master_provinsi.mpro_id = master_company.mc_prov_id
+                  left join app_users on master_company.mc_user_update_status = app_users.id
+              join table_pengajuan_sertifikasi tps on master_company.mc_id = tps.tbps_mc_id 
+              where master_company.mc_id='".$mc_id."'
+              order by tbps_id desc limit 5 offset 0)
+              union
+              (
+              select tps.tbpa_id id, 'Atestasi SIBV' layanan, mc_id, mc_name, tbpa_date_insert, tbpa_status, '1' jenis
+                              from master_company 
+                          join table_pengajuan_atestasi tps on master_company.mc_id = tps.tbpa_mc_id 
+                          where mc_id='".$mc_id."'
+                      order by tbpa_id desc
+                          limit 5 offset 0)
+              ) as a"
+            );
+        }
+        else
+        {
+          $pengajuan = DB::connection('pgsql2')->select( "select a.* from
+            (
+              (select 
+              tps.tbps_id id, 'Sertifikasi CHSE' layanan, master_company.mc_id, mc_name, tps.tbps_date_insert date_insert, tps.tbps_status status, '2' jenis
+                  from master_company 
+                  left join master_provinsi on master_provinsi.mpro_id = master_company.mc_prov_id
+                  left join app_users on master_company.mc_user_update_status = app_users.id
+              join table_pengajuan_sertifikasi tps on master_company.mc_id = tps.tbps_mc_id 
+              where master_company.mc_id='".$mc_id."'
+              order by tbps_id desc limit 10 offset 0)
+              union
+              (
+              select tps.tbpa_id id, 'Atestasi SIBV' layanan, mc_id, mc_name, tbpa_date_insert, tbpa_status, '1' jenis
+                              from master_company 
+                          join table_pengajuan_atestasi tps on master_company.mc_id = tps.tbpa_mc_id 
+                          where mc_id='".$mc_id."'
+                      order by tbpa_id desc
+                          limit 10 offset 0)
+              ) as a where jenis='$search'"
+            );
+        }    
 
             foreach ($pengajuan as $field) {
               if($field->status=="1"){
