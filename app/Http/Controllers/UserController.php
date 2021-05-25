@@ -324,7 +324,7 @@ class UserController extends Controller
           'kd_perusahaan' => 'required',
       ]);
       $user= new User();
-      $user->setConnection('pgsql3');
+      $user->setConnection('pgsql');
       $user = $user->whereRaw("trim(lower(username))='". trim(strtolower($request->username))."'")->first();
 
       if($user != null){
