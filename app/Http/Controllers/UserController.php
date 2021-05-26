@@ -548,11 +548,13 @@ class UserController extends Controller
                             //dd($get_perimeter[0]->mpml_name);
                         
                             //lempar ke helper firebase
-                            $token = $get_perimeter[0]->token;
-                            $body = $get_perimeter[0]->mpml_name."<br /> Field Officer : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_me_nik;
-                            $title = $get_perimeter[0]->mcr_name;
-                            $role="FO";
-                            $weeks = AppHelper::sendFirebase($token, $body, $title, $role);
+                            $token = isset($get_perimeter[0]->token)?$get_perimeter[0]->token:"";
+                            if($token!=""){
+                                $body = $get_perimeter[0]->mpml_name."<br /> Field Officer : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_me_nik;
+                                $title = $get_perimeter[0]->mcr_name;
+                                $role="FO";
+                                $weeks = AppHelper::sendFirebase($token, $body, $title, $role);
+                            }
                         }
                         return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
                     } else {

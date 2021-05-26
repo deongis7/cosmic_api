@@ -258,6 +258,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashvaksin/dashvaksin_lokasi2', 'DashVaksinController@getDashVaksinLokasi2');
 	$router->get('/dashvaksin/dashvaksin_lokasi3', 'DashVaksinController@getDashVaksinLokasi3');
 	$router->get('/dashvaksin/dashvaksin_kabmc', 'DashVaksinController@getDashVaksinKabPerusahaanWeb');
+	$router->get('/dashvaksin/dashvaksin_provmc', 'DashVaksinController@getDashVaksinProvPerusahaanWeb');
 
 
 	$router->get('/dashvaksin/download/{kd_perusahaan}', 'DashboardController@getDownloadVaksinbyCompany');
@@ -297,7 +298,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
   	$router->post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
   	$router->post('/product/add_pengajuan_layanan/{id_produk}', 'ProductController@addPengajuanLayanan');
   	$router->post('/product/add_pelaporan_mandiri/{id_produk}', 'ProductController@addPelaporanMandiri');
-  	
+
   	$router->get('/product/daftar_riwayat', 'ProductController@getListRiwayatProduk');
   	$router->get('/product/detail_produk', 'ProductController@getPengajuanById');
 

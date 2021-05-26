@@ -1118,7 +1118,7 @@ class DashboardController extends Controller
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
             $weeksday =   DB::connection('pgsql2')->select("SELECT * , CONCAT(v_awal,' s/d ', v_akhir) tgl
-                  FROM list_aktivitas_week()
+                  FROM list_aktivitas_weeknew_open()
                   ORDER BY v_rownum DESC");
 
               $company_id = $mc_id;
@@ -1154,6 +1154,7 @@ class DashboardController extends Controller
               $sql= $sql." ORDER BY rci_week asc ";
               $rpi =  DB::connection('pgsql2')->select($sql,$param);
 
+              //var_dump($sql);die;
               foreach($rpi as $itemrpi){
                 foreach ($weeksday as $itemweeksday){
                   if($itemweeksday->v_week == $itemrpi->rci_week){
@@ -1236,7 +1237,7 @@ class DashboardController extends Controller
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
             $weeksday =   DB::connection('pgsql2')->select("SELECT * , CONCAT(v_awal,' s/d ', v_akhir) tgl
-                  FROM list_aktivitas_week()
+                  FROM list_aktivitas_weeknew_open()
                   ORDER BY v_rownum DESC");
 
               $company_id = $mc_id;
