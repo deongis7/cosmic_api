@@ -12,6 +12,7 @@ use App\PerimeterDetail;
 use App\PerimeterKategori;
 use App\User;
 use App\UserGroup;
+use App\TrnSurveiKepuasan;
 use App\Helpers\AppHelper;
 use App\TblPerimeterDetail;
 use App\TblPerimeterClosed;
@@ -768,6 +769,11 @@ class PerimeterListController extends Controller
 
         $nik = $request->nik;
        $data = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+       $survei = TrnSurveiKepuasan::whereRaw("LOWER(TRIM(tsk_username)) ='".strtolower(trim($nik))."'" )->first();
+       $is_survey = ($survei == null ? 'false':'true');
+
+       $data['is_survei'] = $is_survey;
+      //dd($data);
         return response()->json(['status' => 200 ,'data' => $data]);
 
     }

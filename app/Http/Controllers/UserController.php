@@ -63,7 +63,9 @@ class UserController extends Controller
 		$user = User::select('app_users.id','app_users.username','app_users.first_name',
 		    'master_company.mc_id','master_company.mc_name','app_groups.name',
 		    'app_users.no_hp','app_users.divisi','app_users.email','app_users.foto','master_company.mc_foto','master_company.mc_flag')
+        ->selectRaw(" (case when transaksi_survei_kepuasan.tsk_username is null then 'false' else 'true' end) as is_survei")
 					->leftjoin('master_company','master_company.mc_id','app_users.mc_id')
+					->leftjoin('transaksi_survei_kepuasan','transaksi_survei_kepuasan.tsk_username','app_users.username')
 					->join('app_users_groups','app_users_groups.user_id','app_users.id')
 					->join('app_groups','app_users_groups.group_id','app_groups.id')
 					->where('app_users.id',$id)
@@ -83,6 +85,7 @@ class UserController extends Controller
 			        "foto" => $Path.$user->foto,
 			        "foto_bumn" => $PathCompany.$user->mc_foto,
               "group_company" => $user->mc_flag,
+              "is_survei" => $user->is_survei,
 					);
 			return response()->json(['status' => 200,'data' => $data]);
 		} else {
@@ -523,7 +526,7 @@ class UserController extends Controller
             $id_perimeter_cluster = $request->id_perimeter_cluster;
             $id_konfig_cluster_aktifitas = $request->id_konfig_cluster_aktifitas;
             $weeks = AppHelper::Weeks();
-      
+
             $trn_aktifitas= TrnAktifitas::where('ta_tpmd_id',$id_perimeter_cluster)
                                         ->where('ta_kcar_id',$id_konfig_cluster_aktifitas)
                                         ->where('ta_week',$weeks['weeks'])->first();
@@ -532,7 +535,7 @@ class UserController extends Controller
                     if($request->status==2){
                         $trn_aktifitas->ta_ket_tolak = $request->keterangan;
                     }
-        
+
                     if($trn_aktifitas->save()) {
                         //pushnotif utk yg reject - status=2
                         if($request->status==2){
@@ -546,7 +549,7 @@ class UserController extends Controller
                             where tpd.tpmd_id = ?
                             group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token ", [$id_perimeter_cluster]);
                             //dd($get_perimeter[0]->mpml_name);
-                        
+
                             //lempar ke helper firebase
                             $token = isset($get_perimeter[0]->token)?$get_perimeter[0]->token:"";
                             if($token!=""){
