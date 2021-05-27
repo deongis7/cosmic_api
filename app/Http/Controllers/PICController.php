@@ -581,7 +581,7 @@ class PICController extends Controller
   			$role_id = $user->roles()->first()->id;
 
 
-  			$perimeter = DB::connection('pgsql3')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo ,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
+  			$perimeter = DB::connection('pgsql2')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo ,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
             case when tsp.tbsp_status = 2 then true else false end as status_pic,
             case when tsp.tbsp_status = 1 then true when tsp.tbsp_status = 2 then true else false end as status_fo,
             tsp.updated_at as last_update
@@ -627,7 +627,7 @@ class PICController extends Controller
                     "sudah_dimonitor"=> $jml_monitoring,
                     "belum_dimonitor"=> $total_monitoring - $jml_monitoring );
 
-	            if($itemperimeter->status_konfirmasi==1){
+	            if($itemperimeter->status_konfirmasi=="1"){
 	            	//Lempar ke firebase
 	  				//get data perimeter
 					$get_perimeter = DB::connection('pgsql3')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token from transaksi_aktifitas ta
@@ -636,14 +636,14 @@ class PICController extends Controller
 	                join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 	                join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
 	                join app_users au on au.username = mpl.mpml_pic_nik
-	                where tpd.tpmd_id = ? and ta.ta_status = 1
+	                where tpd.tpmd_id = ? /*and ta.ta_status = 1*/
 	                group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_pic_nik, au.first_name, au.token ", [$itemperimeter->tpmd_id]);
 
 	        		// dd($get_perimeter[0]->mpml_name);
 					//lempar ke helper firebase
 	                $token = isset($get_perimeter[0]->token)?$get_perimeter[0]->token:"";
+					// echo "test : ".$token;
 					if($token!=""){
-
 		                $body = $get_perimeter[0]->mpml_name."<br /> PIC : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_pic_nik;
 		                $title = $get_perimeter[0]->mcr_name;
 		                $role="PIC";
