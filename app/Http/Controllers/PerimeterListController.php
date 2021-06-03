@@ -1166,7 +1166,8 @@ class PerimeterListController extends Controller
     public function updatePerimeterListGmap($id_perimeter,Request $request){
         $this->validate($request, [
             'gmap' =>array('required',
-                          'regex:/^https?\:\/\/(www\.)?((google\.(com|fr|de)\/maps)|(maps\.app\.goo\.gl))\b/'
+                        //  'regex:/^https?\:\/\/(www\.)?((google\.(com|fr|de)\/maps)|(maps\.app\.goo\.gl))\b/'
+                          'regex:/(www\.)?(google|goo.gl)?(com)?\/maps\b/'
                       )
         ]);
 
