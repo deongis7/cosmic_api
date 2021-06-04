@@ -12,6 +12,7 @@ use App\PerimeterDetail;
 use App\PerimeterKategori;
 use App\User;
 use App\UserGroup;
+use App\TrnSurveiKepuasan;
 use App\Helpers\AppHelper;
 use App\TblPerimeterDetail;
 use App\TblPerimeterClosed;
@@ -602,10 +603,15 @@ class PerimeterListController extends Controller
             $data = array();
             $region = new Region;
             $region->setConnection('pgsql2');
+            $region = $region->select( 'master_region.mr_id', 'master_region.mr_name');
+            $region = $region->rightJoin( 'master_perimeter', 'master_perimeter.mpm_mr_id', 'master_region.mr_id');
+            $region = $region->rightJoin( 'master_perimeter_level', 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_mpm_id');
             $region = $region->where( 'mr_mc_id', '=', $kd_perusahaan);
             if(isset($search)) {
                 $region = $region->where(DB::raw("lower(TRIM(mr_name))"),'like','%'.strtolower(trim($search)).'%');
             }
+
+            $region = $region->groupBy('mr_id','mr_name');
             $region = $region->orderBy('mr_name','asc');
             $jmltotal=($region->count());
             if(isset($limit)) {
@@ -768,6 +774,11 @@ class PerimeterListController extends Controller
 
         $nik = $request->nik;
        $data = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+       $survei = TrnSurveiKepuasan::whereRaw("LOWER(TRIM(tsk_username)) ='".strtolower(trim($nik))."'" )->first();
+       $is_survey = ($survei == null ? 'false':'true');
+
+       $data['is_survei'] = $is_survey;
+      //dd($data);
         return response()->json(['status' => 200 ,'data' => $data]);
 
     }
@@ -1160,7 +1171,8 @@ class PerimeterListController extends Controller
     public function updatePerimeterListGmap($id_perimeter,Request $request){
         $this->validate($request, [
             'gmap' =>array('required',
-                          'regex:/^https?\:\/\/(www\.)?((google\.(com|fr|de)\/maps)|(maps\.app\.goo\.gl))\b/'
+                        //  'regex:/^https?\:\/\/(www\.)?((google\.(com|fr|de)\/maps)|(maps\.app\.goo\.gl))\b/'
+                          'regex:/(www\.)?(google|goo.gl)?(com)?\/maps\b/'
                       )
         ]);
 

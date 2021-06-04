@@ -913,13 +913,15 @@ public function addFilePerimeterLevel(Request $request){
 		$startdate = $weeks['startweek'];
 		$enddate = $weeks['endweek'];
 
-		$notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak from transaksi_aktifitas ta
+		$notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, tpc.tbpc_status,tpc.tbpc_alasan,au.first_name as pic  from transaksi_aktifitas ta
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
 		join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
 		join master_car mcar on mcar.mcar_id = kcar_mcar_id
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id
+    left join table_perimeter_closed tpc on tpc.tbpc_mpml_id = mpl.mpml_id
+    left join app_users au on au.username = mpl.mpml_pic_nik
 		where ta.ta_status = 2 and ta.ta_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
 		order by ta_date_update asc", [$nik,$startdate,$enddate]);
 
@@ -937,7 +939,10 @@ public function addFilePerimeterLevel(Request $request){
 					"id_aktifitas" => $itemnotif->ta_id,
 					"status" => $itemnotif->ta_status,
 					"ket_tolak" => $itemnotif->ta_ket_tolak,
-					"file" => $this->getFileTolak($itemnotif->ta_id,$itemnotif->mpm_mc_id)
+					"file" => $this->getFileTolak($itemnotif->ta_id,$itemnotif->mpm_mc_id),
+          "pic" => $itemnotif->pic,
+					"status_closed" => ($itemnotif->tbpc_status == '2' ? 'true':'false'),
+					"ket_closed" => ($itemnotif->tbpc_status == '2' ? $itemnotif->tbpc_alasan:'')
 				);
 		}
 		return response()->json(['status' => 200,'data' => $data]);

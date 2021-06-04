@@ -330,6 +330,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
 
+    //Survei Kepuasan
+    Route::post('/report/survei_kepuasan', 'ReportController@postSurveiKepuasan');
+
     Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
     Route::post('/user/sendfirebase/{id}', 'UserController@sendFirebase');
 
