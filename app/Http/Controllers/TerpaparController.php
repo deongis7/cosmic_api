@@ -83,7 +83,7 @@ class TerpaparController extends Controller {
         return response()->json(['status' => 200,
             'data' => $data]);
 	}
-	
+
 	public function getClusterDataHomeAll($id) {
 // 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_terpapar_bymcid_".$id, 5 * 60, function()use($id){
 	    $terpapar = DB::connection('pgsql3')->select("SELECT * FROM cluster_dashboard_kasus('$id')");
@@ -182,11 +182,11 @@ class TerpaparController extends Controller {
 	        'kabupaten' => 'required',
 	        'tindakan' => 'required',
 	    ];
-	    
+
 // 	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
 // 	        $datareq['tanggal'] = 'required';
 // 	    }
-	    
+
 	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
 	        if($request->jenis_kasus==3){
 	            $datareq['tanggal_positif'] = 'required';
@@ -200,13 +200,13 @@ class TerpaparController extends Controller {
 
         $tgl = strtotime($request->tanggal);
         $tanggal = date('Y-m-d',$tgl);
-       
+
         if(isset($request->tanggal_positif)){
             $tgl_positif = strtotime($request->tanggal_positif);
             $tanggal_positif = date('Y-m-d',$tgl_positif);
             $data->tk_date_positif = $tanggal_positif;
         }
-        
+
         if($request->jenis_kasus==5){
             $data->tk_date_positif = $tanggal_positif;
             $data->tk_date_meninggal = $tanggal;
@@ -220,7 +220,7 @@ class TerpaparController extends Controller {
             $data->tk_date_positif = $tanggal;
             $data->tk_date = $tanggal;
         }
-        
+
         if(isset($request->tanggal_positif)){
            $data->tk_date_positif = $tanggal_positif;
         }
@@ -234,12 +234,12 @@ class TerpaparController extends Controller {
 	    $data->tk_mkab_id = $request->kabupaten;
 	    $data->tk_tempat_perawatan = $request->tempat_perawatan;
 	    $data->tk_tindakan = $request->tindakan;
-	    
+
 	    $data->tk_nik = $request->nik;
 	    $data->tk_mjk_id = $request->jns_kelamin;
 	    $data->tk_mpm_id = $request->perimeter;
 	    $data->tk_direksi = $request->direksi;
-	    
+
 	    $data->tk_user_insert = Auth::guard('api')->user()->id;
 	    $data->tk_date_insert = date('d-m-Y H:i:s');
 	    $data->save();
@@ -253,7 +253,7 @@ class TerpaparController extends Controller {
 
 	public function UpdateKasus(Request $request, $id){
 	    $data = TrnKasus::where('tk_id',$id)->first();
-	    
+
 	    $datareq = [
 	        'kd_perusahaan' => 'required',
 	        'nama_pasien' => 'required',
@@ -263,11 +263,11 @@ class TerpaparController extends Controller {
 	        'kabupaten' => 'required',
 	        'tindakan' => 'required',
 	    ];
-	    
+
 // 	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
 // 	        $datareq['tanggal'] = 'required';
 // 	    }
-	    
+
 	    if($request->jenis_kasus > 2 && $request->jenis_kasus < 6){
 	        if($request->jenis_kasus==3){
 	            $datareq['tanggal_positif'] = 'required';
@@ -276,18 +276,18 @@ class TerpaparController extends Controller {
 	            $datareq['tanggal_positif'] = 'required';
 	        }
 	    }
-	    
+
 	    $this->validate($request, $datareq);
-	    
+
 	    $tgl = strtotime($request->tanggal);
 	    $tanggal = date('Y-m-d',$tgl);
-	    
+
 	    if(isset($request->tanggal_positif)){
 	        $tgl_positif = strtotime($request->tanggal_positif);
 	        $tanggal_positif = date('Y-m-d',$tgl_positif);
 	        $data->tk_date_positif = $tanggal_positif;
 	    }
-	    
+
 	    if($request->jenis_kasus==5){
 	        $data->tk_date_positif = $tanggal_positif;
 	        $data->tk_date_meninggal = $tanggal;
@@ -300,7 +300,7 @@ class TerpaparController extends Controller {
 	        $data->tk_date_positif = $tanggal_positif;
 	        $data->tk_date = $tanggal;
 	    }
-	    
+
 	    $data->tk_mc_id = $request->kd_perusahaan;
 	    $data->tk_nama = $request->nama_pasien;
 	    $data->tk_msk_id = $request->jenis_kasus;
@@ -309,12 +309,12 @@ class TerpaparController extends Controller {
 	    $data->tk_mkab_id = $request->kabupaten;
 	    $data->tk_tempat_perawatan = $request->tempat_perawatan;
 	    $data->tk_tindakan = $request->tindakan;
-	    
+
 	    $data->tk_nik = $request->nik;
 	    $data->tk_mjk_id = $request->jns_kelamin;
 	    $data->tk_mpm_id = $request->perimeter;
 	    $data->tk_direksi = $request->direksi;
-	    
+
 	    $data->tk_user_update = Auth::guard('api')->user()->id;
 	    $data->tk_date_update = date('d-m-Y H:i:s');
 	    $data->save();
@@ -327,8 +327,8 @@ class TerpaparController extends Controller {
 	}
 
 	public function getDataByid($id) {
-	    $terpapar = DB::connection('pgsql3')->select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_name, msk_name2,
-            msp_name, mpro_id, mpro_name, mkab_id, mkab_name, tk_tempat_perawatan, tk_tindakan,
+	    $terpapar = DB::connection('pgsql3')->select("SELECT tk_id, tk_mc_id, tk_nama, mc_name, msk_id, msk_name, msk_name2,
+            msp_id, msp_name, mpro_id, mpro_name, mkab_id, mkab_name, tk_tempat_perawatan, tk_tindakan,
             tk_date_meninggal, tk_date_sembuh, tk_date_positif,
             tk_nik, tk_mjk_id, tk_mpm_id, tk_direksi,
             mpm_name, mpm_alamat, mpmk_name
@@ -346,6 +346,8 @@ class TerpaparController extends Controller {
 	        foreach($terpapar as $tpp){
 	            $data[] = array(
 	                "id" => $tpp->tk_id,
+	                "id_jenis_kasus" => $tpp->msk_id,
+	                "id_jenis_pegawai" => $tpp->msp_id,
 	                "kd_perusahaan" => $tpp->tk_mc_id,
 	                "perusahaan" => $tpp->mc_name,
 	                "nama_pasien" => $tpp->tk_nama,
@@ -436,7 +438,7 @@ class TerpaparController extends Controller {
 	    return response()->json(['status' => 200,
 	        'data' => $data]);
 	}
-	
+
 	public function getClusterDashboardCompanybyMskid($id, $msc_id) {
 // 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparcompany_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
 	    $terpapar = DB::connection('pgsql3')->select("SELECT * FROM cluster_allkasus_company_bymskid($id,'$msc_id')");
@@ -452,7 +454,7 @@ class TerpaparController extends Controller {
 	    return response()->json(['status' => 200,
 	        'data' => $data]);
 	}
-	
+
 	public function getClusterDashboardProvinsibyMskid($id, $msc_id) {
 // 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparprovinsi_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
 	    $terpapar = DB::connection('pgsql3')->select("SELECT * FROM cluster_allkasus_provinsi_bymskid($id,'$msc_id')");
@@ -468,10 +470,10 @@ class TerpaparController extends Controller {
 	    return response()->json(['status' => 200,
 	        'data' => $data]);
 	}
-	
+
 	public function getClusterDashboardKabupatenbyMskid($id, $msc_id) {
 // 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterterpaparkabupaten_".$id.'_'.$msc_id, 5 * 60, function()use($id, $msc_id){
-	
+
 	    $terpapar = DB::connection('pgsql3')->select("SELECT * FROM cluster_allkasus_kabupaten_bymskid($id,'$msc_id')");
     	    // var_dump($terpapar);die;
     	    $data = array();
@@ -486,20 +488,20 @@ class TerpaparController extends Controller {
 	    return response()->json(['status' => 200,
 	        'data' => $data]);
 	}
-	
+
 	public function getDashboardCompanyMobilebyMskid($id, Request $request){
 	    $data = array();
 	    $limit = '';
 	    $page = '';
 	    $endpage = 1;
-	    
+
 	    $query = "SELECT * FROM allkasus_companymobile_bymskid($id)
                 WHERE 1=1 ";
 
 	    if(isset($request->search)) {
 	        $query .= " AND LOWER(TRIM(x_mc_name)) LIKE LOWER(TRIM('%$request->search%')) ";
         }
-	    
+
 	    $terpaparall = DB::connection('pgsql3')->select($query);
 	    $jmltotal=(count($terpaparall));
 
@@ -513,19 +515,19 @@ class TerpaparController extends Controller {
 	        $sql_sort = ' ORDER BY x_jml DESC ';
 	    }
 	    $query .= $sql_sort;
-	    
+
 	    if(isset($request->limit)) {
 	        $limit = $request->limit;
 	        $sql_limit = ' LIMIT '.$request->limit;
 	        $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-	        
+
 	        $query .= $sql_limit;
-	        
+
 	        if (isset($request->page)) {
 	            $page = $request->page;
 	            $offset = ((int)$page-1) * (int)$limit;
 	            $sql_offset= ' OFFSET '.$offset;
-	            
+
 	            $query .= $sql_offset;
 	        }
 	    }
@@ -544,7 +546,7 @@ class TerpaparController extends Controller {
 	        }else{
 	            $file = '/404/img404.jpg';
 	        }
-	        
+
 	        $data[] = array(
 	            "v_mc_id" => $tpp->x_mc_id,
 	            "v_mc_name" => $tpp->x_mc_name,
@@ -553,17 +555,17 @@ class TerpaparController extends Controller {
 	            "v_last_update" => $tpp->x_date
 	        );
 	    }
-	    
+
 	    return response()->json(['status' => 200, 'page_end'=>$endpage, 'data' => $data]);
 	}
-	
-	
+
+
 	public function getTerpaparRaw(Request $request) {
 	    $limit = null;
 	    $page = null;
 	    $search = null;
 	    $endpage = 1;
-	    
+
 	    $terpapar = new TrnKasus();
 	    $terpapar->setConnection('pgsql3');
 	    $terpapar = $terpapar->select('mc_id', 'mc_name', 'tk_id',
@@ -582,7 +584,7 @@ class TerpaparController extends Controller {
         ->leftjoin('master_perimeter AS mpm','mpm.mpm_id','tk_mpm_id')
         ->leftjoin('master_perimeter_kategori AS mpmk','mpmk.mpmk_id','mpm.mpm_mpmk_id')
         ;
-        
+
         if(isset($request->search)) {
             $search = $request->search;
             $terpapar = $terpapar->where(DB::raw("lower(TRIM(tk_nama))"),'like','%'.strtolower(trim($search)).'%');
@@ -593,7 +595,7 @@ class TerpaparController extends Controller {
             $limit = $request->limit;
             $terpapar = $terpapar->limit($limit);
             $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-            
+
             if (isset($request->page)) {
                 $page = $request->page;
                 $offset = ((int)$page -1) * (int)$limit;
@@ -602,7 +604,7 @@ class TerpaparController extends Controller {
         }
         $terpapar = $terpapar->get();
         $totalterpapar = $terpapar->count();
-        
+
         if (count($terpapar) > 0){
             foreach($terpapar as $tpp){
                 $data[] = array(
@@ -641,13 +643,13 @@ class TerpaparController extends Controller {
         return response()->json(['status' => 200, 'page_end'=> $endpage,
             'data' => $data]);
 	}
-	
+
 	public function getDatadetailNew($id, Request $request) {
 	    $limit = null;
 	    $page = null;
 	    $search = null;
 	    $endpage = 1;
-	    
+
 	    $terpapar = new TrnKasus();
 	    $terpapar->setConnection('pgsql3');
 	    $terpapar = $terpapar->select(
@@ -670,7 +672,7 @@ class TerpaparController extends Controller {
             $search = $request->search;
             $terpapar = $terpapar->where(DB::raw("lower(TRIM(tk_nama))"),'like','%'.strtolower(trim($search)).'%');
         }
-        
+
         if(isset($request->column_sort)) {
             if(isset($request->p_sort)) {
                 $terpapar = $terpapar->orderBy($request->column_sort, $request->p_sort);
@@ -680,13 +682,13 @@ class TerpaparController extends Controller {
         }else{
             $terpapar = $terpapar->orderBy('tk_id', 'DESC');
         }
-     
+
         $jmltotal=($terpapar->count());
         if(isset($request->limit)) {
             $limit = $request->limit;
             $terpapar = $terpapar->limit($limit);
             $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-            
+
             if (isset($request->page)) {
                 $page = $request->page;
                 $offset = ((int)$page -1) * (int)$limit;
@@ -695,7 +697,7 @@ class TerpaparController extends Controller {
         }
         $terpapar = $terpapar->get();
         $totalterpapar = $terpapar->count();
-	    
+
 	    if (count($terpapar) > 0){
 	        foreach($terpapar as $tpp){
 	            $data[] = array(
@@ -724,5 +726,5 @@ class TerpaparController extends Controller {
 	    }
 	    return response()->json(['status' => 200, 'page_end'=>$endpage, 'data' => $data]);
 	}
-	
+
 }
