@@ -1033,7 +1033,8 @@ public function addFilePerimeterLevel(Request $request){
       $cluster_ruangan->tpmd_file_tumb= $name2;
       $cluster_ruangan->save();
       //dd('*'.env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $cluster_ruangan->tpmd_mpml_id);
-      Redis::del(Redis::keys('*'.env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $cluster_ruangan->tpmd_mpml_id));
+      //Redis::del(Redis::keys('*'.env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $cluster_ruangan->tpmd_mpml_id));
+      Cache::tags(['_perimeter_in_aktifitas_by_'.$cluster_ruangan->tpmd_mpml_id])->flush();
           if($cluster_ruangan) {
               return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
           } else {
