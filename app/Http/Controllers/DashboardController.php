@@ -1706,15 +1706,49 @@ class DashboardController extends Controller
         $datacache =  Cache::remember(env('APP_ENV', 'dev')."_cosmic_index_detail_average_by_".$kd_perusahaan, 60 * 60, function()use($kd_perusahaan){
           $data = array();
           //$average = DB::connection('pgsql3')->select("SELECT * FROM month_average_cosmic_index_bymcid('".$kd_perusahaan."')");
-          $query = "Select a.rci_week,a.rci_mc_id,a.rci_mc_name,a.rci_cosmic_index,            a.rci_jml_perimeter,a.rci_avg_cosmic_index,a.rci_is_excellent,a.rank_now,b.rank_before
-          from (select rci.*, ROW_NUMBER() OVER (ORDER BY rci_avg_cosmic_index desc,rci_jml_perimeter desc)as rank_now from report_cosmic_index rci
-            join (select max(rci_week) as rci_week from report_cosmic_index)d on d.rci_week = rci.rci_week
-            order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)a
-          left join(select rci.*,ROW_NUMBER() OVER (ORDER BY rci_avg_cosmic_index desc,rci_jml_perimeter desc) as rank_before from report_cosmic_index rci
-            join (select min(rci_week) as rci_week from report_cosmic_index order by rci_week desc limit 2)c on c.rci_week = rci.rci_week
-            order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)b on b.rci_mc_id = a.rci_mc_id";
+          // $query = "Select a.rci_week,a.rci_mc_id,a.rci_mc_name,a.rci_cosmic_index,            a.rci_jml_perimeter,a.rci_avg_cosmic_index,a.rci_is_excellent,a.rank_now,b.rank_before
+          // from (select rci.*, ROW_NUMBER() OVER (ORDER BY rci_avg_cosmic_index desc,rci_jml_perimeter desc)as rank_now from report_cosmic_index rci
+          //   join (select max(rci_week) as rci_week from report_cosmic_index)d on d.rci_week = rci.rci_week
+          //   order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)a
+          // left join(select rci.*,ROW_NUMBER() OVER (ORDER BY rci_avg_cosmic_index desc,rci_jml_perimeter desc) as rank_before from report_cosmic_index rci
+          //   join (select min(rci_week) as rci_week from report_cosmic_index order by rci_week desc limit 2)c on c.rci_week = rci.rci_week
+          //   order by rci_avg_cosmic_index desc,rci_jml_perimeter desc)b on b.rci_mc_id = a.rci_mc_id";
+
+          $query="	SELECT
+            	A.v_mc_id as rci_mc_id,
+            	A.mc_name as rci_mc_name,
+            	A.v_cosmic_index as rci_cosmic_index,
+            	A.v_cnt_mpm as rci_jml_perimeter,
+            	A.v_avg_cosmic_index as rci_avg_cosmic_index,
+            	A.v_is_excellent as rci_is_excellent,
+            	A.rank_now,
+            	b.rank_before
+            FROM
+            	(
+            	SELECT
+            		rci.*, mr.v_cnt_mpm, mc.mc_name,
+            		ROW_NUMBER ( ) OVER ( ORDER BY rci.v_avg_cosmic_index DESC, mr.v_cnt_mpm DESC ) AS rank_now
+            	FROM
+            		mvt_cosmic_index_report rci
+            	JOIN mvt_rangkuman mr on mr.v_mc_id = rci.v_mc_id
+            	JOIN master_company mc on mc.mc_id = rci.v_mc_id
+            	ORDER BY
+            		rci.v_avg_cosmic_index DESC,
+            		mr.v_cnt_mpm DESC
+            	)
+            	A LEFT JOIN (
+            	SELECT
+            		rci.*,
+            		ROW_NUMBER ( ) OVER ( ORDER BY rci_avg_cosmic_index DESC, rci_jml_perimeter DESC ) AS rank_before
+            	FROM
+            		report_cosmic_index rci
+            		JOIN ( SELECT MAX ( rci_week ) AS rci_week FROM report_cosmic_index ORDER BY rci_week DESC LIMIT 1 ) C ON C.rci_week = rci.rci_week
+            	ORDER BY
+            		rci_avg_cosmic_index DESC,
+            	rci_jml_perimeter DESC
+            	) b ON b.rci_mc_id = A.v_mc_id";
           $jmltotal=(count(DB::connection('pgsql3')->select($query)));
-          $query = $query." where a.rci_mc_id = '".($kd_perusahaan)."' ";
+          $query = $query." where A.v_mc_id = '".($kd_perusahaan)."' ";
           $average = DB::connection('pgsql3')->select($query);
 
           //$dashvaksin = DB::select("SELECT * FROM vaksin_summary_bymcid('$id')");
