@@ -56,7 +56,7 @@ class PerimeterController extends Controller
       $reg->setConnection('pgsql2');
 			return count($reg->select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')
       ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
-      ->where('mr_mc_id',$id)->groupBy('mr_id')->get());
+      ->where('mr_mc_id',$id)->where('master_perimeter.mpm_lockdown',0)->groupBy('mr_id')->get());
 		});
 		//$region =count(Region::select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')->where('mr_mc_id',$id)->groupBy('mr_id')->get());
 		$user =  Cache::remember(env('APP_ENV', 'dev')."_count_userpic_by_company_id_". $id, 30 * 60, function()use($id) {
@@ -137,6 +137,7 @@ class PerimeterController extends Controller
 					->orderBy('master_region.mr_name', 'asc')
 					->orderBy('master_perimeter.mpm_name', 'asc')
 					->orderBy('master_perimeter_level.mpml_name', 'asc')
+					->where('master_perimeter.mpm_lockdown',0)
 					->get();
 
 		//});

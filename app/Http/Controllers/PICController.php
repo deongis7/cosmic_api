@@ -210,7 +210,7 @@ class PICController extends Controller
 		$dashboard = array("total_perimeter"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
 		if ($user != null){
 			$role_id = $user->roles()->first()->id;
-
+			// dd($role_id);
 			if ($role_id == 3 || $role_id == 4 ){
         $perimeter = new Perimeter;
         //test pindah ke master
@@ -229,9 +229,10 @@ class PICController extends Controller
 					$perimeter = $perimeter->where('userfo.username',$nik);
 				}
 
-				$perimeter = $perimeter->where('master_perimeter.mpm_mc_id',$user->mc_id)->orderBy('master_region.mr_name', 'asc')
+				$perimeter = $perimeter->where('master_perimeter.mpm_mc_id',$user->mc_id)->where('master_perimeter.mpm_lockdown',0)->orderBy('master_region.mr_name', 'asc')
 					->orderBy('master_perimeter.mpm_name', 'asc')
 					->orderBy('master_perimeter_level.mpml_name', 'asc')->get();
+					// dd($perimeter->toSql());
 				$totalperimeter = $perimeter->count();
 				$totalpmmonitoring = 0;
 
@@ -892,7 +893,7 @@ public function addFilePerimeterLevel(Request $request){
           ->join('master_perimeter','master_perimeter.mpm_id','master_perimeter_level.mpml_mpm_id')
           ->where('master_perimeter_level_file.mpmlf_id',$id_file)
           ->first();
-
+// dd($perimeter_level_file->toSql());
       if ($perimeter_level_file != null){
 
         $data = array(
@@ -922,7 +923,6 @@ public function addFilePerimeterLevel(Request $request){
 		join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id
 		where ta.ta_status = 2 and ta.ta_nik = ?  and (ta.ta_date >= ? and ta.ta_date <= ? )
 		order by ta_date_update asc", [$nik,$startdate,$enddate]);
-
 
 		foreach($notif as $itemnotif){
 		//dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
