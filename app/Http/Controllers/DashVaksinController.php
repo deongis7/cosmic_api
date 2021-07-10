@@ -448,22 +448,37 @@ class DashVaksinController extends Controller
 	}
 
 	public function getDashVaksinPerusahaanFilter(Request $request){
+
+
 		$limit = null;
-        $page = null;
-        $endpage = 1;
-
-        if(isset($request->limit)){
+    $page = null;
+    $endpage = 1;
+    $string = "detail_dashboard";
+    if(isset($request->limit)){
             // $str = $str.'_limit_'. $request->limit;
-            $limit=$request->limit;
-            if(isset($request->page)){
-                // $str = $str.'_page_'. $request->page;
-                $page=$request->page;
-            }
-        }
+      $limit=$request->limit;
+      $string = $string  . "_limit_" . $limit;
 
-		 $filter_perusahaan = $request->status_perusahaan;
-		 $filter_pegawai = $request->status_pegawai;
-		 $filter_name = $request->nama_perusahaan;
+      if(isset($request->page)){
+          // $str = $str.'_page_'. $request->page;
+          $page=$request->page;
+          $string = $string  . "_page_" . $page;
+        }
+    }
+
+		$filter_perusahaan = $request->status_perusahaan;
+		$filter_pegawai = $request->status_pegawai;
+		$filter_name = $request->nama_perusahaan;
+    $column_sort = $request->column_sort;
+    $p_sort = $request->p_sort;
+    if(isset($filter_perusahaan)){   $string = $string  . "_comp_" . $filter_perusahaan; }
+    if(isset($filter_pegawai)){   $string = $string  . "_peg_" . $filter_pegawai; }
+    if(isset($filter_name)){   $string = $string  . "_name_" . $filter_name; }
+    if(isset($column_sort)){   $string = $string  . "_colsort_" . $column_sort; }
+    if(isset($p_sort)){   $string = $string  . "_psort_" . $p_sort; }
+
+
+  $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 2 * 60, function() use ($limit,$page,$endpage,$column_sort,$p_sort, $filter_perusahaan,$filter_pegawai,$filter_name){
 		/*$filter_perusahaan = $sp1;
 		$filter_pegawai = $sp2;*/
 		$w1 = " AND mc_level IN (1,2,3)";
@@ -515,32 +530,33 @@ class DashVaksinController extends Controller
             // dd($jmltotal);
 
 	    //order by / sort
-	      if(isset($request->column_sort)) {
-              if(isset($request->p_sort)) {
-                  $sql_sort = ' ORDER BY '.$request->column_sort.' '.$request->p_sort;
+	      if(isset($column_sort)) {
+              if(isset($p_sort)) {
+                  $sql_sort = ' ORDER BY '.$column_sort.' '.$p_sort;
               }else{
-                  $sql_sort = ' ORDER BY '.$request->column_sort.' DESC';
+                  $sql_sort = ' ORDER BY '.$column_sort.' DESC';
               }
           }else{
               $sql_sort = ' ORDER BY mc_name';
           }
           	$string .= $sql_sort;
 
-            if(isset($request->limit)) {
-                $limit = $request->limit;
-                $sql_limit = ' LIMIT '.$request->limit;
+            if(isset($limit)) {
+
+                $sql_limit = ' LIMIT '.$limit;
                 $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
 
                 $string .= $sql_limit;
 
-                if (isset($request->page)) {
-                    $page = $request->page;
+                if (isset($page)) {
+
                     $offset = ((int)$page-1) * (int)$limit;
                     $sql_offset= ' OFFSET '.$offset;
 
                     $string .= $sql_offset;
                 }
             }
+
 	    $get_data = DB::connection('pgsql_vaksin')->select($string);
 	    foreach($get_data as $dvp){
     	        $data[] = array(
@@ -549,8 +565,10 @@ class DashVaksinController extends Controller
     	            "v_jml" => number_format($dvp->jml,0,".",",")
     	        );
     	    }
+      return $data;
+    });
 	    //});
-	    return response()->json(['status' => 200,'page_end' =>$endpage,'data' => $data]);
+	    return response()->json(['status' => 200,'page_end' =>$endpage,'data' => $datacache]);
 	}
 
 
