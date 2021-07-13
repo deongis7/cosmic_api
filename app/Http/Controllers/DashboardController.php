@@ -610,7 +610,7 @@ class DashboardController extends Controller
 	public function getWeekList(){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_week", 15 * 60, function() {
 	        $data = array();
-	        $dashboard_head =  DB::connection('pgsql2')->select("SELECT * FROM list_aktivitas_week()");
+	        $dashboard_head =  DB::connection('pgsql3')->select("SELECT * FROM list_aktivitas_week()");
 
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
@@ -702,7 +702,7 @@ class DashboardController extends Controller
 	public function getDashboardProtokolBUMN($id){
        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_".$id, 15 * 60, function()use($id) {
 	        $data = array();
-	        $dashboard_head =  DB::connection('pgsql2')->select("SELECT v_mpt_id, v_mpt_name,
+	        $dashboard_head =  DB::connection('pgsql3')->select("SELECT v_mpt_id, v_mpt_name,
                         CASE WHEN v_tbpt_id > 0 THEN 'Terupload' ELSE 'Belum Terupload' END AS v_upload
                         FROM protokol_bymc('$id')");
 
@@ -721,7 +721,7 @@ class DashboardController extends Controller
 	public function getDashboardMrMpmBUMN($id){
        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmrmpmbumn_".$id, 15 * 60, function()use($id) {
     	    $data = array();
-    	    $dashboard_head =  DB::connection('pgsql2')->select("SELECT mr_name, COUNT(mpm_id) cnt
+    	    $dashboard_head =  DB::connection('pgsql3')->select("SELECT mr_name, COUNT(mpm_id) cnt
                         FROM master_region mr
                         INNER JOIN master_perimeter mpm ON mpm_mr_id=mr.mr_id
                         WHERE mpm_id in (SELECT mpml_mpm_id FROM master_perimeter_level mpml)
@@ -889,7 +889,7 @@ class DashboardController extends Controller
                     }
                 }
 
-                $rpi =  DB::connection('pgsql2')->select($str_rpi,[(string)$week]);
+                $rpi =  DB::connection('pgsql3')->select($str_rpi,[(string)$week]);
 
                 foreach($rpi as $itemrpi){
                     $data[] = array(
