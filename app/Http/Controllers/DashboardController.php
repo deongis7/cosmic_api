@@ -990,7 +990,7 @@ class DashboardController extends Controller
                       $cc_string = "";
                 }
               $sqlrpi = $sqlrpi.$cc_string;
-              $rpi =  DB::connection('pgsql2')->select($sqlrpi,[(string)$week]);
+              $rpi =  DB::connection('pgsql3')->select($sqlrpi,[(string)$week]);
 
                 foreach ($rpi as $itemrpi){
                     $data[]= array(
@@ -1072,7 +1072,7 @@ class DashboardController extends Controller
                     }
 
             } else {
-                $rpi =  DB::connection('pgsql2')->select("SELECT *
+                $rpi =  DB::connection('pgsql3')->select("SELECT *
                         FROM report_cosmic_index rpi
                         WHERE rci_week = ? and rci_mc_id = ?
                         ORDER BY rci_id limit 1",[(string)$week,(string)$company_id]);
@@ -1191,7 +1191,7 @@ class DashboardController extends Controller
                           where a.v_mc_id =?
                           ";
                       //echo $sql;die;
-                      $result =  DB::connection('pgsql2')->select($sql, [(string)$company_id]);
+                      $result =  DB::connection('pgsql3')->select($sql, [(string)$company_id]);
                       //dd($result);
                       foreach ($result as $value) {
                         foreach ($weeksday as $itemweeksday){
