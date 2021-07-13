@@ -971,7 +971,7 @@ class PerimeterReportController extends Controller
 
             $data = array();
             $perimeter = new Perimeter;
-            $perimeter->setConnection('pgsql2');
+            $perimeter->setConnection('pgsql3');
             //Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
             $perimeter =   $perimeter->select('master_region.mr_id','master_region.mr_name',
                 'master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',

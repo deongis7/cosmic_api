@@ -240,7 +240,7 @@ class DashboardController extends Controller
             if(isset($search)) {
                 $string = $string . " where lower(TRIM(v_judul)) like '%".strtolower(trim($search))."%' ";
             }
-            $jmltotal=(count(DB::connection('pgsql2')->select($string)));
+            $jmltotal=(count(DB::connection('pgsql3')->select($string)));
             if(isset($limit)) {
                 $string = $string. " limit ".$limit;
                 $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
@@ -1122,7 +1122,7 @@ class DashboardController extends Controller
                   ORDER BY v_rownum DESC");
 
               $company_id = $mc_id;
-              $perimeter =  DB::connection('pgsql2')->select('select * from master_perimeter_level mpml
+              $perimeter =  DB::connection('pgsql3')->select('select * from master_perimeter_level mpml
               join master_perimeter mpm on mpm.mpm_id = mpml.mpml_mpm_id
               where mpm.mpm_mc_id = ? and mpml.mpml_id in (select tpmd_mpml_id from table_perimeter_detail)',[$company_id]);
               $jml = count($perimeter);
@@ -1152,7 +1152,7 @@ class DashboardController extends Controller
                 $param[] = $limitdate;
               }
               $sql= $sql." ORDER BY rci_week asc ";
-              $rpi =  DB::connection('pgsql2')->select($sql,$param);
+              $rpi =  DB::connection('pgsql3')->select($sql,$param);
 
               //var_dump($sql);die;
               foreach($rpi as $itemrpi){
