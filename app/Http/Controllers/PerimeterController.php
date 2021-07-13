@@ -53,7 +53,7 @@ class PerimeterController extends Controller
 		$data = array();
 		$region =  Cache::remember(env('APP_ENV', 'dev')."_count_region_by_company_id_". $id, 30 * 60, function()use($id) {
       $reg = new Region;
-      $reg->setConnection('pgsql2');
+      $reg->setConnection('pgsql3');
 			return count($reg->select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')
       ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
       ->where('mr_mc_id',$id)->where('master_perimeter.mpm_lockdown',0)->groupBy('mr_id')->get());
@@ -146,7 +146,7 @@ class PerimeterController extends Controller
 
 		foreach($perimeter as $itemperimeter){
       $cluster = new TblPerimeterDetail;
-      $cluster->setConnection('pgsql2');
+      $cluster->setConnection('pgsql3');
 			$cluster = $cluster->where('tpmd_mpml_id',$itemperimeter->mpml_id)->where('tpmd_cek',true)->count();
 
 			$status = $this->getStatusMonitoring($itemperimeter->mpml_id,$cluster);
@@ -311,7 +311,7 @@ class PerimeterController extends Controller
 
 		$data = array();
 
-			$perimeter = DB::connection('pgsql2')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo from master_perimeter_level mpl
+			$perimeter = DB::connection('pgsql3')->select( "select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo from master_perimeter_level mpl
 					join master_perimeter mpm on mpm.mpm_id = mpl.mpml_mpm_id
 					join master_perimeter_kategori mpk on mpk.mpmk_id = mpm.mpm_mpmk_id
 					join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id and tpd.tpmd_cek=true
@@ -463,7 +463,7 @@ class PerimeterController extends Controller
 		//Get Task Force per Region
 	public function getTaskForcebyRegion($id){
 		$data = array();
-		$taskforce = DB::connection('pgsql2')->select( "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
+		$taskforce = DB::connection('pgsql3')->select( "select app.username,app.first_name, (case when (a1.mpm_mr_id is null) then a2.mpm_mr_id else a1.mpm_mr_id end) as mpm_mr_id,
 			(case when (a1.mpm_mr_id is null) then a2.mr_name else a1.mr_name end) as mr_name,app.mc_id
 		from app_users app
 		left JOIN (select mp1.mpm_mr_id , mr1.mr_name, mpl1.mpml_pic_nik from master_perimeter_level mpl1
