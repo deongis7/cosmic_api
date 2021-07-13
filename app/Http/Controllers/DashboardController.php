@@ -1364,7 +1364,7 @@ class DashboardController extends Controller
     public function getAlertWeek_byMcid($id){
         $alert = 0;
         $data = array();
-        $alert_kasus =  DB::connection('pgsql2')->select("SELECT * FROM alertweek_kasus_mobile(?)",[$id]);
+        $alert_kasus =  DB::connection('pgsql3')->select("SELECT * FROM alertweek_kasus_mobile(?)",[$id]);
         foreach($alert_kasus as $ak){
             if($ak->v_cnt==0 && $ak->v_tgl!=NULL){
                 $data[] = array(
@@ -1375,7 +1375,7 @@ class DashboardController extends Controller
             }
         }
 
-        $alert_protokol =  DB::connection('pgsql2')->select("SELECT * FROM alertweek_protokol_mobile(?)",[$id]);
+        $alert_protokol =  DB::connection('pgsql3')->select("SELECT * FROM alertweek_protokol_mobile(?)",[$id]);
         foreach($alert_protokol as $ap){
             if($ap->v_cnt==0 && $ap->v_tgl!=NULL){
                 $data[] = array(
@@ -1386,7 +1386,7 @@ class DashboardController extends Controller
             }
         }
 
-        $alert_sosialisasi =  DB::connection('pgsql2')->select("SELECT * FROM alertweek_sosialisasi_mobile(?)",[$id]);
+        $alert_sosialisasi =  DB::connection('pgsql3')->select("SELECT * FROM alertweek_sosialisasi_mobile(?)",[$id]);
         foreach($alert_sosialisasi as $as){
             if($as->v_cnt==0 && $as->v_tgl!=NULL){
                 $data[] = array(
@@ -1408,7 +1408,7 @@ class DashboardController extends Controller
     public function getPerusahaanbyProvinsiAll(){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perusahaan_byprovinsi_all", 5 * 60, function() {
 	        $data = array();
-	        $perimeter_byprovinsi_all =  DB::connection('pgsql2')->select("SELECT * FROM dashboard_perusahaan_byprovinsi()");
+	        $perimeter_byprovinsi_all =  DB::connection('pgsql3')->select("SELECT * FROM dashboard_perusahaan_byprovinsi()");
 
 	        foreach($perimeter_byprovinsi_all as $ppa){
 	            $data[] = array(
