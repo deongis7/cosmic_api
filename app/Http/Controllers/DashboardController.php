@@ -1572,7 +1572,7 @@ class DashboardController extends Controller
                   FROM mv_rangkuman_all";
               }
 
-              $rangkuman_all =  DB::connection('pgsql2')->select($query);
+              $rangkuman_all =  DB::connection('pgsql3')->select($query);
 
               foreach($rangkuman_all as $ra){
                   $data[] = array(
@@ -1869,7 +1869,7 @@ class DashboardController extends Controller
     public function getCardAtestasi(){
       $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_CardAtestasi", 0 * 60, function() {
           $data = array();
-          $cosmicindex_all = DB::connection('pgsql2')->select("SELECT * FROM getcardatestasi()");
+          $cosmicindex_all = DB::connection('pgsql3')->select("SELECT * FROM getcardatestasi()");
 
           foreach($cosmicindex_all as $cia){
               $data[] = array(
@@ -1885,7 +1885,7 @@ class DashboardController extends Controller
    public function getCardSertifikasi(){
       $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_card_sertifikasi", 0 * 60, function() {
           $data = array();
-          $sertifikasi = DB::connection('pgsql2')->select("SELECT * FROM getcardsertifikasi()");
+          $sertifikasi = DB::connection('pgsql3')->select("SELECT * FROM getcardsertifikasi()");
 
           foreach($sertifikasi as $cia){
               $data[] = array(
