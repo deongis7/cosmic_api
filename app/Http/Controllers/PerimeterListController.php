@@ -140,7 +140,7 @@ class PerimeterListController extends Controller
                   "perusahaan" => $itemperimeter->mc_name,
                   "id_perimeter" => $itemperimeter->mpm_id,
                   "nama_perimeter" => $itemperimeter->mpm_name,
-                  "alamat" => $itemperimeter->mpm_name,
+                  "alamat" => $itemperimeter->mpm_alamat,
                   "id_kategori" => $itemperimeter->mpmk_id,
                   "kategori" => $itemperimeter->mpmk_name,
                   "id_provinsi" => $itemperimeter->mpro_id,
@@ -386,7 +386,7 @@ class PerimeterListController extends Controller
                     "region" => $itemperimeter->mr_name,
                     "id_perimeter" => $itemperimeter->mpm_id,
                     "nama_perimeter" => $itemperimeter->mpm_name,
-                    "alamat" => $itemperimeter->mpm_name,
+                    "alamat" => $itemperimeter->mpm_alamat,
                     "kategori" => $itemperimeter->mpmk_name,
                     "status_monitoring" => $status_monitoring,
                     "last_update" => $itemperimeter->last_update,
@@ -489,7 +489,7 @@ class PerimeterListController extends Controller
                             $join->on("tpc.tbpc_startdate","<=",DB::raw("'".Carbon::now()->format("Y-m-d")."'"));
                             $join->on("tpc.tbpc_enddate",">=",DB::raw("'".Carbon::now()->format("Y-m-d")."'"));
 
-                        });
+                        })->where('master_perimeter.mpm_lockdown',0);
             if(isset($nik) && ($user != null)) {
                 $role_id = $user->roles()->first()->id;
                 if ($role_id == 3) {
@@ -530,7 +530,7 @@ class PerimeterListController extends Controller
             $perimeter = $perimeter->get();
             $totalperimeter = $perimeter->count();
             $totalpmmonitoring = 0;
-
+            // dd($perimeter->toSql());
             foreach ($perimeter as $itemperimeter) {
                 //$cluster = new TblPerimeterDetail;
                 //$cluster->setConnection('pgsql2');
@@ -729,8 +729,8 @@ class PerimeterListController extends Controller
                   )
                 ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
                 ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
-                ->leftjoin('app_users as userfo', 'userfo.username', 'master_perimeter_level.mpml_me_nik');
-
+                ->leftjoin('app_users as userfo', 'userfo.username', 'master_perimeter_level.mpml_me_nik')
+                ->where('master_perimeter.mpm_lockdown',0);
             if(isset($nik) && ($user != null)) {
                 $role_id = $user->roles()->first()->id;
                 if ($role_id == 3) {
@@ -1216,7 +1216,7 @@ class PerimeterListController extends Controller
         $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10 * 60, function()use($id,$limit,$page, $endpage,$search) {
             $data = array();
             $perimeter = new Perimeter;
-            $perimeter->setConnection('pgsql2');
+            $perimeter->setConnection('pgsql3');
             $perimeter = $perimeter->select('master_region.mr_id', 'master_region.mr_name',
                 'master_perimeter.mpm_id', 'master_perimeter.mpm_name',
                 'master_perimeter.mpm_alamat', 'master_perimeter_kategori.mpmk_name',
@@ -1230,7 +1230,7 @@ class PerimeterListController extends Controller
                 $perimeter = $perimeter->where(DB::raw("lower(TRIM(mpm_name))"),'like','%'.strtolower(trim($search)).'%');
             }
             $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc');
-
+            // dd($perimeter->toSql());
             //total_jumlah
             $jmltotal=($perimeter->count());
             if(isset($limit)) {
@@ -1555,7 +1555,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         $search = null;
         $status = null;
         $endpage = 1;
-        $str = "_get_report_by_perimeter_". $id_perimeter;
+        $str = "_get_report_by_perimeter_22". $id_perimeter;
         if(isset($request->limit)){
             $str = $str.'_limit_'. $request->limit;
             $limit=$request->limit;
@@ -1577,7 +1577,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search,$status) {
             $data = array();
             $report = new TrnReport;
-            $report->setConnection('pgsql2');
+            $report->setConnection('pgsql3');
             $report = $report->select('master_perimeter.mpm_id', 'master_perimeter.mpm_name',
                 'master_perimeter_level.mpml_id', 'master_perimeter_level.mpml_name',
                 'transaksi_report.tr_id', 'transaksi_report.tr_close')
@@ -1638,10 +1638,10 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
             'transaksi_report.tr_tl_file2','transaksi_report.tr_no',
             'transaksi_report.tr_date_update','transaksi_report.tr_close')
             ->join('master_perimeter_level', 'master_perimeter_level.mpml_id', 'transaksi_report.tr_mpml_id')
-            ->join('master_perimeter', 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_mpm_id')
+            ->leftjoin('master_perimeter', 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_mpm_id')
             ->where('transaksi_report.tr_id', $id_report)->first();
 
-        //dd($rate);
+        // dd(str_replace('"','', $report->toSql()));
       if ($report != null){
 
             $data = array(
@@ -1774,7 +1774,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         ->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
         ->join('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
         ->join('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id')
-        ->where('master_perimeter.mpm_mc_id', $kd_perusahaan);
+        ->where('master_perimeter.mpm_mc_id', $kd_perusahaan)->where('master_perimeter.mpm_lockdown',0);
 
         if(isset($request->kabupaten)) {
             $kabupaten_id = $request->kabupaten;
@@ -1795,6 +1795,8 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         }else{
             $perimeter = $perimeter->orderBy('mpm_name', 'ASC');
         }
+
+        // dd(str_replace('"','', $perimeter->toSql()));
 
         $jmltotal=($perimeter->count());
         if(isset($request->limit)) {

@@ -498,7 +498,7 @@ class PerimeterReportController extends Controller
 
               $perimeter = $perimeter->where('master_perimeter.mpm_id', $id_perimeter)
                   ->orderBy('master_perimeter.mpm_name', 'asc')
-                  ->orderBy('master_perimeter_level.mpml_name', 'asc');
+                  ->orderBy('master_perimeter_level.mpml_name', 'asc')->where('master_perimeter.mpm_lockdown',0);
               $jmltotal=($perimeter->count());
               if(isset($limit)) {
                   $perimeter = $perimeter->limit($limit);
@@ -743,7 +743,8 @@ class PerimeterReportController extends Controller
               $perimeter = $perimeter->select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id')
                   ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
                   ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
-                  ->leftjoin('app_users as userfo', 'userfo.username', 'master_perimeter_level.mpml_me_nik');
+                  ->leftjoin('app_users as userfo', 'userfo.username', 'master_perimeter_level.mpml_me_nik')
+                  ->where('master_perimeter.mpm_lockdown',0);
 
               if(isset($nik) && ($user != null)) {
                   $role_id = $user->roles()->first()->id;
