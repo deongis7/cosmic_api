@@ -42,7 +42,7 @@ class DashClusterController extends Controller
 	public function getClusterDashboardHead($id){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_clusterdashmin_head".$id, 360 * 60, function()use($id){
 	        $data = array();
-	        $dashboard_head =  DB::connection('pgsql2')->select("SELECT * FROM cluster_dashboard_head('$id')");
+	        $dashboard_head =  DB::connection('pgsql3')->select("SELECT * FROM cluster_dashboard_head('$id')");
 
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
