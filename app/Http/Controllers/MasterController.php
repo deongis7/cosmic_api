@@ -23,6 +23,8 @@ use App\Company;
 use App\MstStsKasus;
 use App\MstStsPegawai;
 use App\MstSosialisasiKategori;
+use App\MstFasilitasRumah;
+use App\MstKriteriaOrang;
 use Intervention\Image\ImageManagerStatic as Image;
 
 
@@ -372,5 +374,37 @@ class MasterController extends Controller
             return array('status' => 200, 'data' => $data);
       });
       return $datacache;
+    }
+
+    public function getKriteriaOrang(){
+        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_kriteria_orang", 360 * 60, function() {
+            $data=[];
+            $mstkriteriaorang = MstKriteriaOrang::all();
+
+            foreach($mstkriteriaorang as $msk){
+                $data[] = array(
+                    "id" => $msk->id,
+                    "jenis" => $msk->jenis,
+                );
+            }
+            return $data;
+        });
+        return response()->json(['status' => 200,'data' => $datacache]);
+    }
+
+    public function getFasilitasRumah(){
+        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_fasilitas_rumah", 360 * 60, function() {
+            $data=[];
+            $mstfasilitasrumah = MstFasilitasRumah::all();
+
+            foreach($mstfasilitasrumah as $msk){
+                $data[] = array(
+                    "id" => $msk->id,
+                    "jenis" => $msk->jenis,
+                );
+            }
+            return $data;
+        });
+        return response()->json(['status' => 200,'data' => $datacache]);
     }
 }

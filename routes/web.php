@@ -199,6 +199,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/perimeterkategori', 'MasterController@getKategoriPerimeter');
 	$router->get('/clusterruangan', 'MasterController@getClusterRuangan');
 	$router->get('/weeklist', 'MasterController@getWeekList');
+	$router->get('/fasilitas_rumah', 'MasterController@getFasilitasRumah');
+	$router->get('/kriteria_orang', 'MasterController@getKriteriaOrang');
 
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
@@ -302,6 +304,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
   	$router->get('/product/daftar_riwayat', 'ProductController@getListRiwayatProduk');
   	$router->get('/product/detail_produk', 'ProductController@getPengajuanById');
 
+
+
     //Sosialisasi Web
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
     Route::post('/sosialisasi/webupdate_json/{user_id}/{id}', 'SosialisasiController@WebupdateSosialisasiJSON');
@@ -322,6 +326,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/report/picfobymcid/{id}', 'ReportController@getMobilePICFObyMcid');
 
     $router->get('/dashreport/mobileall_byjns/{id}', 'ReportController@getDashReportMobileByJns');
+
 
     //User Reset Password
     $router->post('/user/reset_password', 'UserController@postResetPassword');
@@ -370,6 +375,14 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::get('/monitoringbumn/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeterBUMN');
 		Route::get('/list_perimeterbumn/{kd_perusahaan}', 'PerimeterListController@getPerimeterListBUMN');
 		Route::get('/taskforcebumn/{id}', 'PerimeterController@getTaskForceBUMN');
+
+    //Rumah Singgah
+  	Route::get('/rumah_singgah', 'RumahSinggahController@getListRumahSinggah');
+  	Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
+  	Route::get('/rumah_singgah/provinsi_kota/{id_provinsi}', 'RumahSinggahController@getGroupRumahSinggahByProvKota');
+    Route::get('/rumah_singgah/{id}', 'RumahSinggahController@getRumahSinggahById');
+    Route::post('/rumah_singgah/add', 'RumahSinggahController@addRumahSinggah');
+    Route::post('/rumah_singgah/update/{id}', 'RumahSinggahController@updateRumahSinggah');
 
 	});
 });
