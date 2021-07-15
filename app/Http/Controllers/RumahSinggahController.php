@@ -435,7 +435,10 @@ class RumahSinggahController extends Controller
                             ->leftjoin('master_kabupaten as mkab', 'mkab.mkab_id','table_rumahsinggah.kota_id')
                             ->where('table_rumahsinggah.id',$id)->first();
         if ($rumahsinggah != null){
-
+            $datastatuskasus=[];
+            $datafasilitas_rumah=[];
+            $datakriteria_orang=[];
+          if (isset($rumahsinggah->jenis_kasus)){
             $statuskasus = new MstStsKasus;
             $statuskasus->setConnection('pgsql3');
             $statuskasus = $statuskasus->whereIn('msk_id',explode(',',str_replace("'","",$rumahsinggah->jenis_kasus)))->get();
@@ -451,29 +454,34 @@ class RumahSinggahController extends Controller
 
                 );
               }
+          }
+          if (isset($rumahsinggah->fas_rumah_id)){
+            $fasilitas_rumah = new MstFasilitasRumah;
+            $fasilitas_rumah->setConnection('pgsql3');
+            $fasilitas_rumah = $fasilitas_rumah->whereIn('id',explode(',',str_replace("'","",$rumahsinggah->fas_rumah_id)))->get();
 
-              $fasilitas_rumah = new MstFasilitasRumah;
-              $fasilitas_rumah->setConnection('pgsql3');
-              $fasilitas_rumah = $fasilitas_rumah->whereIn('id',explode(',',str_replace("'","",$rumahsinggah->fas_rumah_id)))->get();
+            $datafasilitas_rumah=[];
+              foreach ($fasilitas_rumah as $fr) {
+                $datafasilitas_rumah[] = array(
+                  "id_fasilitas" => $fr->id,
+                  "fasilitas" => $fr->jenis
+                );
+              }
+          }
+          if (isset($rumahsinggah->fas_rumah_id)){
+            $kriteria_orang = new MstKriteriaOrang;
+            $kriteria_orang->setConnection('pgsql3');
+            $kriteria_orang = $kriteria_orang->whereIn('id',explode(',',str_replace("'","",$rumahsinggah->kriteria_id)))->get();
+            $datakriteria_orang=[];
+              foreach ($kriteria_orang as $ko) {
+                $datakriteria_orang[] = array(
+                  "id_kriteria" => $ko->id,
+                  "kriteria" => $ko->jenis
+                );
+              }
 
-              $datafasilitas_rumah=[];
-                foreach ($fasilitas_rumah as $fr) {
-                  $datafasilitas_rumah[] = array(
-                    "id_fasilitas" => $fr->id,
-                    "fasilitas" => $fr->jenis
-                  );
-                }
+          }
 
-              $kriteria_orang = new MstKriteriaOrang;
-              $kriteria_orang->setConnection('pgsql3');
-              $kriteria_orang = $kriteria_orang->whereIn('id',explode(',',str_replace("'","",$rumahsinggah->kriteria_id)))->get();
-              $datakriteria_orang=[];
-                foreach ($kriteria_orang as $ko) {
-                  $datakriteria_orang[] = array(
-                    "id_kriteria" => $ko->id,
-                    "kriteria" => $ko->jenis
-                  );
-                }
 
               $data[] = array(
                 "id_rumah_singgah"=>$rumahsinggah->id,
