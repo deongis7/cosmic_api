@@ -267,10 +267,51 @@ class RumahSinggahController extends Controller
             );
         }
 
-      //        return $data;
 
-       //});
        return response()->json(['status' => 200, 'page_end' =>$endpage,'data' => $data]);
+    }
+
+    public function getJumlahRumahSinggah(Request $request){
+      $str = "_jumlah_rumah_singgah_";
+
+      $mc_id = null;
+
+
+       if(isset($request->mc_id)){
+            $str = $str.'_mc_id_'. str_replace(' ','_',$request->mc_id);
+            $mc_id=$request->mc_id;
+       }
+
+
+       //$datacache =Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search, $mc_id) {
+
+        $data = array();
+
+        $rumahsinggah = new TblRumahSinggah;
+
+        $rumahsinggah->setConnection('pgsql3');
+        $rumahsinggah = $rumahsinggah->select(DB::raw("count(table_rumahsinggah.id) as jumlah"))
+                    ->join('master_company as mc', 'mc.mc_id','table_rumahsinggah.mc_id')
+                    ->leftjoin('master_provinsi as mpro', 'mpro.mpro_id','table_rumahsinggah.prov_id')
+                    //  ->leftjoin('master_kabupaten as mkab', 'mkab.mkab_id','table_rumahsinggah.kota_id');
+                    ->leftJoin('master_kabupaten as mkab', function($q)
+                        {
+                            $q->on('mkab.mkab_id', '=', 'table_rumahsinggah.kota_id')
+                                ->on('mkab.mkab_mpro_id', '=', 'mpro.mpro_id');
+                        });
+
+        if(isset($mc_id)) {
+                $rumahsinggah =$rumahsinggah->where('mc.mc_id', $mc_id);
+        }
+
+        $rumahsinggah= $rumahsinggah->get();
+
+          $data[] = array(
+              "jumlah_data" =>$rumahsinggah[0]->jumlah
+            );
+
+
+       return response()->json(['status' => 200,'data' => $data]);
     }
 
     public function getGroupRumahSinggahByProvKota($id_provinsi,Request $request){
