@@ -386,7 +386,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::get('/rumah_singgah/{id}', 'RumahSinggahController@getRumahSinggahById');
     Route::post('/rumah_singgah/add', 'RumahSinggahController@addRumahSinggah');
     Route::post('/rumah_singgah/update/{id}', 'RumahSinggahController@updateRumahSinggah');
-    Route::get('/rumah_singgah/total', 'RumahSinggahController@getJumlahRumahSinggah');
+    Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
 
 	});
 });
