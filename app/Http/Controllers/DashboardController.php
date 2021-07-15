@@ -7,6 +7,7 @@ use App\TrnVaksin;
 use App\ExportCosmicIndex;
 use App\ExportVaksinData;
 use App\ExportVaksinTmpData;
+use App\TblAgregasiDataPegawai;
 use App\Helpers\AppHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -1364,6 +1365,11 @@ class DashboardController extends Controller
     public function getAlertWeek_byMcid($id){
         $alert = 0;
         $data = array();
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+        $curweek  =Carbon::parse($startdate)->format('Y-m-d').'-'.Carbon::parse($enddate)->format('Y-m-d');
+
         $alert_kasus =  DB::connection('pgsql3')->select("SELECT * FROM alertweek_kasus_mobile(?)",[$id]);
         foreach($alert_kasus as $ak){
             if($ak->v_cnt==0 && $ak->v_tgl!=NULL){
@@ -1397,10 +1403,19 @@ class DashboardController extends Controller
             }
         }
 
+
+        $alert_pelaporan_wajib =  DB::connection('pgsql3')->select("SELECT * FROM table_agregasi_data_pegawai where tad_mc_id= ? and tad_week=? limit 1",[$id,$curweek]);
+              if($alert_pelaporan_wajib != null){
+                $alertlap=false;
+              } else {
+                $alertlap=true;
+              }
+
         if($alert > 0){  $alert_tf = true; }else{ $alert_tf = false; }
         return response()->json([
             'status' => 200,
             'alert'=> $alert_tf,
+            'alert_pegawai_terdampak'=> $alertlap,
             'data' => $data
         ]);
     }
@@ -1932,5 +1947,89 @@ class DashboardController extends Controller
           ];
       });
         return response()->json(['status' => 200,'data' => $datacache['data']/*, 'total'=>$datacache['total']*/]);
+  }
+
+  public function addAgregasiData(Request $request){
+      $this->validate($request, [
+          'kd_perusahaan' => 'required'
+      ]);
+      $weeks = AppHelper::Weeks();
+      $startdate = $weeks['startweek'];
+      $enddate = $weeks['endweek'];
+      $curweek  =Carbon::parse($startdate)->format('Y-m-d').'-'.Carbon::parse($enddate)->format('Y-m-d');
+
+          $agregasi= New TblAgregasiDataPegawai();
+          $agregasi->setConnection('pgsql');
+          $agregasi = $agregasi->where('tad_mc_id', $request->kd_perusahaan)->where('tad_week', $curweek)->first();
+          if($agregasi!= null) {
+            $agregasi->tad_mc_id = $request->kd_perusahaan;
+            $agregasi->tad_peg_tetap = $request->jml_pegawai_tetap;
+            $agregasi->tad_peg_kontrak = $request->jml_pegawai_kontrak;
+            $agregasi->tad_peg_alihdaya =$request->jml_pegawai_alihdaya;
+            $agregasi->tad_peg_konfirmasi = $request->jml_konfirmasi;
+            $agregasi->tad_peg_gejala_berat =$request->jml_gejala_berat;
+            $agregasi->tad_akum_peg_konfirmasi = $request->akum_jml_konfirmasi;
+            $agregasi->tad_akum_peg_sembuh = $request->akum_jml_sembuh;
+            $agregasi->tad_akum_peg_meninggal = $request->akum_jml_meninggal;
+
+            $agregasi->tad_user_update = $request->user_id;
+          } else {
+            $agregasi= New TblAgregasiDataPegawai();
+            $agregasi->setConnection('pgsql');
+            $agregasi->tad_mc_id = $request->kd_perusahaan;
+            $agregasi->tad_peg_tetap = $request->jml_pegawai_tetap;
+            $agregasi->tad_peg_kontrak = $request->jml_pegawai_kontrak;
+            $agregasi->tad_peg_alihdaya =$request->jml_pegawai_alihdaya;
+            $agregasi->tad_peg_konfirmasi = $request->jml_konfirmasi;
+            $agregasi->tad_peg_gejala_berat =$request->jml_gejala_berat;
+            $agregasi->tad_akum_peg_konfirmasi = $request->akum_jml_konfirmasi;
+            $agregasi->tad_akum_peg_sembuh = $request->akum_jml_sembuh;
+            $agregasi->tad_akum_peg_meninggal = $request->akum_jml_meninggal;
+            $agregasi->tad_user_update = $request->user_id;
+            $agregasi->tad_user_insert = $request->user_id;
+            $agregasi->tad_week = $curweek;
+          }
+
+
+      if($agregasi->save()) {
+          return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
+      }
+       else {
+           return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+       }
+
+  }
+
+
+  public function getAgregasiData($mc_id){
+
+      $data = array();
+
+      $agregasi = DB::connection('pgsql2')->select( "select tad.*, mc.mc_name,mc.mc_id from table_agregasi_data_pegawai tad
+      join master_company mc on mc.mc_id = tad.tad_mc_id
+      where mc.mc_id=? order by tad_week desc limit 1",
+      [$mc_id ]);
+
+      if($agregasi != null){
+        $data = array(
+            "kd_perusahaan" => $agregasi[0]->mc_id,
+            "nama_perusahaan" => $agregasi[0]->mc_name,
+            "week" => $agregasi[0]->tad_week,
+            "jml_pegawai_tetap" => $agregasi[0]->tad_peg_tetap,
+            "jml_pegawai_kontrak" => $agregasi[0]->tad_peg_kontrak,
+            "jml_pegawai_alihdaya" => $agregasi[0]->tad_peg_alihdaya,
+            "jml_konfirmasi" => $agregasi[0]->tad_peg_konfirmasi,
+            "jml_gejala_berat" => $agregasi[0]->tad_peg_gejala_berat,
+            "akum_jml_konfirmasi" => $agregasi[0]->tad_akum_peg_konfirmasi,
+            "akum_jml_sembuh" => $agregasi[0]->tad_akum_peg_sembuh,
+            "akum_jml_meninggal" => $agregasi[0]->tad_akum_peg_meninggal,
+          );
+        return response()->json(['status' => 200, 'data' => $data]);
+      } else {
+          return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+       }
+
+
+
   }
 }
