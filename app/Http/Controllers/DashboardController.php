@@ -1746,7 +1746,7 @@ class DashboardController extends Controller
             	FROM
             		mvt_cosmic_index_report rci
             	JOIN mvt_rangkuman mr on mr.v_mc_id = rci.v_mc_id
-            	JOIN master_company mc on mc.mc_id = rci.v_mc_id
+            	JOIN master_company mc on mc.mc_id = rci.v_mc_id and mc_id_induk is not null
             	ORDER BY
             		rci.v_avg_cosmic_index DESC,
             		mr.v_cnt_mpm DESC
@@ -1826,7 +1826,7 @@ class DashboardController extends Controller
             	FROM
             		mvt_cosmic_index_report rci
             	JOIN mvt_rangkuman mr on mr.v_mc_id = rci.v_mc_id
-            	JOIN master_company mc on mc.mc_id = rci.v_mc_id
+            	JOIN master_company mc on mc.mc_id = rci.v_mc_id and mc_id_induk is not null
             	ORDER BY
             		rci.v_avg_cosmic_index DESC,
             		mr.v_cnt_mpm DESC

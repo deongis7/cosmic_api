@@ -384,6 +384,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
   	Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
   	Route::get('/rumah_singgah/provinsi_kota/{id_provinsi}', 'RumahSinggahController@getGroupRumahSinggahByProvKota');
     Route::get('/rumah_singgah/{id}', 'RumahSinggahController@getRumahSinggahById');
+    Route::delete('/rumah_singgah/{id}', 'RumahSinggahController@deleteRumahSinggah');
     Route::post('/rumah_singgah/add', 'RumahSinggahController@addRumahSinggah');
     Route::post('/rumah_singgah/update/{id}', 'RumahSinggahController@updateRumahSinggah');
     Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
