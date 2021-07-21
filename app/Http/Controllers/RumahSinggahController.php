@@ -686,7 +686,25 @@ class RumahSinggahController extends Controller
          }
 
     }
-    //POST
+
+    public function deleteRumahSinggah($id){
+
+        $rumahsinggah= TblRumahSinggah::find($id);
+        //dd($rumahsinggah);
+        if ($rumahsinggah != null){
+          if($rumahsinggah->delete()) {
+              return response()->json(['status' => 200, 'message' => 'Data Berhasil Dihapus']);
+          }
+           else {
+               return response()->json(['status' => 500,'message' => 'Data Gagal dihapus'])->setStatusCode(500);
+           }
+
+        } else {
+           return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+        }
+
+
+    }
 
 
 }
