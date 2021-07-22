@@ -21,7 +21,10 @@ class SosialisasiController extends Controller {
 
       $sosialisasiweek = DB::connection('pgsql3')->select("SELECT ts.ts_id, ts.ts_mc_id, ts.ts_nama_kegiatan, ts.ts_tanggal,
                 ts.ts_mslk_id,  mslk.mslk_name, ts.ts_deskripsi, ts.ts_file1, ts.ts_file1_tumb, ts.ts_file2, ts.ts_file2_tumb, ts_file_pdf,
-                ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
+                ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all,
+                CASE WHEN ts_date_insert::DATE > (SELECT mppkm_date::DATE FROM master_ppkm)::DATE
+                AND ts_tanggal::DATE > (SELECT mppkm_date::DATE FROM master_ppkm)::DATE THEN true ELSE false END AS 
+                flag_ppkm
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id='$id'
