@@ -38,7 +38,7 @@ class SosialisasiController extends Controller {
         $pageq = $page*$row;
         $param[] = $id;
         $string = "SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
-                ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb,
+                ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb, ts_file_pdf,
                 ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
@@ -126,7 +126,8 @@ class SosialisasiController extends Controller {
                     "checklist_dampak" =>$sos->ts_checklist_dampak,
                     "bulan_kegiatan" =>$sos->ts_bulan,
                     "persen_dampak" =>$sos->ts_prsn_dampak,
-                    "persen_dampak_keseluruhan" =>$sos->ts_prsn_dampak_all
+                    "persen_dampak_keseluruhan" =>$sos->ts_prsn_dampak_all,
+                    "flag_ppkm" =>$sos->flag_ppkm
                 );
             }
         }else{
@@ -215,7 +216,8 @@ class SosialisasiController extends Controller {
                     "checklist_dampak" =>$sos->ts_checklist_dampak,
                     "bulan_kegiatan" =>$sos->ts_bulan,
                     "persen_dampak" =>$sos->ts_prsn_dampak,
-                    "persen_dampak_keseluruhan" =>$sos->ts_prsn_dampak_all
+                    "persen_dampak_keseluruhan" =>$sos->ts_prsn_dampak_all,
+                    "flag_ppkm" =>$sos->flag_ppkm
                 );
             }
         }else{
@@ -258,7 +260,7 @@ class SosialisasiController extends Controller {
 
         //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
         $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan;
-
+  
         $name1 = NULL;
         $name1_tumb = NULL;
         if ($request->file_sosialisasi1 != null || $request->file_sosialisasi1 != '') {
@@ -298,13 +300,14 @@ class SosialisasiController extends Controller {
         }
         
         $name_pdf = NULL;
-        if ($request->file_pdf != null || $request->file_pdf != '') {
-            $image = str_replace('data:application/pdf;base64,', '', $file_pdf);
-            $filedecode = base64_decode($image);
-            
-            $name = round(microtime(true) * 1000).'.pdf';
-            Storage::disk('public')->put('sosialisasi/'.$kd_perusahaan.'/'.$name, base64_decode($image));
-            $name_pdf = $name;
+        if(isset($request->file_pdf)){
+            if ($request->file_pdf != null || $request->file_pdf != '') {
+                $image = str_replace('data:application/pdf;base64,', '', $r_file_pdf);
+                $filedecode = base64_decode($image);
+                $name_pdf = round(microtime(true) * 1000).'.pdf';
+                Storage::disk('public')->put('sosialisasi/'.$kd_perusahaan.'/'.$name_pdf, base64_decode($image));
+                $name_pdf = $name_pdf;
+            }
         }
 
         $dataSosialisasi = new Sosialisasi();
@@ -454,17 +457,18 @@ class SosialisasiController extends Controller {
         }
         
         $name_pdf = $filex_pdf;
-        if ($request->file_pdf != null || $request->file_pdf != '') {
-            if($filex_pdf!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex_pdf)){
-                unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex1);
+        if(isset($request->file_pdf)){
+            if ($request->file_pdf != null || $request->file_pdf != '') {
+                if($filex_pdf!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex_pdf)){
+                    unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex_pdf);
+                }
+                
+                $image = str_replace('data:application/pdf;base64,', '', $r_file_pdf);
+                $filedecode = base64_decode($image);
+                $name_pdf = round(microtime(true) * 1000).'.pdf';
+                Storage::disk('public')->put('sosialisasi/'.$kd_perusahaan.'/'.$name_pdf, base64_decode($image));
+                $name_pdf = $name_pdf;
             }
-            
-            $img_pdf = explode(',', $r_file_pdf);
-            $image_pdf = $img_pdf[1];
-            $filedecode_pdf = base64_decode($image_pdf);
-            $name_pdf = round(microtime(true) * 1000).'.pdf';
-            
-            Image::make($filedecode_pdf)->save($destinationPath.'/'.$name_pdf);
         }
 
         $dataSosialisasi->ts_mc_id = $r_kd_perusahaan;
@@ -567,9 +571,9 @@ class SosialisasiController extends Controller {
             if ($request->file_pdf != null || $request->file_pdf != '') {
                 $image = str_replace('data:application/pdf;base64,', '', $r_file_pdf);
                 $filedecode = base64_decode($image);
-                $name = round(microtime(true) * 1000).'.pdf';
+                $name_pdf = round(microtime(true) * 1000).'.pdf';
                 Storage::disk('public')->put('sosialisasi/'.$kd_perusahaan.'/'.$name_pdf, base64_decode($image));
-                $name_pdf = $name;
+                $name_pdf = $name_pdf;
             }
         }
         
@@ -693,12 +697,15 @@ class SosialisasiController extends Controller {
         $name_pdf = $filex_pdf;
         if(isset($request->file_pdf)){
             if ($request->file_pdf != null || $request->file_pdf != '') {
-                $img_pdf = explode(',', $r_file_pdf);
-                $image_pdf = $img_pdf[1];
-                $filedecode_pdf = base64_decode($image_pdf);
-                $name_pdf = round(microtime(true) * 1000).'.pdf';
+                if($filex_pdf!=NULL && file_exists(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex_pdf)){
+                    unlink(storage_path().'/app/public/sosialisasi/' .$kd_perusahaan.'/'.$filex_pdf);
+                }
                 
-                Image::make($filedecode2)->save($destinationPath.'/'.$name_pdf);
+                $image = str_replace('data:application/pdf;base64,', '', $r_file_pdf);
+                $filedecode = base64_decode($image);
+                $name_pdf = round(microtime(true) * 1000).'.pdf';
+                Storage::disk('public')->put('sosialisasi/'.$kd_perusahaan.'/'.$name_pdf, base64_decode($image));
+                $name_pdf = $name_pdf;
             }
         }
 
