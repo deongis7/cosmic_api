@@ -42,7 +42,10 @@ class SosialisasiController extends Controller {
         $param[] = $id;
         $string = "SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
                 ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb, ts_file_pdf,
-                ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
+                ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all,
+                CASE WHEN ts_date_insert::DATE > (SELECT mppkm_date::DATE FROM master_ppkm)::DATE
+                AND ts_tanggal::DATE > (SELECT mppkm_date::DATE FROM master_ppkm)::DATE THEN true ELSE false END AS 
+                flag_ppkm
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id= ?";
