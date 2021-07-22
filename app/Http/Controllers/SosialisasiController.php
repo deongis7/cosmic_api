@@ -257,7 +257,7 @@ class SosialisasiController extends Controller {
         }
 
         //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
-        $destinationPath = storage_path().'\app\public\sosialisasi/' .$kd_perusahaan;
+        $destinationPath = storage_path().'/app/public/sosialisasi/' .$kd_perusahaan;
 
         $name1 = NULL;
         $name1_tumb = NULL;
