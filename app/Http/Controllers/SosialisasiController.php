@@ -19,15 +19,15 @@ class SosialisasiController extends Controller {
       }
 
       $sosialisasiweek = DB::connection('pgsql3')->select("SELECT ts.ts_id, ts.ts_mc_id, ts.ts_nama_kegiatan, ts.ts_tanggal,
-                ts.ts_mslk_id,  mslk.mslk_name, ts.ts_deskripsi, ts.ts_file1, ts.ts_file1_tumb, ts.ts_file2, ts.ts_file2_tumb,
+                ts.ts_mslk_id,  mslk.mslk_name, ts.ts_deskripsi, ts.ts_file1, ts.ts_file1_tumb, ts.ts_file2, ts.ts_file2_tumb, ts_file_pdf,
                 ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id='$id'
                 AND ts_tanggal IN (
-                	SELECT
-                	CAST(date_trunc('week', CURRENT_DATE) AS DATE) + i
-                	FROM generate_series(0,4) i
+                        SELECT
+                        CAST(date_trunc('week', CURRENT_DATE) AS DATE) + i
+                        FROM generate_series(0,4) i
                 )");
 
         if(count($sosialisasiweek) > 0){  $week = true; }else{ $week = false; }
@@ -38,20 +38,19 @@ class SosialisasiController extends Controller {
         $param[] = $id;
         $string = "SELECT ts_id, ts_mc_id, ts_nama_kegiatan, ts_tanggal,
                 ts.ts_mslk_id,  mslk.mslk_name, ts_deskripsi, ts_file1, ts_file1_tumb, ts_file2, ts_file2_tumb,
-                ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all
+                ts_checklist_dampak,ts_bulan,ts_prsn_dampak,ts_prsn_dampak_all, ts_file_pdf
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id= ?";
-        
+
         if(isset($search)) {
             $string = $string ." and (lower(ts_nama_kegiatan) like ? or lower(ts_deskripsi) like ? ) ";
             $param[] ="%".strtolower($search)."%";
             $param[] ="%".strtolower($search)."%";
         }
-        
-        $string = $string ." ORDER BY ts_tanggal DESC ";
 
-        //get all
+        $string = $string ." ORDER BY ts_tanggal DESC ";
+         //get all
         $sosialisasiall = DB::connection('pgsql3')->select($string,$param);
         //var_dump($string);die;
         //page limit
@@ -97,6 +96,18 @@ class SosialisasiController extends Controller {
                     $filesos2_tumb ='/404/img404.jpg';
                 }
 
+                if($sos->ts_file_pdf !=NULL || $sos->ts_file_pdf !=''){
+                if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file_pdf))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filesos_pdf = $path_file404;
+                    }else{
+                        $path_file1 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file_pdf;
+                        $filesos_pdf = $path_file_pdf;
+                    }
+                }else{
+                    $filesos_pdf = '/404/img404.jpg';
+                }
+
                 $data[] = array(
                     "id" => $sos->ts_id,
                     "nama_kegiatan" => $sos->ts_nama_kegiatan,
@@ -109,6 +120,9 @@ class SosialisasiController extends Controller {
                     "file_1_tumb" => $filesos1_tumb,
                     "file_2" => $filesos2,
                     "file_2_tumb" => $filesos2_tumb,
+                     "file_2" => $filesos2,
+                    "file_2_tumb" => $filesos2_tumb,
+                    "file_pdf" => $filesos_pdf,
                     "checklist_dampak" =>$sos->ts_checklist_dampak,
                     "bulan_kegiatan" =>$sos->ts_bulan,
                     "persen_dampak" =>$sos->ts_prsn_dampak,
