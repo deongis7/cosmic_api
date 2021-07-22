@@ -26,9 +26,9 @@ class SosialisasiController extends Controller {
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id='$id'
                 AND ts_tanggal IN (
-                	SELECT
-                	CAST(date_trunc('week', CURRENT_DATE) AS DATE) + i
-                	FROM generate_series(0,4) i
+                        SELECT
+                        CAST(date_trunc('week', CURRENT_DATE) AS DATE) + i
+                        FROM generate_series(0,4) i
                 )");
 
         if(count($sosialisasiweek) > 0){  $week = true; }else{ $week = false; }
@@ -43,16 +43,15 @@ class SosialisasiController extends Controller {
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id= ?";
-        
+
         if(isset($search)) {
             $string = $string ." and (lower(ts_nama_kegiatan) like ? or lower(ts_deskripsi) like ? ) ";
             $param[] ="%".strtolower($search)."%";
             $param[] ="%".strtolower($search)."%";
         }
-        
-        $string = $string ." ORDER BY ts_tanggal DESC ";
 
-        //get all
+        $string = $string ." ORDER BY ts_tanggal DESC ";
+         //get all
         $sosialisasiall = DB::connection('pgsql3')->select($string,$param);
         //var_dump($string);die;
         //page limit
@@ -100,6 +99,18 @@ class SosialisasiController extends Controller {
                 
                 if($sos->ts_file_pdf !=NULL || $sos->ts_file_pdf !=''){
                     if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file_pdf))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filesos_pdf = $path_file404;
+                    }else{
+                        $path_file1 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file_pdf;
+                        $filesos_pdf = $path_file_pdf;
+                    }
+                }else{
+                    $filesos_pdf = '/404/img404.jpg';
+                }
+
+                if($sos->ts_file_pdf !=NULL || $sos->ts_file_pdf !=''){
+                if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file_pdf))) {
                         $path_file404 = '/404/img404.jpg';
                         $filesos_pdf = $path_file404;
                     }else{
