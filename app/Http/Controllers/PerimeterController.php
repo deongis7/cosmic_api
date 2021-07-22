@@ -60,14 +60,14 @@ class PerimeterController extends Controller
 		});
 		//$region =count(Region::select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')->where('mr_mc_id',$id)->groupBy('mr_id')->get());
 		$user =  Cache::remember(env('APP_ENV', 'dev')."_count_userpic_by_company_id_". $id, 30 * 60, function()use($id) {
-			return count(DB::connection('pgsql2')->select('select au.username from app_users au
+			return count(DB::connection('pgsql3')->select('select au.username from app_users au
 					join master_perimeter_level mpl on mpl.mpml_pic_nik = au.username
 					where au.mc_id = ?
 					group by au.username',[$id]));
 		});
 		$perimeter = Cache::remember(env('APP_ENV', 'dev')."_count_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
       $prm= new Perimeter;
-      $prm->setConnection('pgsql2');
+      $prm->setConnection('pgsql3');
       return $prm->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
 					->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('master_region.mr_mc_id',$id)
@@ -266,7 +266,7 @@ class PerimeterController extends Controller
 
 		$data = array();
     $perimeter = new Perimeter;
-    $perimeter->setConnection('pgsql2');
+    $perimeter->setConnection('pgsql3');
 		$perimeter = $perimeter->select('master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude')
                             ->where('master_perimeter.mpm_mc_id',$kd_perusahaan);
 		if($id_kota != 0){
@@ -289,7 +289,7 @@ class PerimeterController extends Controller
 	public function getLevelbyPerimeter($id_perimeter){
 		$data = array();
     $perimeter = new PerimeterLevel;
-    $perimeter->setConnection('pgsql2');
+    $perimeter->setConnection('pgsql3');
 		$perimeter = $perimeter->join('master_perimeter','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('mpml_mpm_id',$id_perimeter)
 					->get();
@@ -620,7 +620,7 @@ class PerimeterController extends Controller
 	public function getTaskForceDetail($nik){
 		$data = array();
     $taskforce = new User;
-    $taskforce->setConnection('pgsql2');
+    $taskforce->setConnection('pgsql3');
 		$taskforce = $taskforce->select("app_users.username","app_users.first_name","app_groups.name","app_users_groups.group_id")
 					->join("app_users_groups","app_users.id","app_users_groups.user_id")
 					->join("app_groups","app_groups.id","app_users_groups.group_id")
@@ -668,7 +668,7 @@ class PerimeterController extends Controller
         $PathCompany = '/foto_bumn/';
         $data = array();
         $user = new User;
-        $user->setConnection('pgsql2');
+        $user->setConnection('pgsql3');
         $user = $user->select('app_users.id','app_users.username','app_users.first_name',
             'master_company.mc_id','master_company.mc_name','app_groups.name',
             'app_users.no_hp','app_users.divisi','app_users.email','app_users.foto','master_company.mc_foto')

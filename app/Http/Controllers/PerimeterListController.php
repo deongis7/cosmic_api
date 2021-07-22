@@ -95,7 +95,7 @@ class PerimeterListController extends Controller
           $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
 
           $perimeter = new Perimeter;
-          $perimeter->setConnection('pgsql2');
+          $perimeter->setConnection('pgsql3');
           $perimeter = $perimeter->select('master_company.mc_id','master_company.mc_name','master_perimeter.mpm_id',
               'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
               'master_perimeter_kategori.mpmk_id','master_perimeter_kategori.mpmk_name',
@@ -837,7 +837,7 @@ class PerimeterListController extends Controller
         $enddate = $weeks['endweek'];
 
         if($id_role == 4){
-            $clustertrans = DB::connection('pgsql2')->select( "select tpd.tpmd_id, mpl.mpml_mpm_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+            $clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id, mpl.mpml_mpm_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join master_perimeter mp on mpl.mpml_mpm_id = mp.mpm_id
@@ -845,7 +845,7 @@ class PerimeterListController extends Controller
 		where  mpl.mpml_mpm_id= ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4 and ta.ta_status <> 2
 		group by tpd.tpmd_id,  mpl.mpml_mpm_id,tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter, $startdate, $enddate]);
         } else {
-            $clustertrans = DB::connection('pgsql2')->select( "select tpd.tpmd_id,  mpl.mpml_mpm_id,tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+            $clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id,  mpl.mpml_mpm_id,tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join master_perimeter mp on mpl.mpml_mpm_id = mp.mpm_id
@@ -958,7 +958,7 @@ class PerimeterListController extends Controller
 
             $data = array();
             $perimeter = new Perimeter;
-            $perimeter->setConnection('pgsql2');
+            $perimeter->setConnection('pgsql3');
             //Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
             $perimeter =   $perimeter->select('master_region.mr_id','master_region.mr_name',
                 'master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',  'master_perimeter.mpm_gmap',
