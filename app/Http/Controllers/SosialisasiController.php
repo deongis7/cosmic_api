@@ -70,6 +70,8 @@ class SosialisasiController extends Controller {
         $pageend = ceil($cntsosialisasiall/$row);
 
         if (count($sosialisasi) > 0){
+            $ppkm_headx = 0;
+            $ppkm_head1 = false;
             foreach($sosialisasi as $sos){
                 if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
                     if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file1))) {
@@ -134,12 +136,21 @@ class SosialisasiController extends Controller {
                     "persen_dampak_keseluruhan" =>$sos->ts_prsn_dampak_all,
                     "flag_ppkm" =>$sos->flag_ppkm
                 );
+                
+             
+                if($sos->flag_ppkm == true){
+                    $ppkm_headx += 1;
+                }
+            }
+            
+            if($ppkm_headx > 0){
+                $ppkm_head1 = true;
             }
         }else{
             $data = array();
         }
         return response()->json(['status' => 200, 'page_end'=> $pageend,
-            'week' => $week, 'data' => $data]);
+            'week' => $week, 'ppkm'=> $ppkm_head1, 'data' => $data]);
     }
 
     public function getDataById($id) {
