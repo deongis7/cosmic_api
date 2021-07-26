@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManagerStatic as Image;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class SosialisasiController extends Controller {
 
     public function __construct() {
@@ -42,13 +43,13 @@ class SosialisasiController extends Controller {
                 FROM transaksi_sosialisasi ts
                 LEFT JOIN master_sosialisasi_kategori mslk ON mslk.mslk_id=ts.ts_mslk_id
                 WHERE ts_mc_id= ?";
-        
+
         if(isset($search)) {
             $string = $string ." and (lower(ts_nama_kegiatan) like ? or lower(ts_deskripsi) like ? ) ";
             $param[] ="%".strtolower($search)."%";
             $param[] ="%".strtolower($search)."%";
         }
-        
+
         $string = $string ." ORDER BY ts_tanggal DESC ";
 
         //get all
@@ -631,16 +632,16 @@ class SosialisasiController extends Controller {
             return response()->json(['status' => 500,'message' => 'Data Sosialisasi Gagal diUpdate'])->setStatusCode(500);
         }
     }
-    
+
     public function getSosialisasiRaw(Request $request) {
         $limit = null;
         $page = null;
         $search = null;
         $endpage = 1;
-        
+
         $sosialisasi = new Sosialisasi();
         $sosialisasi->setConnection('pgsql3');
-        $sosialisasi = $sosialisasi->select('mc_id', 'mc_name', 'ts_id', 
+        $sosialisasi = $sosialisasi->select('mc_id', 'mc_name', 'ts_id',
             'ts_nama_kegiatan', 'ts_tanggal', 'ts_mc_id',
             'ts_mslk_id', 'mslk_name', 'ts_deskripsi', 'ts_checklist_dampak',
             'ts_bulan', 'ts_prsn_dampak', 'ts_prsn_dampak_all',
@@ -648,18 +649,18 @@ class SosialisasiController extends Controller {
         ->join('master_company AS mc','mc.mc_id','ts_mc_id')
         ->join('master_sosialisasi_kategori AS mslk','mslk.mslk_id','ts_mslk_id')
         ->where('mc.mc_level', 1);
-        
+
         if(isset($request->search)) {
             $search = $request->search;
             $sosialisasi = $sosialisasi->where(DB::raw("lower(TRIM(ts_nama_kegiatan))"),'like','%'.strtolower(trim($search)).'%');
         }
-        
+
         $jmltotal=($sosialisasi->count());
         if(isset($request->limit)) {
             $limit = $request->limit;
             $sosialisasi = $sosialisasi->limit($limit);
             $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-            
+
             if (isset($request->page)) {
                 $page = $request->page;
                 $offset = ((int)$page -1) * (int)$limit;
@@ -668,7 +669,7 @@ class SosialisasiController extends Controller {
         }
         $sosialisasi = $sosialisasi->get();
         $totalsosialisasi = $sosialisasi->count();
-        
+
         if (count($sosialisasi) > 0){
             foreach($sosialisasi as $sos){
                 if($sos->ts_file1 !=NULL || $sos->ts_file1 !=''){
@@ -686,7 +687,7 @@ class SosialisasiController extends Controller {
                     $filesos1 = '/404/img404.jpg';
                     $filesos1_tumb = '/404/img404.jpg';
                 }
-                
+
                 if($sos->ts_file2 !=NULL || $sos->ts_file2 !=''){
                     if (!file_exists(base_path("storage/app/public/sosialisasi/".$sos->ts_mc_id.'/'.$sos->ts_file2))) {
                         $path_file404 = '/404/img404.jpg';
@@ -702,7 +703,7 @@ class SosialisasiController extends Controller {
                     $filesos2 = '/404/img404.jpg';
                     $filesos2_tumb ='/404/img404.jpg';
                 }
-                
+
                 $data[] = array(
                     "kode_perusahaan" => $sos->mc_id,
                     "nama_perusahaan" => $sos->mc_name,
@@ -730,4 +731,25 @@ class SosialisasiController extends Controller {
         return response()->json(['status' => 200, 'page_end'=> $endpage,
             'data' => $data]);
     }
+
+    //Download File Protokol by binary
+  	public function getDownloadFileSosialisasi($kd_perusahaan,$filename)
+  	{
+      //PDF file is stored under project/public/download/info.pdf
+  	//$protokol = TblProtokol::where('tbpt_mpt_id',$id_protokol)->where('tbpt_mc_id',$kd_perusahaan)->first();
+      $file= storage_path() . "/app/public/sosialisasi/".$kd_perusahaan."/". $filename;
+
+  	$headers = [
+  				  'Content-Type' => 'application/pdf',
+  				 ];
+
+  	if (!is_file($file)) {
+  	   return response()->json(['status' => 404,'message' => 'Data Tidak Ada'])->setStatusCode(404);
+  		}
+  	$response = new BinaryFileResponse($file, 200 , $headers);
+
+  	return $response;
+  	//return response()->file($file);
+
+  	}
 }

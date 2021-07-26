@@ -138,6 +138,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Sosialisasi
 	$router->get('/sosialisasi/get_bymcid/{id}/{page}', 'SosialisasiController@getDataByMcid');
 	$router->get('/sosialisasi/get_byid/{id}', 'SosialisasiController@getDataById');
+	$router->get('/sosialisasi/download/{kd_perusahaan}/{filename}', 'SosialisasiController@getDownloadFileSosialisasi');
 
 	$router->post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
 	$router->get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
