@@ -1118,7 +1118,7 @@ class DashboardController extends Controller
 
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
-            $weeksday =   DB::connection('pgsql2')->select("SELECT * , CONCAT(v_awal,' s/d ', v_akhir) tgl
+            $weeksday =   DB::connection('pgsql3')->select("SELECT * , CONCAT(v_awal,' s/d ', v_akhir) tgl
                   FROM list_aktivitas_weeknew_open()
                   ORDER BY v_rownum DESC");
 
@@ -1128,7 +1128,7 @@ class DashboardController extends Controller
               where mpm.mpm_mc_id = ? and mpml.mpml_id in (select tpmd_mpml_id from table_perimeter_detail)',[$company_id]);
               $jml = count($perimeter);
 
-              $ceknow =  DB::connection('pgsql2')->select("SELECT *
+              $ceknow =  DB::connection('pgsql3')->select("SELECT *
                       FROM report_cosmic_index rpi
                       WHERE rci_week = ? and rci_mc_id = ?
                       ORDER BY rci_week asc limit 1 ",[(string)$weeknow,(string)$company_id]);
@@ -1242,12 +1242,12 @@ class DashboardController extends Controller
                   ORDER BY v_rownum DESC");
 
               $company_id = $mc_id;
-              $perimeter =  DB::connection('pgsql2')->select('select * from master_perimeter_level mpml
+              $perimeter =  DB::connection('pgsql3')->select('select * from master_perimeter_level mpml
               join master_perimeter mpm on mpm.mpm_id = mpml.mpml_mpm_id
               where mpm.mpm_mc_id = ? and mpml.mpml_id in (select tpmd_mpml_id from table_perimeter_detail)',[$company_id]);
               $jml = count($perimeter);
 
-              $ceknow =  DB::connection('pgsql2')->select("SELECT *
+              $ceknow =  DB::connection('pgsql3')->select("SELECT *
                       FROM report_cosmic_index rpi
                       WHERE rci_week = ? and rci_mc_id = ?
                       ORDER BY rci_week asc limit 1 ",[(string)$weeknow,(string)$company_id]);
@@ -1272,7 +1272,7 @@ class DashboardController extends Controller
                 $param[] = $limitdate;
               }
               $sql= $sql." ORDER BY rci_week asc ";
-              $rpi =  DB::connection('pgsql2')->select($sql,$param);
+              $rpi =  DB::connection('pgsql3')->select($sql,$param);
 
               foreach($rpi as $itemrpi){
                 foreach ($weeksday as $itemweeksday){
@@ -1509,7 +1509,7 @@ class DashboardController extends Controller
                   }
               }
 
-              $perimeter_byperusahaan_all =  DB::connection('pgsql2')->select($string);
+              $perimeter_byperusahaan_all =  DB::connection('pgsql3')->select($string);
 
               foreach($perimeter_byperusahaan_all as $pka){
                   $data[] = array(
