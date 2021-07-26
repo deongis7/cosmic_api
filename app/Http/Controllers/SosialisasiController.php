@@ -318,7 +318,7 @@ class SosialisasiController extends Controller {
         $name_pdf = NULL;
         if(isset($request->file_pdf)){
             if ($request->file_pdf != null || $request->file_pdf != '') {
-                $image = str_replace('data:application/pdf;base64,', '', $r_file_pdf);
+                $image = str_replace('data:application/pdf;base64,', '', $file_pdf);
                 $filedecode = base64_decode($image);
                 $name_pdf = round(microtime(true) * 1000).'.pdf';
                 Storage::disk('public')->put('sosialisasi/'.$kd_perusahaan.'/'.$name_pdf, base64_decode($image));
