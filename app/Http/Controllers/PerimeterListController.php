@@ -177,7 +177,7 @@ class PerimeterListController extends Controller
         $monitoring = $request->monitoring;
 
         $nik = $request->nik;
-        $str = "_get_perimeterlist_by_perusahaan_". $kd_perusahaan;
+        $str = "_get_perimeterlist_by_perusahaan_2". $kd_perusahaan;
 
         if(isset($nik)){
             $str = $str.'_nik_'. $nik;
@@ -1845,7 +1845,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         $monitoring = $request->monitoring;
 
         $nik = $request->nik;
-        $str = "_get_perimeterlist_by_perusahaan_". $kd_perusahaan;
+        $str = "_get_perimeterlist_by_perusahaan_2". $kd_perusahaan;
 
         if(isset($nik)){
             $str = $str.'_nik_'. $nik;
