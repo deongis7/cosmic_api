@@ -251,7 +251,7 @@ class DashboardController extends Controller
                     $string = $string . " offset " .$offset;
                 }
             }
-            $perimeter_byperusahaan_all = DB::connection('pgsql2')->select($string);
+            $perimeter_byperusahaan_all = DB::connection('pgsql3')->select($string);
 
             foreach($perimeter_byperusahaan_all as $pka){
                 $data[] = array(
@@ -290,7 +290,7 @@ class DashboardController extends Controller
             if(isset($search)) {
                 $string = $string . " where lower(TRIM(nama_perimeter)) like '%".strtolower(trim($search))."%' ";
             }
-            $jmltotal=(count(DB::connection('pgsql2')->select($string)));
+            $jmltotal=(count(DB::connection('pgsql3')->select($string)));
             if(isset($limit)) {
                 $string = $string. " limit ".$limit;
                 $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
@@ -341,7 +341,7 @@ class DashboardController extends Controller
             if(isset($search)) {
                 $string = $string . " where lower(TRIM(nama_perimeter)) like '%".strtolower(trim($search))."%' ";
             }
-            $jmltotal=(count(DB::connection('pgsql2')->select($string)));
+            $jmltotal=(count(DB::connection('pgsql3')->select($string)));
             if(isset($limit)) {
                 $string = $string. " limit ".$limit;
                 $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
@@ -1053,7 +1053,7 @@ class DashboardController extends Controller
 
                         ";
                     //echo $sql;die;
-                    $result =  DB::connection('pgsql2')->select($sql, [(string)$company_id]);
+                    $result =  DB::connection('pgsql3')->select($sql, [(string)$company_id]);
                     //dd($result);
                     foreach ($result as $value) {
                         $data = array(
@@ -1237,7 +1237,7 @@ class DashboardController extends Controller
 
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
-            $weeksday =   DB::connection('pgsql2')->select("SELECT * , CONCAT(v_awal,' s/d ', v_akhir) tgl
+            $weeksday =   DB::connection('pgsql3')->select("SELECT * , CONCAT(v_awal,' s/d ', v_akhir) tgl
                   FROM list_aktivitas_weeknew_open()
                   ORDER BY v_rownum DESC");
 
@@ -1440,7 +1440,7 @@ class DashboardController extends Controller
 	public function getPerusahaanbyIndustriAll(){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perusahaan_byindustri_all", 5 * 60, function() {
 	        $data = array();
-	        $perimeter_byprovinsi_all =  DB::connection('pgsql2')->select("SELECT * FROM dashboard_perusahaan_byindustri()");
+	        $perimeter_byprovinsi_all =  DB::connection('pgsql3')->select("SELECT * FROM dashboard_perusahaan_byindustri()");
 
 	        foreach($perimeter_byprovinsi_all as $ppa){
 	            $data[] = array(
@@ -1534,7 +1534,7 @@ class DashboardController extends Controller
               $data = array();
 
               $string ="SELECT sum(v_jml_event) FROM dashboard_event_all()";
-              $jmltotal=( DB::connection('pgsql2')->select($string));
+              $jmltotal=( DB::connection('pgsql3')->select($string));
 
               foreach($jmltotal as $pka){
                   $data[] = array(
@@ -1917,7 +1917,7 @@ class DashboardController extends Controller
      $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_CardAtestasi", 0 * 60, function() {
           $data = array();
           $data2 = array();
-          $cosmicindex_all = DB::connection('pgsql2')->select("SELECT * FROM getcardatestasi()");
+          $cosmicindex_all = DB::connection('pgsql3')->select("SELECT * FROM getcardatestasi()");
 
           foreach($cosmicindex_all as $cia){
               $data2[] = array(
@@ -1926,7 +1926,7 @@ class DashboardController extends Controller
               );
           }
           // dd($data2[0]['v_jml']);
-          $sertifikasi = DB::connection('pgsql2')->select("SELECT * FROM getcardproduk()");
+          $sertifikasi = DB::connection('pgsql3')->select("SELECT * FROM getcardproduk()");
           $total = 0;
           foreach($sertifikasi as $row => $cia){
             // echo $data[$row]['v_jml'];
@@ -2005,7 +2005,7 @@ class DashboardController extends Controller
 
       $data = array();
 
-      $agregasi = DB::connection('pgsql2')->select( "select tad.*, mc.mc_name,mc.mc_id from table_agregasi_data_pegawai tad
+      $agregasi = DB::connection('pgsql3')->select( "select tad.*, mc.mc_name,mc.mc_id from table_agregasi_data_pegawai tad
       join master_company mc on mc.mc_id = tad.tad_mc_id
       where mc.mc_id=? order by tad_week desc limit 1",
       [$mc_id ]);
