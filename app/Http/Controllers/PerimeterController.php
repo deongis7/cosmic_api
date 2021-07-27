@@ -117,7 +117,7 @@ class PerimeterController extends Controller
 		$dashboard = array("total_perimeter"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
 		$data = array();
     $perimeter = new Perimeter;
-    $perimeter->setConnection('pgsql2');
+    $perimeter->setConnection('pgsql3');
 			//Perimeter::select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
 			$perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
 		    'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
@@ -205,7 +205,7 @@ class PerimeterController extends Controller
         $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10 * 60, function()use($id,$limit,$page,$endpage,$search) {
             $data = array();
             $perimeter = new Perimeter;
-            $perimeter->setConnection('pgsql2');
+            $perimeter->setConnection('pgsql3');
             $perimeter = $perimeter->select('master_region.mr_id', 'master_region.mr_name',
                 'master_perimeter_level.mpml_id', 'master_perimeter.mpm_name',
                 'master_perimeter.mpm_alamat', 'master_perimeter_level.mpml_name',
