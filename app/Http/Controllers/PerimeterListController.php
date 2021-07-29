@@ -1220,7 +1220,7 @@ class PerimeterListController extends Controller
             $perimeter = $perimeter->select('master_region.mr_id', 'master_region.mr_name',
                 'master_perimeter.mpm_id', 'master_perimeter.mpm_name',
                 'master_perimeter.mpm_alamat', 'master_perimeter_kategori.mpmk_name',
-                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name', 'master_perimeter.mpm_mc_id')
+                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name', 'master_perimeter.mpm_mc_id', 'master_perimeter.mpm_lockdown')
                 ->join('master_region', 'master_region.mr_id', 'master_perimeter.mpm_mr_id')
                 ->join('master_perimeter_kategori', 'master_perimeter_kategori.mpmk_id', 'master_perimeter.mpm_mpmk_id')
                 ->leftjoin('master_provinsi', 'master_provinsi.mpro_id', 'master_perimeter.mpm_mpro_id')
@@ -1254,6 +1254,7 @@ class PerimeterListController extends Controller
 
                     "provinsi" => $itemperimeter->mpro_name,
                     "kabupaten" => $itemperimeter->mkab_name,
+                    "lockdown" => ($itemperimeter->mpm_lockdown=="")?"0":"1",
                     "aktifitas" => $this->getFotoByPerimeter($itemperimeter->mpm_id, $itemperimeter->mpm_mc_id)
                 );
             }

@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 use App\Report;
 use App\TrnSurveiKepuasan;
+use App\Perimeter;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -661,5 +662,40 @@ class ReportController extends Controller {
             }
 
 
+    }
+
+public function UpdateLockdown(Request $request) {
+        date_default_timezone_set('Asia/Jakarta');
+        $this->validate($request, [
+              'mpm_id' => 'required',
+          ]);
+        $mpm_id = $request->mpm_id;
+        $is_lockdown = $request->is_lockdown;
+        $keterangan = $request->keterangan;
+
+        $mst = New Perimeter();
+        $mst = $mst->setConnection('pgsql');
+        
+        if($is_lockdown == 0){
+          $mst = $mst->whereRaw("mpm_id ='".$mpm_id."'" )->first();
+          if(isset($is_lockdown)){
+            $mst->mpm_lockdown= 1;
+          }
+
+          if(isset($keterangan)){
+            $mst->mpm_keterangan_lockdown= $keterangan;
+          }
+
+          $mst->mpm_date_lockdown = date('Y-m-d');
+          $mst->save();
+          return response()->json(['status' => 200,'message' => 'Berhasil buka perimeter']);
+        } else {
+          $mst = $mst->whereRaw("mpm_id ='".$mpm_id."'" )->first();
+          if(isset($is_lockdown)){
+            $mst->mpm_lockdown= 0;
+          }
+          $mst->save();
+          return response()->json(['status' => 200,'message' => 'Perimeter berhasil di lockdown']);
+        }
     }
 }
