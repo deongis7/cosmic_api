@@ -77,7 +77,7 @@ class DashClusterController extends Controller
 	public function getClusterPerimeterbyProvinsiAll($id){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_getcluster_perimeter_byprovinsi_all".$id, 360 * 60, function()use($id){
 	        $data = array();
-	        $perimeter_byprovinsi_all = DB::connection('pgsql2')->select("SELECT * FROM cluster_dashboard_perimeter_byprovinsi('$id')");
+	        $perimeter_byprovinsi_all = DB::connection('pgsql3')->select("SELECT * FROM cluster_dashboard_perimeter_byprovinsi('$id')");
 	        
 	        foreach($perimeter_byprovinsi_all as $ppa){
 	            $data[] = array(
@@ -93,7 +93,7 @@ class DashClusterController extends Controller
 	public function getClusterCosmicIndexAll($id){
 	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_getcluster_cosmicindex_all".$id, 360 * 60, function()use($id){
 	        $data = array();
-	        $cosmicindex_all = DB::connection('pgsql2')->select("SELECT * FROM cluster_dashboard_perimeter_bycosmicindex('$id')");
+	        $cosmicindex_all = DB::connection('pgsql3')->select("SELECT * FROM cluster_dashboard_perimeter_bycosmicindex('$id')");
 	        
 	        foreach($cosmicindex_all as $cia){
 	            $data[] = array(
