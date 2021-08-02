@@ -963,7 +963,9 @@ class PerimeterListController extends Controller
             $perimeter =   $perimeter->select('master_region.mr_id','master_region.mr_name',
                 'master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',  'master_perimeter.mpm_gmap',
                 'master_perimeter_kategori.mpmk_name','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude',
-                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name','master_company.mc_id','master_company.mc_name'
+                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name','master_company.mc_id','master_company.mc_name',
+                 DB::raw("CASE WHEN (master_perimeter.mpm_lockdown=1) THEN 'true' ELSE 'false' END AS lockdown"),
+                'master_perimeter.mpm_keterangan_lockdown'
             )
 
                 ->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
@@ -995,6 +997,8 @@ class PerimeterListController extends Controller
                     "gmap" => $perimeter->mpm_gmap,
                     "provinsi" => $perimeter->mpro_name,
                     "kabupaten" => $perimeter->mkab_name,
+                    "lockdown" => $perimeter->lockdown,
+                    "keterangan_lockdown" => $perimeter->mpm_keterangan_lockdown
                 );
                 return response()->json(['status' => 200 ,'data' => $data]);
             } else {
