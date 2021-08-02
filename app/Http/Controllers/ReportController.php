@@ -664,11 +664,11 @@ class ReportController extends Controller {
 
     }
 
-public function UpdateLockdown(Request $request) {
+    public function UpdateLockdown(Request $request) {
         date_default_timezone_set('Asia/Jakarta');
         $this->validate($request, [
               'mpm_id' => 'required',
-          ]);
+        ]);
         $mpm_id = $request->mpm_id;
         $is_lockdown = $request->is_lockdown;
         $keterangan = $request->keterangan;
@@ -677,25 +677,25 @@ public function UpdateLockdown(Request $request) {
         $mst = $mst->setConnection('pgsql');
         
         if($is_lockdown == 0){
-          $mst = $mst->whereRaw("mpm_id ='".$mpm_id."'" )->first();
-          if(isset($is_lockdown)){
-            $mst->mpm_lockdown= 1;
-          }
+        $mst = $mst->whereRaw("mpm_id ='".$mpm_id."'" )->first();
+            if(isset($is_lockdown)){
+                $mst->mpm_lockdown= 1;
+            }
+        
+            if(isset($keterangan)){
+                $mst->mpm_keterangan_lockdown= $keterangan;
+            }
 
-          if(isset($keterangan)){
-            $mst->mpm_keterangan_lockdown= $keterangan;
-          }
-
-          $mst->mpm_date_lockdown = date('Y-m-d');
-          $mst->save();
-          return response()->json(['status' => 200,'message' => 'Berhasil buka perimeter']);
+            $mst->mpm_date_lockdown = date('Y-m-d');
+            $mst->save();
+            return response()->json(['status' => 200,'message' => 'Berhasil buka perimeter']);
         } else {
-          $mst = $mst->whereRaw("mpm_id ='".$mpm_id."'" )->first();
-          if(isset($is_lockdown)){
+            $mst = $mst->whereRaw("mpm_id ='".$mpm_id."'" )->first();
+            if(isset($is_lockdown)){
             $mst->mpm_lockdown= 0;
-          }
-          $mst->save();
-          return response()->json(['status' => 200,'message' => 'Perimeter berhasil di lockdown']);
+            }
+            $mst->save();
+            return response()->json(['status' => 200,'message' => 'Perimeter berhasil di lockdown']);
         }
     }
 }

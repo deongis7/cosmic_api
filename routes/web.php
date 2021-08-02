@@ -342,9 +342,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //Survei Kepuasan
     Route::post('/report/survei_kepuasan', 'ReportController@postSurveiKepuasan');
 
-    //lockdown
-    Route::get('/update_lockdown', 'ReportController@UpdateLockdown');
-
     Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
     Route::post('/user/sendfirebase/{id}', 'UserController@sendFirebase');
 
@@ -377,22 +374,25 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::get('/vaksinkemenkes/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcidKEMENKES');
 		Route::get('/vaksinkemenkes/vaksin_bynik/{id}', 'VaksinController@getDataByNIKKEMENKES');
 
-    Route::get('/vaksinpl/vaksin', 'VaksinController@getDataAllPL');
+        Route::get('/vaksinpl/vaksin', 'VaksinController@getDataAllPL');
 
 		Route::get('/monitoringbumn/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeterBUMN');
 		Route::get('/list_perimeterbumn/{kd_perusahaan}', 'PerimeterListController@getPerimeterListBUMN');
 		Route::get('/taskforcebumn/{id}', 'PerimeterController@getTaskForceBUMN');
 
-    //Rumah Singgah
-  	Route::get('/rumah_singgah', 'RumahSinggahController@getListRumahSinggah');
-  	Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
-  	Route::get('/rumah_singgah/provinsi_kota/{id_provinsi}', 'RumahSinggahController@getGroupRumahSinggahByProvKota');
-    Route::get('/rumah_singgah/{id}', 'RumahSinggahController@getRumahSinggahById');
-    Route::delete('/rumah_singgah/{id}', 'RumahSinggahController@deleteRumahSinggah');
-    Route::post('/rumah_singgah/add', 'RumahSinggahController@addRumahSinggah');
-    Route::post('/rumah_singgah/update/{id}', 'RumahSinggahController@updateRumahSinggah');
-    Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
-
+        //Rumah Singgah
+      	Route::get('/rumah_singgah', 'RumahSinggahController@getListRumahSinggah');
+      	Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
+      	Route::get('/rumah_singgah/provinsi_kota/{id_provinsi}', 'RumahSinggahController@getGroupRumahSinggahByProvKota');
+        Route::get('/rumah_singgah/{id}', 'RumahSinggahController@getRumahSinggahById');
+        Route::delete('/rumah_singgah/{id}', 'RumahSinggahController@deleteRumahSinggah');
+        Route::post('/rumah_singgah/add', 'RumahSinggahController@addRumahSinggah');
+        Route::post('/rumah_singgah/update/{id}', 'RumahSinggahController@updateRumahSinggah');
+        Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
+    
+        
+        //lockdown
+        Route::post('/update_lockdown', 'ReportController@UpdateLockdown');
 	});
 });
 
