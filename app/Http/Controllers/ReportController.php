@@ -677,9 +677,10 @@ class ReportController extends Controller {
         $mst = $mst->setConnection('pgsql');
         
         if($is_lockdown == 0){
-        $mst = $mst->whereRaw("mpm_id ='".$mpm_id."'" )->first();
+            $mst = $mst->whereRaw("mpm_id ='".$mpm_id."'" )->first();
             if(isset($is_lockdown)){
-                $mst->mpm_lockdown= 1;
+                //$mst->mpm_lockdown= 1;
+                $mst->mpm_lockdown= $is_lockdown;
             }
         
             if(isset($keterangan)){
@@ -692,7 +693,8 @@ class ReportController extends Controller {
         } else {
             $mst = $mst->whereRaw("mpm_id ='".$mpm_id."'" )->first();
             if(isset($is_lockdown)){
-            $mst->mpm_lockdown= 0;
+                //$mst->mpm_lockdown= 0;
+                $mst->mpm_lockdown= $is_lockdown;
             }
             $mst->save();
             return response()->json(['status' => 200,'message' => 'Perimeter berhasil di lockdown']);
