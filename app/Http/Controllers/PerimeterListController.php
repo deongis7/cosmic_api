@@ -388,7 +388,7 @@ class PerimeterListController extends Controller
                     "percentage" => 0,
                     "provinsi" => $itemperimeter->mpro_name,
                     "kabupaten" => $itemperimeter->mkab_name,
-                    "lockdown" => $itemperimeter->mpmp_lockdown == 1? true: false,
+                    "lockdown" => $itemperimeter->mpm_lockdown == 1? true: false,
                     "keterangan_lockdown" => $itemperimeter->mpm_keterangan_lockdown
                 );
                 //if ($status['status'] == true) {
@@ -547,7 +547,7 @@ class PerimeterListController extends Controller
                         "last_update" => $itemperimeter->last_update,
                         //"percentage" => ($status['percentage']),
                         "percentage" => 0,
-                        //"lockdown" => $itemperimeter->mpmp_lockdown == 1? true: false,
+                        //"lockdown" => $itemperimeter->mpm_lockdown == 1? true: false,
                         //"keterangan_lockdown" => $itemperimeter->mpm_keterangan_lockdown
                     );
                 if ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo == true) {
@@ -561,7 +561,7 @@ class PerimeterListController extends Controller
                 "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
             );
             return array('status' => 200, 'page_end' => $endpage,
-                'lockdown' => $perimeterfirst->mpmp_lockdown == 1? true: false, 
+                'lockdown' => $perimeterfirst->mpm_lockdown == 1? true: false, 
                 'keterangan_lockdown' => $perimeterfirst->mpm_keterangan_lockdown,
                 'data_dashboard' => $dashboard, 'data' => $data
             );
@@ -981,7 +981,7 @@ class PerimeterListController extends Controller
                 "gmap" => $perimeter->mpm_gmap,
                 "provinsi" => $perimeter->mpro_name,
                 "kabupaten" => $perimeter->mkab_name,
-                "lockdown" => $perimeter->mpmp_lockdown == 1? true: false,
+                "lockdown" => $perimeter->mpm_lockdown == 1? true: false,
                 "keterangan_lockdown" => $perimeter->mpm_keterangan_lockdown
             );
             return response()->json(['status' => 200 ,'data' => $data]);
