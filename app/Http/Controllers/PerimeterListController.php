@@ -560,9 +560,16 @@ class PerimeterListController extends Controller
                 "sudah_dimonitor" => $totalpmmonitoring,
                 "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
             );
+           // var_dump($perimeterfirst);die;
+            $lockdown = NULL;
+            $keterangan_lockdown = NULL;
+            if($perimeterfirst!=NULL){
+                $lockdown = $perimeterfirst->mpm_lockdown == 1? true: false;
+                $keterangan_lockdown = $perimeterfirst->mpm_keterangan_lockdown;
+            }
             return array('status' => 200, 'page_end' => $endpage,
-                'lockdown' => $perimeterfirst->mpm_lockdown == 1? true: false, 
-                'keterangan_lockdown' => $perimeterfirst->mpm_keterangan_lockdown,
+                'lockdown' => $lockdown, 
+                'keterangan_lockdown' => $keterangan_lockdown,
                 'data_dashboard' => $dashboard, 'data' => $data
             );
         });
