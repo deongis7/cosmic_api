@@ -205,7 +205,7 @@ class PerimeterListController extends Controller
             }
         }
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 0 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search,$column,$sort) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 30 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search,$column,$sort) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
@@ -516,17 +516,19 @@ class PerimeterListController extends Controller
                     $perimeter = $perimeter->offset($offset);
                 }
             }
+            
             $perimeter = $perimeter->get();
+            $perimeterfirst = $perimeter->first();
             $totalperimeter = $perimeter->count();
             $totalpmmonitoring = 0;
             // dd($perimeter->toSql());
+            //var_dump($perimeterfirst->mpm_id);die;
+      
             foreach ($perimeter as $itemperimeter) {
                 //$cluster = new TblPerimeterDetail;
                 //$cluster->setConnection('pgsql2');
                 //$cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
                 //$status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
-
-
                 //dd($status['status']);
                 $data[] = array(
                         "id_perimeter" => $itemperimeter->mpm_id,
@@ -545,8 +547,8 @@ class PerimeterListController extends Controller
                         "last_update" => $itemperimeter->last_update,
                         //"percentage" => ($status['percentage']),
                         "percentage" => 0,
-                        "lockdown" => $itemperimeter->mpmp_lockdown == 1? true: false,
-                        "keterangan_lockdown" => $itemperimeter->mpm_keterangan_lockdown
+                        //"lockdown" => $itemperimeter->mpmp_lockdown == 1? true: false,
+                        //"keterangan_lockdown" => $itemperimeter->mpm_keterangan_lockdown
                     );
                 if ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo == true) {
                     $totalpmmonitoring++;
@@ -558,11 +560,13 @@ class PerimeterListController extends Controller
                 "sudah_dimonitor" => $totalpmmonitoring,
                 "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
             );
-            return array('status' => 200, 'page_end' => $endpage,'data_dashboard' => $dashboard, 'data' => $data);
-
+            return array('status' => 200, 'page_end' => $endpage,
+                'lockdown' => $perimeterfirst->mpmp_lockdown == 1? true: false, 
+                'keterangan_lockdown' => $perimeterfirst->mpm_keterangan_lockdown,
+                'data_dashboard' => $dashboard, 'data' => $data
+            );
         });
         return response()->json($datacache);
-
     }
 
     //Get Region
