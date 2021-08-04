@@ -230,7 +230,9 @@ class PerimeterListController extends Controller
                 DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) as status_bumn"),
                 DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,max(userpic.username)) as status_pic"),
                 DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,max(userfo.username)) as status_fo"),
-                DB::raw("status_monitoring_perimeter_last_update(master_perimeter.mpm_id) as last_update")
+                DB::raw("status_monitoring_perimeter_last_update(master_perimeter.mpm_id) as last_update"),
+                DB::raw("CASE WHEN (master_perimeter.mpm_lockdown=1) THEN 'true' ELSE 'false' END AS lockdown"),
+                'master_perimeter.mpm_keterangan_lockdown'
 
             )
                 ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
@@ -395,6 +397,8 @@ class PerimeterListController extends Controller
                     "percentage" => 0,
                     "provinsi" => $itemperimeter->mpro_name,
                     "kabupaten" => $itemperimeter->mkab_name,
+                    "lockdown" => $perimeter->lockdown,
+                    "keterangan_lockdown" => $perimeter->mpm_keterangan_lockdown
 
                 );
                 //if ($status['status'] == true) {
