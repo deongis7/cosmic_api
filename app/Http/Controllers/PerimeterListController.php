@@ -477,8 +477,7 @@ class PerimeterListController extends Controller
                             $join->on("tpc.tbpc_mpml_id","=", "master_perimeter_level.mpml_id");
                             $join->on("tpc.tbpc_startdate","<=",DB::raw("'".Carbon::now()->format("Y-m-d")."'"));
                             $join->on("tpc.tbpc_enddate",">=",DB::raw("'".Carbon::now()->format("Y-m-d")."'"));
-
-                        })->where('master_perimeter.mpm_lockdown',0);
+                        });//->where('master_perimeter.mpm_lockdown',0);
             if(isset($nik) && ($user != null)) {
                 $role_id = $user->roles()->first()->id;
                 if ($role_id == 3) {
