@@ -210,9 +210,11 @@ class PerimeterListController extends Controller
                 $sort=$request->p_sort;
             }
         }
+        //var_dump($str);die;
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 30 * 60, function()use($kd_perusahaan,
-            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search,$column,$sort,$lockdown) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10, function()use($kd_perusahaan,
+           $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
+           $search,$column,$sort,$lockdown) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
@@ -239,10 +241,7 @@ class PerimeterListController extends Controller
                 ->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
                 ->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
                 ->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id');
-               
-                if(isset($request->lockdown)) {
-                    $perimeter = $perimeter->where('master_perimeter.mpm_lockdown', $request->lockdown);
-                }
+            
                 if(isset($nik) && ($user != null)) {
                     $role_id = $user->roles()->first()->id;
                     if ($role_id == 3) {
@@ -277,6 +276,10 @@ class PerimeterListController extends Controller
                 }
                 
                 $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan);
+               
+                if($lockdown!=null) {
+                    $perimeter = $perimeter->where('master_perimeter.mpm_lockdown', $lockdown);
+                }
                 
                 if(isset($search)) {
                     $perimeter = $perimeter->where(DB::raw("lower(TRIM(master_perimeter.mpm_name))"),'like','%'.strtolower(trim($search)).'%');
@@ -285,7 +288,7 @@ class PerimeterListController extends Controller
                 $perimeter = $perimeter->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                     'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
                     DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) "));
-                
+               
                 
                 if(isset($column)) {
                     if(isset($sort)) {
@@ -296,7 +299,7 @@ class PerimeterListController extends Controller
                 }else{
                     $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc');
                 }
-                
+                //var_dump($perimeter->toSql());  var_dump($lockdown);die;
                 //dd(count($perimeter->get()) );
                 $jmltotal=(count($perimeter->get()));
                 if(isset($limit)) {
@@ -414,7 +417,7 @@ class PerimeterListController extends Controller
                 
                 //return  $data;
                 return array('page_end' => $endpage, 'data' => $data);
-        });
+       });
             if(isset($nik) && ($user != null)) {
                 $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
             } else {
@@ -422,8 +425,8 @@ class PerimeterListController extends Controller
             }
             //$status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
             //$status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
-            return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
-            
+           return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
+            //return response()->json(['status' => 200,'page_end' =>$page_end, 'data_dashboard' => $status_dashboard, 'data' => $data]);
     }
     
 
