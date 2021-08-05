@@ -389,8 +389,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
         Route::post('/rumah_singgah/add', 'RumahSinggahController@addRumahSinggah');
         Route::post('/rumah_singgah/update/{id}', 'RumahSinggahController@updateRumahSinggah');
         Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
-    
-        
+
+
         //lockdown
         Route::post('/update_lockdown', 'ReportController@UpdateLockdown');
 	});
@@ -538,6 +538,8 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/mobiledashvaksin/groupbykabupaten/{id}', 'DashVaksinController@getDashVaksinMobileKabByProvinsi');
     Route::get('/mobiledashvaksin/groupbykabpro', 'DashVaksinController@getDashVaksinMobileKabPro');
     Route::get('/mobiledashvaksin/groupbycompany/{id}', 'DashVaksinController@getDashVaksinMobileCompanyByKabupaten');
+
+    Route::get('/notif_pic/{nik}', 'UserController@getNotifpic');
 
 	});
 });
