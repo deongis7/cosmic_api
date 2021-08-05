@@ -684,7 +684,7 @@ class ReportController extends Controller {
             }
         
             if(isset($keterangan)){
-                $mst->mpm_keterangan_lockdown= $keterangan;
+                $mst->mpm_keterangan_lockdown= null ;
             }
 
             $mst->mpm_date_lockdown = date('Y-m-d');
@@ -695,6 +695,9 @@ class ReportController extends Controller {
             if(isset($is_lockdown)){
                 //$mst->mpm_lockdown= 0;
                 $mst->mpm_lockdown= $is_lockdown;
+            }
+            if(isset($keterangan)){
+                $mst->mpm_keterangan_lockdown= $keterangan;
             }
             $mst->save();
             return response()->json(['status' => 200,'message' => 'Perimeter berhasil di lockdown']);
