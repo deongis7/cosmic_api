@@ -76,7 +76,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/perimeter_level/get_file_by_id/{id_file}', 'PICController@getFilePerimeterLevelByID');
     $router->get('/perimeter_level/get_file/{id_perimeter_level}', 'PICController@getFilePerimeterLevelByPerimeterLevel');
 	$router->post('/perimeter/update', 'PerimeterListController@updateDetailPerimeter');
-	$router->post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
+//	$router->post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
+  $router->post('/perimeter_closed/add', function () use ($router) {
+      return response()->json(['status' => 500,'message' => 'Fitur saat ini ditutup sementara'])->setStatusCode(500);
+  });
 	$router->post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
 	$router->post('/perimeter_closed/addActivity', 'PerimeterListController@updateAktifitasClosedPerimeter');  //force add for actifity closed perimeter
 	$router->post('/perimeter_open/add', 'PerimeterListController@openPerimeter');
@@ -342,9 +345,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //Survei Kepuasan
     Route::post('/report/survei_kepuasan', 'ReportController@postSurveiKepuasan');
 
-    //lockdown
-    Route::get('/update_lockdown', 'ReportController@UpdateLockdown');
-
     Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
     Route::post('/user/sendfirebase/{id}', 'UserController@sendFirebase');
 
@@ -377,21 +377,182 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 		Route::get('/vaksinkemenkes/vaksin_bykdperusahaan/{id}', 'VaksinController@getDataByMcidKEMENKES');
 		Route::get('/vaksinkemenkes/vaksin_bynik/{id}', 'VaksinController@getDataByNIKKEMENKES');
 
-    Route::get('/vaksinpl/vaksin', 'VaksinController@getDataAllPL');
+        Route::get('/vaksinpl/vaksin', 'VaksinController@getDataAllPL');
 
 		Route::get('/monitoringbumn/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeterBUMN');
 		Route::get('/list_perimeterbumn/{kd_perusahaan}', 'PerimeterListController@getPerimeterListBUMN');
 		Route::get('/taskforcebumn/{id}', 'PerimeterController@getTaskForceBUMN');
 
-    //Rumah Singgah
-  	Route::get('/rumah_singgah', 'RumahSinggahController@getListRumahSinggah');
-  	Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
-  	Route::get('/rumah_singgah/provinsi_kota/{id_provinsi}', 'RumahSinggahController@getGroupRumahSinggahByProvKota');
-    Route::get('/rumah_singgah/{id}', 'RumahSinggahController@getRumahSinggahById');
-    Route::delete('/rumah_singgah/{id}', 'RumahSinggahController@deleteRumahSinggah');
-    Route::post('/rumah_singgah/add', 'RumahSinggahController@addRumahSinggah');
-    Route::post('/rumah_singgah/update/{id}', 'RumahSinggahController@updateRumahSinggah');
-    Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
+        //Rumah Singgah
+      	Route::get('/rumah_singgah', 'RumahSinggahController@getListRumahSinggah');
+      	Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
+      	Route::get('/rumah_singgah/provinsi_kota/{id_provinsi}', 'RumahSinggahController@getGroupRumahSinggahByProvKota');
+        Route::get('/rumah_singgah/{id}', 'RumahSinggahController@getRumahSinggahById');
+        Route::delete('/rumah_singgah/{id}', 'RumahSinggahController@deleteRumahSinggah');
+        Route::post('/rumah_singgah/add', 'RumahSinggahController@addRumahSinggah');
+        Route::post('/rumah_singgah/update/{id}', 'RumahSinggahController@updateRumahSinggah');
+        Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
 
+
+        //lockdown
+        Route::post('/update_lockdown', 'ReportController@UpdateLockdown');
+	});
+});
+
+$router->group(['prefix' => 'api/v2'], function () use ($router) {
+  Route::post('/user/reset_password', 'UserController@postResetPassword');
+
+  Route::group(['middleware' => 'auth:api'], function () {
+		//Data_User
+
+    Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
+    Route::post('/user/sendfirebase/{id}', 'UserController@sendFirebase');
+    Route::get('/user/detail', 'UserController@getDetailUser');
+    Route::post('/user/detail/{id}', 'UserController@updateDetailUser');
+    Route::post('/user/change_password', 'UserController@change_password');
+    Route::post('/user/logout', 'UserController@logout');
+    Route::post('/user/detail_first/{id}', 'UserController@updateFirstDetailUser');
+    Route::post('/user/upload_foto_profile', 'UserController@uploadFotoProfile');
+
+    //PIC n FO
+    Route::get('/protokol/{id}', 'ProtokolController@protokol');
+    Route::post('/protokol/upload', 'ProtokolController@uploadProtokol');
+    Route::post('/protokol/upload_json', 'ProtokolController@uploadProtokolJSON');
+    Route::get('/list_perimeter/{kd_perusahaan}', 'PerimeterListController@getPerimeterList');
+    Route::get('/list_perimeter/detail/{id_perimeter}', 'PerimeterListController@getPerimeterDetail');
+    Route::post('/list_perimeter/update_gmap/{id_perimeter}', 'PerimeterListController@updatePerimeterListGmap');
+    Route::get('/list_perimeter_level/count/{kd_perusahaan}', 'PerimeterListController@getStatusPerimeterLevel');
+    Route::get('/list_perimeter_level/perimeter/{id_perimeter}', 'PerimeterListController@getPerimeterLevelListbyPerimeter');
+
+    Route::get('/perimeter_level/get_file/{id_perimeter_level}', 'PICController@getFilePerimeterLevelByPerimeterLevel');
+
+    Route::get('/cluster/perimeter/{id}', 'PerimeterController@getClusterbyPerimeter');
+    Route::get('/cluster/perimeter/{id}/{nik}', 'PICController@getClusterbyPerimeter');
+    Route::post('/cluster/add_file', 'PICController@addFileClusterRuangan');
+
+    Route::get('/monitoring/{nik}/{id_perimeter_cluster}', 'PICController@getAktifitasbyCluster');
+    Route::get('/monitoring/perimeter/{nik}/{id_perimeter_level}', 'PICController@getAktifitasbyPerimeter');
+    Route::post('/monitoring', 'PICController@updateDailyMonitoring');
+    Route::post('/monitoring/file','PICController@updateMonitoringFile');
+    Route::post('/validasi_monitoring', 'UserController@validasiMonitoring');
+
+    Route::post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
+
+    Route::post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
+    Route::post('/perimeter_closed/addActivity', 'PerimeterListController@updateAktifitasClosedPerimeter');  //force add for actifity closed perimeter
+    Route::post('/perimeter_open/add', 'PerimeterListController@openPerimeter');
+
+    Route::get('/notif/{nik}', 'PICController@getNotifFO');
+
+    Route::get('/dashboard/cosmic_index_detail/{kd_perusahaan}', 'DashboardController@getCosmicIndexbyCompanyAndDate');
+
+
+    //BUMN
+    Route::get('/clusterruangan', 'MasterController@getClusterRuangan');
+    Route::get('/perimeterkategori', 'MasterController@getKategoriPerimeter');
+    Route::get('/weeklist', 'MasterController@getWeekList');
+    Route::get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
+    Route::get('/provinsi', 'MasterController@getAllProvinsi');
+    Route::get('/kota', 'MasterController@getAllKota');
+    Route::get('/kota/{id_provinsi}', 'MasterController@getKotaByProvinsi');
+    Route::get('/taskforce/{id}', 'PerimeterController@getTaskForce');
+    Route::get('/taskforce/detail/{nik}', 'PerimeterController@getTaskForceDetail');
+    Route::get('/taskforce/delete/{nik}', 'PerimeterController@deleteTaskForce');
+    Route::get('/taskforce/reset_password/{nik}', 'PerimeterController@resetPasswordTaskForce');
+    Route::post('/taskforce/add', 'PerimeterController@addTaskForce');
+
+    Route::get('/detail_profile', 'DashVaksinController@getDetailProfile');
+
+    Route::get('/dashboard/cosmic_index_detail_average/{kd_perusahaan}', 'DashboardController@getAverageCosmicIndexDetailbyCompany');
+    Route::get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
+    Route::get('/dashboard/cosmic_index_list_average', 'DashboardController@getAverageCosmicIndexList');
+	  Route::get('/dashboard/alert_week_bymcid/{id}', 'DashboardController@getAlertWeek_byMcid');
+    Route::get('/dashboard/dashboardhead', 'DashboardController@getDashboardHead');
+    Route::get('/dashboard/card_produk', 'DashboardController@getCardProduk');
+    Route::get('/dashboard/card_atestasi', 'DashboardController@getCardAtestasi');
+    Route::get('/dashboard/card_sertifikasi', 'DashboardController@getCardSertifikasi');
+    Route::get('/dashvaksin/dashvaksin', 'DashVaksinController@getDashVaksin');
+    Route::get('/dashvaksin/dashvaksin_pegawai_filter', 'DashVaksinController@getDashVaksinPegawaiFilter');
+
+    Route::get('/perimeter/{id}', 'PerimeterController@getPerimeter');
+    Route::get('/perimeter/detail/{id_perimeter_level}', 'PerimeterController@getDetailPerimeter');
+    Route::get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
+    Route::get('/perimeter/{kd_perusahaan}/kota/{id_kota}', 'PerimeterController@getPerimeterbyKota');
+    Route::post('/perimeter/update', 'PerimeterListController@updateDetailPerimeter');
+    Route::get('/perimeter_level/perimeter/{id_perimeter}', 'PerimeterController@getLevelbyPerimeter');
+    Route::post('/perimeter_level/update', 'PerimeterController@updateDetailPerimeterLevel');
+	  Route::post('/import', 'ImportController@import');
+
+    Route::get('/list_perimeter/region/{id}', 'PerimeterListController@getPerimeterListbyRegion');
+    Route::get('/list_perimeter_report/{kd_perusahaan}', 'PerimeterReportController@getPerimeterList');
+    Route::get('/list_perimeter_new/{kd_perusahaan}', 'PerimeterListController@getPerimeterListNew');
+    Route::get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
+
+    Route::get('/sosialisasi/get_bymcid/{id}/{page}', 'SosialisasiController@getDataByMcid');
+    Route::post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
+    Route::post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
+    Route::get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
+
+    Route::get('/stspegawai', 'MasterController@getAllStsPegawai');
+    Route::get('/stskasus', 'MasterController@getAllStsKasus');
+    Route::get('/sosialisasikategori', 'MasterController@getAllSosialisasiKategori');
+
+    Route::get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
+    Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
+    Route::delete('/terpapar/delete/{id_kasus}', 'TerpaparController@deleteKasus');
+
+	  Route::get('/product/layanan_produk', 'ProductController@getLayananProduk');
+    Route::get('/product/daftar_riwayat', 'ProductController@getListRiwayatProduk');
+    Route::get('/product/detail_produk', 'ProductController@getPengajuanById');
+    Route::post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
+
+    Route::post('/company/upload_foto', 'MasterController@uploadFotoBUMN');
+    Route::get('/company', 'MasterController@getAllCompany');
+
+    //Gugus Tugas
+	  Route::get('/dashboard/perimeter_byperusahaan_all', 'DashboardController@getPerimeterbyPerusahaanAll');
+    Route::get('/dashboard/perimeter_bykategori_all', 'DashboardController@getPerimeterbyKategoriAll');
+    Route::get('/dashboard/region_byperusahaan/{kd_perusahaan}', 'DashboardController@getRegionbyPerusahaanbyID');
+    Route::get('/dashboard/perimeter_byperusahaan_byregion/{kd_perusahaan}/{id_region}', 'DashboardController@getListPerimeter_byPerusahaanbyRegion');
+    Route::get('/dashboard/provinsi_bykategori/{id_kategori}', 'DashboardController@getProvinsibyKategoribyID');
+    Route::get('/dashboard/cosmic_index_report', 'DashboardController@getCosmicIndexReport');
+    Route::get('/dashboard/cosmic_index_report_average', 'DashboardController@getCosmicIndexReportAverage');
+    Route::get('/dashreport/mobileall_byjns/{id}', 'ReportController@getDashReportMobileByJns');
+    Route::get('/dashreport/card_bymcid/{id}', 'ReportController@getDashReportCardByMcid');
+    Route::get('/dashvaksin/dashvaksin_mc', 'DashVaksinController@getDashVaksinPerusahaan');
+    Route::get('/dashvaksin/dashvaksin_mc_filter', 'DashVaksinController@getDashVaksinPerusahaanFilter');
+    Route::get('/dashvaksin/dashvaksin_lokasi1', 'DashVaksinController@getDashVaksinLokasi1');
+    Route::get('/dashvaksin/dashvaksin_lokasi2', 'DashVaksinController@getDashVaksinLokasi2');
+
+    Route::get('/list_perimeter/rate_week/{id_perimeter}', 'PerimeterListController@getWeekPerimeterRate');
+
+    Route::get('/review/perimeter/{id_perimeter}', 'PerimeterListController@getReviewByPerimeter');
+    Route::get('/report/perimeter/{id_perimeter}', 'PerimeterListController@getReportByPerimeter');
+    Route::get('/report/bymcid/{id}', 'ReportController@getDataByMcid');
+    Route::get('/stskasus2', 'MasterController@getAllStsKasus2');
+
+    Route::get('/terpapar/laporan_home_all', 'TerpaparController@getDataHomeAll');
+    Route::get('/terpapar/dashkasus_companymobile_bymskid/{id}', 'TerpaparController@getDashboardCompanyMobilebyMskid');
+    Route::get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
+
+    Route::get('/sosialisasi/get_perusahaan_all', 'DashboardController@getEventbyPerusahaanAll');
+    Route::get('/sosialisasi/total_perusahaan_all', 'DashboardController@countEventbyPerusahaanAll');
+    Route::get('/sosialisasi/download/{kd_perusahaan}/{filename}', 'SosialisasiController@getDownloadFileSosialisasi');
+
+    Route::get('/mobiledashvaksin/jmlpegawai', 'DashVaksinController@getDataJmlPegawai');
+    Route::get('/mobiledashvaksin/groupbyjnskelamin', 'DashVaksinController@getDashVaksinMobileByJnsKelamin');
+    Route::get('/mobiledashvaksin/groupbystspegawai', 'DashVaksinController@getDashVaksinMobileByStsPegawai');
+    Route::get('/mobiledashvaksin/groupbyprovinsi', 'DashVaksinController@getDashVaksinMobileByProvinsi');
+    Route::get('/mobiledashvaksin/groupbyusia', 'DashVaksinController@getDashVaksinMobileByUsia');
+    Route::get('/mobiledashvaksin/groupbykabupaten/{id}', 'DashVaksinController@getDashVaksinMobileKabByProvinsi');
+    Route::get('/mobiledashvaksin/groupbykabpro', 'DashVaksinController@getDashVaksinMobileKabPro');
+    Route::get('/mobiledashvaksin/groupbycompany/{id}', 'DashVaksinController@getDashVaksinMobileCompanyByKabupaten');
+
+    Route::get('/notif_pic/{nik}', 'UserController@getNotifpic');
+    Route::get('/protokol/download/{kd_perusahaan}/{id_protokol}', 'ProtokolController@getDownloadFileProtokol');
+    Route::get('/list_perimeter_level_report/count/{kd_perusahaan}', 'PerimeterReportController@getStatusPerimeterLevel');
+
+    Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
+    Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
 	});
 });
