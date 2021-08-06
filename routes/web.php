@@ -76,7 +76,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/perimeter_level/get_file_by_id/{id_file}', 'PICController@getFilePerimeterLevelByID');
     $router->get('/perimeter_level/get_file/{id_perimeter_level}', 'PICController@getFilePerimeterLevelByPerimeterLevel');
 	$router->post('/perimeter/update', 'PerimeterListController@updateDetailPerimeter');
-	$router->post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
+//	$router->post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
+  $router->post('/perimeter_closed/add', function () use ($router) {
+      return response()->json(['status' => 500,'message' => 'Fitur saat ini ditutup sementara'])->setStatusCode(500);
+  });
 	$router->post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
 	$router->post('/perimeter_closed/addActivity', 'PerimeterListController@updateAktifitasClosedPerimeter');  //force add for actifity closed perimeter
 	$router->post('/perimeter_open/add', 'PerimeterListController@openPerimeter');
@@ -398,7 +401,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 $router->group(['prefix' => 'api/v2'], function () use ($router) {
   Route::post('/user/reset_password', 'UserController@postResetPassword');
-  
+
   Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
 
@@ -433,7 +436,10 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::post('/monitoring/file','PICController@updateMonitoringFile');
     Route::post('/validasi_monitoring', 'UserController@validasiMonitoring');
 
-    Route::post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
+    //Route::post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
+    Route::post('/perimeter_closed/add', function () use ($router) {
+        return response()->json(['status' => 500,'message' => 'Fitur saat ini ditutup sementara'])->setStatusCode(500);
+    });
     Route::post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
     Route::post('/perimeter_closed/addActivity', 'PerimeterListController@updateAktifitasClosedPerimeter');  //force add for actifity closed perimeter
     Route::post('/perimeter_open/add', 'PerimeterListController@openPerimeter');
