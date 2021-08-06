@@ -436,10 +436,8 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::post('/monitoring/file','PICController@updateMonitoringFile');
     Route::post('/validasi_monitoring', 'UserController@validasiMonitoring');
 
-    //Route::post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
-    $router->post('/perimeter_closed/add', function () use ($router) {
-        return response()->json(['status' => 500,'message' => 'Fitur saat ini ditutup sementara'])->setStatusCode(500);
-    });
+    Route::post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
+
     Route::post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
     Route::post('/perimeter_closed/addActivity', 'PerimeterListController@updateAktifitasClosedPerimeter');  //force add for actifity closed perimeter
     Route::post('/perimeter_open/add', 'PerimeterListController@openPerimeter');
