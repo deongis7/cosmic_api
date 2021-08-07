@@ -401,6 +401,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 $router->group(['prefix' => 'api/v2'], function () use ($router) {
   Route::post('/user/reset_password', 'UserController@postResetPassword');
+  Route::get('/company', 'MasterController@getAllCompany');
 
   Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
@@ -489,6 +490,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
 
     Route::get('/sosialisasi/get_bymcid/{id}/{page}', 'SosialisasiController@getDataByMcid');
+    Route::get('/sosialisasi/get_byid/{id}', 'SosialisasiController@getDataById');
     Route::post('/sosialisasi/upload_json', 'SosialisasiController@uploadSosialisasiJSON');
     Route::post('/sosialisasi/update_json/{id}', 'SosialisasiController@updateSosialisasiJSON');
     Route::get('/sosialisasi/delete/{id}', 'SosialisasiController@deleteSosialisasi');
@@ -507,7 +509,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
 
     Route::post('/company/upload_foto', 'MasterController@uploadFotoBUMN');
-    Route::get('/company', 'MasterController@getAllCompany');
+
 
     //Gugus Tugas
 	  Route::get('/dashboard/perimeter_byperusahaan_all', 'DashboardController@getPerimeterbyPerusahaanAll');
@@ -534,10 +536,11 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/terpapar/laporan_home_all', 'TerpaparController@getDataHomeAll');
     Route::get('/terpapar/dashkasus_companymobile_bymskid/{id}', 'TerpaparController@getDashboardCompanyMobilebyMskid');
     Route::get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
+    Route::get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
 
     Route::get('/sosialisasi/get_perusahaan_all', 'DashboardController@getEventbyPerusahaanAll');
     Route::get('/sosialisasi/total_perusahaan_all', 'DashboardController@countEventbyPerusahaanAll');
-    Route::get('/sosialisasi/download/{kd_perusahaan}/{filename}', 'SosialisasiController@getDownloadFileSosialisasi');
+    Route::get('/deownload/sosialisasi/{kd_perusahaan}/{filename}', 'SosialisasiController@getDownloadFileSosialisasi');
 
     Route::get('/mobiledashvaksin/jmlpegawai', 'DashVaksinController@getDataJmlPegawai');
     Route::get('/mobiledashvaksin/groupbyjnskelamin', 'DashVaksinController@getDashVaksinMobileByJnsKelamin');
@@ -551,7 +554,11 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/notif_pic/{nik}', 'UserController@getNotifpic');
     Route::get('/protokol/download/{kd_perusahaan}/{id_protokol}', 'ProtokolController@getDownloadFileProtokol');
     Route::get('/list_perimeter_level_report/count/{kd_perusahaan}', 'PerimeterReportController@getStatusPerimeterLevel');
+    Route::get('/kriteria_orang', 'MasterController@getKriteriaOrang');
+    Route::get('/fasilitas_rumah', 'MasterController@getFasilitasRumah');
+    Route::post('/perimeter_level/add_file', 'PICController@addFilePerimeterLevel');
 
+    Route::get('/rumah_singgah', 'RumahSinggahController@getListRumahSinggah');
     Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
     Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
 	});
