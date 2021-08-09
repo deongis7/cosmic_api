@@ -152,7 +152,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
     //EID
     $router->get('/sosialisasi/sosialisasiraw', 'SosialisasiController@getSosialisasiRaw');
-    $router->get('/vaksin/vaksinraw', 'DashVaksinController@getVaksinRaw');
+    //$router->get('/vaksin/vaksinraw', 'DashVaksinController@getVaksinRaw');
+    $router->get('/vaksin/vaksinraw', function () use ($router) {
+        return response()->json(['status' => 500,'message' => 'Data tidak dapat diakses'])->setStatusCode(500);
+    });
     $router->get('/terpapar/terpaparraw', 'TerpaparController@getTerpaparRaw');
 
 	//PIC
@@ -537,6 +540,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/terpapar/dashkasus_companymobile_bymskid/{id}', 'TerpaparController@getDashboardCompanyMobilebyMskid');
     Route::get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
     Route::get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
+    Route::post('/terpapar/update/{id}', 'TerpaparController@UpdateKasus');
 
     Route::get('/sosialisasi/get_perusahaan_all', 'DashboardController@getEventbyPerusahaanAll');
     Route::get('/sosialisasi/total_perusahaan_all', 'DashboardController@countEventbyPerusahaanAll');
@@ -557,6 +561,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/kriteria_orang', 'MasterController@getKriteriaOrang');
     Route::get('/fasilitas_rumah', 'MasterController@getFasilitasRumah');
     Route::post('/perimeter_level/add_file', 'PICController@addFilePerimeterLevel');
+    Route::post('/user/cek_user', 'UserController@postCekUser');
 
     Route::get('/rumah_singgah', 'RumahSinggahController@getListRumahSinggah');
     Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
