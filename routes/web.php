@@ -544,7 +544,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
 
     Route::get('/sosialisasi/get_perusahaan_all', 'DashboardController@getEventbyPerusahaanAll');
     Route::get('/sosialisasi/total_perusahaan_all', 'DashboardController@countEventbyPerusahaanAll');
-    Route::get('/deownload/sosialisasi/{kd_perusahaan}/{filename}', 'SosialisasiController@getDownloadFileSosialisasi');
+    Route::get('/download/sosialisasi/{kd_perusahaan}/{filename}', 'SosialisasiController@getDownloadFileSosialisasi');
 
     Route::get('/mobiledashvaksin/jmlpegawai', 'DashVaksinController@getDataJmlPegawai');
     Route::get('/mobiledashvaksin/groupbyjnskelamin', 'DashVaksinController@getDashVaksinMobileByJnsKelamin');
