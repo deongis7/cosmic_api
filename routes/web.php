@@ -405,6 +405,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 $router->group(['prefix' => 'api/v2'], function () use ($router) {
   Route::post('/user/reset_password', 'UserController@postResetPassword');
   Route::get('/company', 'MasterController@getAllCompany');
+  Route::post('/user/cek_user', 'UserController@postCekUser');
 
   Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
@@ -522,6 +523,8 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/dashboard/provinsi_bykategori/{id_kategori}', 'DashboardController@getProvinsibyKategoribyID');
     Route::get('/dashboard/cosmic_index_report', 'DashboardController@getCosmicIndexReport');
     Route::get('/dashboard/cosmic_index_report_average', 'DashboardController@getCosmicIndexReportAverage');
+    Route::post('/dashboard/agregasi_data_pegawai/add', 'DashboardController@addAgregasiData');
+	  Route::get('/dashboard/cosmic_index_detaillist/download/{kd_perusahaan}', 'DashboardController@getDownloadCosmicIndexListbyCompany');
     Route::get('/dashreport/mobileall_byjns/{id}', 'ReportController@getDashReportMobileByJns');
     Route::get('/dashreport/card_bymcid/{id}', 'ReportController@getDashReportCardByMcid');
     Route::get('/dashvaksin/dashvaksin_mc', 'DashVaksinController@getDashVaksinPerusahaan');
@@ -544,7 +547,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
 
     Route::get('/sosialisasi/get_perusahaan_all', 'DashboardController@getEventbyPerusahaanAll');
     Route::get('/sosialisasi/total_perusahaan_all', 'DashboardController@countEventbyPerusahaanAll');
-    Route::get('/deownload/sosialisasi/{kd_perusahaan}/{filename}', 'SosialisasiController@getDownloadFileSosialisasi');
+    Route::get('/download/sosialisasi/{kd_perusahaan}/{filename}', 'SosialisasiController@getDownloadFileSosialisasi');
 
     Route::get('/mobiledashvaksin/jmlpegawai', 'DashVaksinController@getDataJmlPegawai');
     Route::get('/mobiledashvaksin/groupbyjnskelamin', 'DashVaksinController@getDashVaksinMobileByJnsKelamin');
@@ -561,7 +564,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/kriteria_orang', 'MasterController@getKriteriaOrang');
     Route::get('/fasilitas_rumah', 'MasterController@getFasilitasRumah');
     Route::post('/perimeter_level/add_file', 'PICController@addFilePerimeterLevel');
-    Route::post('/user/cek_user', 'UserController@postCekUser');
+
 
     Route::get('/rumah_singgah', 'RumahSinggahController@getListRumahSinggah');
     Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
