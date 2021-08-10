@@ -91,7 +91,7 @@ class PerimeterController extends Controller
     $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_map_by_company_id_". $id, 30 * 60, function()use($id) {
 		$data = array();
     $perimeter = new Perimeter;
-    $perimeter->setConnection('pgsql2');
+    $perimeter->setConnection('pgsql3');
 		$perimeter = $perimeter->select('master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat','master_perimeter.mpm_longitude','master_perimeter.mpm_latitude')
 					->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
 					->where('master_region.mr_mc_id',$id)
@@ -341,7 +341,7 @@ class PerimeterController extends Controller
 	public function getCountTaskForce($id){
 		$data = array();
     $taskforce = new User;
-    $taskforce->setConnection('pgsql2');
+    $taskforce->setConnection('pgsql3');
 		$taskforce = $taskforce->join('master_company','master_company.mc_id','app_users.mc_id')
 					->join('app_users_groups','app_users_groups.user_id','app_users.id')
 					->where('master_company.mc_id', '=', $id)
@@ -424,7 +424,7 @@ class PerimeterController extends Controller
 			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END )
 			order by
 			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) desc, aug.name desc,app.first_name asc ";
-        $jmltotal=count(DB::connection('pgsql2')->select( $query , $param));
+        $jmltotal=count(DB::connection('pgsql3')->select( $query , $param));
 
         if(isset($limit)) {
            $query=$query ." limit ". $limit;
@@ -438,7 +438,7 @@ class PerimeterController extends Controller
         }
 		//$datacache = Cache::remember($querycache, 1 * 60, function()use($query,$param) {
 			$data = array();
-			$taskforce = DB::connection('pgsql2')->select( $query , $param);
+			$taskforce = DB::connection('pgsql3')->select( $query , $param);
 
 			foreach($taskforce as $itemtaskforce){
 				$data[] = array(
@@ -532,7 +532,7 @@ class PerimeterController extends Controller
 		$startdate = $weeks['startweek'];
 		$enddate = $weeks['endweek'];
 
-		$clustertrans = DB::connection('pgsql2')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+		$clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
@@ -584,7 +584,7 @@ class PerimeterController extends Controller
 		$enddate = $weeks['endweek'];
 
 
-		$clustertrans = DB::connection('pgsql2')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
+		$clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 			join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
 			join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
 			join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
@@ -774,7 +774,7 @@ class PerimeterController extends Controller
         $datacluster=[];
         $perimeter = new Perimeter;
         //test pindah ke master
-        $perimeter->setConnection('pgsql2');
+        $perimeter->setConnection('pgsql3');
 		$perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter_level.mpml_id',
 		    'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
 		    'master_perimeter_level.mpml_name','master_perimeter_level.mpml_ket','master_perimeter_kategori.mpmk_id',
@@ -801,7 +801,7 @@ class PerimeterController extends Controller
 					->first();
 
 		if ($perimeter != null){
-            $cluster = DB::connection('pgsql2')->select( "SELECT tpd.tpmd_mpml_id,mcr.mcr_id, mcr.mcr_name,count(tpd.tpmd_order) as jumlah FROM  master_cluster_ruangan mcr
+            $cluster = DB::connection('pgsql3')->select( "SELECT tpd.tpmd_mpml_id,mcr.mcr_id, mcr.mcr_name,count(tpd.tpmd_order) as jumlah FROM  master_cluster_ruangan mcr
                     inner join table_perimeter_detail tpd on tpd.tpmd_mcr_id =mcr.mcr_id and tpd.tpmd_cek=true
                     where tpd.tpmd_mpml_id = ?
                     group by tpd.tpmd_mpml_id,mcr.mcr_id, mcr.mcr_name
@@ -940,7 +940,7 @@ class PerimeterController extends Controller
 			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END )
 			order by
 			( CASE WHEN ( a1.mpm_mr_id IS NULL ) AND ( a2.mpm_mr_id IS NULL ) THEN TRUE ELSE FALSE END ) desc, aug.name desc,app.first_name asc ";
-	    $jmltotal=count(DB::connection('pgsql2')->select( $query , $param));
+	    $jmltotal=count(DB::connection('pgsql3')->select( $query , $param));
 	    
 	    if(isset($limit)) {
 	        $query=$query ." limit ". $limit;
@@ -954,7 +954,7 @@ class PerimeterController extends Controller
 	    }
 	    //$datacache = Cache::remember($querycache, 1 * 60, function()use($query,$param) {
 	    $data = array();
-	    $taskforce = DB::connection('pgsql2')->select( $query , $param);
+	    $taskforce = DB::connection('pgsql3')->select( $query , $param);
 	    
 	    foreach($taskforce as $itemtaskforce){
 	        $data[] = array(
