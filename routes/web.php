@@ -520,6 +520,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/dashboard/perimeter_bykategori_all', 'DashboardController@getPerimeterbyKategoriAll');
     Route::get('/dashboard/region_byperusahaan/{kd_perusahaan}', 'DashboardController@getRegionbyPerusahaanbyID');
     Route::get('/dashboard/perimeter_byperusahaan_byregion/{kd_perusahaan}/{id_region}', 'DashboardController@getListPerimeter_byPerusahaanbyRegion');
+    Route::get('/dashboard/perimeter_bykategori_byprovinsi/{id_kategori}/{id_provinsi}', 'DashboardController@getListPerimeter_byKategoribyProvinsi');
     Route::get('/dashboard/provinsi_bykategori/{id_kategori}', 'DashboardController@getProvinsibyKategoribyID');
     Route::get('/dashboard/cosmic_index_report', 'DashboardController@getCosmicIndexReport');
     Route::get('/dashboard/cosmic_index_report_average', 'DashboardController@getCosmicIndexReportAverage');
