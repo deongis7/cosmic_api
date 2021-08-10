@@ -723,7 +723,7 @@ class PerimeterListController extends Controller
         if(isset($nik)){
             $str = $str.'_nik_'. $nik;
             $user = new User;
-            $user->setConnection('pgsql2');
+            $user->setConnection('pgsql3');
             $user = $user->where('username', $nik)->first();
             $str_fnc[]=$nik;
         }
@@ -1395,7 +1395,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         $enddate = $weeks['endweek'];
 
 
-        $clustertrans = DB::connection('pgsql2')->select( "select ta.ta_id, ta.ta_date, mpl.mpml_id, mpl.mpml_name,mcr.mcr_name,mcar.mcar_name, us.username as nik_fo, us.first_name as fo from transaksi_aktifitas ta
+        $clustertrans = DB::connection('pgsql3')->select( "select ta.ta_id, ta.ta_date, mpl.mpml_id, mpl.mpml_name,mcr.mcr_name,mcar.mcar_name, us.username as nik_fo, us.first_name as fo from transaksi_aktifitas ta
     		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
     		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
     		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
@@ -1614,7 +1614,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         $data = array();
 
         $report = new TrnReport;
-        $report->setConnection('pgsql2');
+        $report->setConnection('pgsql3');
         $report = $report->select('master_perimeter.mpm_id', 'master_perimeter.mpm_name','master_perimeter.mpm_mc_id',
             'master_perimeter_level.mpml_id', 'master_perimeter_level.mpml_name',
             'transaksi_report.tr_id', 'transaksi_report.tr_laporan','transaksi_report.tr_date_insert',

@@ -300,7 +300,7 @@ class DashboardController extends Controller
                     $string = $string . " offset " .$offset;
                 }
             }
-            $perimeter_byperusahaan_all = DB::connection('pgsql2')->select($string);
+            $perimeter_byperusahaan_all = DB::connection('pgsql3')->select($string);
 
             foreach($perimeter_byperusahaan_all as $pka){
                 $data[] = array(
@@ -402,7 +402,7 @@ class DashboardController extends Controller
                     $string = $string . " offset " .$offset;
                 }
             }
-            $perimeter_byperusahaan_all =  DB::connection('pgsql2')->select($string);
+            $perimeter_byperusahaan_all =  DB::connection('pgsql3')->select($string);
 
             foreach($perimeter_byperusahaan_all as $pka){
                 $data[] = array(
@@ -1480,7 +1480,7 @@ class DashboardController extends Controller
               if(isset($search)) {
                   $string .= " WHERE LOWER(TRIM(v_nama_perusahaan)) LIKE '%".strtolower(trim($search))."%' ";
               }
-              $jmltotal=(count( DB::connection('pgsql2')->select($string)));
+              $jmltotal=(count( DB::connection('pgsql3')->select($string)));
 
               if(isset($request->column_sort)) {
                   if(isset($request->p_sort)) {
