@@ -171,7 +171,7 @@ class PerimeterListController extends Controller
         $monitoring = $request->monitoring;
         
         $nik = $request->nik;
-        $str = "_get_perimeterlist_by_perusahaan_2". $kd_perusahaan;
+        $str = "_get_perimeterlist_by_perusahaan_". $kd_perusahaan;
         
         if(isset($nik)){
             $str = $str.'_nik_'. $nik;
@@ -223,7 +223,7 @@ class PerimeterListController extends Controller
             
             $perimeter = new Perimeter;
             //test pindah ke master
-            $perimeter->setConnection('pgsql2');
+            $perimeter->setConnection('pgsql3');
             $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
                 'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                 'master_perimeter_kategori.mpmk_name',
