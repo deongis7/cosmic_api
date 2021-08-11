@@ -212,16 +212,17 @@ class PerimeterListController extends Controller
         }
         //var_dump($str);die;
         //dd($str);
+        $perimeter = new Perimeter;
         $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10, function()use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
-           $search,$column,$sort,$lockdown) {
+           $search,$column,$sort,$lockdown, $perimeter) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
             $crweeks = AppHelper::Weeks();
             $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
             
-            $perimeter = new Perimeter;
+            
             //test pindah ke master
             $perimeter->setConnection('pgsql3');
             $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
