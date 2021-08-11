@@ -171,7 +171,7 @@ class PerimeterListController extends Controller
         $monitoring = $request->monitoring;
         
         $nik = $request->nik;
-        $str = "_get_perimeterlist_by_perusahaan_". $kd_perusahaan;
+        $str = "_get_perimeterlist_by_perusahaan_xx". $kd_perusahaan;
         
         if(isset($nik)){
             $str = $str.'_nik_'. $nik;
