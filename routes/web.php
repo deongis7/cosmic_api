@@ -520,6 +520,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/dashboard/perimeter_bykategori_all', 'DashboardController@getPerimeterbyKategoriAll');
     Route::get('/dashboard/region_byperusahaan/{kd_perusahaan}', 'DashboardController@getRegionbyPerusahaanbyID');
     Route::get('/dashboard/perimeter_byperusahaan_byregion/{kd_perusahaan}/{id_region}', 'DashboardController@getListPerimeter_byPerusahaanbyRegion');
+    Route::get('/dashboard/perimeter_bykategori_byprovinsi/{id_kategori}/{id_provinsi}', 'DashboardController@getListPerimeter_byKategoribyProvinsi');
     Route::get('/dashboard/provinsi_bykategori/{id_kategori}', 'DashboardController@getProvinsibyKategoribyID');
     Route::get('/dashboard/cosmic_index_report', 'DashboardController@getCosmicIndexReport');
     Route::get('/dashboard/cosmic_index_report_average', 'DashboardController@getCosmicIndexReportAverage');
@@ -527,6 +528,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
 	  Route::get('/dashboard/cosmic_index_detaillist/download/{kd_perusahaan}', 'DashboardController@getDownloadCosmicIndexListbyCompany');
     Route::get('/dashreport/mobileall_byjns/{id}', 'ReportController@getDashReportMobileByJns');
     Route::get('/dashreport/card_bymcid/{id}', 'ReportController@getDashReportCardByMcid');
+    Route::get('/dashreport/all_card_byjns/{id}', 'ReportController@getDashReportCardByJns');
     Route::get('/dashvaksin/dashvaksin_mc', 'DashVaksinController@getDashVaksinPerusahaan');
     Route::get('/dashvaksin/dashvaksin_mc_filter', 'DashVaksinController@getDashVaksinPerusahaanFilter');
     Route::get('/dashvaksin/dashvaksin_lokasi1', 'DashVaksinController@getDashVaksinLokasi1');
@@ -569,5 +571,6 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/rumah_singgah', 'RumahSinggahController@getListRumahSinggah');
     Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
     Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
+    Route::post('/update_lockdown', 'ReportController@UpdateLockdown');
 	});
 });
