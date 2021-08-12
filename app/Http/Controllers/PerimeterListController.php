@@ -291,6 +291,8 @@ class PerimeterListController extends Controller
                
                 
                 if(isset($column)) {
+                  if($column=="last_update")
+                    $column="mpm_date_update";
                     if(isset($sort)) {
                         $perimeter = $perimeter->orderBy($column,$sort);
                     }else{
