@@ -158,7 +158,6 @@ class PerimeterListController extends Controller
 
     //Get Perimeter List
     function getPerimeterList($kd_perusahaan,Request $request){
-
         $user = null;
         $role_id = null;
         $limit = null;
