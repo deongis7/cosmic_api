@@ -572,5 +572,6 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
     Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
     Route::post('/update_lockdown', 'ReportController@UpdateLockdown');
+    Route::post('/report/update_json/{id}', 'ReportController@updateReportJSON');
 	});
 });
