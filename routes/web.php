@@ -332,7 +332,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     // Report Protokol
     $router->get('/dashreport/all_card_byjns/{id}', 'ReportController@getDashReportCardByJns');
     $router->get('/dashreport/all_byjns/{id}', 'ReportController@getDashReportByJns');
-    $router->get('/dashreport/all_byjnsmcid/{id}', 'ReportController@getDashReportByJnsMCid');
+    $router->get('/dashreport/all_byjnsmcid/{id}/{mc_id}', 'ReportController@getDashReportByJnsMCid');
 
     $router->get('/dashreport/card_bymcid/{id}', 'ReportController@getDashReportCardByMcid');
     $router->get('/report/byid/{id}', 'ReportController@getDataByid');
@@ -576,5 +576,6 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
     Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
     Route::post('/update_lockdown', 'ReportController@UpdateLockdown');
+    Route::post('/report/update_json/{id}', 'ReportController@updateReportJSON');
 	});
 });
