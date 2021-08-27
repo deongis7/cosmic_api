@@ -828,7 +828,7 @@ class SosialisasiController extends Controller {
                         $path_file404 = '/404/img404.jpg';
                         $filesos_pdf = $path_file404;
                     }else{
-                        $path_file1 = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file_pdf;
+                        $path_file_pdf = '/sosialisasi/'.$sos->ts_mc_id.'/'.$sos->ts_file_pdf;
                         $filesos_pdf = $path_file_pdf;
                     }
                 }else{
