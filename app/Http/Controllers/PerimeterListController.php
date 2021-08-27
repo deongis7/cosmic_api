@@ -228,7 +228,7 @@ class PerimeterListController extends Controller
             
             $perimeter = new Perimeter;
             //test pindah ke master
-            $perimeter->setConnection('pgsql3');
+            $perimeter->setConnection('pgsql');
            $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
                 'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                 'master_perimeter_kategori.mpmk_name',
@@ -339,8 +339,6 @@ class PerimeterListController extends Controller
                         "kategori" => $itemperimeter->mpmk_name,
                         "status_monitoring" => $status_monitoring,
                         "last_update" => $itemperimeter->last_update,
-                        //"status_monitoring" => ($status['status']),
-                        //"percentage" => ($status['percentage']),
                         "percentage" => 0,
                         "provinsi" => $itemperimeter->mpro_name,
                         "kabupaten" => $itemperimeter->mkab_name,
@@ -420,7 +418,7 @@ class PerimeterListController extends Controller
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             $perimeter = new Perimeter;
-            $perimeter->setConnection('pgsql3');
+            $perimeter->setConnection('pgsql');
 
             $perimeter = $perimeter->select( "master_perimeter.mpm_id", "master_perimeter_level.mpml_id", "master_perimeter_level.mpml_name","master_perimeter.mpm_name",
                         "master_perimeter_level.mpml_ket", "userpic.username as nik_pic", "userpic.first_name as pic", "userfo.username as nik_fo","master_perimeter.mpm_gmap",
