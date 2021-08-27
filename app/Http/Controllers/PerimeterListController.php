@@ -158,6 +158,7 @@ class PerimeterListController extends Controller
 
     //Get Perimeter List
     function getPerimeterList($kd_perusahaan,Request $request){
+
         $user = null;
         $role_id = null;
         $limit = null;
@@ -674,33 +675,22 @@ class PerimeterListController extends Controller
 
             $perimeter = new Perimeter;
             $perimeter->setConnection('pgsql3');
-            $perimeter = $perimeter->select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id');
-
-            if(isset($nik) && ($user != null)) {
-                      $role_id = $user->roles()->first()->id;
-                      if ($role_id == 3) {
-                          $perimeter = $perimeter->select(DB::raw("status_monitoring_perimeter_level_pic(master_perimeter_level.mpml_id,userpic.username) as status"));
-                      } else  {
-                          $perimeter = $perimeter->select(DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status"));
-                      }
-
-            } else {
-                $perimeter = $perimeter->select(DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status"));
-            }
-
-          $perimeter = $perimeter->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
+            $perimeter = $perimeter->select( 'master_perimeter.mpm_id', 'master_perimeter_level.mpml_id',
+                    DB::raw("status_monitoring_perimeter_level_pic(master_perimeter_level.mpml_id,userpic.username) as status_pic"),
+                    DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status_fo")
+                  )
+                ->join('master_perimeter_level', 'master_perimeter_level.mpml_mpm_id', 'master_perimeter.mpm_id')
                 ->leftjoin('app_users as userpic', 'userpic.username', 'master_perimeter_level.mpml_pic_nik')
                 ->leftjoin('app_users as userfo', 'userfo.username', 'master_perimeter_level.mpml_me_nik')
                 ->where('master_perimeter.mpm_lockdown',0);
             if(isset($nik) && ($user != null)) {
-                //$role_id = $user->roles()->first()->id;
+                $role_id = $user->roles()->first()->id;
                 if ($role_id == 3) {
                     $perimeter = $perimeter->where('userpic.username', $nik);
                 } else if ($role_id == 4) {
                     $perimeter = $perimeter->where('userfo.username', $nik);
                 }
             }
-
 
             $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan)->get();
             $totalperimeter = $perimeter->count();
@@ -712,7 +702,7 @@ class PerimeterListController extends Controller
               //$cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
               //$status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
 
-                if ($itemperimeter->status== true) {
+                if (($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo)== true) {
                     $totalpmmonitoring++;
                 }
             }
