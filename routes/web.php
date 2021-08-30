@@ -409,7 +409,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
 
   Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
-
+	Route::get('/report/by_id/{id_report}', 'PerimeterListController@getReportPerimeterByID');
     Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
     Route::post('/user/sendfirebase/{id}', 'UserController@sendFirebase');
     Route::get('/user/detail', 'UserController@getDetailUser');
