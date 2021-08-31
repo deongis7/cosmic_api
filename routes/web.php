@@ -413,7 +413,11 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
 
   Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
-	Route::get('/report/by_id/{id_report}', 'PerimeterListController@getReportPerimeterByID');
+      Route::get('/report/perimeter/{id_perimeter}', 'PerimeterListController@getReportByPerimeter');
+      Route::get('/report/by_id/{id_report}', 'PerimeterListController@getReportPerimeterByID');
+      Route::get('/review/perimeter/{id_perimeter}', 'PerimeterListController@getReviewByPerimeter');
+      Route::get('/review/by_id/{id_review}', 'PerimeterListController@getReviewPerimeterByID');
+  
     Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
     Route::post('/user/sendfirebase/{id}', 'UserController@sendFirebase');
     Route::get('/user/detail', 'UserController@getDetailUser');
