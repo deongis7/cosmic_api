@@ -10,6 +10,7 @@ use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Intervention\Image\Exception\NotReadableException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Throwable;
 
 
@@ -57,24 +58,38 @@ class Handler extends ExceptionHandler
 
 			return response()->json([
 							'status' => '500',
-							//'message' => 'Sedang dilakukan Penyesuaian. Mohon Login kembali beberapa saat lagi.'
-							'message' => 'Internal Service Error. '.$exception->getMessage()
+							'message' => 'Sedang dilakukan Maintenance. Mohon Login kembali beberapa saat lagi.'
+							//'message' => 'Internal Service Error. '.$exception->getMessage()
 						])->setStatusCode(500);
 		}
 		if ($exception instanceof NotFoundHttpException) {
 
-			return response()->json([
-							'status' => '404',
-							'message' => 'Data Tidak Ditemukan. '
-						])->setStatusCode(404);
+			// return response()->json([
+			// 				'status' => '404',
+			// 				'message' => 'Data Tidak Ditemukan. '
+			// 			])->setStatusCode(404);
 
-      /**return response()->json([
+      return response()->json([
 							'status' => '500',
-							'message' => 'Sedang dilakukan Penyesuaian. Mohon Login kembali beberapa saat lagi.'
-						])->setStatusCode(404);
-      */
+							'message' => 'Sedang dilakukan Maintenance. Mohon Login kembali beberapa saat lagi.'
+						])->setStatusCode(500);
+
 
 		}
+    if ($exception instanceof BindingResolutionException) {
+
+      // return response()->json([
+      //         'status' => '404',
+      //         'message' => 'Data Tidak Ditemukan. '
+      //       ])->setStatusCode(404);
+
+      return response()->json([
+              'status' => '500',
+              'message' => 'Sedang dilakukan Maintenance. Mohon Login kembali beberapa saat lagi.'
+            ])->setStatusCode(500);
+
+
+    }
 		if ($exception instanceof NotReadableException) {
 
 			return response()->json([
