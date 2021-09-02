@@ -406,7 +406,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	});
 });
 
-$router->group(['prefix' => 'api2/v2'], function () use ($router) {
+$router->group(['prefix' => 'api/v2'], function () use ($router) {
   Route::post('/user/reset_password', 'UserController@postResetPassword');
   Route::get('/company', 'MasterController@getAllCompany');
   Route::post('/user/cek_user', 'UserController@postCekUser');
