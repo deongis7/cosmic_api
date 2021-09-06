@@ -358,7 +358,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::get('/get_token', 'UserController@get_token');
     Route::get('/notif_pic/{nik}', 'UserController@getNotifpic');
 
-	Route::group(['middleware' => 'auth2:api'], function () {
+	Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
 		Route::get('/user/detail', 'UserController@getDetailUser');
 		Route::post('/user/detail/{id}', 'UserController@updateDetailUser');
