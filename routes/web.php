@@ -184,7 +184,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
     $router->get('/list_perimeter_new/{kd_perusahaan}', 'PerimeterListController@getPerimeterListNew');
 
-    //pisah antara PIC & FO 
+    //pisah antara PIC & FO
     $router->get('/list_perimeter_fo/{kd_perusahaan}', 'PerimeterListController@getPerimeterListFo');
     $router->get('/list_perimeter_pic/{kd_perusahaan}', 'PerimeterListController@getPerimeterListPic');
 
@@ -358,7 +358,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::get('/get_token', 'UserController@get_token');
     Route::get('/notif_pic/{nik}', 'UserController@getNotifpic');
 
-	Route::group(['middleware' => 'auth:api'], function () {
+	Route::group(['middleware' => 'auth2:api'], function () {
 		//Data_User
 		Route::get('/user/detail', 'UserController@getDetailUser');
 		Route::post('/user/detail/{id}', 'UserController@updateDetailUser');
@@ -413,6 +413,10 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
 
   Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
+      Route::get('/report/perimeter/{id_perimeter}', 'PerimeterListController@getReportByPerimeter');
+      Route::get('/report/by_id/{id_report}', 'PerimeterListController@getReportPerimeterByID');
+      Route::get('/review/perimeter/{id_perimeter}', 'PerimeterListController@getReviewByPerimeter');
+      Route::get('/review/by_id/{id_review}', 'PerimeterListController@getReviewPerimeterByID');
 
     Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
     Route::post('/user/sendfirebase/{id}', 'UserController@sendFirebase');

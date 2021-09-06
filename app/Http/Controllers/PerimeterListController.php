@@ -533,7 +533,7 @@ class PerimeterListController extends Controller
     }
 
     //Get Region
-    public function getRegionList($kd_perusahaan,Request $request){
+    public function getRegionList($kd_perusahaan, Request $request){
     //dd($kd_perusahaaan);
         $limit = null;
         $page = null;
@@ -552,6 +552,7 @@ class PerimeterListController extends Controller
             $str = $str.'_searh_'. str_replace(' ','_',$request->search);
             $search=$request->search;
         }
+        
         //dd($str);
         $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 50 * 60, function()use($kd_perusahaan,$page,$limit,$endpage,$search) {
 
@@ -568,17 +569,28 @@ class PerimeterListController extends Controller
 
             $region = $region->groupBy('mr_id','mr_name');
             $region = $region->orderBy('mr_name','asc');
-            $jmltotal=($region->count());
-            if(isset($limit)) {
+  
+            $jmltotal=($region->get()->count());
+         
+            if($limit!=NULL) {
+                $limit = $limit;
                 $region = $region->limit($limit);
                 $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-                     if (isset($page)) {
-                         $offset = ((int)$page -1) * (int)$limit;
-                         $region = $region->offset($offset);
-                     }
+                
+                if ($page!=NULL) {
+                    $page =$page;
+                    $offset = ((int)$page -1) * (int)$limit;
+                    $region = $region->offset($offset);
+                }
             }
+            //var_dump($jmltotal);
+            //var_dump($limit);
+            //var_dump($endpage);die;
+            //var_dump($region->toSql());die;
             $region = $region->get();
-
+            $totalregion = $region->count();
+  
+           
             foreach ($region as $itemregion) {
 
                 //dd($status['status']);
