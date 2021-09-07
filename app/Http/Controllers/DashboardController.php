@@ -758,22 +758,22 @@ class DashboardController extends Controller
         if(isset($request->date)){
             $strdate =  Carbon::parse($request->date);
             //  dd($date);
-            $startdate = $strdate->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
-            $enddate = $strdate->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
+            $startdate = $strdate->startOfMonth()->format('Y-m-d');
+            $enddate = $strdate->endOfMonth()->format('Y-m-d');
             $str = $str."_".$startdate."_".$enddate;
         } else {
-            $crweeks = AppHelper::Weeks();
-            $startdate = $crweeks['startweek'];
-            $enddate = $crweeks['endweek'];
+            $crweeks = AppHelper::Months();
+            $startdate = $crweeks['startmonth'];
+            $enddate = $crweeks['endmonth'];
             $str = $str."_".$startdate."_".$enddate;
         }
 
         //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate,$group_company) {
         $datacache = Cache::tags(['cosmic_index'])->remember(env('APP_ENV', 'dev').$str, 10*60, function () use($startdate,$enddate,$group_company){
             $data = array();
-            $weeks = AppHelper::Weeks();
-            $startdatenow = $weeks['startweek'];
-            $enddatenow = $weeks['endweek'];
+            $weeks = AppHelper::Months();
+            $startdatenow = $weeks['startmonth'];
+            $enddatenow = $weeks['endmonth'];
 
             $week = $startdate ."-".$enddate;
             $weeknow = $startdatenow ."-".$enddatenow;
@@ -924,21 +924,21 @@ class DashboardController extends Controller
         if(isset($request->date)){
             $strdate =  Carbon::parse($request->date);
             //  dd($date);
-            $startdate = $strdate->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
-            $enddate = $strdate->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
+            $startdate = $strdate->startOfMonth()->format('Y-m-d');
+            $enddate = $strdate->endOfMonth()->format('Y-m-d');
             $str = $str."_".$startdate."_".$enddate;
         } else {
-            $crweeks = AppHelper::Weeks();
-            $startdate = $crweeks['startweek'];
-            $enddate = $crweeks['endweek'];
+            $crweeks = AppHelper::Months();
+            $startdate = $crweeks['startmonth'];
+            $enddate = $crweeks['endmonth'];
             $str = $str."_".$startdate."_".$enddate;
         }
 
         $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate,$group_company) {
             $data = array();
-            $weeks = AppHelper::Weeks();
-            $startdatenow = $weeks['startweek'];
-            $enddatenow = $weeks['endweek'];
+            $weeks = AppHelper::Months();
+            $startdatenow = $weeks['startmonth'];
+            $enddatenow = $weeks['endmonth'];
 
             $week = $startdate ."-".$enddate;
             $weeknow = $startdatenow ."-".$enddatenow;
@@ -1013,24 +1013,25 @@ class DashboardController extends Controller
     public function getCosmicIndexbyCompanyAndDate($kd_perusahaan,Request $request){
         $str = '_get_cosmic_index2_'.$kd_perusahaan;
         $mc_id = $kd_perusahaan;
+        
         if(isset($request->date)){
             $strdate =  Carbon::parse($request->date);
             //  dd($date);
-            $startdate = $strdate->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
-            $enddate = $strdate->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
+            $startdate = $strdate->startOfMonth()->format('Y-m-d');
+            $enddate = $strdate->endOfMonth()->format('Y-m-d');
             $str = $str."_".$startdate."_".$enddate;
         } else {
-            $crweeks = AppHelper::Weeks();
-            $startdate = $crweeks['startweek'];
-            $enddate = $crweeks['endweek'];
+            $crweeks = AppHelper::Months();
+            $startdate = $crweeks['startmonth'];
+            $enddate = $crweeks['endmonth'];
             $str = $str."_".$startdate."_".$enddate;
         }
 
         //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 0 * 60, function()use($startdate,$enddate,$mc_id) {
             $data = array();
-            $weeks = AppHelper::Weeks();
-            $startdatenow = $weeks['startweek'];
-            $enddatenow = $weeks['endweek'];
+            $weeks = AppHelper::Months();
+            $startdatenow = $weeks['startmonth'];
+            $enddatenow = $weeks['endmonth'];
 
             $week = $startdate ."-".$enddate;
             $weeknow = $startdatenow ."-".$enddatenow;
@@ -1112,9 +1113,9 @@ class DashboardController extends Controller
 
         $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($mc_id,$month) {
             $data = array();
-            $weeks = AppHelper::Weeks();
-            $startdatenow = $weeks['startweek'];
-            $enddatenow = $weeks['endweek'];
+            $weeks = AppHelper::Months();
+            $startdatenow = $weeks['startmonth'];
+            $enddatenow = $weeks['endmonth'];
 
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
@@ -1231,9 +1232,9 @@ class DashboardController extends Controller
 
         $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($mc_id,$month) {
             $data = array();
-            $weeks = AppHelper::Weeks();
-            $startdatenow = $weeks['startweek'];
-            $enddatenow = $weeks['endweek'];
+            $weeks = AppHelper::Months();
+            $startdatenow = $weeks['startmonth'];
+            $enddatenow = $weeks['endmonth'];
 
             $weeknow = $startdatenow ."-".$enddatenow;
             $data=[];
@@ -1806,9 +1807,9 @@ class DashboardController extends Controller
 
         $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 60 * 60, function() use($limit,$page,$endpage,$search){
           $data = array();
-          $crweeks = AppHelper::Weeks();
-          $startdate = $crweeks['startweek'];
-          $enddate = $crweeks['endweek'];
+          $crweeks = AppHelper::Months();
+          $startdate = $crweeks['startmonth'];
+          $enddate = $crweeks['endmonth'];
           $query = "SELECT
             	A.v_mc_id as rci_mc_id,
             	A.mc_name as rci_mc_name,
@@ -1953,9 +1954,9 @@ class DashboardController extends Controller
       $this->validate($request, [
           'kd_perusahaan' => 'required'
       ]);
-      $weeks = AppHelper::Weeks();
-      $startdate = $weeks['startweek'];
-      $enddate = $weeks['endweek'];
+      $weeks = AppHelper::Months();
+      $startdate = $weeks['startmonth'];
+      $enddate = $weeks['endmonth'];
       $curweek  =Carbon::parse($startdate)->format('Y-m-d').'-'.Carbon::parse($enddate)->format('Y-m-d');
 
           $agregasi= New TblAgregasiDataPegawai();
