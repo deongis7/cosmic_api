@@ -7,38 +7,37 @@ use App\LogActivityCRUD;
 use GuzzleHttp\Client;
 class AppHelper {
 
-  public static function Weeks() {
-	$now = Carbon::now();
-	$startdate = $now->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
-	$enddate = $now->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
-	$last_month = $now->subMonth(1)->format('Y-m-d');
-	$three_month = $now->subMonth(3)->format('Y-m-d');
-	$six_month = $now->subMonth(6)->format('Y-m-d');
-	$last_year = $now->subMonth(12)->format('Y-m-d');
-
-	$data = [
-		"startweek"=> $startdate,
-		"endweek"=> $enddate,
-		"last_month"=> $last_month,
-		"three_month"=> $three_month,
-		"six_month"=> $six_month,
-		"last_year"=> $last_year,
-		"weeks"=> $startdate.'-'.$enddate
-		];
-
-    return $data;
-  }
+    public static function Weeks() {
+        $now = Carbon::now();
+        $startdate = $now->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
+        $enddate = $now->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
+        $last_month = $now->subMonth(1)->format('Y-m-d');
+        $three_month = $now->subMonth(3)->format('Y-m-d');
+        $six_month = $now->subMonth(6)->format('Y-m-d');
+        $last_year = $now->subMonth(12)->format('Y-m-d');
+        
+        $data = [
+        	"startweek"=> $startdate,
+        	"endweek"=> $enddate,
+        	"last_month"=> $last_month,
+        	"three_month"=> $three_month,
+        	"six_month"=> $six_month,
+        	"last_year"=> $last_year,
+        	"weeks"=> $startdate.'-'.$enddate
+        ];
+        return $data;
+    }
   
-  public static function Months() {
-      $now = Carbon::now();
-      $startdate = $now->startOfMonth()->format('Y-m-d');
-      $enddate = $now->endOfMonth()->format('Y-m-d');
-      $last_month = $now->subMonth(1)->format('Y-m-d');
-      $three_month = $now->subMonth(3)->format('Y-m-d');
-      $six_month = $now->subMonth(6)->format('Y-m-d');
-      $last_year = $now->subMonth(12)->format('Y-m-d');
-      
-      $data = [
+    public static function Months() {
+        $now = Carbon::now();
+        $startdate = $now->startOfMonth()->format('Y-m-d');
+        $enddate = $now->endOfMonth()->format('Y-m-d');
+        $last_month = $now->subMonth(1)->format('Y-m-d');
+        $three_month = $now->subMonth(3)->format('Y-m-d');
+        $six_month = $now->subMonth(6)->format('Y-m-d');
+        $last_year = $now->subMonth(12)->format('Y-m-d');
+        
+        $data = [
           "startmonth"=> $startdate,
           "endmonth"=> $enddate,
           "last_month"=> $last_month,
@@ -46,13 +45,11 @@ class AppHelper {
           "six_month"=> $six_month,
           "last_year"=> $last_year,
           "months"=> $startdate.'-'.$enddate
-      ];
-      
-      return $data;
-  }
+        ];
+        return $data;
+    }
 
-    public static   function setActivityLog($modul, $modul_id, $action, $description, $username)
-    {
+    public static   function setActivityLog($modul, $modul_id, $action, $description, $username){
         $dataActivity = new LogActivityCRUD();
         // Creste Data Activity Log
 
@@ -61,8 +58,8 @@ class AppHelper {
         $dataActivity->lac_jns_aktivitas = strtolower($action);
         $dataActivity->lac_dtl_aktivitas = 'User '.strtolower($username) . ' ' . $description;
         $dataActivity->lac_username = $username;
-//dd($dataActivity);
-        // Update Data Activity Log
+        //dd($dataActivity);
+        //Update Data Activity Log
         if($dataActivity->save()){
             return true;
         } else {
@@ -70,7 +67,7 @@ class AppHelper {
         }
     }
 
-//Ubah format Kalimat-Judul
+    //Ubah format Kalimat-Judul
     function strtotitle($title) {
         $smallwordsarray = array( 'of','a','the','and','an','or','nor','but','is','if','then','else','when', 'at','from','by','on','off','for','in','to','into','with','it', 'as','dari','oleh','dengan','telah','data' );
         $words = $temp = explode(' ', strip_tags($title));
@@ -83,8 +80,7 @@ class AppHelper {
         return $title;
     }
 
-    public static function sendFirebase($token_device, $body, $title, $role){
-        
+    public static function sendFirebase($token_device, $body, $title, $role){     
         $token = "AAAAIOJgA7s:APA91bGsiFlggeNexu_qv7QdxyEKeudNqJatbkZaMkMjI9dKJHjPDcQQdXOeCmlGiDsepZ2HkuLCFxzU6DiYMxn-2ZoueHFnGNTXlwY4krhF9HZ207WocMTamycUzk_vMQsz6wlLvasW";
         $headers = [
             'Authorization' => 'Key=' . $token,
@@ -104,8 +100,8 @@ class AppHelper {
                   "title" =>  $title,
                   "key1" => "val1",
                   "sound" => "default"
-              ]
-          ];
+            ]
+        ];
 
         $header_params = json_encode($data_param);
         // print_r($header_params);
@@ -120,6 +116,5 @@ class AppHelper {
         return response()->json($result, 204);
         // dd($result);
         // return response()->json(['status' => 200,'data' => $result]);
-        
     }
 }
