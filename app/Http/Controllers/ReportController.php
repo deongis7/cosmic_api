@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 use App\Report;
 use App\TrnSurveiKepuasan;
+use App\TrnDataWFHWFO;
 use App\Perimeter;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Validator;
+use Carbon\Carbon;
 use Intervention\Image\ImageManagerStatic as Image;
 class ReportController extends Controller {
 
@@ -675,14 +677,14 @@ class ReportController extends Controller {
 
         $mst = New Perimeter();
         $mst = $mst->setConnection('pgsql');
-        
+
         if($is_lockdown == 0){
             $mst = $mst->whereRaw("mpm_id ='".$mpm_id."'" )->first();
             if(isset($is_lockdown)){
                 //$mst->mpm_lockdown= 1;
                 $mst->mpm_lockdown= $is_lockdown;
             }
-        
+
             if(isset($keterangan)){
                 $mst->mpm_keterangan_lockdown= null ;
             }
@@ -702,5 +704,171 @@ class ReportController extends Controller {
             $mst->save();
             return response()->json(['status' => 200,'message' => 'Perimeter berhasil di lockdown']);
         }
+    }
+
+    public function postDataWFHWFO(Request $request) {
+        date_default_timezone_set('Asia/Jakarta');
+        $this->validate($request, [
+              'bulan' => 'required',
+              'tahun' => 'required',
+              'kd_perusahaan' => 'required',
+              'user_id' => 'required',
+          ]);
+        $user_id = $request->user_id;
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+        $kd_perusahaan = $request->kd_perusahaan;
+        $jml_peg_tetap = $request->jml_peg_tetap;
+        $jml_peg_kontrak = $request->jml_peg_kontrak;
+        $jml_peg_alihdaya = $request->jml_peg_alihdaya;
+        $jml_rata_peg_masuk = $request->jml_rata_peg_masuk;
+        $jns_industri = $request->jns_industri;
+        $file_protokoll_wfh = NULL;
+        $file_jadwal = NULL;
+        $flag_dok_protokol = $request->flag_dok_protokol;
+
+        if(!Storage::exists('/app/public/data_wfh_wfo/'.$kd_perusahaan)) {
+            Storage::disk('public')->makeDirectory('/data_wfh_wfo/'.$kd_perusahaan, 0777, true);
+        }
+
+        //$destinationPath = base_path("storage\app\public\sosialisasi/").$kd_perusahaan.'/'.$tanggal;
+        $destinationPath = storage_path().'/app/public/data_wfh_wfo/' .$kd_perusahaan;
+
+        $nameid = round(microtime(true) * 1000);
+        $name_pdf = NULL;
+        if(isset($request->file_protokol_wfh)){
+          if ($request->file_protokol_wfh != null || $request->file_protokol_wfh != '') {
+              $image = str_replace('data:application/pdf;base64,', '',$request->file_protokol_wfh);
+              $filedecode = base64_decode($image);
+              $name_pdf = 'protokol_wfh_'.$nameid.'.pdf';
+              Storage::disk('public')->put('data_wfh_wfo/'.$kd_perusahaan.'/'.$name_pdf, base64_decode($image));
+
+          }
+        }
+
+        $name_pdf2 = NULL;
+        if(isset($request->file_jadwal)){
+          if ($request->file_jadwal != null || $request->file_jadwal != '') {
+              $image = str_replace('data:application/pdf;base64,', '',$request->file_jadwal);
+              $filedecode = base64_decode($image);
+              $name_pdf2 = 'jadwal_'.$nameid.'.pdf';
+              Storage::disk('public')->put('data_wfh_wfo/'.$kd_perusahaan.'/'.$name_pdf2, base64_decode($image));
+
+          }
+        }
+
+        $datawfh = New TrnDataWFHWFO();
+        $datawfh = $datawfh->setConnection('pgsql');
+        $datawfh = $datawfh->where("tw_tahun",$tahun )->where("tw_bulan",$bulan)->where("tw_mc_id",$kd_perusahaan)->first();
+
+        //dd($surveikepuasan);
+        if($datawfh == null){
+          $datawfh= New TrnDataWFHWFO();
+          $datawfh->setConnection('pgsql');
+          $datawfh->tw_mc_id = $kd_perusahaan;
+          $datawfh->tw_bulan = $bulan;
+          $datawfh->tw_tahun = $tahun;
+          $datawfh->tw_jml_peg_tetap = $jml_peg_tetap;
+          $datawfh->tw_jml_peg_kontrak = $jml_peg_kontrak;
+          $datawfh->tw_jml_peg_alihdaya = $jml_peg_alihdaya;
+          $datawfh->tw_jml_rata_peg_masuk = $jml_rata_peg_masuk;
+          $datawfh->tw_jns_industri = $jns_industri;
+          $datawfh->tw_file_protokol_wfh = $name_pdf;
+          $datawfh->tw_file_jadwal = $name_pdf2;
+          $datawfh->tw_flag_dok_protokol = $flag_dok_protokol;
+          $datawfh->tw_user_insert = $user_id;
+
+        } else {
+          $datawfh->tw_jml_peg_tetap = $jml_peg_tetap;
+          $datawfh->tw_jml_peg_kontrak = $jml_peg_kontrak;
+          $datawfh->tw_jml_peg_alihdaya = $jml_peg_alihdaya;
+          $datawfh->tw_jml_rata_peg_masuk = $jml_rata_peg_masuk;
+          $datawfh->tw_jns_industri = $jns_industri;
+          $datawfh->tw_file_protokol_wfh = $name_pdf;
+          $datawfh->tw_file_jadwal = $name_pdf2;
+          $datawfh->tw_flag_dok_protokol = $flag_dok_protokol;
+          $datawfh->tw_user_update = $user_id;
+
+        }
+
+            if($datawfh->save()) {
+                return response()->json(['status' => 200,'message' => 'Data WFH WFO Berhasil diupdate']);
+            } else {
+                return response()->json(['status' => 500,'message' => 'Data WFH WFO Gagal diupdate'])->setStatusCode(500);
+            }
+
+
+    }
+
+    public function getDataWFHWFOByPerusahaan($mc_id) {
+        $data_wfh_wfo = DB::connection('pgsql3')->select("SELECT tw.*, mc.mc_name, mc.mc_id
+                FROM transaksi_wfh_wfo tw
+                LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
+                WHERE tw_mc_id='$mc_id' and tw_bulan = date_part('month', now()) and tw_tahun = date_part('year', now()) order by tw_id desc limit 1");
+
+        if(count($data_wfh_wfo) > 0) {
+            foreach($data_wfh_wfo as $wfh){
+                if($wfh->tw_file_protokol_wfh !=NULL || $wfh->tw_file_protokol_wfh !=''){
+                    if (!file_exists(base_path("storage/app/public/data_wfh_wfo/".$mc_id.'/'.$wfh->tw_file_protokol_wfh))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filewfh1 = $path_file404;
+
+                    }else{
+                        $path_file1 = '/data_wfh_wfo/'.$mc_id.'/'.$wfh->tw_file_protokol_wfh;
+                        $filewfh1 = $path_file1;
+
+                    }
+                }else{
+                    $filewfh1 = '/404/img404.jpg';
+
+                }
+
+                if($wfh->tw_file_jadwal !=NULL || $wfh->tw_file_jadwal !=''){
+                    if (!file_exists(base_path("storage/app/public/data_wfh_wfo/".$mc_id.'/'.$wfh->tw_file_jadwal))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filewfh2 = $path_file404;
+                    }else{
+                        $path_file2 = '/data_wfh_wfo/'.$mc_id.'/'.$wfh->tw_file_jadwal;
+                        $filewfh2 = $path_file2;
+
+                    }
+                }else{
+                    $filewfh2 = '/404/img404.jpg';
+
+                }
+
+
+                $data = array(
+                    "kd_perusahaan" => $wfh->mc_id,
+                    "tahun" => $wfh->tw_tahun,
+                    "bulan" => $wfh->tw_bulan,
+                    "jml_peg_tetap" => $wfh->tw_jml_peg_tetap,
+                    "jml_peg_kontrak" => $wfh->tw_jml_peg_kontrak,
+                    "jml_peg_alihdaya" => $wfh->tw_jml_peg_alihdaya,
+                    "jml_rata_peg_masuk" => $wfh->tw_jml_rata_peg_masuk,
+                    "jns_industri" =>$wfh->tw_jns_industri,
+                    "file_protokol_wfh" =>$wfh->tw_file_protokol_wfh,
+                    "file_jadwal" =>$wfh->tw_file_jadwal,
+                    "flag_dok_protokol" =>$wfh->tw_flag_dok_protokol,
+
+                );
+            }
+        }else{
+          $data = array(
+              "kd_perusahaan" => $mc_id,
+              "tahun" => Carbon::now()->year,
+              "bulan" => Carbon::now()->month,
+              "jml_peg_tetap" => 0,
+              "jml_peg_kontrak" => 0,
+              "jml_peg_alihdaya" => 0,
+              "jml_rata_peg_masuk" => 0,
+              "jns_industri" =>0,
+              "file_protokol_wfh" =>NULL,
+              "file_jadwal" =>NULL,
+              "flag_dok_protokol" =>false,
+
+          );
+        }
+        return response()->json(['status' => 200,'data' => $data]);
     }
 }
