@@ -399,9 +399,13 @@ class PICController extends Controller{
 	//Get Status Monitoring
 	private function getStatusMonitoring($id_perimeter_level,$id_role, $cluster){
 		$data = array();
-		$weeks = AppHelper::Weeks();
-		$startdate = $weeks['startweek'];
-		$enddate = $weeks['endweek'];
+// 		$weeks = AppHelper::Weeks();
+// 		$startdate = $weeks['startweek'];
+// 		$enddate = $weeks['endweek'];
+		$weeks = AppHelper::Months();
+		$startdate = $weeks['startmonth'];
+		$enddate = $weeks['endmonth'];
+		
 
 		if($id_role == 4){
     		$clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
@@ -442,10 +446,13 @@ class PICController extends Controller{
 	//Get Status Monitoring per Cluster
 	private function getStatusMonitoringCluster($id_perimeter_cluster,$id_role,$aktifitas){
 		$data = array();
-		$weeks = AppHelper::Weeks();
-		$startdate = $weeks['startweek'];
-		$enddate = $weeks['endweek'];
-
+// 		$weeks = AppHelper::Weeks();
+// 		$startdate = $weeks['startweek'];
+// 		$enddate = $weeks['endweek'];
+		$weeks = AppHelper::Months();
+		$startdate = $weeks['startmonth'];
+		$enddate = $weeks['endmonth'];
+		
         $konfirmasi = DB::connection('pgsql3')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id, ta.ta_kcar_id,max(ta.ta_date_update) from transaksi_aktifitas ta
     		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
     		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
@@ -499,9 +506,12 @@ class PICController extends Controller{
 	private function getDataMonitoring($id_aktifitas,$id_role,$nik,$mc_id){
 		$data = array();
 		$i=1;
-		$weeks = AppHelper::Weeks();
-		$startdate = $weeks['startweek'];
-		$enddate = $weeks['endweek'];
+// 		$weeks = AppHelper::Weeks();
+// 		$startdate = $weeks['startweek'];
+// 		$enddate = $weeks['endweek'];
+		$weeks = AppHelper::Months();
+		$startdate = $weeks['startmonth'];
+		$enddate = $weeks['endmonth'];
 
 		$clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id,kc.kcar_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,ta.ta_id,taf.taf_id,taf.taf_file ,taf.taf_file_tumb , taf.taf_date from transaksi_aktifitas_file taf
     		join transaksi_aktifitas ta on ta.ta_id = taf.taf_ta_id and ta.ta_status <> 2
@@ -632,9 +642,13 @@ class PICController extends Controller{
 
 		if ($user != null){
 			$role_id = $user->roles()->first()->id;
-			$weeks = AppHelper::Weeks();
-			$startdate = $weeks['startweek'];
-			$enddate = $weeks['endweek'];
+// 			$weeks = AppHelper::Weeks();
+// 			$startdate = $weeks['startweek'];
+// 			$enddate = $weeks['endweek'];
+			$weeks = AppHelper::Months();
+			$startdate = $weeks['startmonth'];
+			$enddate = $weeks['endmonth'];
+			
 			$aktifitas = DB::connection('pgsql2')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from  table_perimeter_detail tpd
 			join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
 			join konfigurasi_car kc on kc.kcar_mcr_id = mcr.mcr_id
@@ -851,10 +865,12 @@ class PICController extends Controller{
     //Get Notif
 	public function getNotifFO($nik){
 		$data = array();
-
-		$weeks = AppHelper::Weeks();
-		$startdate = $weeks['startweek'];
-		$enddate = $weeks['endweek'];
+// 		$weeks = AppHelper::Weeks();
+// 		$startdate = $weeks['startweek'];
+// 		$enddate = $weeks['endweek'];
+		$weeks = AppHelper::Months();
+		$startdate = $weeks['startmonth'];
+		$enddate = $weeks['endmonth'];
 
 		$notif = DB::connection('pgsql2')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, tpc.tbpc_status,tpc.tbpc_alasan,au.first_name as pic  from transaksi_aktifitas ta
     		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
