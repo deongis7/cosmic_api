@@ -87,8 +87,8 @@ class PerimeterReportController extends Controller{
 
         }
         if(isset($request->column_sort)) {
-          $str = $str.'_sort_'. $request->column_sort;
-          $column=$request->column_sort;
+            $str = $str.'_sort_'. $request->column_sort;
+            $column=$request->column_sort;
             if(isset($request->p_sort)) {
               $str = $str.'_'. $request->p_sort;
               $sort=$request->p_sort;
@@ -99,9 +99,9 @@ class PerimeterReportController extends Controller{
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
-//             $crweeks = AppHelper::Weeks();
-//             $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
-//             $param =  [$kd_perusahaan, $week];
+//          $crweeks = AppHelper::Weeks();
+//          $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
+//          $param =  [$kd_perusahaan, $week];
             
             $crweeks = AppHelper::Months();
             $currentweek =$crweeks['startmonth'].'-'.$crweeks['endmonth'];
@@ -321,7 +321,7 @@ class PerimeterReportController extends Controller{
         });
         
         if(isset($nik) && ($user != null)) {
-          $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik,$week);
+            $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik,$week);
         } else {
             $status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
         }
@@ -370,8 +370,11 @@ class PerimeterReportController extends Controller{
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
-            $crweeks = AppHelper::Weeks();
-            $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
+//          $crweeks = AppHelper::Weeks();
+//          $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
+            $crweeks = AppHelper::Months();
+            $currentweek =$crweeks['startmonth'].'-'.$crweeks['endmonth'];
+            
             $start = substr($week, 0, 10);
             $end = substr($week, 11, 20);
             //dd($start.$end);
@@ -673,9 +676,13 @@ class PerimeterReportController extends Controller{
         //dd($str_fnc);
         // $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 40 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$week) {
         $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 10, function () use($kd_perusahaan,$nik,$user,$role_id,$week) {
-          //current week
-            $crweeks = AppHelper::Weeks();
-            $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
+            //current week
+            //$crweeks = AppHelper::Weeks();
+            //$currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
+            
+            $crweeks = AppHelper::Months();
+            $currentweek = $crweeks['startmonth'].'-'.$crweeks['endmonth'];
+
             $start = substr($week, 0, 10);
             $end = substr($week, 11, 20);
             $param =  [$kd_perusahaan, $week];
@@ -765,9 +772,12 @@ class PerimeterReportController extends Controller{
     //Get Status Monitoring Perimeter Level
     private function getStatusMonitoring($id_perimeter_level,$id_role, $cluster){
         $data = array();
-        $weeks = AppHelper::Weeks();
-        $startdate = $weeks['startweek'];
-        $enddate = $weeks['endweek'];
+//         $weeks = AppHelper::Weeks();
+//         $startdate = $weeks['startweek'];
+//         $enddate = $weeks['endweek'];
+        $weeks = AppHelper::Months();
+        $startdate = $weeks['startmonth'];
+        $enddate = $weeks['endmonth'];
 
         if($id_role == 4){
             $clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
@@ -808,9 +818,12 @@ class PerimeterReportController extends Controller{
     //Get Status Monitoring Perimeter
     private function getStatusMonitoringPerimeter($id_perimeter,$id_role, $cluster){
         $data = array();
-        $weeks = AppHelper::Weeks();
-        $startdate = $weeks['startweek'];
-        $enddate = $weeks['endweek'];
+//         $weeks = AppHelper::Weeks();
+//         $startdate = $weeks['startweek'];
+//         $enddate = $weeks['endweek'];
+        $weeks = AppHelper::Months();
+        $startdate = $weeks['startmonth'];
+        $enddate = $weeks['endmonth'];
 
         if($id_role == 4){
             $clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id, mpl.mpml_mpm_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
@@ -1015,10 +1028,8 @@ class PerimeterReportController extends Controller{
                 $data[] = array(
                     "id_perimeter" => $itemperimeter->mpm_id,
                     "nama_perimeter" => $itemperimeter->mpm_name,
-
                     "alamat" => $itemperimeter->mpm_name,
                     "kategori" => $itemperimeter->mpmk_name,
-
                     "provinsi" => $itemperimeter->mpro_name,
                     "kabupaten" => $itemperimeter->mkab_name,
                     "aktifitas" => $this->getFotoByPerimeter($itemperimeter->mpm_id, $itemperimeter->mpm_mc_id)
