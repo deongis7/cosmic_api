@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Cache;
 use DB;
 use function Complex\negative;
 
-
 class ProductController extends Controller
 {
     /**
@@ -60,13 +59,13 @@ class ProductController extends Controller
             $mc_id=$request->mc_id;
         }
 
-        $datacache =Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search, $mc_id) {
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search, $mc_id) {
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdate = $weeks['startweek'];
             $enddate = $weeks['endweek'];
-            $lastweek  =Carbon::parse($startdate)->subWeeks(1)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(1)->format('Y-m-d');
-            $twoweek  =Carbon::parse($startdate)->subWeeks(2)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(2)->format('Y-m-d');
+            $lastweek = Carbon::parse($startdate)->subWeeks(1)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(1)->format('Y-m-d');
+            $twoweek = Carbon::parse($startdate)->subWeeks(2)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(2)->format('Y-m-d');
             
             if($search==""){
                 $pengajuan = DB::connection('pgsql2')->select( "select a.* from
