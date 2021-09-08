@@ -351,6 +351,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
     //Survei Kepuasan
     Route::post('/report/survei_kepuasan', 'ReportController@postSurveiKepuasan');
+    Route::post('/report/data_wfh/add', 'ReportController@postDataWFHWFO');
+    Route::get('/report/data_wfh/{mc_id}', 'ReportController@getDataWFHWFOByPerusahaan');
 
     Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
     Route::post('/user/sendfirebase/{id}', 'UserController@sendFirebase');
