@@ -1400,8 +1400,7 @@ class DashboardController extends Controller
                 $alert++;
             }
         }
-
-
+        
         $alert_pelaporan_wajib =  DB::connection('pgsql3')->select("SELECT * FROM table_agregasi_data_pegawai where tad_mc_id= ? and tad_week=? limit 1",[$id,$curweek]);
               if($alert_pelaporan_wajib != null){
                 $alertlap=false;
@@ -1412,9 +1411,9 @@ class DashboardController extends Controller
         if($alert > 0){  $alert_tf = true; }else{ $alert_tf = false; }
         return response()->json([
             'status' => 200,
-            'alert'=> $alert_tf,
-            'alert_pegawai_terdampak'=> $alertlap,
-            'data' => $data
+            'alert'=> false,//$alert_tf,
+            'alert_pegawai_terdampak'=> false,//$alertlap,
+            'data' => array(),
         ]);
     }
 
