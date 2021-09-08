@@ -323,7 +323,7 @@ class PICController extends Controller{
 	//Get File
 	private function getFile($id_aktifitas,$id_perusahaan){
 		$str = "_get_perimeterlist_all_".$id_aktifitas."_".$id_perusahaan;
-		// $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_aktifitas,$id_perusahaan) {
+		// $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 5 * 10, function () use($id_aktifitas,$id_perusahaan) {
         $data =[];
         
         if ($id_aktifitas != null){
@@ -368,7 +368,7 @@ class PICController extends Controller{
 	//Get File ID
 	public function getFileByID($id_file){
 		$str = "_getFileByID_".$id_file;
-        //$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_file) {
+        //$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 5 * 10, function () use($id_file) {
 		$data =[];
 		
 		if ($id_file != null){
@@ -539,8 +539,8 @@ class PICController extends Controller{
 	//Get Cluster per Perimeter Level
 	public function getClusterbyPerimeter($id,$nik){
         try{
-            //$datacache =Cache::remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by_". $id."_".$nik, 3 * 60, function()use($id,$nik) {
-            $datacache = Cache::tags(['cluster'.$nik])->remember(env('APP_ENV', 'dev')."_get_cluster_perimeter_level_by2_". $id."_".$nik, 10*60, function () use($id,$nik){
+            //$datacache =Cache::remember(env('APP_ENV', 'prod')."_get_cluster_perimeter_level_by_". $id."_".$nik, 3 * 60, function()use($id,$nik) {
+            $datacache = Cache::tags(['cluster'.$nik])->remember(env('APP_ENV', 'prod')."_get_cluster_perimeter_level_by2_". $id."_".$nik, 10*60, function () use($id,$nik){
 
             $user = User::where('username',$nik)->first();
             $total_monitoring = 0;
@@ -636,7 +636,7 @@ class PICController extends Controller{
 	//Get Cluster per Perimeter Level
 	public function getAktifitasbyCluster($nik,$id_perimeter_cluster){
 		$str = 'get_aktifitas_'.$nik.$id_perimeter_cluster;
-		 $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 0 * 10, function () use($nik,$id_perimeter_cluster) {
+		 $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 0 * 10, function () use($nik,$id_perimeter_cluster) {
 		$user = User::where('username',$nik)->first();
 		$data = array();
 
@@ -691,8 +691,8 @@ class PICController extends Controller{
 		$dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0);
 		$string = "_perimeter_in_aktifitas_by_".$id_perimeter_level;
 		$data = array();
-       	// $datacache =Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level, $user, $dataprogress, $data) {
-       	$datacache = Cache::tags(['_perimeter_in_aktifitas_by_'.$id_perimeter_level])->remember(env('APP_ENV', 'dev').$string, 60, function () use($id_perimeter_level, $user, $dataprogress, $data) {
+       	// $datacache =Cache::remember(env('APP_ENV', 'prod')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level, $user, $dataprogress, $data) {
+       	$datacache = Cache::tags(['_perimeter_in_aktifitas_by_'.$id_perimeter_level])->remember(env('APP_ENV', 'prod').$string, 60, function () use($id_perimeter_level, $user, $dataprogress, $data) {
 
             if ($user != null){
     			$role_id = $user->roles()->first()->id;
@@ -761,7 +761,7 @@ class PICController extends Controller{
 	public function getMonitoringDetail($id_aktifitas){
 		// Config::set('database.default', 'pgsql3');
 		$str = "_get_monitoring_det_".$id_aktifitas;
-        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_aktifitas) {
+        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 5 * 10, function () use($id_aktifitas) {
 			$data = array();
 			$monitor = TrnAktifitas::join('konfigurasi_car','konfigurasi_car.kcar_id','transaksi_aktifitas.ta_kcar_id')
 				->join('master_car','master_car.mcar_id','konfigurasi_car.kcar_mcar_id')
@@ -915,7 +915,7 @@ class PICController extends Controller{
   //Get File ID
     public function getFilePerimeterLevelByPerimeterLevel($id_perimeter_level){
         $str = "_get_perimeterlist_all_".$id_perimeter_level;
-		$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($id_perimeter_level) {
+		$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 5 * 10, function () use($id_perimeter_level) {
 		    $data =[];
 		    
 		    if ($id_perimeter_level != null){
@@ -985,8 +985,8 @@ class PICController extends Controller{
         $cluster_ruangan->tpmd_file_foto= $name1;
         $cluster_ruangan->tpmd_file_tumb= $name2;
         $cluster_ruangan->save();
-        //dd('*'.env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $cluster_ruangan->tpmd_mpml_id);
-        //Redis::del(Redis::keys('*'.env('APP_ENV', 'dev')."_perimeter_in_aktifitas_by_". $cluster_ruangan->tpmd_mpml_id));
+        //dd('*'.env('APP_ENV', 'prod')."_perimeter_in_aktifitas_by_". $cluster_ruangan->tpmd_mpml_id);
+        //Redis::del(Redis::keys('*'.env('APP_ENV', 'prod')."_perimeter_in_aktifitas_by_". $cluster_ruangan->tpmd_mpml_id));
         Cache::tags(['_perimeter_in_aktifitas_by_'.$cluster_ruangan->tpmd_mpml_id])->flush();
         if($cluster_ruangan) {
             return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
@@ -1028,7 +1028,7 @@ class PICController extends Controller{
         
         if ($user != null){
             $role_id = $user->roles()->first()->id;
-            $perimeter=Cache::remember(env('APP_ENV', 'dev')."_perimeter_in_aktifitasbumn_by_". $id_perimeter_level, 7 * 60, function()use($id_perimeter_level) {
+            $perimeter=Cache::remember(env('APP_ENV', 'prod')."_perimeter_in_aktifitasbumn_by_". $id_perimeter_level, 7 * 60, function()use($id_perimeter_level) {
             return $cacheperimeter
                 = DB::connection('pgsql2')->select("select mpm.mpm_id,mpl.mpml_id,tpd.tpmd_id,mcr.mcr_id, mpm.mpm_name, mpk.mpmk_name, mpl.mpml_name,mcr.mcr_name,tpmd_order,mpl.mpml_pic_nik as nikpic,mpl.mpml_me_nik as nikfo,case when tsp.tbsp_status is null then 0 else tsp.tbsp_status end as status_konfirmasi,
                 case when tsp.tbsp_status = 2 then true else false end as status_pic,

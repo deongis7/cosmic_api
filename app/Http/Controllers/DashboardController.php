@@ -46,7 +46,7 @@ class DashboardController extends Controller
 	}
 
 	public function getCosmicIndexAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_cosmicindex_all", 0 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_cosmicindex_all", 0 * 60, function() {
 	        $data = array();
 	        $cosmicindex_all = DB::connection('pgsql3')->select("SELECT * FROM dashboard_perimeter_bycosmicindex()");
 
@@ -85,7 +85,7 @@ class DashboardController extends Controller
             $search=$request->search;
         }
 
-        //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$group_company){
+        //$datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$group_company){
         $data = array();
 
           //Filter by GroupCompany
@@ -166,7 +166,7 @@ class DashboardController extends Controller
             $search=$request->search;
         }
 
-        //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
+        //$datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
             $data = array();
             $string =" SELECT * FROM dashboard_perimeter_byperusahaan() ";
 
@@ -234,7 +234,7 @@ class DashboardController extends Controller
           $str = $str.'_searh_'. str_replace(' ','_',$request->search);
           $search=$request->search;
       }
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$kd_perusahaan){
+        $datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$kd_perusahaan){
             $data = array();
 
             $string ="SELECT * FROM dashboard_region_byperusahaan('".$kd_perusahaan."')";
@@ -283,7 +283,7 @@ class DashboardController extends Controller
           $str = $str.'_searh_'. str_replace(' ','_',$request->search);
           $search=$request->search;
       }
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$kd_perusahaan,$id_region){
+        $datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$kd_perusahaan,$id_region){
             $data = array();
 
             $string ="SELECT * FROM dashboard_listperimeter_byperusahaan_byregion('".$id_region."')";
@@ -334,7 +334,7 @@ class DashboardController extends Controller
           $str = $str.'_searh_'. str_replace(' ','_',$request->search);
           $search=$request->search;
       }
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$id_kategori,$id_provinsi){
+        $datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$id_kategori,$id_provinsi){
             $data = array();
 
             $string ="SELECT * FROM dashboard_listperimeter_bykategori_byprovinsi('".$id_kategori."','".$id_provinsi."')";
@@ -386,7 +386,7 @@ class DashboardController extends Controller
           $search=$request->search;
         }
         
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$id_kategori){
+        $datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 15 * 60, function() use ($limit,$page,$endpage,$search,$id_kategori){
             $data = array();
 
             $string ="SELECT * FROM dashboard_provinsi_bykategori(".$id_kategori.")";
@@ -418,7 +418,7 @@ class DashboardController extends Controller
     }
 
 	public function getPerimeter_bykategoriperusahaan($name){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$name, 15 * 60, function()use($name){
+	    $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_perimeter_bykategoriperusahaan2__".$name, 15 * 60, function()use($name){
 	        $data = array();
 	        $perimeter_bykategori_all =  DB::connection('pgsql3')->select("SELECT * FROM dashboard_perimeterbyperusahaan($name)");
 
@@ -437,7 +437,7 @@ class DashboardController extends Controller
 	}
 
 	public function getPerimeter_bykategoriperusahaanProv($id){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_bykategoriperusahaan2__".$id, 15 * 60, function()use($id){
+	    $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_perimeter_bykategoriperusahaan2__".$id, 15 * 60, function()use($id){
 	        $data = array();
 	        $perimeter_bykategori_all = DB::connection('pgsql3')->select("SELECT * FROM dashboard_perimeterbyperusahaanprov($id)");
 
@@ -464,7 +464,7 @@ class DashboardController extends Controller
           $string = $string ."_group_company_".$group_company;
         }
         //dd($group_company);
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 15 * 60, function() use ($group_company){
+	    $datacache =  Cache::remember(env('APP_ENV', 'prod').$string, 15 * 60, function() use ($group_company){
 	        $data = array();
           if(isset($group_company)){
             if($group_company==2){
@@ -498,8 +498,8 @@ class DashboardController extends Controller
             $string = $string ."_group_company_".$group_company;
         }
         
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 2 * 60, function() use ($group_company){
-	    // $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0*10, function () use ($group_company) {
+        $datacache =  Cache::remember(env('APP_ENV', 'prod').$string, 2 * 60, function() use ($group_company){
+	    // $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'prod').$string, 0*10, function () use ($group_company) {
             $data = array();
             if(isset($group_company)){
                 if($group_company==2){
@@ -606,7 +606,7 @@ class DashboardController extends Controller
 	}
 
 	public function getWeekList(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_week", 15 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_week", 15 * 60, function() {
 	        $data = array();
 	        $dashboard_head =  DB::connection('pgsql3')->select("SELECT * FROM list_aktivitas_week()");
 
@@ -624,7 +624,7 @@ class DashboardController extends Controller
 	}
 
 	public function getMonitoring_ByMcidWeek($id, $tgl){
-	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_getmonitoring_bymcidweek_".$id."_".$tgl, 15 * 60, function()use($id, $tgl) {
+	    $datacache = Cache::remember(env('APP_ENV', 'prod')."_getmonitoring_bymcidweek_".$id."_".$tgl, 15 * 60, function()use($id, $tgl) {
 	        $data = array();
 	        $dashboard_head = DB::connection('pgsql3')->select("SELECT * FROM pemenuhan_monitoring_bymcidweek('$id','$tgl')");
 
@@ -639,7 +639,7 @@ class DashboardController extends Controller
 	}
 
 	public function getListMonitoring_ByMcidWeek($id, $tgl){
-	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_getlistmonitoring_bymcidweek_".$id."_".$tgl, 15 * 60, function()use($id, $tgl) {
+	    $datacache = Cache::remember(env('APP_ENV', 'prod')."_getlistmonitoring_bymcidweek_".$id."_".$tgl, 15 * 60, function()use($id, $tgl) {
 	        $data = array();
 	        $dashboard_head =  DB::connection('pgsql3')->select("SELECT a.v_mpm_name, a.v_mpml_name, a.v_mpmk_name,
                     a.v_pic, a.v_fo, a.v_cek, b.persen_det
@@ -664,7 +664,7 @@ class DashboardController extends Controller
 	}
 
 	public function getDashboardHeadBUMN($id){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashbumn_head_".$id, 0 * 60, function()use($id) {
+	    $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_dashbumn_head_".$id, 0 * 60, function()use($id) {
 	        $data = array();
 	        $dashboard_head =  DB::connection('pgsql3')->select("SELECT * FROM dashboardbumn_head('$id')");
 
@@ -681,7 +681,7 @@ class DashboardController extends Controller
 	}
 
   public function getDashboardJmlPegawai($id){
-      $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashjumpegawai_".$id, 15 * 60, function()use($id) {
+      $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_dashjumpegawai_".$id, 15 * 60, function()use($id) {
           $data = array();
           $dashboard_head =  DB::connection('pgsql_vaksin')->select("SELECT * FROM dashboard_jmlpegawai('$id')");
 
@@ -698,7 +698,7 @@ class DashboardController extends Controller
   }
 
 	public function getDashboardProtokolBUMN($id){
-       $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashprotokolbumn_".$id, 15 * 60, function()use($id) {
+       $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_dashprotokolbumn_".$id, 15 * 60, function()use($id) {
 	        $data = array();
 	        $dashboard_head =  DB::connection('pgsql3')->select("SELECT v_mpt_id, v_mpt_name,
                         CASE WHEN v_tbpt_id > 0 THEN 'Terupload' ELSE 'Belum Terupload' END AS v_upload
@@ -717,7 +717,7 @@ class DashboardController extends Controller
 	}
 
 	public function getDashboardMrMpmBUMN($id){
-       $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashmrmpmbumn_".$id, 15 * 60, function()use($id) {
+       $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_dashmrmpmbumn_".$id, 15 * 60, function()use($id) {
     	    $data = array();
     	    $dashboard_head =  DB::connection('pgsql3')->select("SELECT mr_name, COUNT(mpm_id) cnt
                         FROM master_region mr
@@ -765,8 +765,8 @@ class DashboardController extends Controller
             $str = $str."_".$startdate."_".$enddate;
         }
 
-        //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate,$group_company) {
-        $datacache = Cache::tags(['cosmic_index'])->remember(env('APP_ENV', 'dev').$str, 10*60, function () use($startdate,$enddate,$group_company){
+        //$datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 15 * 60, function()use($startdate,$enddate,$group_company) {
+        $datacache = Cache::tags(['cosmic_index'])->remember(env('APP_ENV', 'prod').$str, 10*60, function () use($startdate,$enddate,$group_company){
             $data = array();
             $weeks = AppHelper::Months();
             $startdatenow = $weeks['startmonth'];
@@ -931,7 +931,7 @@ class DashboardController extends Controller
             $str = $str."_".$startdate."_".$enddate;
         }
 
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($startdate,$enddate,$group_company) {
+        $datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 15 * 60, function()use($startdate,$enddate,$group_company) {
             $data = array();
             $weeks = AppHelper::Months();
             $startdatenow = $weeks['startmonth'];
@@ -1024,7 +1024,7 @@ class DashboardController extends Controller
             $str = $str."_".$startdate."_".$enddate;
         }
 
-        //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 0 * 60, function()use($startdate,$enddate,$mc_id) {
+        //$datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 0 * 60, function()use($startdate,$enddate,$mc_id) {
             $data = array();
             $weeks = AppHelper::Months();
             $startdatenow = $weeks['startmonth'];
@@ -1108,7 +1108,7 @@ class DashboardController extends Controller
 
         }
 
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($mc_id,$month) {
+        $datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 15 * 60, function()use($mc_id,$month) {
             $data = array();
             $weeks = AppHelper::Months();
             $startdatenow = $weeks['startmonth'];
@@ -1227,7 +1227,7 @@ class DashboardController extends Controller
 
         }
 
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function()use($mc_id,$month) {
+        $datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 15 * 60, function()use($mc_id,$month) {
             $data = array();
             $weeks = AppHelper::Months();
             $startdatenow = $weeks['startmonth'];
@@ -1419,7 +1419,7 @@ class DashboardController extends Controller
     }
 
     public function getPerusahaanbyProvinsiAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perusahaan_byprovinsi_all", 5 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_perusahaan_byprovinsi_all", 5 * 60, function() {
 	        $data = array();
 	        $perimeter_byprovinsi_all =  DB::connection('pgsql3')->select("SELECT * FROM dashboard_perusahaan_byprovinsi()");
 
@@ -1436,7 +1436,7 @@ class DashboardController extends Controller
 	}
 
 	public function getPerusahaanbyIndustriAll(){
-	    $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_perusahaan_byindustri_all", 5 * 60, function() {
+	    $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_perusahaan_byindustri_all", 5 * 60, function() {
 	        $data = array();
 	        $perimeter_byprovinsi_all =  DB::connection('pgsql3')->select("SELECT * FROM dashboard_perusahaan_byindustri()");
 
@@ -1471,7 +1471,7 @@ class DashboardController extends Controller
             $search=$request->search;
         }
 
-        //$datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
+        //$datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 15 * 60, function() use ($limit,$page,$endpage,$search){
               $data = array();
 
               $string =" SELECT * FROM dashboard_event_all() ";
@@ -1528,7 +1528,7 @@ class DashboardController extends Controller
         $search = null;
         $str = "_count_event_by_perusahaan_all";
 
-          $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 15 * 60, function(){
+          $datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 15 * 60, function(){
               $data = array();
 
               $string ="SELECT sum(v_jml_event) FROM dashboard_event_all()";
@@ -1557,7 +1557,7 @@ class DashboardController extends Controller
               $str = $str ."_group_level_2".$group_level;
           }
           //dd($str);
-          $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 120 * 60, function()use($group_company,$group_level) {
+          $datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 120 * 60, function()use($group_company,$group_level) {
               $data = array();
               if(isset($group_company)){
                   if($group_company==1){
@@ -1716,7 +1716,7 @@ class DashboardController extends Controller
     }
 
     public function getAverageCosmicIndexDetailbyCompany($kd_perusahaan){
-        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_cosmic_index_detail_average_by_".$kd_perusahaan, 60 * 60, function()use($kd_perusahaan){
+        $datacache =  Cache::remember(env('APP_ENV', 'prod')."_cosmic_index_detail_average_by_".$kd_perusahaan, 60 * 60, function()use($kd_perusahaan){
           $data = array();
           //$average = DB::connection('pgsql3')->select("SELECT * FROM month_average_cosmic_index_bymcid('".$kd_perusahaan."')");
           // $query = "Select a.rci_week,a.rci_mc_id,a.rci_mc_name,a.rci_cosmic_index,            a.rci_jml_perimeter,a.rci_avg_cosmic_index,a.rci_is_excellent,a.rank_now,b.rank_before
@@ -1802,7 +1802,7 @@ class DashboardController extends Controller
           $search=$request->search;
       }
 
-        $datacache =  Cache::remember(env('APP_ENV', 'dev').$str, 60 * 60, function() use($limit,$page,$endpage,$search){
+        $datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 60 * 60, function() use($limit,$page,$endpage,$search){
           $data = array();
           $crweeks = AppHelper::Months();
           $startdate = $crweeks['startmonth'];
@@ -1880,7 +1880,7 @@ class DashboardController extends Controller
     }
 
     public function getCardAtestasi(){
-        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_CardAtestasi", 0 * 60, function() {
+        $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_CardAtestasi", 0 * 60, function() {
             $data = array();
             $cosmicindex_all = DB::connection('pgsql3')->select("SELECT * FROM getcardatestasi()");
             
@@ -1896,7 +1896,7 @@ class DashboardController extends Controller
     }
 
     public function getCardSertifikasi(){
-        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_card_sertifikasi", 0 * 60, function() {
+        $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_card_sertifikasi", 0 * 60, function() {
             $data = array();
             $sertifikasi = DB::connection('pgsql3')->select("SELECT * FROM getcardsertifikasi()");
 
@@ -1912,7 +1912,7 @@ class DashboardController extends Controller
     }
 
     public function getCardProduk(){
-        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_CardAtestasi", 0 * 60, function() {
+        $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_CardAtestasi", 0 * 60, function() {
             $data = array();
             $data2 = array();
             $cosmicindex_all = DB::connection('pgsql3')->select("SELECT * FROM getcardatestasi()");

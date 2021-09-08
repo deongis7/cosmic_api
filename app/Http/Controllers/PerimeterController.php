@@ -51,7 +51,7 @@ class PerimeterController extends Controller
 	//Jumlah Perimeter
 	public function getCountPerimeter($id){
 		$data = array();
-		$region =  Cache::remember(env('APP_ENV', 'dev')."_count_region_by_company_id_". $id, 30 * 60, function()use($id) {
+		$region =  Cache::remember(env('APP_ENV', 'prod')."_count_region_by_company_id_". $id, 30 * 60, function()use($id) {
         $reg = new Region;
         $reg->setConnection('pgsql3');
 		return count($reg->select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')
@@ -59,13 +59,13 @@ class PerimeterController extends Controller
         ->where('mr_mc_id',$id)->where('master_perimeter.mpm_lockdown',0)->groupBy('mr_id')->get());
 		});
 		//$region =count(Region::select('mr_id')->join('master_perimeter','master_perimeter.mpm_mr_id','master_region.mr_id')->where('mr_mc_id',$id)->groupBy('mr_id')->get());
-		$user =  Cache::remember(env('APP_ENV', 'dev')."_count_userpic_by_company_id_". $id, 30 * 60, function()use($id) {
+		$user =  Cache::remember(env('APP_ENV', 'prod')."_count_userpic_by_company_id_". $id, 30 * 60, function()use($id) {
 			return count(DB::connection('pgsql3')->select('select au.username from app_users au
 					join master_perimeter_level mpl on mpl.mpml_pic_nik = au.username
 					where au.mc_id = ?
 					group by au.username',[$id]));
 		});
-		$perimeter = Cache::remember(env('APP_ENV', 'dev')."_count_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
+		$perimeter = Cache::remember(env('APP_ENV', 'prod')."_count_perimeter_by_company_id_". $id, 30 * 60, function()use($id) {
         $prm= new Perimeter;
         $prm->setConnection('pgsql3');
         
@@ -87,7 +87,7 @@ class PerimeterController extends Controller
 
 	//Peta Sebaran Perimeter
 	public function getPerimeterMap($id){
-        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_map_by_company_id_". $id, 30 * 60, function()use($id) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod')."_get_perimeter_map_by_company_id_". $id, 30 * 60, function()use($id) {
         	$data = array();
             $perimeter = new Perimeter;
             $perimeter->setConnection('pgsql3');
@@ -111,7 +111,7 @@ class PerimeterController extends Controller
 
 	//Get Perimeter by Kode Perusahaan
 	public function getPerimeter($id){
-		$datacache = Cache::remember(env('APP_ENV', 'dev')."_get_perimeter_by_company_id_". $id, 10 * 60, function()use($id) {
+		$datacache = Cache::remember(env('APP_ENV', 'prod')."_get_perimeter_by_company_id_". $id, 10 * 60, function()use($id) {
     		$dashboard = array("total_perimeter"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0,);
     		$data = array();
             $perimeter = new Perimeter;
@@ -199,7 +199,7 @@ class PerimeterController extends Controller
             $search=$request->search;
         }
 
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10 * 60, function()use($id,$limit,$page,$endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10 * 60, function()use($id,$limit,$page,$endpage,$search) {
             $data = array();
             $perimeter = new Perimeter;
             $perimeter->setConnection('pgsql3');
@@ -534,7 +534,7 @@ class PerimeterController extends Controller
 
 	public function getExecutionReport($id){
 		Config::set('database.default', 'pgsql3');
-		$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_exec_report_". $id, 0 * 60, function()use($id) {
+		$datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_exec_report_". $id, 0 * 60, function()use($id) {
 			$data = array();
 			$execution = DB::select("
 				SELECT *, CASE

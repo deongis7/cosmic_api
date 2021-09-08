@@ -54,7 +54,7 @@ class MasterController extends Controller
 	}
 
 	public function getAllKota(){
-		$datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_kota", 360 * 60, function() {
+		$datacache = Cache::remember(env('APP_ENV', 'prod')."_get_all_kota", 360 * 60, function() {
 			$kota = Kota::join('master_provinsi','mpro_id','mkab_mpro_id')->orderBy('mkab_name','asc')->get();
 
 			foreach($kota as $itemkota){
@@ -72,7 +72,7 @@ class MasterController extends Controller
 	}
 
 	public function getKotaByProvinsi($id_provinsi){
-		$datacache = Cache::remember(env('APP_ENV', 'dev')."_get_kota_by_prov_".$id_provinsi, 360 * 60, function() use ($id_provinsi) {
+		$datacache = Cache::remember(env('APP_ENV', 'prod')."_get_kota_by_prov_".$id_provinsi, 360 * 60, function() use ($id_provinsi) {
 			$kota = Kota::join('master_provinsi','mpro_id','mkab_mpro_id')
 							->where('mkab_mpro_id',$id_provinsi)
 							->orderBy('mkab_name','asc')->get();
@@ -92,7 +92,7 @@ class MasterController extends Controller
 	}
 
 	public function getAllProvinsi(){
-		$datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_prov", 360 * 60, function() {
+		$datacache = Cache::remember(env('APP_ENV', 'prod')."_get_all_prov", 360 * 60, function() {
 			$prov = Provinsi::orderBy('mpro_name','asc')->get();
 
 			foreach($prov as $itemprov){
@@ -117,7 +117,7 @@ class MasterController extends Controller
             $str = $str.'_searh_'. str_replace(' ','_',$request->search);
             $search=$request->search;
       }
-	    $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 360 * 60, function() use($Path,$search  ) {
+	    $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 360 * 60, function() use($Path,$search  ) {
         $data=[];
         if(isset($search)) {
             $company = Company::selectRaw('master_company.*,(master_company.mc_id)::varchar as mc_idx')->where(DB::raw("lower(TRIM(master_company.mc_name))"),'like','%'.strtolower(trim($search)).'%')
@@ -143,7 +143,7 @@ class MasterController extends Controller
 	public function getDetailCompany($id) {
 	    $Path = '/foto_bumn/';
 
-	    $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_company_by_mcid_".$id, 360 * 60, function() use ($id,$Path) {
+	    $datacache = Cache::remember(env('APP_ENV', 'prod')."_get_company_by_mcid_".$id, 360 * 60, function() use ($id,$Path) {
 	        $company = Company::leftJoin('master_sektor','ms_id','mc_msc_id')
 	        ->where('mc_id',$id)->where('ms_type','CCOVID')->get();
             $data=[];
@@ -212,7 +212,7 @@ class MasterController extends Controller
     }
 
     public function getAllStsKasus(){
-        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mskasus", 360 * 60, function() {
+        $datacache = Cache::remember(env('APP_ENV', 'prod')."_get_all_mskasus", 360 * 60, function() {
             $data=[];
             $mststskasus = MstStsKasus::all();
 
@@ -229,7 +229,7 @@ class MasterController extends Controller
     }
 
     public function getAllStsKasus2(){
-        //$datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mskasus2", 360 * 60, function() {
+        //$datacache = Cache::remember(env('APP_ENV', 'prod')."_get_all_mskasus2", 360 * 60, function() {
             $data=[];
             $mststskasus = DB::select("SELECT msk_id, msk_name, msk_name2
                                     FROM master_status_kasus msk
@@ -254,7 +254,7 @@ class MasterController extends Controller
         $data=[];
         if(isset($request->type)){
             if($request->type=='kasus' || $request->type=='vaksin'){
-                $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai_".$request->type, 360 * 60, function() {
+                $datacache = Cache::remember(env('APP_ENV', 'prod')."_get_all_mspegawai_".$request->type, 360 * 60, function() {
                     $mststspegawai = DB::connection('pgsql3')->select("SELECT msp_id, msp_name, msp_name2
                         FROM master_status_pegawai
                         WHERE msp_id IN (1,2,3,7,8)");
@@ -267,7 +267,7 @@ class MasterController extends Controller
                     return $data;
                 });
             }else if($request->type=='vaksinlansia'){
-                $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai_".$request->type, 360 * 60, function() {
+                $datacache = Cache::remember(env('APP_ENV', 'prod')."_get_all_mspegawai_".$request->type, 360 * 60, function() {
                     $mststspegawai = DB::connection('pgsql3')->select("SELECT msp_id, msp_name, msp_name2
                             FROM master_status_pegawai
                             WHERE msp_id IN (5,6)");
@@ -281,7 +281,7 @@ class MasterController extends Controller
                 });
             }
         }else{
-            $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_mspegawai", 360 * 60, function() {
+            $datacache = Cache::remember(env('APP_ENV', 'prod')."_get_all_mspegawai", 360 * 60, function() {
                 $mststspegawai = DB::connection('pgsql3')->select("SELECT msp_id, msp_name, msp_name2
                             FROM master_status_pegawai");
                 foreach($mststspegawai as $msp){
@@ -297,7 +297,7 @@ class MasterController extends Controller
     }
 
     public function getAllSosialisasiKategori(){
-        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_sosialisasikategori", 360 * 60, function() {
+        $datacache = Cache::remember(env('APP_ENV', 'prod')."_get_all_sosialisasikategori", 360 * 60, function() {
             $mstsosialisasikategori = MstSosialisasiKategori::all();
 
             foreach($mstsosialisasikategori as $mslk){
@@ -314,7 +314,7 @@ class MasterController extends Controller
     public function getKategoriPerimeter(){
 
         $data=[];
-        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_perimeter_kategori", 360 * 60, function()  {
+        $datacache = Cache::remember(env('APP_ENV', 'prod')."_get_all_perimeter_kategori", 360 * 60, function()  {
             $kat = PerimeterKategori::orderBy("mpmk_name","asc")->get();
 
             foreach($kat as $itemkat){
@@ -333,7 +333,7 @@ class MasterController extends Controller
     public function getClusterRuangan(){
 
         $data=[];
-        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_cluster_ruangan", 360 * 60, function()  {
+        $datacache = Cache::remember(env('APP_ENV', 'prod')."_get_all_cluster_ruangan", 360 * 60, function()  {
             $mcr = ClusterRuangan::orderBy("mcr_name","asc")->get();
 
             foreach($mcr as $itemmcr){
@@ -350,7 +350,7 @@ class MasterController extends Controller
     }
 
     public function getWeekList(){
-       $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_weeklist_', 360 * 60, function() {
+       $datacache = Cache::remember(env('APP_ENV', 'prod').'_get_weeklist_', 360 * 60, function() {
         $weeks = AppHelper::Months();
         $crweektdate = $weeks['startmonth'].'-'.$weeks['endmonth'];
         
@@ -379,7 +379,7 @@ class MasterController extends Controller
     }
 
     public function getKriteriaOrang(){
-        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_kriteria_orang", 360 * 60, function() {
+        $datacache = Cache::remember(env('APP_ENV', 'prod')."_get_all_kriteria_orang", 360 * 60, function() {
             $data=[];
             $mstkriteriaorang = MstKriteriaOrang::all();
 
@@ -395,7 +395,7 @@ class MasterController extends Controller
     }
 
     public function getFasilitasRumah(){
-        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_all_fasilitas_rumah", 360 * 60, function() {
+        $datacache = Cache::remember(env('APP_ENV', 'prod')."_get_all_fasilitas_rumah", 360 * 60, function() {
             $data=[];
             $mstfasilitasrumah = MstFasilitasRumah::all();
 

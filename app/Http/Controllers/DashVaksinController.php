@@ -88,7 +88,7 @@ class DashVaksinController extends Controller
         }
 
         $string = "_get_dashvaksinhead_".$level.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin.'_'.$kabupaten.'_'.$mobile;
-        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level,
+        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'prod').$string, 0, function () use($level,
             $mc_id, $lansia, $sts_pegawai, $sts_vaksin, $kabupaten,$mobile) {
 
             if($mobile==0){
@@ -323,7 +323,7 @@ class DashVaksinController extends Controller
         }
 
         $string = "_get_dashvaksin_byperusahaan_".$level.'_'.$mc_id.'_'.$lansia.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin.'_'.$mobile.$str;
-        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level, $mc_id, $lansia,$sts_pegawai,$sts_vaksin,$mobile,$limit,$page,$search,$sort,$col) {
+        $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'prod').$string, 0, function () use($level, $mc_id, $lansia,$sts_pegawai,$sts_vaksin,$mobile,$limit,$page,$search,$sort,$col) {
             $query_search='';
             if($mobile==0){
                 if($level > 0){
@@ -478,7 +478,7 @@ class DashVaksinController extends Controller
     if(isset($p_sort)){   $string = $string  . "_psort_" . $p_sort; }
 
 
-  $datacache =  Cache::remember(env('APP_ENV', 'dev').$string, 2 * 60, function() use ($limit,$page,$endpage,$column_sort,$p_sort, $filter_perusahaan,$filter_pegawai,$filter_name){
+  $datacache =  Cache::remember(env('APP_ENV', 'prod').$string, 2 * 60, function() use ($limit,$page,$endpage,$column_sort,$p_sort, $filter_perusahaan,$filter_pegawai,$filter_name){
 		/*$filter_perusahaan = $sp1;
 		$filter_pegawai = $sp2;*/
 		$w1 = " AND mc_level IN (1,2,3)";
@@ -522,7 +522,7 @@ class DashVaksinController extends Controller
 				$w1
 				$w3";
 
-	    //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashvaksin_perusahaan", 15 * 60, function() {
+	    //$datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_dashvaksin_perusahaan", 15 * 60, function() {
 	    $data = array();
 	    $count = DB::connection('pgsql_vaksin')->select($string_count);
 
@@ -606,8 +606,8 @@ class DashVaksinController extends Controller
 
 
       	//dd($string);
-        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($filter_nama, $filter_mc_id, $filter_status, $filter_status_vaksin, $limit, $page, $endpage) {
-		/*$datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 10, function()use($filter_nama, $filter_mc_id, $filter_status, $limit, $page, $endpage) {*/
+        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 5 * 10, function () use($filter_nama, $filter_mc_id, $filter_status, $filter_status_vaksin, $limit, $page, $endpage) {
+		/*$datacache = Cache::remember(env('APP_ENV', 'prod').$str, 5 * 10, function()use($filter_nama, $filter_mc_id, $filter_status, $limit, $page, $endpage) {*/
 	        $data = array();
 
 		    $vaksin = new Vaksin();
@@ -695,7 +695,7 @@ class DashVaksinController extends Controller
 	    }
 
 	    $string = "_get_dashvaksin_byprovinsi_".$level.'_'.$mc_id.'_'.$lansia;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'prod').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
 	        }else{
@@ -772,7 +772,7 @@ class DashVaksinController extends Controller
 	    }
 
 	    $string = "_get_dashvaksin_bykabupaten_".$level.'_'.$mc_id.'_'.$lansia;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $mc_id, $lansia) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'prod').$string, 60, function () use($level, $mc_id, $lansia) {
 	        if($level > 0){
 	            $query_level = ' AND mav.v_mc_level='.$level;
 	        }else{
@@ -863,7 +863,7 @@ class DashVaksinController extends Controller
 	    }
 
 	    $string = "_get_dashvaksin_bylokasi1_".$level.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level, $mc_id, $lansia, $sts_pegawai, $sts_vaksin) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'prod').$string, 0, function () use($level, $mc_id, $lansia, $sts_pegawai, $sts_vaksin) {
 	        if($level > 0){
 	            $query_level = ' AND mc.mc_level='.$level;
 	        }else{
@@ -974,7 +974,7 @@ class DashVaksinController extends Controller
 	    }
 
 	    $string = "_get_dashvaksin_bylokasi2_".$level.'_'.$mc_id.'_'.$lansia.'_'.$sts_pegawai.'_'.$sts_vaksin;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 0, function () use($level, $mc_id, $lansia, $sts_pegawai, $sts_vaksin) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'prod').$string, 0, function () use($level, $mc_id, $lansia, $sts_pegawai, $sts_vaksin) {
 	        if($level > 0){
 	            $query_level = ' AND mc.mc_level='.$level;
 	        }else{
@@ -1724,8 +1724,8 @@ class DashVaksinController extends Controller
         $str = "_get_dashvaksin_profile".$tv_nik;
 
       	//dd($string);
-        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 5 * 10, function () use($tv_nik) {
-		/*$datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 10, function()use($filter_nama, $filter_mc_id, $filter_status, $limit, $page, $endpage) {*/
+        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 5 * 10, function () use($tv_nik) {
+		/*$datacache = Cache::remember(env('APP_ENV', 'prod').$str, 5 * 10, function()use($filter_nama, $filter_mc_id, $filter_status, $limit, $page, $endpage) {*/
 	        $data = array();
 
 		    $vaksin = new Vaksin();
@@ -1817,7 +1817,7 @@ class DashVaksinController extends Controller
 	    }
 
 	    $string = "_get_dashvaksin_bykabperusahaanweb_".$level.'_'.$lansia.'_'.$kabupaten.'_'.$sts_vaksin;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $lansia, $kabupaten, $sts_vaksin) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'prod').$string, 60, function () use($level, $lansia, $kabupaten, $sts_vaksin) {
 
 	        if($level > 0){
 	            $query_level   = ' AND mav.v_mc_level='.$level;
@@ -1944,7 +1944,7 @@ class DashVaksinController extends Controller
 	    }
 
 	    $string = "_get_dashvaksin_byprovperusahaanweb_".$level.'_'.$lansia.'_'.$provinsi.'_'.$sts_vaksin;
-	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'dev').$string, 60, function () use($level, $lansia, $provinsi, $sts_vaksin) {
+	    $datacache = Cache::tags(['users'])->remember(env('APP_ENV', 'prod').$string, 60, function () use($level, $lansia, $provinsi, $sts_vaksin) {
 
 	        if($level > 0){
 	            $query_level   = ' AND mav.v_mc_level='.$level;

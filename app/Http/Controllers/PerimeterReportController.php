@@ -95,7 +95,7 @@ class PerimeterReportController extends Controller{
             }
         }
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 60 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search,$week,$column,$sort) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 60 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search,$week,$column,$sort) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
@@ -366,7 +366,7 @@ class PerimeterReportController extends Controller{
         }
         //dd($str);
         //dd($str_fnc);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 1 * 5, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search,$week) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 1 * 5, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search,$week) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
@@ -560,7 +560,7 @@ class PerimeterReportController extends Controller{
             $search=$request->search;
         }
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 50 * 60, function()use($kd_perusahaan,$page,$limit,$endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 50 * 60, function()use($kd_perusahaan,$page,$limit,$endpage,$search) {
             $data = array();
             $region = new Region;
             $region->setConnection('pgsql3');
@@ -674,8 +674,8 @@ class PerimeterReportController extends Controller{
             $str = $str.'_week_'. $week;
         }
         //dd($str_fnc);
-        // $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 40 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$week) {
-        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 10, function () use($kd_perusahaan,$nik,$user,$role_id,$week) {
+        // $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 40 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$week) {
+        $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 10, function () use($kd_perusahaan,$nik,$user,$role_id,$week) {
             //current week
             //$crweeks = AppHelper::Weeks();
             //$currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
@@ -993,7 +993,7 @@ class PerimeterReportController extends Controller{
             $search=$request->search;
         }
 
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10 * 60, function()use($id,$limit,$page, $endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10 * 60, function()use($id,$limit,$page, $endpage,$search) {
             $data = array();
             $perimeter = new Perimeter;
             $perimeter->setConnection('pgsql3');

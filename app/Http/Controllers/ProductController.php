@@ -59,7 +59,7 @@ class ProductController extends Controller
             $mc_id=$request->mc_id;
         }
         
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 0 * 60, function()use($search, $mc_id) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 0 * 60, function()use($search, $mc_id) {
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdate = $weeks['startweek'];
@@ -230,7 +230,7 @@ class ProductController extends Controller
             $id_produk=$request->id_produk;
         }
 
-        $datacache =Cache::remember(env('APP_ENV', 'dev')."getPengajuanById". $str, 5 * 60, function()use($jenis, $id_produk) {
+        $datacache =Cache::remember(env('APP_ENV', 'prod')."getPengajuanById". $str, 5 * 60, function()use($jenis, $id_produk) {
 
             $data = array();
             $weeks = AppHelper::Weeks();
@@ -338,7 +338,7 @@ class ProductController extends Controller
 
     //Get Status Monitoring Perimeter Level
     public function getPengajuanAtestasi($id_produk){
-        $datacache =Cache::remember(env('APP_ENV', 'dev')."_layanan_produk_by_". $id_produk, 5 * 60, function()use($id_produk) {
+        $datacache =Cache::remember(env('APP_ENV', 'prod')."_layanan_produk_by_". $id_produk, 5 * 60, function()use($id_produk) {
 
             $data = array();
             $weeks = AppHelper::Weeks();
@@ -397,7 +397,7 @@ class ProductController extends Controller
     //Get Layanan Produk
     public function getLayananProduk(){
         $id_produk=0;
-        $datacache =Cache::remember(env('APP_ENV', 'dev')."_layanan_produk_All_".$id_produk, 5 * 60, function()use($id_produk) {
+        $datacache =Cache::remember(env('APP_ENV', 'prod')."_layanan_produk_All_".$id_produk, 5 * 60, function()use($id_produk) {
             $data = array();
             $product = DB::connection('pgsql2')->select( "select mlp.* from  master_layanan_produk mlp
                 order by mlp.mlp_id asc");

@@ -88,7 +88,7 @@ class PerimeterListController extends Controller
           $group_company=$request->group_company;
       }
 
-      $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 360 * 60, function()use($limit,$page,$group_company,$endpage,$search) {
+      $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 360 * 60, function()use($limit,$page,$group_company,$endpage,$search) {
           $data = array();
           $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
           //current week
@@ -214,11 +214,11 @@ class PerimeterListController extends Controller
         //var_dump($str);die;
         //dd($str);
         if(env('APP_ENV')=="prod"){ 
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10*60, function()use($kd_perusahaan,
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10*60, function()use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown) {
 
-          /*$datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'dev').$str, 10*60,   function () use($kd_perusahaan,
+          /*$datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'prod').$str, 10*60,   function () use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown){*/
 
@@ -335,7 +335,7 @@ class PerimeterListController extends Controller
 
     }else{
 
-    $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10*60, function()use($kd_perusahaan,
+    $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10*60, function()use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown) {
 
@@ -520,7 +520,7 @@ class PerimeterListController extends Controller
         }
         //dd($str);
         //dd($str_fnc);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 1 * 5, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search,$column,$sort) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 1 * 5, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search,$column,$sort) {
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
@@ -663,7 +663,7 @@ class PerimeterListController extends Controller
         }
         
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 50 * 60, function()use($kd_perusahaan,$page,$limit,$endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 50 * 60, function()use($kd_perusahaan,$page,$limit,$endpage,$search) {
 
             $data = array();
             $region = new Region;
@@ -790,7 +790,7 @@ class PerimeterListController extends Controller
             $str_fnc[]=$nik;
         }
         //dd($str_fnc);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 30 * 60, function()use($kd_perusahaan,$nik,$user,$role_id) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 30 * 60, function()use($kd_perusahaan,$nik,$user,$role_id) {
 
 
             $data = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
@@ -1258,7 +1258,7 @@ class PerimeterListController extends Controller
             $search=$request->search;
         }
 
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10 * 60, function()use($id,$limit,$page, $endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10 * 60, function()use($id,$limit,$page, $endpage,$search) {
             $data = array();
             $perimeter = new Perimeter;
             $perimeter->setConnection('pgsql3');
@@ -1450,7 +1450,7 @@ class PerimeterListController extends Controller
 
     //Get Status Monitoring Perimeter Level
     private function getFotoByPerimeter($id_perimeter,$mc_id){
-$datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id_perimeter, 5 * 60, function()use($id_perimeter,$mc_id) {
+$datacache = Cache::remember(env('APP_ENV', 'prod').'_get_foto_by_perimeter_'.$id_perimeter, 5 * 60, function()use($id_perimeter,$mc_id) {
         $data = array();
         $weeks = AppHelper::Weeks();
         $startdate = $weeks['startweek'];
@@ -1488,9 +1488,9 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
     }
 
     private function getFile($id_aktifitas,$id_perusahaan){
-      // $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_file_by_akt_'.$id_aktifitas.'_'.$id_perusahaan, 5 * 60, function()use($id_aktifitas,$id_perusahaan) {
+      // $datacache = Cache::remember(env('APP_ENV', 'prod').'_get_file_by_akt_'.$id_aktifitas.'_'.$id_perusahaan, 5 * 60, function()use($id_aktifitas,$id_perusahaan) {
       $str = "_getFile_".$id_aktifitas."_".$id_perusahaan;
-      // $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 60, function () use($id_aktifitas,$id_perusahaan) {
+      // $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 60, function () use($id_aktifitas,$id_perusahaan) {
         $data =[];
 
         if ($id_aktifitas != null){
@@ -1620,7 +1620,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
             $status=$request->status;
         }
 
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search,$status) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search,$status) {
             $data = array();
             $report = new TrnReport;
             $report->setConnection('pgsql3');
@@ -1734,7 +1734,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
             $search=$request->search;
         }
 
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search) {
             $data = array();
             $report = new TblPerimeterRate;
             $report->setConnection('pgsql2');
@@ -1910,7 +1910,7 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
             $week=$request->week;
         }
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
@@ -2082,11 +2082,11 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         }
         //var_dump($str);die;
         //dd($str);
-        /*$datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10, function()use($kd_perusahaan,
+        /*$datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10, function()use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown) {*/
 
-          $datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'dev').$str, 10*60, function () use($kd_perusahaan,
+          $datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'prod').$str, 10*60, function () use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown){
 
@@ -2295,11 +2295,11 @@ $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id
         }
         //var_dump($str);die;
         //dd($str);
-        /*$datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10, function()use($kd_perusahaan,
+        /*$datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10, function()use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown) {*/
 
-          $datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'dev').$str, 10*60, function () use($kd_perusahaan,
+          $datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'prod').$str, 10*60, function () use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown){
 
