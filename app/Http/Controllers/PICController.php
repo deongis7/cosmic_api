@@ -50,13 +50,13 @@ class PICController extends Controller{
 	public function store (Request $request){
 
 	}
-	 /**
-	 * @OA\post(
-	 *     path="/monitoring",
-	 *     description="Monitoring",
-	 *     @OA\Response(response="default", description="Daily Monitoring")
-	 * )
-	 */
+    /**
+    * @OA\post(
+    *     path="/monitoring",
+    *     description="Monitoring",
+    *     @OA\Response(response="default", description="Daily Monitoring")
+    * )
+    */
     //Daily Monitoring
 	public function updateDailyMonitoring(Request $request){
 		Config::set('database.default', 'pgsql2');
