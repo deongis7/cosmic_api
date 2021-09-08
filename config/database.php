@@ -59,6 +59,7 @@ return array(
             'schema' => env('DB_SCHEMA3', 'public'),
             'sslmode' => env('DB_SSL_MODE3', 'prefer'),
         ],
+        
 
         # Our four database connection
         'pgsql_vaksin' => [
