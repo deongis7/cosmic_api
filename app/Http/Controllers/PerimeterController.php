@@ -285,7 +285,7 @@ class PerimeterController extends Controller
 	public function getLevelbyPerimeter($id_perimeter){
 		$data = array();
     $perimeter = new PerimeterLevel;
-    $perimeter->setConnection('pgsql3');
+    // $perimeter->setConnection('pgsql3');
 		$perimeter = $perimeter->join('master_perimeter','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
 					->where('mpml_mpm_id',$id_perimeter)
 					->get();
