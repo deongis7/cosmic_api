@@ -1883,86 +1883,86 @@ class DashboardController extends Controller
     }
 
     public function getCardAtestasi(){
-      $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_CardAtestasi", 0 * 60, function() {
-          $data = array();
-          $cosmicindex_all = DB::connection('pgsql3')->select("SELECT * FROM getcardatestasi()");
-
-          foreach($cosmicindex_all as $cia){
+        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_CardAtestasi", 0 * 60, function() {
+            $data = array();
+            $cosmicindex_all = DB::connection('pgsql3')->select("SELECT * FROM getcardatestasi()");
+            
+            foreach($cosmicindex_all as $cia){
               $data[] = array(
                   "v_judul" => $cia->v_judul,
                   "v_jml" => $cia->v_jml
               );
-          }
-          return $data;
-      });
+            }
+            return $data;
+        });
         return response()->json(['status' => 200,'data' => $datacache]);
-  }
+    }
 
-   public function getCardSertifikasi(){
-      $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_card_sertifikasi", 0 * 60, function() {
-          $data = array();
-          $sertifikasi = DB::connection('pgsql3')->select("SELECT * FROM getcardsertifikasi()");
+    public function getCardSertifikasi(){
+        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_card_sertifikasi", 0 * 60, function() {
+            $data = array();
+            $sertifikasi = DB::connection('pgsql3')->select("SELECT * FROM getcardsertifikasi()");
 
-          foreach($sertifikasi as $cia){
-              $data[] = array(
-                  "v_judul" => $cia->v_judul,
-                  "v_jml" => $cia->v_jml
-              );
-          }
-          return $data;
-      });
+            foreach($sertifikasi as $cia){
+                $data[] = array(
+                    "v_judul" => $cia->v_judul,
+                    "v_jml" => $cia->v_jml
+                );
+            }
+            return $data;
+        });
         return response()->json(['status' => 200,'data' => $datacache]);
-  }
+    }
 
-  public function getCardProduk(){
-     $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_CardAtestasi", 0 * 60, function() {
-          $data = array();
-          $data2 = array();
-          $cosmicindex_all = DB::connection('pgsql3')->select("SELECT * FROM getcardatestasi()");
-
-          foreach($cosmicindex_all as $cia){
+    public function getCardProduk(){
+        $datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_CardAtestasi", 0 * 60, function() {
+            $data = array();
+            $data2 = array();
+            $cosmicindex_all = DB::connection('pgsql3')->select("SELECT * FROM getcardatestasi()");
+            
+            foreach($cosmicindex_all as $cia){
               $data2[] = array(
                   "v_judul" => $cia->v_judul,
                   "v_jml" => $cia->v_jml
               );
-          }
-          // dd($data2[0]['v_jml']);
-          $sertifikasi = DB::connection('pgsql3')->select("SELECT * FROM getcardproduk()");
-          $total = 0;
-          foreach($sertifikasi as $row => $cia){
+            }
+            // dd($data2[0]['v_jml']);
+            $sertifikasi = DB::connection('pgsql3')->select("SELECT * FROM getcardproduk()");
+            $total = 0;
+            foreach($sertifikasi as $row => $cia){
             // echo $data[$row]['v_jml'];
               // if(isset($data[$row]['v_jml'])){
-
+            
               $data[] = array(
                   "v_judul" => $cia->v_judul,
                   "v_jml" => $cia->v_jml + $data2[$row]['v_jml']
               );
-
+            
               $total=$total+$cia->v_jml + $data2[$row]['v_jml'];
               // }
-          }
-
-          return [
+            }
+            
+            return [
               "data"=>$data,
               // "total"=>$total
-          ];
-      });
+            ];
+        });
         return response()->json(['status' => 200,'data' => $datacache['data']/*, 'total'=>$datacache['total']*/]);
-  }
+    }
 
-  public function addAgregasiData(Request $request){
-      $this->validate($request, [
+    public function addAgregasiData(Request $request){
+        $this->validate($request, [
           'kd_perusahaan' => 'required'
-      ]);
-      $weeks = AppHelper::Months();
-      $startdate = $weeks['startmonth'];
-      $enddate = $weeks['endmonth'];
-      $curweek  =Carbon::parse($startdate)->format('Y-m-d').'-'.Carbon::parse($enddate)->format('Y-m-d');
+        ]);
+        $weeks = AppHelper::Months();
+        $startdate = $weeks['startmonth'];
+        $enddate = $weeks['endmonth'];
+        $curweek  =Carbon::parse($startdate)->format('Y-m-d').'-'.Carbon::parse($enddate)->format('Y-m-d');
 
-          $agregasi= New TblAgregasiDataPegawai();
-          $agregasi->setConnection('pgsql');
-          $agregasi = $agregasi->where('tad_mc_id', $request->kd_perusahaan)->where('tad_week', $curweek)->first();
-          if($agregasi!= null) {
+        $agregasi= New TblAgregasiDataPegawai();
+        $agregasi->setConnection('pgsql');
+        $agregasi = $agregasi->where('tad_mc_id', $request->kd_perusahaan)->where('tad_week', $curweek)->first();
+        if($agregasi!= null) {
             $agregasi->tad_mc_id = $request->kd_perusahaan;
             $agregasi->tad_peg_tetap = $request->jml_pegawai_tetap;
             $agregasi->tad_peg_kontrak = $request->jml_pegawai_kontrak;
@@ -1972,9 +1972,8 @@ class DashboardController extends Controller
             $agregasi->tad_akum_peg_konfirmasi = $request->akum_jml_konfirmasi;
             $agregasi->tad_akum_peg_sembuh = $request->akum_jml_sembuh;
             $agregasi->tad_akum_peg_meninggal = $request->akum_jml_meninggal;
-
             $agregasi->tad_user_update = $request->user_id;
-          } else {
+        } else {
             $agregasi= New TblAgregasiDataPegawai();
             $agregasi->setConnection('pgsql');
             $agregasi->tad_mc_id = $request->kd_perusahaan;
@@ -1989,48 +1988,39 @@ class DashboardController extends Controller
             $agregasi->tad_user_update = $request->user_id;
             $agregasi->tad_user_insert = $request->user_id;
             $agregasi->tad_week = $curweek;
-          }
+        }
 
+        if($agregasi->save()) {
+            return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+        }
+    }
 
-      if($agregasi->save()) {
-          return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
-      }
-       else {
-           return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
-       }
+    public function getAgregasiData($mc_id){
+        $data = array();
+        $agregasi = DB::connection('pgsql3')->select( "select tad.*, mc.mc_name,mc.mc_id from table_agregasi_data_pegawai tad
+        join master_company mc on mc.mc_id = tad.tad_mc_id
+        where mc.mc_id=? order by tad_week desc limit 1",
+        [$mc_id ]);
 
-  }
-
-
-  public function getAgregasiData($mc_id){
-
-      $data = array();
-
-      $agregasi = DB::connection('pgsql3')->select( "select tad.*, mc.mc_name,mc.mc_id from table_agregasi_data_pegawai tad
-      join master_company mc on mc.mc_id = tad.tad_mc_id
-      where mc.mc_id=? order by tad_week desc limit 1",
-      [$mc_id ]);
-
-      if($agregasi != null){
-        $data = array(
-            "kd_perusahaan" => $agregasi[0]->mc_id,
-            "nama_perusahaan" => $agregasi[0]->mc_name,
-            "week" => $agregasi[0]->tad_week,
-            "jml_pegawai_tetap" => $agregasi[0]->tad_peg_tetap,
-            "jml_pegawai_kontrak" => $agregasi[0]->tad_peg_kontrak,
-            "jml_pegawai_alihdaya" => $agregasi[0]->tad_peg_alihdaya,
-            "jml_konfirmasi" => $agregasi[0]->tad_peg_konfirmasi,
-            "jml_gejala_berat" => $agregasi[0]->tad_peg_gejala_berat,
-            "akum_jml_konfirmasi" => $agregasi[0]->tad_akum_peg_konfirmasi,
-            "akum_jml_sembuh" => $agregasi[0]->tad_akum_peg_sembuh,
-            "akum_jml_meninggal" => $agregasi[0]->tad_akum_peg_meninggal,
-          );
-        return response()->json(['status' => 200, 'data' => $data]);
-      } else {
-          return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
-       }
-
-
-
-  }
+        if($agregasi != null){
+            $data = array(
+                "kd_perusahaan" => $agregasi[0]->mc_id,
+                "nama_perusahaan" => $agregasi[0]->mc_name,
+                "week" => $agregasi[0]->tad_week,
+                "jml_pegawai_tetap" => $agregasi[0]->tad_peg_tetap,
+                "jml_pegawai_kontrak" => $agregasi[0]->tad_peg_kontrak,
+                "jml_pegawai_alihdaya" => $agregasi[0]->tad_peg_alihdaya,
+                "jml_konfirmasi" => $agregasi[0]->tad_peg_konfirmasi,
+                "jml_gejala_berat" => $agregasi[0]->tad_peg_gejala_berat,
+                "akum_jml_konfirmasi" => $agregasi[0]->tad_akum_peg_konfirmasi,
+                "akum_jml_sembuh" => $agregasi[0]->tad_akum_peg_sembuh,
+                "akum_jml_meninggal" => $agregasi[0]->tad_akum_peg_meninggal,
+            );
+            return response()->json(['status' => 200, 'data' => $data]);
+        } else {
+            return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+        }
+    }
 }
