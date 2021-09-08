@@ -112,6 +112,8 @@ class PerimeterReportController extends Controller
             $crweeks = AppHelper::Weeks();
             $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
             $param =  [$kd_perusahaan, $week];
+            
+            
 
             if (isset($week) && ($week != $currentweek)){
               $sql = "select rhw.rhw_mr_id, rhw_mr_name, rhw.rhw_mpm_id, rhw_mpm_name,'-'::varchar as alamat,'-'::varchar as kategori,
