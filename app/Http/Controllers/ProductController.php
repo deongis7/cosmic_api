@@ -58,14 +58,18 @@ class ProductController extends Controller
             $str = $str.'_mc_id_'. str_replace(' ','_',$request->mc_id);
             $mc_id=$request->mc_id;
         }
-
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search, $mc_id) {
+        
+        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 0 * 60, function()use($search, $mc_id) {
             $data = array();
             $weeks = AppHelper::Weeks();
             $startdate = $weeks['startweek'];
             $enddate = $weeks['endweek'];
             $lastweek = Carbon::parse($startdate)->subWeeks(1)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(1)->format('Y-m-d');
             $twoweek = Carbon::parse($startdate)->subWeeks(2)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(2)->format('Y-m-d');
+            //var_dump($twoweek);die;
+//             $weeks = AppHelper::Months();
+//             $startdate = $weeks['startmonth'];
+//             $enddate = $weeks['endmonth'];
             
             if($search==""){
                 $pengajuan = DB::connection('pgsql2')->select( "select a.* from
@@ -229,14 +233,14 @@ class ProductController extends Controller
         $datacache =Cache::remember(env('APP_ENV', 'dev')."getPengajuanById". $str, 5 * 60, function()use($jenis, $id_produk) {
 
             $data = array();
-//             $weeks = AppHelper::Weeks();
-//             $startdate = $weeks['startweek'];
-//             $enddate = $weeks['endweek'];
-            $weeks = AppHelper::Months();
-            $startdate = $weeks['startmonth'];
-            $enddate = $weeks['endmonth'];
-            $lastweek  =Carbon::parse($startdate)->subWeeks(1)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(1)->format('Y-m-d');
-            $twoweek  =Carbon::parse($startdate)->subWeeks(2)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(2)->format('Y-m-d');
+            $weeks = AppHelper::Weeks();
+            $startdate = $weeks['startweek'];
+            $enddate = $weeks['endweek'];
+//             $weeks = AppHelper::Months();
+//             $startdate = $weeks['startmonth'];
+//             $enddate = $weeks['endmonth'];
+            $lastweek = Carbon::parse($startdate)->subWeeks(1)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(1)->format('Y-m-d');
+            $twoweek = Carbon::parse($startdate)->subWeeks(2)->format('Y-m-d').'-'.Carbon::parse($enddate)->subWeeks(2)->format('Y-m-d');
 
             //atestasi
             if($jenis==1){
@@ -345,14 +349,14 @@ class ProductController extends Controller
     
     
             $pengajuan = DB::connection('pgsql2')->select( "select tpa.tbpa_id ,tpa.tbpa_mlp_id,mlp.mlp_name,tpa.tbpa_nama_pj ,
-            tpa.tbpa_no_tlp_pj,tpa.tbpa_email_pj , mc.mc_id, mc.mc_name, ms.ms_id,ms.ms_name,rci1.rci_cosmic_index as cosmic_index_lastweek,rci2.rci_cosmic_index as cosmic_index_twoweek,
-            tpa.tbpa_perimeter, tpa.tbpa_date_insert  from table_pengajuan_atestasi tpa
-            join master_layanan_produk mlp on mlp.mlp_id = tpa.tbpa_mlp_id
-            join master_company mc on mc.mc_id = tpa.tbpa_mc_id
-            left join master_sektor ms on ms.ms_id = mc.mc_msc_id and ms.ms_type ='CCOVID'
-            left join report_cosmic_index rci1 on rci1.rci_mc_id = mc.mc_id and rci1.rci_week = ?
-            left join report_cosmic_index rci2 on rci2.rci_mc_id = mc.mc_id and rci2.rci_week = ?
-            where mlp.mlp_id=?",
+                tpa.tbpa_no_tlp_pj,tpa.tbpa_email_pj , mc.mc_id, mc.mc_name, ms.ms_id,ms.ms_name,rci1.rci_cosmic_index as cosmic_index_lastweek,rci2.rci_cosmic_index as cosmic_index_twoweek,
+                tpa.tbpa_perimeter, tpa.tbpa_date_insert  from table_pengajuan_atestasi tpa
+                join master_layanan_produk mlp on mlp.mlp_id = tpa.tbpa_mlp_id
+                join master_company mc on mc.mc_id = tpa.tbpa_mc_id
+                left join master_sektor ms on ms.ms_id = mc.mc_msc_id and ms.ms_type ='CCOVID'
+                left join report_cosmic_index rci1 on rci1.rci_mc_id = mc.mc_id and rci1.rci_week = ?
+                left join report_cosmic_index rci2 on rci2.rci_mc_id = mc.mc_id and rci2.rci_week = ?
+                where mlp.mlp_id=?",
             [$lastweek, $twoweek, $id_produk ]);
 
             foreach ($pengajuan as $itempengajuan) {
