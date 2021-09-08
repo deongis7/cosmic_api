@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
-
 use App\ClusterRuangan;
 use App\KonfigurasiCAR;
 use App\Region;
@@ -22,28 +20,23 @@ use Carbon\Carbon;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Cache;
 use App\TrnAktifitasFile;
-
 use DB;
 use function Complex\negative;
 
-
-class PerimeterReportController extends Controller
-{
+class PerimeterReportController extends Controller{
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-
-
-    public function __construct()
-    {
+    public function __construct() {
         //
     }
 
 	public function index(){
 
 	}
+	
 	public function show($id){
 
 	}
