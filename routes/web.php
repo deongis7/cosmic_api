@@ -212,6 +212,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/weeklist', 'MasterController@getWeekList');
 	$router->get('/fasilitas_rumah', 'MasterController@getFasilitasRumah');
 	$router->get('/kriteria_orang', 'MasterController@getKriteriaOrang');
+	$router->get('/jenis_industri', 'MasterController@getJenisIndustri');
 
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
