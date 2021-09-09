@@ -286,7 +286,8 @@ class PerimeterListController extends Controller
                 }else{
                     $perimeter = $perimeter->orderBy('temp_parameter_list.nama_perimeter', 'asc');
                 }
-                //var_dump($perimeter->toSql());  var_dump($lockdown);die;
+                // var_dump($perimeter->toSql());  
+                // var_dump($lockdown);die;
                 //dd(count($perimeter->get()) );
                 $jmltotal=(count($perimeter->get()));
                 if(isset($limit)) {
