@@ -25,6 +25,7 @@ use App\MstStsPegawai;
 use App\MstSosialisasiKategori;
 use App\MstFasilitasRumah;
 use App\MstKriteriaOrang;
+use App\MstJenisIndustri;
 use Intervention\Image\ImageManagerStatic as Image;
 
 
@@ -353,7 +354,7 @@ class MasterController extends Controller
        $datacache = Cache::remember(env('APP_ENV', 'prod').'_get_weeklist_', 360 * 60, function() {
         $weeks = AppHelper::Months();
         $crweektdate = $weeks['startmonth'].'-'.$weeks['endmonth'];
-        
+
         //var_dump($crweektdate);die;
         $weeksday =  DB::select("SELECT * , CONCAT(v_awal,' s/d ', v_akhir) tgl
               FROM list_aktivitas_week()
@@ -409,4 +410,22 @@ class MasterController extends Controller
         });
         return response()->json(['status' => 200,'data' => $datacache]);
     }
+
+
+        public function getJenisIndustri(){
+            $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_jenis_industri", 360 * 60, function() {
+                $data=[];
+                $mstjenisindustri = MstJenisIndustri::all();
+
+                foreach($mstjenisindustri as $msj){
+                    $data[] = array(
+                        "id" => $msj->id,
+                        "jenis" => $msj->jenis,
+                        "keterangan" => $msj->keterangan,
+                    );
+                }
+                return $data;
+            });
+            return response()->json(['status' => 200,'data' => $datacache]);
+        }
 }

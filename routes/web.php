@@ -115,7 +115,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 	//Data_detail /Terpapar /Kasus
 	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
-	$router->get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
+
 	$router->get('/terpapar/laporan_detail_new/{id}', 'TerpaparController@getDatadetailNew');
 	$router->get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
 
@@ -212,6 +212,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/weeklist', 'MasterController@getWeekList');
 	$router->get('/fasilitas_rumah', 'MasterController@getFasilitasRumah');
 	$router->get('/kriteria_orang', 'MasterController@getKriteriaOrang');
+	$router->get('/jenis_industri', 'MasterController@getJenisIndustri');
 
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
@@ -404,10 +405,18 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
         //lockdown
         Route::post('/update_lockdown', 'ReportController@UpdateLockdown');
+        Route::get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
 	});
 });
 
 $router->group(['prefix' => 'api/v2'], function () use ($router) {
+    Route::get('/product/list_pengajuan_atestasi/{id_produk}', 'ProductController@getPengajuanAtestasi');
+    Route::get('/product/layanan_produk', 'ProductController@getLayananProduk');
+    Route::post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
+    Route::post('/product/add_pengajuan_layanan/{id_produk}', 'ProductController@addPengajuanLayanan');
+    Route::post('/product/add_pelaporan_mandiri/{id_produk}', 'ProductController@addPelaporanMandiri');
+    
+    
     Route::post('/user/reset_password', 'UserController@postResetPassword');
     Route::get('/company', 'MasterController@getAllCompany');
     Route::post('/user/cek_user', 'UserController@postCekUser');
