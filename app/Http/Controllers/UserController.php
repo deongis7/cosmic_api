@@ -37,7 +37,6 @@ class UserController extends Controller
      * @return void
      */
 
-
     public function __construct()
     {
         //
@@ -63,7 +62,7 @@ class UserController extends Controller
 		$user = User::select('app_users.id','app_users.username','app_users.first_name',
 		    'master_company.mc_id','master_company.mc_name','app_groups.name',
 		    'app_users.no_hp','app_users.divisi','app_users.email','app_users.foto','master_company.mc_foto','master_company.mc_flag')
-        ->selectRaw(" (case when transaksi_survei_kepuasan.tsk_username is null then 'false' else 'true' end) as is_survei")
+            ->selectRaw(" (case when transaksi_survei_kepuasan.tsk_username is null then 'false' else 'true' end) as is_survei")
 					->leftjoin('master_company','master_company.mc_id','app_users.mc_id')
 					->leftjoin('transaksi_survei_kepuasan','transaksi_survei_kepuasan.tsk_username','app_users.username')
 					->join('app_users_groups','app_users_groups.user_id','app_users.id')
@@ -73,20 +72,20 @@ class UserController extends Controller
 
 		if($user->count()>0){
 			$data[] = array(
-					"id" => $user->id,
-					"username" => $user->username,
-					"name" => $user->first_name,
-					"kd_perusahaan" => $user->mc_id,
-					"nm_perusahaan" => $user->mc_name,
-			        "role" => $user->name,
-    			    "no_hp" => $user->no_hp,
-    			    "divisi" => $user->divisi,
-    			    "email" => $user->email,
-			        "foto" => $Path.$user->foto,
-			        "foto_bumn" => $PathCompany.$user->mc_foto,
-              "group_company" => $user->mc_flag,
-              "is_survei" => $user->is_survei,
-					);
+                "id" => $user->id,
+                "username" => $user->username,
+                "name" => $user->first_name,
+                "kd_perusahaan" => $user->mc_id,
+                "nm_perusahaan" => $user->mc_name,
+                "role" => $user->name,
+                "no_hp" => $user->no_hp,
+                "divisi" => $user->divisi,
+                "email" => $user->email,
+                "foto" => $Path.$user->foto,
+                "foto_bumn" => $PathCompany.$user->mc_foto,
+                "group_company" => $user->mc_flag,
+                "is_survei" => $user->is_survei,
+            );
 			return response()->json(['status' => 200,'data' => $data]);
 		} else {
 			return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
@@ -154,10 +153,9 @@ class UserController extends Controller
 		return response()->json($arr)->setStatusCode($arr['status']);
 	}
 
-	public function logout()
-	{
+	public function logout() {
 		if (Auth::check()) {
-		   $user = Auth::user()->AauthAcessToken();
+            $user = Auth::user()->AauthAcessToken();
 
 			if($user->delete()){
 				return response()->json(['status' => 200,'message' => 'Berhasil Logout']);
@@ -217,7 +215,6 @@ class UserController extends Controller
                 $arr = array("status" => 500, "message" => "Profile not updated.");
             }
         }
-
         return response()->json($arr)->setStatusCode($arr['status']);
 	}
 
@@ -230,7 +227,7 @@ class UserController extends Controller
         $username = $request->username;
         //dd($username);
         $helper= AppHelper::setActivityLog($modul, $modul_id, $action, $description, $username);
-//dd($tes);
+        //dd($tes);
         if($helper){
             return response()->json(['status' => 200,'message' => 'Data Tersimpan']);
         } else {
@@ -252,9 +249,6 @@ class UserController extends Controller
 
         $file = $request->file_foto;
 
-
-
-
         if(!Storage::exists('/public/profile')) {
             Storage::disk('public')->makeDirectory('/profile');
         }
@@ -262,7 +256,6 @@ class UserController extends Controller
         //$destinationPath = base_path("storage\app\public\aktifitas/").$kd_perusahaan.'/'.$tanggal;
         $destinationPath = storage_path().'/app/public/profile';
         $name1 = round(microtime(true) * 1000).'.jpg';
-
 
         if ($file != null || $file != '') {
             $img1 = explode(',', $file);
@@ -273,8 +266,8 @@ class UserController extends Controller
             Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1);
-
         }
+        
         $user->foto = $name1;
         $user->save();
 
@@ -284,6 +277,7 @@ class UserController extends Controller
             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
         }
     }
+    
     public function tokenUpdate(Request $request, $id) {
 	    $this->validate($request, [
             'token' => 'required',
@@ -307,46 +301,42 @@ class UserController extends Controller
                   ->where("app_users.mc_id",$request->kd_perusahaan)
                   ->whereRaw("trim(lower(username))='". trim(strtolower($request->username))."'")->first();
                 //  dd($user);
-          if ($user){
+        if ($user){
             $data[] = array(
-                      "kd_perusahaan" => $user->mc_id,
-                      "nama_perusahaan" => $user->mc_name,
-                      "nama" => $user->first_name,
-                      "username" => $user->username
-                    );
-
-              return response()->json(['status' => 200, 'data' => $data]);
-          }else{
-              return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
-          }
-    }
-
-    public function postResetPassword(Request $request) {
-      $this->validate($request, [
-          'username' => 'required',
-          'kd_perusahaan' => 'required',
-      ]);
-      $user= new User();
-      $user->setConnection('pgsql3');
-      $user = $user->whereRaw("trim(lower(username))='". trim(strtolower($request->username))."'")->first();
-
-      if($user != null){
-        $user_id = $user->id;
-        $user->password = Hash::make('P@ssw0rd');
-        if(	$user->save()){
-            return response()->json(['status' => 200,  "message" => "Password Telah Direset"]);
+              "kd_perusahaan" => $user->mc_id,
+              "nama_perusahaan" => $user->mc_name,
+              "nama" => $user->first_name,
+              "username" => $user->username
+            );
+            return response()->json(['status' => 200, 'data' => $data]);
         }else{
             return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
         }
-      }else{
+    }
+
+    public function postResetPassword(Request $request) {
+        $this->validate($request, [
+          'username' => 'required',
+          'kd_perusahaan' => 'required',
+        ]);
+        $user= new User();
+        $user->setConnection('pgsql3');
+        $user = $user->whereRaw("trim(lower(username))='". trim(strtolower($request->username))."'")->first();
+        
+        if($user != null){
+            $user_id = $user->id;
+            $user->password = Hash::make('P@ssw0rd');
+            if($user->save()){
+                return response()->json(['status' => 200,  "message" => "Password Telah Direset"]);
+            }else{
+                return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
+            }
+        }else{
           return response()->json(['status' => 404, 'message' => 'User Tidak Ditemukan'])->setStatusCode(404);
-      }
-
-
+        }
     }
 
     public function sendFirebase(Request $request, $id){
-
     	$this->validate($request, [
             'body' => 'required',
         ]);
@@ -379,8 +369,8 @@ class UserController extends Controller
             "notification" => [
                   "body" => $request->body,
                   "title" =>  $request->title
-              ]
-          ];
+            ]
+        ];
 
         $header_params = json_encode($data_param);
         // print_r($header_params);
@@ -388,21 +378,16 @@ class UserController extends Controller
         $request = $client->request('POST', 'https://fcm.googleapis.com/fcm/send', [
                   'headers' => $headers,
                   'body' => $header_params
-            ]);
+                ]);
 
         $response = $request->getBody()->getContents();
         $result   = json_decode($response, true);
         return response()->json(['status' => 200,'data' => $result]);
-
     }
 
-     public function get_token(){
+    public function get_token(){
     	$key = "AAAAIOJgA7s:APA91bGsiFlggeNexu_qv7QdxyEKeudNqJatbkZaMkMjI9dKJHjPDcQQdXOeCmlGiDsepZ2HkuLCFxzU6DiYMxn-2ZoueHFnGNTXlwY4krhF9HZ207WocMTamycUzk_vMQsz6wlLvasW";
-
-
-
     	$privateKey = "d79fb75acdb1d1650745699a252993e34745aa6c";
-
 		$publicKey = "<<<EOD
 		-----BEGIN PUBLIC KEY-----
 		MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC8kGa1pSjbSYZVebtTRBLxBz5H
@@ -411,7 +396,6 @@ class UserController extends Controller
 		ehde/zUxo6UvS7UrBQIDAQAB
 		-----END PUBLIC KEY-----
 		EOD";
-
 
 		$payload = array(
 		    "iss" => "https://securetoken.google.com/cosmic-a2227",
@@ -423,11 +407,8 @@ class UserController extends Controller
 		$jwt = JWT::encode($payload, $key);
 		$decoded = JWT::decode($jwt, $key, array('HS256'));
 		echo $jwt;
-
 		// $jwt = JWT::encode($payload, $privateKey, 'RS256');
 		// echo "Encode:\n" . print_r($jwt, true) . "\n";
-
-
     }
 
     //Get Notif PIC
@@ -435,15 +416,17 @@ class UserController extends Controller
         /*$token = "fYXTze1sRPyDDyUZwurszk:APA91bFwCJtFF0tyT2BSfG0UGgal8pCrgRtQyEsrcegBf_HB_BeoVreUG0iLNeMhWGH3_p-bXA1xpLjRIS8b0XueHMpW15WTwS1jtxz7mZbMmIJzoPZDYgC-5OsWaqrsdyiPW5rcSDgi";
         $body = "tbody";
         $title = "ttitle";
-
         $weeks = AppHelper::sendFirebase($token, $body, $title);
         print_r($weeks);die;*/
         // return response()->json(['status' => 200,'data' => $nik]);
         $data = array();
-
-        $weeks = AppHelper::Weeks();
-        $startdate = $weeks['startweek'];
-        $enddate = $weeks['endweek'];
+//         $weeks = AppHelper::Weeks();
+//         $startdate = $weeks['startweek'];
+//         $enddate = $weeks['endweek'];
+        $weeks = AppHelper::Months();
+        $startdate = $weeks['startmonth'];
+        $enddate = $weeks['endmonth'];
+        
         //get token
         $user= new User();
         $user->setConnection('pgsql2');
@@ -456,18 +439,20 @@ class UserController extends Controller
         }
 
         $notif = DB::connection('pgsql3')->select( "select mp.mpm_name,mp.mpm_mc_id,mpl.mpml_id, mpl.mpml_name, mcr.mcr_name,tpd.tpmd_order,mcar.mcar_name, ta.ta_tpmd_id,ta.ta_kcar_id,ta.ta_id, ta.ta_status, ta.ta_ket_tolak, au.first_name , coalesce(tbpc_status,0)tbpc_status
-        from transaksi_aktifitas ta
-        join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-        join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
-        join master_car mcar on mcar.mcar_id = kcar_mcar_id
-        join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id
-        join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
-        join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id
-        left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
-        left join app_users au on au.username = mpl.mpml_me_nik
-        left join table_perimeter_closed tpc on tpc.tbpc_mpml_id = tpd.tpmd_mpml_id
-        where ta.ta_status = 0 and mpl.mpml_pic_nik = ?
-        order by ta_date_update asc", [$nik]);
+
+            from transaksi_aktifitas ta
+            join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+            join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+            join master_car mcar on mcar.mcar_id = kcar_mcar_id
+            join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id
+            join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+            join master_perimeter mp on mp.mpm_id = mpl.mpml_mpm_id
+            left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
+            left join app_users au on au.username = mpl.mpml_me_nik
+            left join table_perimeter_closed tpc on tpc.tbpc_mpml_id = tpd.tpmd_mpml_id
+            where ta.ta_status = 0 and mpl.mpml_pic_nik = ?
+            order by ta_date_update asc", [$nik]);
+        
         if(count($notif)>0){
             foreach($notif as $itemnotif){
             //dd($this->getOneFile($itemnotif->ta_id,$itemnotif->mpm_mc_id)['file_tumb']);
@@ -487,7 +472,6 @@ class UserController extends Controller
             }
         }
         return response()->json(['status' => 200,'data' => $data]);
-
     }
 
     //Get File Tolak
@@ -495,17 +479,16 @@ class UserController extends Controller
         config(['database.default' => 'pgsql3']);
         $data =[];
         if ($id_aktifitas != null){
-        $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
-                        ->where("ta_status", "=", "2")
-                        ->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
+            $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
+                ->where("ta_status", "=", "2")
+                ->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
 
             foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){
-
                 $data[] = array(
-                        "id_file" => $itemtransaksi_aktifitas_file->taf_id,
-                        "file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
-                        "file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
-                    );
+                    "id_file" => $itemtransaksi_aktifitas_file->taf_id,
+                    "file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
+                    "file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
+                );
             }
         }
         return $data;
@@ -528,41 +511,42 @@ class UserController extends Controller
             $weeks = AppHelper::Weeks();
 
             $trn_aktifitas= TrnAktifitas::where('ta_tpmd_id',$id_perimeter_cluster)
-                                        ->where('ta_kcar_id',$id_konfig_cluster_aktifitas)
-                                        ->where('ta_week',$weeks['weeks'])->first();
+                ->where('ta_kcar_id',$id_konfig_cluster_aktifitas)
+                ->where('ta_week',$weeks['weeks'])->first();
+            
             if($trn_aktifitas != null){
-                    $trn_aktifitas->ta_status = $request->status;
+                $trn_aktifitas->ta_status = $request->status;
+                
+                if($request->status==2){
+                    $trn_aktifitas->ta_ket_tolak = $request->keterangan;
+                }
+
+                if($trn_aktifitas->save()) {
+                    //pushnotif utk yg reject - status=2
                     if($request->status==2){
-                        $trn_aktifitas->ta_ket_tolak = $request->keterangan;
-                    }
-
-                    if($trn_aktifitas->save()) {
-                        //pushnotif utk yg reject - status=2
-                        if($request->status==2){
-                            //get data perimeter
-                            $get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token from transaksi_aktifitas ta
-                            join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
-                            join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
-                            join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-                            join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
-                            join app_users au on au.username = mpl.mpml_me_nik
-                            where tpd.tpmd_id = ?
-                            group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token ", [$id_perimeter_cluster]);
-                            //dd($get_perimeter[0]->mpml_name);
-
-                            //lempar ke helper firebase
-                            $token = isset($get_perimeter[0]->token)?$get_perimeter[0]->token:"";
-                            if($token!=""){
-                                $body = $get_perimeter[0]->mpml_name."<br /> Field Officer : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_me_nik;
-                                $title = $get_perimeter[0]->mcr_name;
-                                $role="FO";
-                                $weeks = AppHelper::sendFirebase($token, $body, $title, $role);
-                            }
+                        //get data perimeter
+                        $get_perimeter = DB::connection('pgsql2')->select( "select mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token from transaksi_aktifitas ta
+                        join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+                        join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+                        join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+                        join master_cluster_ruangan mcr on mcr.mcr_id = kc.kcar_mcr_id
+                        join app_users au on au.username = mpl.mpml_me_nik
+                        where tpd.tpmd_id = ?
+                        group by mpl.mpml_name, mcr.mcr_name, mpl.mpml_me_nik, au.first_name, au.token ", [$id_perimeter_cluster]);
+                        //dd($get_perimeter[0]->mpml_name);
+                        //lempar ke helper firebase
+                        $token = isset($get_perimeter[0]->token)?$get_perimeter[0]->token:"";
+                        if($token!=""){
+                            $body = $get_perimeter[0]->mpml_name."<br /> Field Officer : ". !empty($get_perimeter[0]->first_name)?$get_perimeter[0]->first_name:$get_perimeter[0]->mpml_me_nik;
+                            $title = $get_perimeter[0]->mcr_name;
+                            $role="FO";
+                            $weeks = AppHelper::sendFirebase($token, $body, $title, $role);
                         }
-                        return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
-                    } else {
-                        return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
                     }
+                    return response()->json(['status' => 200,'message' => 'Data Berhasil Disimpan']);
+                } else {
+                    return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+                }
             } else {
                 return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
             }

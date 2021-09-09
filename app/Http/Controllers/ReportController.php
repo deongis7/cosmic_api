@@ -18,7 +18,7 @@ class ReportController extends Controller {
     }
 
     public function getDashReportCardByJns($id){
-        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_report_dashboardall_card_byjns_".$id, 15 * 60, function()use($id) {
+        //$datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_report_dashboardall_card_byjns_".$id, 15 * 60, function()use($id) {
         $data = array();
         $dashreportcard_head = DB::connection('pgsql3')->select("select * from report_dashboardall_card_byjns('$id')");
 
@@ -34,7 +34,7 @@ class ReportController extends Controller {
     }
 
     public function getDashReportByJns($id){
-         //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_report_dashboardall_byjns_".$id, 15 * 60, function()use($id) {
+         //$datacache =  Cache::remember(env('APP_ENV', 'prod')."_report_dashboardall_byjns_".$id, 15 * 60, function()use($id) {
         $data = array();
         $dashreportcard_head = DB::connection('pgsql3')->select("select * from report_dashboardall_byjns('$id')");
 
@@ -52,7 +52,7 @@ class ReportController extends Controller {
     }
 
     public function getDashReportByJnsMCid($id,$mc_id){
-        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_report_dashboardall_byjnsmcid_".$id.'_'.$mc_id, 15 * 60, function()use($id) {
+        //$datacache =  Cache::remember(env('APP_ENV', 'prod')."_report_dashboardall_byjnsmcid_".$id.'_'.$mc_id, 15 * 60, function()use($id) {
         $data = array();
         $dashreportcard_head = DB::connection('pgsql3')->select("SELECT * FROM report_dashboardall_byjns('$id')
         WHERE v_mc_id='$mc_id'");
@@ -71,7 +71,7 @@ class ReportController extends Controller {
     }
 
     public function getDashReportCardByMcid($id){
-        //$datacache =  Cache::remember(env('APP_ENV', 'dev')."_get_dashreportbumn_head_".$id, 15 * 60, function()use($id) {
+        //$datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_dashreportbumn_head_".$id, 15 * 60, function()use($id) {
             $data = array();
             $dashreport_head = DB::connection('pgsql3')->select("select * from report_dashboardcard_bymcid('$id')");
 

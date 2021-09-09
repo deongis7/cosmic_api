@@ -97,7 +97,7 @@ class RumahSinggahController extends Controller
            }
        }
 
-       //$datacache =Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search, $mc_id) {
+       //$datacache =Cache::remember(env('APP_ENV', 'prod').$str, 5 * 60, function()use($search, $mc_id) {
 
         $data = array();
 
@@ -210,7 +210,7 @@ class RumahSinggahController extends Controller
            }
        }
 
-       //$datacache =Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search, $mc_id) {
+       //$datacache =Cache::remember(env('APP_ENV', 'prod').$str, 5 * 60, function()use($search, $mc_id) {
 
         $data = array();
 
@@ -283,7 +283,7 @@ class RumahSinggahController extends Controller
        }
 
 
-       //$datacache =Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search, $mc_id) {
+       //$datacache =Cache::remember(env('APP_ENV', 'prod').$str, 5 * 60, function()use($search, $mc_id) {
 
         $data = array();
 
@@ -352,7 +352,7 @@ class RumahSinggahController extends Controller
            }
        }
 
-       //$datacache =Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($search, $mc_id) {
+       //$datacache =Cache::remember(env('APP_ENV', 'prod').$str, 5 * 60, function()use($search, $mc_id) {
 
         $data = array();
 
@@ -422,7 +422,7 @@ class RumahSinggahController extends Controller
 
     //Get Status Monitoring Perimeter Level
     public function getRumahSinggahById($id){
-       //$datacache =Cache::remember(env('APP_ENV', 'dev')."_layanan_produk_by_". $id_produk, 5 * 60, function()use($id_produk) {
+       //$datacache =Cache::remember(env('APP_ENV', 'prod')."_layanan_produk_by_". $id_produk, 5 * 60, function()use($id_produk) {
 
         $data = array();
 

@@ -44,7 +44,8 @@ class AppHelper {
           "three_month"=> $three_month,
           "six_month"=> $six_month,
           "last_year"=> $last_year,
-          "months"=> $startdate.'-'.$enddate
+          "months"=> $startdate.'-'.$enddate,
+          "weeks"=> $startdate.'-'.$enddate
         ];
         return $data;
     }

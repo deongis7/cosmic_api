@@ -88,15 +88,12 @@ class PerimeterListController extends Controller
           $group_company=$request->group_company;
       }
 
-      $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 360 * 60, function()use($limit,$page,$group_company,$endpage,$search) {
+      $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 360 * 60, function()use($limit,$page,$group_company,$endpage,$search) {
           $data = array();
           $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
           //current week
-//           $crweeks = AppHelper::Weeks();
-//           $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
-          
-          $weeks = AppHelper::Months();
-          $currentweek =$crweeks['startmonth'].'-'.$crweeks['endmonth'];
+          $crweeks = AppHelper::Weeks();
+          $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
 
           $perimeter = new Perimeter;
           $perimeter->setConnection('pgsql3');
@@ -162,6 +159,7 @@ class PerimeterListController extends Controller
 
     //Get Perimeter List
     function getPerimeterList($kd_perusahaan,Request $request){
+
         $user = null;
         $role_id = null;
         $limit = null;
@@ -215,27 +213,136 @@ class PerimeterListController extends Controller
         }
         //var_dump($str);die;
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10*60, function()use($kd_perusahaan,
+        if(env('APP_ENV')=="prod"){ 
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10*60, function()use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown) {
 
-          /*$datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'dev').$str, 10*60, function () use($kd_perusahaan,
+          /*$datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'prod').$str, 10*60,   function () use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown){*/
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
-//             $crweeks = AppHelper::Weeks();
-//             $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
-            $weeks = AppHelper::Months();
-            $currentweek =$crweeks['startmonth'].'-'.$crweeks['endmonth'];
-            
+            $crweeks = AppHelper::Weeks();
+            $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
             
             $perimeter = new TmpPerimeterList;
             //test pindah ke master
             $perimeter->setConnection('pgsql4');
-            /*$perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
+            
+            $perimeter = $perimeter->select('id_region','region','id_perimeter','nama_perimeter','alamat','kategori','status_monitoring','last_update','percentage','provinsi','kabupaten','lockdown','keterangan_lockdown','mc_id','week','status_pic','status_fo','nik_pic','nik_fo');    
+
+                if(isset($nik) && ($user != null)) {
+                    $role_id = $user->roles()->first()->id;
+                    if ($role_id == 3) {
+                        $perimeter = $perimeter->where('nik_pic', $nik);
+                    } else if ($role_id == 4) {
+                        $perimeter = $perimeter->where('nik_fo', $nik);
+                    }
+                }
+                if(isset($monitoring)) {
+                    if ($monitoring == 'true') {
+                        if(isset($nik) && ($user != null)) {
+                            if ($role_id == 3) {
+                                $perimeter = $perimeter->where('status_pic',true);
+                            } else if ($role_id == 4) {
+                                $perimeter = $perimeter->where('status_fo',true);
+                            }
+                        } else {
+                            $perimeter = $perimeter->where('status_bumn',true);
+                        }
+
+                    } else{
+                        if(isset($nik) && ($user != null)) {
+                            if ($role_id == 3) {
+                                $perimeter = $perimeter->where('status_pic',false);
+                            } else if ($role_id == 4) {
+                                $perimeter = $perimeter->where('status_fo',false);
+                            }
+                        } else {
+                            $perimeter = $perimeter->where('status_bumn',false);
+                        }
+                    }
+                }
+
+                $perimeter = $perimeter->where('temp_parameter_list.mc_id', $kd_perusahaan);
+
+                if($lockdown!=null) {
+                    $perimeter = $perimeter->where('temp_parameter_list.lockdown', $lockdown);
+                }
+
+                if(isset($search)) {
+                    $perimeter = $perimeter->where(DB::raw("lower(TRIM(temp_parameter_list.nama_perimeter))"),'like','%'.strtolower(trim($search)).'%');
+                }
+
+                if(isset($column)) {
+                    if(isset($sort)) {
+                        $perimeter = $perimeter->orderBy($column,$sort);
+                    }else{
+                        $perimeter = $perimeter->orderBy($column,"asc");
+                    }
+                }else{
+                    $perimeter = $perimeter->orderBy('temp_parameter_list.nama_perimeter', 'asc');
+                }
+                //var_dump($perimeter->toSql());  var_dump($lockdown);die;
+                //dd(count($perimeter->get()) );
+                $jmltotal=(count($perimeter->get()));
+                if(isset($limit)) {
+                    $perimeter = $perimeter->limit($limit);
+                    $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                    if (isset($page)) {
+                        $offset = ((int)$page -1) * (int)$limit;
+                        $perimeter = $perimeter->offset($offset);
+                    }
+                }
+                $perimeter = $perimeter->get();
+                //$totalperimeter = $perimeter->count();
+                //$totalpmmonitoring = 0;
+
+                foreach ($perimeter as $itemperimeter) {
+
+                    if(isset($nik) && ($user != null)) {
+                        $status_monitoring = ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo);
+                    } else {
+                        $status_monitoring = $itemperimeter->status_bumn;
+                    }
+
+                    $data[] = array(
+                        "id_region" => $itemperimeter->id_region,
+                        "region" => $itemperimeter->region,
+                        "id_perimeter" => $itemperimeter->id_perimeter,
+                        "nama_perimeter" => $itemperimeter->nama_perimeter,
+                        "alamat" => $itemperimeter->alamat,
+                        "kategori" => $itemperimeter->kategori,
+                        "status_monitoring" => $status_monitoring,
+                        "last_update" => $itemperimeter->last_update,
+                        "percentage" => 0,
+                        "provinsi" => $itemperimeter->provinsi,
+                        "kabupaten" => $itemperimeter->kabupaten,
+                        "lockdown" => $itemperimeter->lockdown == 1? true: false,
+                        "keterangan_lockdown" => $itemperimeter->keterangan_lockdown
+                    );
+                    //if ($status['status'] == true) {
+                    //  $totalpmmonitoring++;
+                    //}
+                }
+                //return  $data;
+                return array('page_end' => $endpage, 'data' => $data);
+       });
+
+    }else{
+
+    $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10*60, function()use($kd_perusahaan,
+           $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
+           $search,$column,$sort,$lockdown) {
+
+        $perimeter = new Perimeter;
+            //test pindah ke master
+            $perimeter->setConnection('pgsql');
+            $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
                 'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                 'master_perimeter_kategori.mpmk_name',
                 'master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
@@ -251,126 +358,125 @@ class PerimeterListController extends Controller
                 ->leftjoin('app_users as userpic','userpic.username','master_perimeter_level.mpml_pic_nik')
                 ->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
                 ->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
-                ->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id');*/
+                ->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id');
 
-            $perimeter = $perimeter->select('id_region','region','id_perimeter','nama_perimeter','alamat','kategori','status_monitoring','last_update','percentage','provinsi','kabupaten','lockdown','keterangan_lockdown','mc_id','week','status_pic','status_fo','nik_pic','nik_fo');
-
-            if(isset($nik) && ($user != null)) {
-                $role_id = $user->roles()->first()->id;
-                if ($role_id == 3) {
-                    $perimeter = $perimeter->where('nik_pic', $nik);
-                } else if ($role_id == 4) {
-                    $perimeter = $perimeter->where('nik_fo', $nik);
-                }
-            }
-            if(isset($monitoring)) {
-                if ($monitoring == 'true') {
-                    if(isset($nik) && ($user != null)) {
-                        if ($role_id == 3) {
-                            $perimeter = $perimeter->where('status_pic',true);
-                        } else if ($role_id == 4) {
-                            $perimeter = $perimeter->where('status_fo',true);
-                        }
-                    } else {
-                        $perimeter = $perimeter->where('status_bumn',true);
-                    }
-
-                } else{
-                    if(isset($nik) && ($user != null)) {
-                        if ($role_id == 3) {
-                            $perimeter = $perimeter->where('status_pic',false);
-                        } else if ($role_id == 4) {
-                            $perimeter = $perimeter->where('status_fo',false);
-                        }
-                    } else {
-                        $perimeter = $perimeter->where('status_bumn',false);
-                    }
-                }
-            }
-
-            $perimeter = $perimeter->where('temp_parameter_list.mc_id', $kd_perusahaan);
-
-            if($lockdown!=null) {
-                $perimeter = $perimeter->where('temp_parameter_list.lockdown', $lockdown);
-            }
-
-            if(isset($search)) {
-                $perimeter = $perimeter->where(DB::raw("lower(TRIM(temp_parameter_list.nama_perimeter))"),'like','%'.strtolower(trim($search)).'%');
-            }
-
-            if(isset($column)) {
-                if(isset($sort)) {
-                    $perimeter = $perimeter->orderBy($column,$sort);
-                }else{
-                    $perimeter = $perimeter->orderBy($column,"asc");
-                }
-            }else{
-                $perimeter = $perimeter->orderBy('temp_parameter_list.nama_perimeter', 'asc');
-            }
-            //var_dump($perimeter->toSql());  var_dump($lockdown);die;
-            //dd(count($perimeter->get()) );
-            $jmltotal=(count($perimeter->get()));
-            if(isset($limit)) {
-                $perimeter = $perimeter->limit($limit);
-                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-
-                if (isset($page)) {
-                    $offset = ((int)$page -1) * (int)$limit;
-                    $perimeter = $perimeter->offset($offset);
-                }
-            }
-            $perimeter = $perimeter->get();
-            //$totalperimeter = $perimeter->count();
-            //$totalpmmonitoring = 0;
-
-            foreach ($perimeter as $itemperimeter) {
                 if(isset($nik) && ($user != null)) {
-                    $status_monitoring = ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo);
-                } else {
-                    $status_monitoring = $itemperimeter->status_bumn;
+                    $role_id = $user->roles()->first()->id;
+                    if ($role_id == 3) {
+                        $perimeter = $perimeter->where('userpic.username', $nik);
+                    } else if ($role_id == 4) {
+                        $perimeter = $perimeter->where('userfo.username', $nik);
+                    }
+                }
+                if(isset($monitoring)) {
+                    if ($monitoring == 'true') {
+                        if(isset($nik) && ($user != null)) {
+                            if ($role_id == 3) {
+                                $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username)"),true);
+                            } else if ($role_id == 4) {
+                                $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username)"),true);
+                            }
+                        } else {
+                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id)"),true);
+                        }
+
+                    } else{
+                        if(isset($nik) && ($user != null)) {
+                            if ($role_id == 3) {
+                                $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username)"),false);
+                            } else if ($role_id == 4) {
+                                $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username)"),false);
+                            }
+                        } else {
+                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id)"),false);
+                        }
+                    }
                 }
 
-                $data[] = array(
-                    "id_region" => $itemperimeter->id_region,
-                    "region" => $itemperimeter->region,
-                    "id_perimeter" => $itemperimeter->id_perimeter,
-                    "nama_perimeter" => $itemperimeter->nama_perimeter,
-                    "alamat" => $itemperimeter->alamat,
-                    "kategori" => $itemperimeter->kategori,
-                    "status_monitoring" => $status_monitoring,
-                    "last_update" => $itemperimeter->last_update,
-                    "percentage" => 0,
-                    "provinsi" => $itemperimeter->provinsi,
-                    "kabupaten" => $itemperimeter->kabupaten,
-                    "lockdown" => $itemperimeter->lockdown == 1? true: false,
-                    "keterangan_lockdown" => $itemperimeter->keterangan_lockdown
-                );
-                //if ($status['status'] == true) {
-                //  $totalpmmonitoring++;
-                //}
+                $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan);
+
+                if($lockdown!=null) {
+                    $perimeter = $perimeter->where('master_perimeter.mpm_lockdown', $lockdown);
+                }
+
+                if(isset($search)) {
+                    $perimeter = $perimeter->where(DB::raw("lower(TRIM(master_perimeter.mpm_name))"),'like','%'.strtolower(trim($search)).'%');
+                }
+
+                $perimeter = $perimeter->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
+                    'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
+                    DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id) "));
+
+
+                if(isset($column)) {
+                  if($column=="last_update")
+                    $column="mpm_date_update";
+                    if(isset($sort)) {
+                        $perimeter = $perimeter->orderBy($column,$sort);
+                    }else{
+                        $perimeter = $perimeter->orderBy($column,"asc");
+                    }
+                }else{
+                    $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc');
+                }
+                //var_dump($perimeter->toSql());  var_dump($lockdown);die;
+                //dd(count($perimeter->get()) );
+                $jmltotal=(count($perimeter->get()));
+                if(isset($limit)) {
+                    $perimeter = $perimeter->limit($limit);
+                    $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+
+                    if (isset($page)) {
+                        $offset = ((int)$page -1) * (int)$limit;
+                        $perimeter = $perimeter->offset($offset);
+                    }
+                }
+                $perimeter = $perimeter->get();
+                //$totalperimeter = $perimeter->count();
+                //$totalpmmonitoring = 0;
+
+                foreach ($perimeter as $itemperimeter) {
+
+                    if(isset($nik) && ($user != null)) {
+                        $status_monitoring = ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo);
+                    } else {
+                        $status_monitoring = $itemperimeter->status_bumn;
+                    }
+
+                    $data[] = array(
+                        "id_region" => $itemperimeter->mr_id,
+                        "region" => $itemperimeter->mr_name,
+                        "id_perimeter" => $itemperimeter->mpm_id,
+                        "nama_perimeter" => $itemperimeter->mpm_name,
+                        "alamat" => $itemperimeter->mpm_alamat,
+                        "kategori" => $itemperimeter->mpmk_name,
+                        "status_monitoring" => $status_monitoring,
+                        "last_update" => $itemperimeter->last_update,
+                        "percentage" => 0,
+                        "provinsi" => $itemperimeter->mpro_name,
+                        "kabupaten" => $itemperimeter->mkab_name,
+                        "lockdown" => $itemperimeter->mpm_lockdown == 1? true: false,
+                        "keterangan_lockdown" => $itemperimeter->mpm_keterangan_lockdown
+                    );
+                    //if ($status['status'] == true) {
+                    //  $totalpmmonitoring++;
+                    //}
+                }
+                return array('page_end' => $endpage, 'data' => $data);
+          });
+    }
+
+      
+            if(isset($nik) && ($user != null)) {
+                $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+            } else {
+                $status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             }
-
-            //dashboard
-            //$dashboard = array(
-            //   "total_perimeter" => $totalperimeter,
-            //   "sudah_dimonitor" => $totalpmmonitoring,
-            //  "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
-            //);
-
-            //return  $data;
-            return array('page_end' => $endpage, 'data' => $data);
-        });
-        
-        if(isset($nik) && ($user != null)) {
-            $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
-        } else {
-            $status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
-        }
-        //$status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
-        //$status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
-        // Cache::tags(['cosmic_index21'])->flush();
-        return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
-        //return response()->json(['status' => 200,'page_end' =>$page_end, 'data_dashboard' => $status_dashboard, 'data' => $data]);
+            //$status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+            //$status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
+            // Cache::tags(['cosmic_index21'])->flush();
+           return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
+            //return response()->json(['status' => 200,'page_end' =>$page_end, 'data_dashboard' => $status_dashboard, 'data' => $data]);
     }
 
 
@@ -414,29 +520,30 @@ class PerimeterListController extends Controller
         }
         //dd($str);
         //dd($str_fnc);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 1 * 5, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search,$column,$sort) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 1 * 5, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search,$column,$sort) {
+
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             $perimeter = new Perimeter;
             $perimeter->setConnection('pgsql');
 
             $perimeter = $perimeter->select( "master_perimeter.mpm_id", "master_perimeter_level.mpml_id", "master_perimeter_level.mpml_name","master_perimeter.mpm_name",
-                "master_perimeter_level.mpml_ket", "userpic.username as nik_pic", "userpic.first_name as pic", "userfo.username as nik_fo","master_perimeter.mpm_gmap",
-                "userfo.first_name as fo",DB::raw("(CASE WHEN tpc.tbpc_status is null THEN 0 ELSE tpc.tbpc_status END) AS status_perimeter"),"tpc.tbpc_alasan",
-                DB::raw("status_monitoring_perimeter_level_pic(master_perimeter_level.mpml_id,userpic.username) as status_pic"),
-                DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status_fo"),
-                DB::raw("status_monitoring_perimeter_level_last_update(master_perimeter_level.mpml_id) as last_update"),
-                'master_perimeter.mpm_lockdown','master_perimeter.mpm_keterangan_lockdown'
-                )
-                ->join("master_perimeter_level", "master_perimeter_level.mpml_mpm_id", "master_perimeter.mpm_id")
-                ->leftjoin("app_users as userpic", "userpic.username", "master_perimeter_level.mpml_pic_nik")
-                ->leftjoin("app_users as userfo", "userfo.username", "master_perimeter_level.mpml_me_nik")
-                ->leftjoin("table_perimeter_closed as tpc", function($join)
-                {
-                    $join->on("tpc.tbpc_mpml_id","=", "master_perimeter_level.mpml_id");
-                    $join->on("tpc.tbpc_startdate","<=",DB::raw("'".Carbon::now()->format("Y-m-d")."'"));
-                    $join->on("tpc.tbpc_enddate",">=",DB::raw("'".Carbon::now()->format("Y-m-d")."'"));
-                });//->where('master_perimeter.mpm_lockdown',0);
+                        "master_perimeter_level.mpml_ket", "userpic.username as nik_pic", "userpic.first_name as pic", "userfo.username as nik_fo","master_perimeter.mpm_gmap",
+                        "userfo.first_name as fo",DB::raw("(CASE WHEN tpc.tbpc_status is null THEN 0 ELSE tpc.tbpc_status END) AS status_perimeter"),"tpc.tbpc_alasan",
+                        DB::raw("status_monitoring_perimeter_level_pic(master_perimeter_level.mpml_id,userpic.username) as status_pic"),
+                        DB::raw("status_monitoring_perimeter_level_fo(master_perimeter_level.mpml_id,userfo.username) as status_fo"),
+                        DB::raw("status_monitoring_perimeter_level_last_update(master_perimeter_level.mpml_id) as last_update"),
+                        'master_perimeter.mpm_lockdown','master_perimeter.mpm_keterangan_lockdown'
+                        )
+                        ->join("master_perimeter_level", "master_perimeter_level.mpml_mpm_id", "master_perimeter.mpm_id")
+                        ->leftjoin("app_users as userpic", "userpic.username", "master_perimeter_level.mpml_pic_nik")
+                        ->leftjoin("app_users as userfo", "userfo.username", "master_perimeter_level.mpml_me_nik")
+                        ->leftjoin("table_perimeter_closed as tpc", function($join)
+                        {
+                            $join->on("tpc.tbpc_mpml_id","=", "master_perimeter_level.mpml_id");
+                            $join->on("tpc.tbpc_startdate","<=",DB::raw("'".Carbon::now()->format("Y-m-d")."'"));
+                            $join->on("tpc.tbpc_enddate",">=",DB::raw("'".Carbon::now()->format("Y-m-d")."'"));
+                        });//->where('master_perimeter.mpm_lockdown',0);
             if(isset($nik) && ($user != null)) {
                 $role_id = $user->roles()->first()->id;
                 if ($role_id == 3) {
@@ -489,25 +596,25 @@ class PerimeterListController extends Controller
                 //$status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
                 //dd($status['status']);
                 $data[] = array(
-                    "id_perimeter" => $itemperimeter->mpm_id,
-                    "id_perimeter_level" => $itemperimeter->mpml_id,
-                    "nama_perimeter" => $itemperimeter->mpm_name,
-                    "level" => $itemperimeter->mpml_name,
-                    "nik_pic" => $itemperimeter->nik_pic,
-                    "pic" => $itemperimeter->pic,
-                    "nik_fo" => $itemperimeter->nik_fo,
-                    "fo" => $itemperimeter->fo,
-                    //"status_monitoring" => ($status['status']),
-                    "gmap" => $itemperimeter->mpm_gmap,
-                    "status_monitoring" => ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo),
-                    "status_perimeter" => $itemperimeter->status_perimeter,
-                    "alasan" => $itemperimeter->tbpc_alasan,
-                    "last_update" => $itemperimeter->last_update,
-                    //"percentage" => ($status['percentage']),
-                    "percentage" => 0,
-                    //"lockdown" => $itemperimeter->mpm_lockdown == 1? true: false,
-                    //"keterangan_lockdown" => $itemperimeter->mpm_keterangan_lockdown
-                );
+                        "id_perimeter" => $itemperimeter->mpm_id,
+                        "id_perimeter_level" => $itemperimeter->mpml_id,
+                        "nama_perimeter" => $itemperimeter->mpm_name,
+                        "level" => $itemperimeter->mpml_name,
+                        "nik_pic" => $itemperimeter->nik_pic,
+                        "pic" => $itemperimeter->pic,
+                        "nik_fo" => $itemperimeter->nik_fo,
+                        "fo" => $itemperimeter->fo,
+                        //"status_monitoring" => ($status['status']),
+                        "gmap" => $itemperimeter->mpm_gmap,
+                        "status_monitoring" => ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo),
+                        "status_perimeter" => $itemperimeter->status_perimeter,
+                        "alasan" => $itemperimeter->tbpc_alasan,
+                        "last_update" => $itemperimeter->last_update,
+                        //"percentage" => ($status['percentage']),
+                        "percentage" => 0,
+                        //"lockdown" => $itemperimeter->mpm_lockdown == 1? true: false,
+                        //"keterangan_lockdown" => $itemperimeter->mpm_keterangan_lockdown
+                    );
                 if ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo == true) {
                     $totalpmmonitoring++;
                 }
@@ -556,7 +663,8 @@ class PerimeterListController extends Controller
         }
         
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 50 * 60, function()use($kd_perusahaan,$page,$limit,$endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 50 * 60, function()use($kd_perusahaan,$page,$limit,$endpage,$search) {
+
             $data = array();
             $region = new Region;
             $region->setConnection('pgsql3');
@@ -591,7 +699,9 @@ class PerimeterListController extends Controller
             $region = $region->get();
             $totalregion = $region->count();
   
+           
             foreach ($region as $itemregion) {
+
                 //dd($status['status']);
                 $data[] = array(
                     "id_region" => $itemregion->mr_id,
@@ -601,6 +711,7 @@ class PerimeterListController extends Controller
             return array('status' => 200, 'page_end' => $endpage, 'data' => $data);
         });
         return response()->json($datacache);
+
     }
     /**
     //Get Cluster per Perimeter Level
@@ -665,6 +776,7 @@ class PerimeterListController extends Controller
 
     //Get Jumlah Perimeter List
     private function getJumlahPerimeterLevel($kd_perusahaan,$nik){
+
         $user = null;
         $role_id = null;
         $nik = $nik;
@@ -678,7 +790,8 @@ class PerimeterListController extends Controller
             $str_fnc[]=$nik;
         }
         //dd($str_fnc);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 30 * 60, function()use($kd_perusahaan,$nik,$user,$role_id) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 30 * 60, function()use($kd_perusahaan,$nik,$user,$role_id) {
+
 
             $data = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
 
@@ -724,48 +837,48 @@ class PerimeterListController extends Controller
             );
 
             return $data;
+
         });
         return ($datacache);
+
     }
 
     //Get Jumlah Perimeter List
     public function getStatusPerimeterLevel($kd_perusahaan, Request $request){
-        $nik = $request->nik;
-        $data = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
-        $survei = TrnSurveiKepuasan::whereRaw("LOWER(TRIM(tsk_username)) ='".strtolower(trim($nik))."'" )->first();
-        $is_survey = ($survei == null ? 'false':'true');
 
-        $data['is_survei'] = $is_survey;
-        //dd($data);
+        $nik = $request->nik;
+       $data = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+       $survei = TrnSurveiKepuasan::whereRaw("LOWER(TRIM(tsk_username)) ='".strtolower(trim($nik))."'" )->first();
+       $is_survey = ($survei == null ? 'false':'true');
+
+       $data['is_survei'] = $is_survey;
+      //dd($data);
         return response()->json(['status' => 200 ,'data' => $data]);
+
     }
 
     //Get Status Monitoring Perimeter Level
     private function getStatusMonitoring($id_perimeter_level,$id_role, $cluster){
 
         $data = array();
-//         $weeks = AppHelper::Weeks();
-//         $startdate = $weeks['startweek'];
-//         $enddate = $weeks['endweek'];
-        
-        $weeks = AppHelper::Months();
-        $startdate = $weeks['startmonth'];
-        $enddate = $weeks['endmonth'];
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
 
         if($id_role == 4){
             $clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
-        		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
-        		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
-        		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-        		where tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4 and ta.ta_status <> 2
-        		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
+		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+		where tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4 and ta.ta_status <> 2
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
         } else {
             $clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
-        		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
-        		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
-        		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
-        		where ta.ta_status = 1 and tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
-        		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
+		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
+		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
+		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
+		where ta.ta_status = 1 and tpd.tpmd_mpml_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
+		group by tpd.tpmd_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id ", [$id_perimeter_level, $startdate, $enddate]);
         }
         //dd($cluster);
         if ($cluster <> 0){
@@ -786,19 +899,17 @@ class PerimeterListController extends Controller
                 "status" => false,
                 "percentage" => 0);
         }
+
     }
 
     //Get Status Monitoring Perimeter
     private function getStatusMonitoringPerimeter($id_perimeter,$id_role, $cluster){
 
         $data = array();
-//         $weeks = AppHelper::Weeks();
-//         $startdate = $weeks['startweek'];
-//         $enddate = $weeks['endweek'];
-        $weeks = AppHelper::Months();
-        $startdate = $weeks['startmonth'];
-        $enddate = $weeks['endmonth'];
-        
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+
         if($id_role == 4){
             $clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id, mpl.mpml_mpm_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id from transaksi_aktifitas ta
 		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
@@ -835,6 +946,7 @@ class PerimeterListController extends Controller
                 "status" => false,
                 "percentage" => 0);
         }
+
     }
 /**
     //Get Status Monitoring per Cluster
@@ -936,6 +1048,7 @@ class PerimeterListController extends Controller
             ->first();
 
         if ($perimeter!= null){
+
             $data[] = array(
                 "kd_perusahaan" => $perimeter->mc_id,
                 "nama_perusahaan" => $perimeter->mc_name,
@@ -1047,6 +1160,7 @@ class PerimeterListController extends Controller
             }
         } else {
             return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+
         }
     }
 
@@ -1063,18 +1177,19 @@ class PerimeterListController extends Controller
 
         $data = array();
         if(!ISSET($request->id_region)){
-            if(ISSET($request->region)){
-                $reg = Region::where(DB::raw("lower(TRIM(mr_name))"),'=',''.strtolower(trim($request->region)).'')
-                    ->where('mr_mc_id','=',$request->kd_perusahaan)->first();
-                if (!($reg ==NULL)){
-                    $id_region = $reg->mr_id;
-                } else {
-                    $reg_add = Region::create(['mr_name'=>$request->region,'mr_mc_id'=>$request->kd_perusahaan]);
-                    $id_region = $reg_add->mr_id;
-                }
+          if(ISSET($request->region)){
+            $reg = Region::where(DB::raw("lower(TRIM(mr_name))"),'=',''.strtolower(trim($request->region)).'')
+                ->where('mr_mc_id','=',$request->kd_perusahaan)->first();
+            if (!($reg ==NULL)){
+              $id_region = $reg->mr_id;
             } else {
-                return response()->json(['status' => 500,'message' => 'Data Region tidak lengkap'])->setStatusCode(500);
+              $reg_add = Region::create(['mr_name'=>$request->region,'mr_mc_id'=>$request->kd_perusahaan]);
+              $id_region = $reg_add->mr_id;
             }
+          } else {
+              return response()->json(['status' => 500,'message' => 'Data Region tidak lengkap'])->setStatusCode(500);
+          }
+
         } else {
           $id_region = $request->id_region;
         }
@@ -1090,6 +1205,7 @@ class PerimeterListController extends Controller
         $perimeter->mpm_latitude =  $request->latitude;
         $perimeter->mpm_mc_id =  $request->kd_perusahaan;
 
+
         if($perimeter->save()){
             return response()->json(['id_perimeter' => $perimeter->mpm_id,'status' => 200,'message' => 'Data Berhasil Disimpan']);
         } else {
@@ -1102,7 +1218,7 @@ class PerimeterListController extends Controller
             'gmap' =>array('required',
                         //  'regex:/^https?\:\/\/(www\.)?((google\.(com|fr|de)\/maps)|(maps\.app\.goo\.gl))\b/'
                           'regex:/(www\.)?(google|goo.gl)?(com)?\/maps\b/'
-            )
+                      )
         ]);
 
         $perimeter =  new Perimeter();
@@ -1119,6 +1235,7 @@ class PerimeterListController extends Controller
             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
         }
     }
+
 
     //Get Perimeter per Region
     public function getPerimeterListbyRegion($id,Request $request){
@@ -1141,7 +1258,7 @@ class PerimeterListController extends Controller
             $search=$request->search;
         }
 
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10 * 60, function()use($id,$limit,$page, $endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10 * 60, function()use($id,$limit,$page, $endpage,$search) {
             $data = array();
             $perimeter = new Perimeter;
             $perimeter->setConnection('pgsql3');
@@ -1176,8 +1293,10 @@ class PerimeterListController extends Controller
                 $data[] = array(
                     "id_perimeter" => $itemperimeter->mpm_id,
                     "nama_perimeter" => $itemperimeter->mpm_name,
+
                     "alamat" => $itemperimeter->mpm_name,
                     "kategori" => $itemperimeter->mpmk_name,
+
                     "provinsi" => $itemperimeter->mpro_name,
                     "kabupaten" => $itemperimeter->mkab_name,
                     "lockdown" => ($itemperimeter->mpm_lockdown=="")?"0":"1",
@@ -1187,21 +1306,21 @@ class PerimeterListController extends Controller
             return array('status' => 200,'page_end' => $endpage,'data' => $data);
         });
         return response()->json($datacache);
+
     }
 
     //Post Perimeter Closed
     public function addClosedPerimeter(Request $request){
+
         $this->validate($request, [
             'id_perimeter_level' => 'required',
             'alasan' => 'required'
         ]);
-//         $weeks = AppHelper::Weeks();
-//         $startdate = $weeks['startweek'];
-//         $enddate = $weeks['endweek'];
-        $weeks = AppHelper::Months();
-        $startdate = $weeks['startmonth'];
-        $enddate = $weeks['endmonth'];
-        
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+
+
         $closed = TblPerimeterClosed::where('tbpc_mpml_id', $request->id_perimeter_level)
             ->where('tbpc_startdate', $startdate)
             ->where('tbpc_enddate', $enddate)->first();
@@ -1224,36 +1343,36 @@ class PerimeterListController extends Controller
         //ditutup sementara
         if($closed->save()) {
             return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
-        } else {
-            return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
-        // return response()->json(['status' => 500,'message' => 'Untuk saat ini fitur dimatikan sementara'])->setStatusCode(500);
         }
-        //return response()->json(['status' => 404,'message' => 'Untuk saat ini fitur dimatikan sementara'])->setStatusCode(404);
+        else {
+         return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+        // return response()->json(['status' => 500,'message' => 'Untuk saat ini fitur dimatikan sementara'])->setStatusCode(500);
+      }
+         //return response()->json(['status' => 404,'message' => 'Untuk saat ini fitur dimatikan sementara'])->setStatusCode(404);
+
     }
 
     //Post Perimeter Closed
     public function validasiClosedPerimeter(Request $request){
-        set_time_limit(0);
-        ini_set('max_execution_time', 0);
-        ini_set('memory_limit', '-1');
-        ini_set('upload_max_filesize', '409600M');
-        ini_set('post_max_size', '409600M');
-        ini_set('max_input_time', 360000);
+      set_time_limit(0);
+      ini_set('max_execution_time', 0);
+      ini_set('memory_limit', '-1');
+      ini_set('upload_max_filesize', '409600M');
+      ini_set('post_max_size', '409600M');
+      ini_set('max_input_time', 360000);
         $this->validate($request, [
             'id_perimeter_level' => 'required',
             'status' => 'required'
         ]);
-//         $weeks = AppHelper::Weeks();
-//         $startdate = $weeks['startweek'];
-//         $enddate = $weeks['endweek'];
-        $weeks = AppHelper::Months();
-        $startdate = $weeks['startmonth'];
-        $enddate = $weeks['endmonth'];
-        
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+
         $closed = TblPerimeterClosed::where('tbpc_mpml_id', $request->id_perimeter_level)
             ->where('tbpc_startdate', $startdate)
             ->where('tbpc_enddate', $enddate)
             ->where('tbpc_status', 1)->first();
+
 
         if ($closed != null){
             $fo_nik = $closed->tbpc_requestor;
@@ -1278,11 +1397,15 @@ class PerimeterListController extends Controller
 
             }
           }*/
+
             return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
-        } else {
+        }
+        else {
             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
         }
-        //return response()->json(['status' => 404,'message' => 'Untuk saat ini fitur dimatikan sementara'])->setStatusCode(404);
+
+       //return response()->json(['status' => 404,'message' => 'Untuk saat ini fitur dimatikan sementara'])->setStatusCode(404);
+
     }
 
     //Post Perimeter Closed
@@ -1291,14 +1414,10 @@ class PerimeterListController extends Controller
             'id_perimeter_level' => 'required',
             'date' => 'required'
         ]);
-//         $strdate =  Carbon::parse($request->date);
-//         $startdate = $strdate->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
-//         $enddate = $strdate->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
-
         $strdate =  Carbon::parse($request->date);
-        $startdate = $strdate->startOfMonth()->format('Y-m-d');
-        $enddate = $strdate->endOfMonth()->format('Y-m-d');
-        
+        $startdate = $strdate->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
+        $enddate = $strdate->endOfWeek(Carbon::FRIDAY)->format('Y-m-d');
+
         $closed = TblPerimeterClosed::where('tbpc_mpml_id', $request->id_perimeter_level)
             ->where('tbpc_startdate', $startdate)
             ->where('tbpc_enddate', $enddate)->first();
@@ -1307,34 +1426,36 @@ class PerimeterListController extends Controller
         if ($closed != null){
             $fo_nik = $closed->tbpc_requestor;
 
-            $perimeterdet=TblPerimeterDetail::where('tpmd_mpml_id', $request->id_perimeter_level)->get();
-            foreach($perimeterdet as $itemperimeterdet){
-                $kcar=KonfigurasiCAR::JOIN('master_cluster_ruangan','master_cluster_ruangan.mcr_id','konfigurasi_car.kcar_mcr_id')
-                      ->JOIN('table_perimeter_detail','table_perimeter_detail.tpmd_mcr_id','master_cluster_ruangan.mcr_id')
-                      ->where('table_perimeter_detail.tpmd_id', $itemperimeterdet->tpmd_id)->get();
-                foreach($kcar as $itemkcar){
+                $perimeterdet=TblPerimeterDetail::where('tpmd_mpml_id', $request->id_perimeter_level)->get();
+                foreach($perimeterdet as $itemperimeterdet){
+                  $kcar=KonfigurasiCAR::JOIN('master_cluster_ruangan','master_cluster_ruangan.mcr_id','konfigurasi_car.kcar_mcr_id')
+                          ->JOIN('table_perimeter_detail','table_perimeter_detail.tpmd_mcr_id','master_cluster_ruangan.mcr_id')
+                          ->where('table_perimeter_detail.tpmd_id', $itemperimeterdet->tpmd_id)->get();
+                  foreach($kcar as $itemkcar){
                     $trn_aktifitas= TrnAktifitas::updateOrCreate(
                             ['ta_tpmd_id' => $itemperimeterdet->tpmd_id, 'ta_nik' => $fo_nik, 'ta_kcar_id' => $itemkcar->kcar_id,'ta_week' =>$startdate.'-'.$enddate],['ta_date' => $enddate, 'ta_status' => 1, 'ta_keterangan' =>'Tutup Perimeter']);
                     $trn_aktifitas->save();
+                  }
+
                 }
-            }
-            return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
+
+
+                return response()->json(['status' => 200, 'message' => 'Data Berhasil Disimpan']);
         } else {
             return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
         }
+
+
     }
 
     //Get Status Monitoring Perimeter Level
     private function getFotoByPerimeter($id_perimeter,$mc_id){
-        $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_foto_by_perimeter_'.$id_perimeter, 5 * 60, function()use($id_perimeter,$mc_id) {
+$datacache = Cache::remember(env('APP_ENV', 'prod').'_get_foto_by_perimeter_'.$id_perimeter, 5 * 60, function()use($id_perimeter,$mc_id) {
         $data = array();
-//         $weeks = AppHelper::Weeks();
-//         $startdate = $weeks['startweek'];
-//         $enddate = $weeks['endweek'];
-        
-        $weeks = AppHelper::Months();
-        $startdate = $weeks['startmonth'];
-        $enddate = $weeks['endmonth'];
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+
 
         $clustertrans = DB::connection('pgsql3')->select( "select ta.ta_id, ta.ta_date, mpl.mpml_id, mpl.mpml_name,mcr.mcr_name,mcar.mcar_name, us.username as nik_fo, us.first_name as fo from transaksi_aktifitas ta
     		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id and tpd.tpmd_cek = true
@@ -1344,68 +1465,69 @@ class PerimeterListController extends Controller
     		join master_car mcar on mcar.mcar_id = kc.kcar_mcar_id
     		join app_users us on us.username = mpl.mpml_me_nik
     		where ta.ta_status = 1 and mpl.mpml_mpm_id = ? and (ta.ta_date >= ? and ta.ta_date <= ? ) and kc.kcar_ag_id = 4
-            order by ta.ta_date desc limit 7", [$id_perimeter, $startdate, $enddate]);
+        order by ta.ta_date desc limit 7", [$id_perimeter, $startdate, $enddate]);
 
-            foreach ($clustertrans as $itemclustertrans) {
-                $data[] = array(
-                    "id_perimeter_level" => $itemclustertrans->mpml_id,
-                    "level" => 'Lantai '.$itemclustertrans->mpml_name,
-                    "cluster" => $itemclustertrans->mcr_name,
-                    "id_aktifitas" => $itemclustertrans->ta_id,
-                    "aktifitas" => $itemclustertrans->mcar_name,
-                    "nik_fo" => $itemclustertrans->nik_fo,
-                    "fo" => $itemclustertrans->fo,
-                    "tanggal" => $itemclustertrans->ta_date,
-                    "file" => $this->getFile($itemclustertrans->ta_id,$mc_id)
-                );
-            }
-            return $data;
-        });
-        return $datacache;
+        foreach ($clustertrans as $itemclustertrans) {
+            $data[] = array(
+                "id_perimeter_level" => $itemclustertrans->mpml_id,
+                "level" => 'Lantai '.$itemclustertrans->mpml_name,
+                "cluster" => $itemclustertrans->mcr_name,
+                "id_aktifitas" => $itemclustertrans->ta_id,
+                "aktifitas" => $itemclustertrans->mcar_name,
+                "nik_fo" => $itemclustertrans->nik_fo,
+                "fo" => $itemclustertrans->fo,
+                "tanggal" => $itemclustertrans->ta_date,
+                "file" => $this->getFile($itemclustertrans->ta_id,$mc_id)
+              );
+        }
+          return $data;
+      });
+      return $datacache;
+
+
     }
 
     private function getFile($id_aktifitas,$id_perusahaan){
-        // $datacache = Cache::remember(env('APP_ENV', 'dev').'_get_file_by_akt_'.$id_aktifitas.'_'.$id_perusahaan, 5 * 60, function()use($id_aktifitas,$id_perusahaan) {
-        $str = "_getFile_".$id_aktifitas."_".$id_perusahaan;
-        // $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'dev').$str, 60, function () use($id_aktifitas,$id_perusahaan) {
+      // $datacache = Cache::remember(env('APP_ENV', 'prod').'_get_file_by_akt_'.$id_aktifitas.'_'.$id_perusahaan, 5 * 60, function()use($id_aktifitas,$id_perusahaan) {
+      $str = "_getFile_".$id_aktifitas."_".$id_perusahaan;
+      // $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 60, function () use($id_aktifitas,$id_perusahaan) {
         $data =[];
+
         if ($id_aktifitas != null){
-            $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
+        $transaksi_aktifitas_file = TrnAktifitasFile::join("transaksi_aktifitas","transaksi_aktifitas.ta_id","transaksi_aktifitas_file.taf_ta_id")
                 ->where("ta_status", "<>", "2")
                 ->where("taf_ta_id",$id_aktifitas)->orderBy("taf_id","desc")->limit("2")->get();
 
-            foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){
-                $data[] = array(
-                    "id_file" => $itemtransaksi_aktifitas_file->taf_id,
-                    "file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
-                    "file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
-                );
-            }
+          foreach($transaksi_aktifitas_file as $itemtransaksi_aktifitas_file){
+
+            $data[] = array(
+                "id_file" => $itemtransaksi_aktifitas_file->taf_id,
+                "file" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file,
+                "file_tumb" => "/aktifitas/".$id_perusahaan."/".$itemtransaksi_aktifitas_file->taf_date."/".$itemtransaksi_aktifitas_file->taf_file_tumb,
+              );
+          }
         }
         return $data;
-        // });
-        // Cache::tags([$str])->flush();
-        // return $datacache;
+      // });
+      // Cache::tags([$str])->flush();
+      // return $datacache;
     }
 
     //POST
     public function openPerimeter(Request $request){
-        set_time_limit(0);
-        ini_set('max_execution_time', 0);
-        ini_set('memory_limit', '-1');
-        ini_set('upload_max_filesize', '409600M');
-        ini_set('post_max_size', '409600M');
-        ini_set('max_input_time', 360000);
+      set_time_limit(0);
+      ini_set('max_execution_time', 0);
+      ini_set('memory_limit', '-1');
+      ini_set('upload_max_filesize', '409600M');
+      ini_set('post_max_size', '409600M');
+      ini_set('max_input_time', 360000);
         $this->validate($request, [
             'id_perimeter_level' => 'required'
         ]);
-//         $weeks = AppHelper::Weeks();
-//         $startdate = $weeks['startweek'];
-//         $enddate = $weeks['endweek'];
-        
-        $weeks = AppHelper::Months();
-        $startdate = $weeks['startmonth'];
-        $enddate = $weeks['endmonth'];
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
+
 
         $open = TblPerimeterClosed::where('tbpc_mpml_id', $request->id_perimeter_level)
             ->where('tbpc_startdate', $startdate)
@@ -1434,42 +1556,43 @@ class PerimeterListController extends Controller
 
         if($open->save()) {
             return response()->json(['status' => 200, 'message' => 'Perimeter dibuka oleh PIC, segera lakukan Monitoring']);
-        } else {
-            return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
         }
+         else {
+             return response()->json(['status' => 500,'message' => 'Data Gagal disimpan'])->setStatusCode(500);
+         }
+
     }
 
     public function getWeekPerimeterRate($id_perimeter){
+
         $data = array();
-//         $weeks = AppHelper::Weeks();
-//         $startdate = $weeks['startweek'];
-//         $enddate = $weeks['endweek'];
-        $weeks = AppHelper::Months();
-        $startdate = $weeks['startmonth'];
-        $enddate = $weeks['endmonth'];
+        $weeks = AppHelper::Weeks();
+        $startdate = $weeks['startweek'];
+        $enddate = $weeks['endweek'];
 
         $rate = DB::connection('pgsql3')->select( "select * from week_perimeter_rate(?, ? ) limit 1", [$id_perimeter, $startdate]);
         //dd($rate);
-        if (count($rate) > 0){
-            foreach ($rate as $itemrate) {
-                $data = array(
-                    "id_perimeter" => $itemrate->v_mpm_id,
-                    "start_date" =>$itemrate->v_start_date,
-                    "end_date" => $itemrate->v_end_date,
-                    "rate" => $itemrate->v_mpm_rate,
-                    "total_ulasan"=>$itemrate->v_count
-                );
-            }
-            return response()->json(['status' => 200 ,'data' => $data]);
-        } else {
-            return response()->json(['status' => 200 ,'data' => array(
-                "id_perimeter" => $id_perimeter,
-                "start_date" =>$startdate,
-                "end_date" => $enddate,
-                "rate" => 0,
-                "total_ulasan"=>0)
-            ]);
+      if (count($rate) > 0){
+        foreach ($rate as $itemrate) {
+            $data = array(
+                        "id_perimeter" => $itemrate->v_mpm_id,
+                        "start_date" =>$itemrate->v_start_date,
+                        "end_date" => $itemrate->v_end_date,
+                        "rate" => $itemrate->v_mpm_rate,
+                        "total_ulasan"=>$itemrate->v_count
+            );
         }
+        return response()->json(['status' => 200 ,'data' => $data]);
+      } else {
+        return response()->json(['status' => 200 ,'data' => array(
+                    "id_perimeter" => $id_perimeter,
+                    "start_date" =>$startdate,
+                    "end_date" => $enddate,
+                    "rate" => 0,
+                  "total_ulasan"=>0)
+                  ]);
+
+      }
     }
 
     public function getReportByPerimeter($id_perimeter,Request $request){
@@ -1497,7 +1620,7 @@ class PerimeterListController extends Controller
             $status=$request->status;
         }
 
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search,$status) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search,$status) {
             $data = array();
             $report = new TrnReport;
             $report->setConnection('pgsql3');
@@ -1549,7 +1672,9 @@ class PerimeterListController extends Controller
     }
 
     public function getReportPerimeterByID($id_report){
+
         $data = array();
+
         $report = new TrnReport;
         $report->setConnection('pgsql3');
         $report = $report->select('master_perimeter.mpm_id', 'master_perimeter.mpm_name','master_perimeter.mpm_mc_id',
@@ -1563,7 +1688,8 @@ class PerimeterListController extends Controller
             ->where('transaksi_report.tr_id', $id_report)->first();
 
         // dd(str_replace('"','', $report->toSql()));
-        if ($report != null){
+      if ($report != null){
+
             $data = array(
               "id_report" => $report->tr_id,
               "id_perimeter" => $report->mpm_id,
@@ -1580,10 +1706,12 @@ class PerimeterListController extends Controller
               "file_tumb_2" =>  isset($report->tr_tl_file2) ? ("/report_protokol/". $report->mpm_mc_id."/".$report->mpml_id."/".$report->tr_tl_file2) : null ,
               "status" => $report->tr_close == 0 ? 'Belum Diproses':'Sudah Diproses',
             );
-            return response()->json(['status' => 200 ,'data' => $data]);
-        } else {
-            return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
-        }
+
+        return response()->json(['status' => 200 ,'data' => $data]);
+      } else {
+        return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
+
+      }
     }
 
     public function getReviewByPerimeter($id_perimeter,Request $request){
@@ -1606,7 +1734,7 @@ class PerimeterListController extends Controller
             $search=$request->search;
         }
 
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 5 * 60, function()use($id_perimeter,$limit,$page, $endpage,$search) {
             $data = array();
             $report = new TblPerimeterRate;
             $report->setConnection('pgsql2');
@@ -1782,15 +1910,12 @@ class PerimeterListController extends Controller
             $week=$request->week;
         }
         //dd($str);
-        $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 20 * 60, function()use($kd_perusahaan,$nik,$user,$role_id,$limit,$page,$monitoring,$endpage,$search) {
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
-//             $crweeks = AppHelper::Weeks();
-//             $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
-
-            $crweeks = AppHelper::Months();
-            $currentweek = $crweeks['startmonth'].'-'.$crweeks['endmonth'];
+            $crweeks = AppHelper::Weeks();
+            $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
 
             $perimeter = new Perimeter;
             $perimeter->setConnection('pgsql3');
@@ -1869,6 +1994,7 @@ class PerimeterListController extends Controller
             //$totalpmmonitoring = 0;
 
             foreach ($perimeter as $itemperimeter) {
+
                 if(isset($nik) && ($user != null)) {
                     $status_monitoring = ($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo);
                 } else {
@@ -1886,6 +2012,7 @@ class PerimeterListController extends Controller
                     "percentage" => 0,
                     "provinsi" => $itemperimeter->mpro_name,
                     "kabupaten" => $itemperimeter->mkab_name,
+
                 );
             }
             return array('page_end' => $endpage, 'data' => $data);
@@ -1901,6 +2028,7 @@ class PerimeterListController extends Controller
 
     //Get Perimeter List
     function getPerimeterListFo($kd_perusahaan,Request $request){
+        
         $user = null;
         $role_id = null;
         $limit = null;
@@ -1954,163 +2082,166 @@ class PerimeterListController extends Controller
         }
         //var_dump($str);die;
         //dd($str);
-        /*$datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10, function()use($kd_perusahaan,
+        /*$datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10, function()use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown) {*/
 
-        $datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'dev').$str, 10*60, function () use($kd_perusahaan,
-            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
-            $search,$column,$sort,$lockdown){
+          $datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'prod').$str, 10*60, function () use($kd_perusahaan,
+           $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
+           $search,$column,$sort,$lockdown){
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
-//             $crweeks = AppHelper::Weeks();
-//             $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
-            
-            $crweeks = AppHelper::Months();
-            $currentweek = $crweeks['startmonth'].'-'.$crweeks['endmonth'];
+            $crweeks = AppHelper::Weeks();
+            $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
             
             $perimeter = new Perimeter;
             //test pindah ke master
             $perimeter->setConnection('pgsql3');
-            $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
-            'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
-            'master_perimeter_kategori.mpmk_name',
-            'master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
-            DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,max(userfo.username)) as status_fo"),
-            DB::raw("status_monitoring_perimeter_last_update(master_perimeter.mpm_id) as last_update"),
-            'master_perimeter.mpm_lockdown','master_perimeter.mpm_keterangan_lockdown'
-            )
-            ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
-            ->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
-            ->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
-            ->leftjoin('app_users as userpic','userpic.username','master_perimeter_level.mpml_pic_nik')
-            ->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
-            ->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
-            ->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id');
+            
+                $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
+                'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
+                'master_perimeter_kategori.mpmk_name',
+                'master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
+                DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,max(userfo.username)) as status_fo"),
+                DB::raw("status_monitoring_perimeter_last_update(master_perimeter.mpm_id) as last_update"),
+                'master_perimeter.mpm_lockdown','master_perimeter.mpm_keterangan_lockdown'
+                )
+                ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
+                ->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
+                ->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
+                ->leftjoin('app_users as userpic','userpic.username','master_perimeter_level.mpml_pic_nik')
+                ->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
+                ->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
+                ->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id');
 
             
-            if(isset($nik) && ($user != null)) {
-                $role_id = $user->roles()->first()->id;
-                if ($role_id == 3) {
-                    $perimeter = $perimeter->where('userpic.username', $nik);
-                } else if ($role_id == 4) {
-                    $perimeter = $perimeter->where('userfo.username', $nik);
-                }
-            }
-            if(isset($monitoring)) {
-                if ($monitoring == 'true') {
-                    if(isset($nik) && ($user != null)) {
-                        if ($role_id == 3) {
-                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username)"),true);
-                        } else if ($role_id == 4) {
-                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username)"),true);
-                        }
-                    } else {
-                        $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id)"),true);
-                    }
-                    
-                } else{
-                    if(isset($nik) && ($user != null)) {
-                        if ($role_id == 3) {
-                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username)"),false);
-                        } else if ($role_id == 4) {
-                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username)"),false);
-                        }
-                    } else {
-                        $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id)"),false);
+                if(isset($nik) && ($user != null)) {
+                    $role_id = $user->roles()->first()->id;
+                    if ($role_id == 3) {
+                        $perimeter = $perimeter->where('userpic.username', $nik);
+                    } else if ($role_id == 4) {
+                        $perimeter = $perimeter->where('userfo.username', $nik);
                     }
                 }
-            }
+                if(isset($monitoring)) {
+                    if ($monitoring == 'true') {
+                        if(isset($nik) && ($user != null)) {
+                            if ($role_id == 3) {
+                                $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username)"),true);
+                            } else if ($role_id == 4) {
+                                $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username)"),true);
+                            }
+                        } else {
+                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id)"),true);
+                        }
+                        
+                    } else{
+                        if(isset($nik) && ($user != null)) {
+                            if ($role_id == 3) {
+                                $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username)"),false);
+                            } else if ($role_id == 4) {
+                                $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username)"),false);
+                            }
+                        } else {
+                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id)"),false);
+                        }
+                    }
+                }
                 
-            $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan);
-           
-            if($lockdown!=null) {
-                $perimeter = $perimeter->where('master_perimeter.mpm_lockdown', $lockdown);
-            }
-            
-            if(isset($search)) {
-                $perimeter = $perimeter->where(DB::raw("lower(TRIM(master_perimeter.mpm_name))"),'like','%'.strtolower(trim($search)).'%');
-            }
-            
-            $perimeter = $perimeter->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
-                'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name');
-     
-            if(isset($column)) {
-              if($column=="last_update")
-                $column="mpm_date_update";
-                if(isset($sort)) {
-                    $perimeter = $perimeter->orderBy($column,$sort);
+                $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan);
+               
+                if($lockdown!=null) {
+                    $perimeter = $perimeter->where('master_perimeter.mpm_lockdown', $lockdown);
+                }
+                
+                if(isset($search)) {
+                    $perimeter = $perimeter->where(DB::raw("lower(TRIM(master_perimeter.mpm_name))"),'like','%'.strtolower(trim($search)).'%');
+                }
+                
+                $perimeter = $perimeter->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
+                    'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name');
+               
+                
+                if(isset($column)) {
+                  if($column=="last_update")
+                    $column="mpm_date_update";
+                    if(isset($sort)) {
+                        $perimeter = $perimeter->orderBy($column,$sort);
+                    }else{
+                        $perimeter = $perimeter->orderBy($column,"asc");
+                    }
                 }else{
-                    $perimeter = $perimeter->orderBy($column,"asc");
+                    $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc');
                 }
-            }else{
-                $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc');
-            }
-            //var_dump($perimeter->toSql());  var_dump($lockdown);die;
-            //dd(count($perimeter->get()) );
-            $jmltotal=(count($perimeter->get()));
-            if(isset($limit)) {
-                $perimeter = $perimeter->limit($limit);
-                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
-                
-                if (isset($page)) {
-                    $offset = ((int)$page -1) * (int)$limit;
-                    $perimeter = $perimeter->offset($offset);
+                //var_dump($perimeter->toSql());  var_dump($lockdown);die;
+                //dd(count($perimeter->get()) );
+                $jmltotal=(count($perimeter->get()));
+                if(isset($limit)) {
+                    $perimeter = $perimeter->limit($limit);
+                    $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+                    
+                    if (isset($page)) {
+                        $offset = ((int)$page -1) * (int)$limit;
+                        $perimeter = $perimeter->offset($offset);
+                    }
                 }
-            }
-            $perimeter = $perimeter->get();
-            //$totalperimeter = $perimeter->count();
-            //$totalpmmonitoring = 0;
+                $perimeter = $perimeter->get();
+                //$totalperimeter = $perimeter->count();
+                //$totalpmmonitoring = 0;
                 
-            foreach ($perimeter as $itemperimeter) {
-                $status_monitoring = $itemperimeter->status_fo;
-                $data[] = array(
-                    "id_region" => $itemperimeter->mr_id,
-                    "region" => $itemperimeter->mr_name,
-                    "id_perimeter" => $itemperimeter->mpm_id,
-                    "nama_perimeter" => $itemperimeter->mpm_name,
-                    "alamat" => $itemperimeter->mpm_alamat,
-                    "kategori" => $itemperimeter->mpmk_name,
-                    "status_monitoring" => $status_monitoring,
-                    "last_update" => $itemperimeter->last_update,
-                    //"status_monitoring" => ($status['status']),
-                    //"percentage" => ($status['percentage']),
-                    "percentage" => 0,
-                    "provinsi" => $itemperimeter->mpro_name,
-                    "kabupaten" => $itemperimeter->mkab_name,
-                    "lockdown" => $itemperimeter->mpm_lockdown == 1? true: false,
-                    "keterangan_lockdown" => $itemperimeter->mpm_keterangan_lockdown
-                );
-                //if ($status['status'] == true) {
-                //  $totalpmmonitoring++;
-                //}
+                foreach ($perimeter as $itemperimeter) {
+                    
+                    $status_monitoring = $itemperimeter->status_fo;
+                    
+                    $data[] = array(
+                        "id_region" => $itemperimeter->mr_id,
+                        "region" => $itemperimeter->mr_name,
+                        "id_perimeter" => $itemperimeter->mpm_id,
+                        "nama_perimeter" => $itemperimeter->mpm_name,
+                        "alamat" => $itemperimeter->mpm_alamat,
+                        "kategori" => $itemperimeter->mpmk_name,
+                        "status_monitoring" => $status_monitoring,
+                        "last_update" => $itemperimeter->last_update,
+                        //"status_monitoring" => ($status['status']),
+                        //"percentage" => ($status['percentage']),
+                        "percentage" => 0,
+                        "provinsi" => $itemperimeter->mpro_name,
+                        "kabupaten" => $itemperimeter->mkab_name,
+                        "lockdown" => $itemperimeter->mpm_lockdown == 1? true: false,
+                        "keterangan_lockdown" => $itemperimeter->mpm_keterangan_lockdown
+                    );
+                    //if ($status['status'] == true) {
+                    //  $totalpmmonitoring++;
+                    //}
+                }
+                
+                //dashboard
+                //$dashboard = array(
+                //   "total_perimeter" => $totalperimeter,
+                //   "sudah_dimonitor" => $totalpmmonitoring,
+                //  "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
+                //);
+                
+                //return  $data;
+                return array('page_end' => $endpage, 'data' => $data);
+       });
+            if(isset($nik) && ($user != null)) {
+                $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+            } else {
+                $status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             }
-            //dashboard
-            //$dashboard = array(
-            //   "total_perimeter" => $totalperimeter,
-            //   "sudah_dimonitor" => $totalpmmonitoring,
-            //  "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
-            //);
-            //return  $data;
-            return array('page_end' => $endpage, 'data' => $data);
-        });
-        
-        if(isset($nik) && ($user != null)) {
-            $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
-        } else {
-            $status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
-        }
-        //$status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
-        //$status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
-        Cache::tags(['cosmic_index_fo'])->flush();
-        return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
-        //return response()->json(['status' => 200,'page_end' =>$page_end, 'data_dashboard' => $status_dashboard, 'data' => $data]);
+            //$status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+            //$status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
+            Cache::tags(['cosmic_index_fo'])->flush();
+           return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
+            //return response()->json(['status' => 200,'page_end' =>$page_end, 'data_dashboard' => $status_dashboard, 'data' => $data]);
     }
 
     //Get Perimeter List
     function getPerimeterListPic($kd_perusahaan,Request $request){
+        
         $user = null;
         $role_id = null;
         $limit = null;
@@ -2164,149 +2295,151 @@ class PerimeterListController extends Controller
         }
         //var_dump($str);die;
         //dd($str);
-        /*$datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10, function()use($kd_perusahaan,
+        /*$datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10, function()use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown) {*/
 
-        $datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'dev').$str, 10*60, function () use($kd_perusahaan,
-            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
-            $search,$column,$sort,$lockdown){
+          $datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'prod').$str, 10*60, function () use($kd_perusahaan,
+           $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
+           $search,$column,$sort,$lockdown){
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             //current week
-//             $crweeks = AppHelper::Weeks();
-//             $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
-            $crweeks = AppHelper::Months();
-            $currentweek = $crweeks['startmonth'].'-'.$crweeks['endmonth'];
+            $crweeks = AppHelper::Weeks();
+            $currentweek =$crweeks['startweek'].'-'.$crweeks['endweek'];
             
             $perimeter = new Perimeter;
             //test pindah ke master
             $perimeter->setConnection('pgsql3');
             
-            $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
+               $perimeter = $perimeter->select('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id',
                 'master_perimeter.mpm_name','master_perimeter.mpm_alamat',
                 'master_perimeter_kategori.mpmk_name',
                 'master_provinsi.mpro_name', 'master_kabupaten.mkab_name',
                 DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,max(userpic.username)) as status_pic"),
                 DB::raw("status_monitoring_perimeter_last_update(master_perimeter.mpm_id) as last_update"),
                 'master_perimeter.mpm_lockdown','master_perimeter.mpm_keterangan_lockdown'
-            )
-            ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
-            ->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
-            ->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
-            ->leftjoin('app_users as userpic','userpic.username','master_perimeter_level.mpml_pic_nik')
-            ->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
-            ->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
-            ->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id');
-            if(isset($nik) && ($user != null)) {
-                $role_id = $user->roles()->first()->id;
-                if ($role_id == 3) {
-                    $perimeter = $perimeter->where('userpic.username', $nik);
-                } else if ($role_id == 4) {
-                    $perimeter = $perimeter->where('userfo.username', $nik);
-                }
-            }
-            
-            if(isset($monitoring)) {
-                if ($monitoring == 'true') {
-                    if(isset($nik) && ($user != null)) {
-                        if ($role_id == 3) {
-                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username)"),true);
-                        } else if ($role_id == 4) {
-                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username)"),true);
-                        }
-                    } else {
-                        $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id)"),true);
-                    }
-                } else{
-                    if(isset($nik) && ($user != null)) {
-                        if ($role_id == 3) {
-                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username)"),false);
-                        } else if ($role_id == 4) {
-                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username)"),false);
-                        }
-                    } else {
-                        $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id)"),false);
+                )
+                ->join('master_perimeter_level','master_perimeter_level.mpml_mpm_id','master_perimeter.mpm_id')
+                ->join('master_region','master_region.mr_id','master_perimeter.mpm_mr_id')
+                ->join('master_perimeter_kategori','master_perimeter_kategori.mpmk_id','master_perimeter.mpm_mpmk_id')
+                ->leftjoin('app_users as userpic','userpic.username','master_perimeter_level.mpml_pic_nik')
+                ->leftjoin('app_users as userfo','userfo.username','master_perimeter_level.mpml_me_nik')
+                ->leftjoin('master_provinsi','master_provinsi.mpro_id','master_perimeter.mpm_mpro_id')
+                ->leftjoin('master_kabupaten','master_kabupaten.mkab_id','master_perimeter.mpm_mkab_id');
+                if(isset($nik) && ($user != null)) {
+                    $role_id = $user->roles()->first()->id;
+                    if ($role_id == 3) {
+                        $perimeter = $perimeter->where('userpic.username', $nik);
+                    } else if ($role_id == 4) {
+                        $perimeter = $perimeter->where('userfo.username', $nik);
                     }
                 }
-            }
+                if(isset($monitoring)) {
+                    if ($monitoring == 'true') {
+                        if(isset($nik) && ($user != null)) {
+                            if ($role_id == 3) {
+                                $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username)"),true);
+                            } else if ($role_id == 4) {
+                                $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username)"),true);
+                            }
+                        } else {
+                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id)"),true);
+                        }
+                        
+                    } else{
+                        if(isset($nik) && ($user != null)) {
+                            if ($role_id == 3) {
+                                $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_pic(master_perimeter.mpm_id,userpic.username)"),false);
+                            } else if ($role_id == 4) {
+                                $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_fo(master_perimeter.mpm_id,userfo.username)"),false);
+                            }
+                        } else {
+                            $perimeter = $perimeter->where(DB::raw("status_monitoring_perimeter_bumn(master_perimeter.mpm_id)"),false);
+                        }
+                    }
+                }
                 
-            $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan);
-           
-            if($lockdown!=null) {
-                $perimeter = $perimeter->where('master_perimeter.mpm_lockdown', $lockdown);
-            }
-            
-            if(isset($search)) {
-                $perimeter = $perimeter->where(DB::raw("lower(TRIM(master_perimeter.mpm_name))"),'like','%'.strtolower(trim($search)).'%');
-            }
-            
-            $perimeter = $perimeter->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
-                'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name');
-           
-            if(isset($column)) {
-              if($column=="last_update")
-                $column="mpm_date_update";
-                if(isset($sort)) {
-                    $perimeter = $perimeter->orderBy($column,$sort);
+                $perimeter = $perimeter->where('master_perimeter.mpm_mc_id', $kd_perusahaan);
+               
+                if($lockdown!=null) {
+                    $perimeter = $perimeter->where('master_perimeter.mpm_lockdown', $lockdown);
+                }
+                
+                if(isset($search)) {
+                    $perimeter = $perimeter->where(DB::raw("lower(TRIM(master_perimeter.mpm_name))"),'like','%'.strtolower(trim($search)).'%');
+                }
+                
+                $perimeter = $perimeter->groupBy('master_region.mr_id','master_region.mr_name','master_perimeter.mpm_id','master_perimeter.mpm_name','master_perimeter.mpm_alamat',
+                    'master_perimeter_kategori.mpmk_name','master_provinsi.mpro_name', 'master_kabupaten.mkab_name');
+               
+                
+                if(isset($column)) {
+                  if($column=="last_update")
+                    $column="mpm_date_update";
+                    if(isset($sort)) {
+                        $perimeter = $perimeter->orderBy($column,$sort);
+                    }else{
+                        $perimeter = $perimeter->orderBy($column,"asc");
+                    }
                 }else{
-                    $perimeter = $perimeter->orderBy($column,"asc");
+                    $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc');
                 }
-            }else{
-                $perimeter = $perimeter->orderBy('master_perimeter.mpm_name', 'asc');
-            }
-            //var_dump($perimeter->toSql());  var_dump($lockdown);die;
-            //dd(count($perimeter->get()) );
-            $jmltotal=(count($perimeter->get()));
-            if(isset($limit)) {
-                $perimeter = $perimeter->limit($limit);
-                $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+                //var_dump($perimeter->toSql());  var_dump($lockdown);die;
+                //dd(count($perimeter->get()) );
+                $jmltotal=(count($perimeter->get()));
+                if(isset($limit)) {
+                    $perimeter = $perimeter->limit($limit);
+                    $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+                    
+                    if (isset($page)) {
+                        $offset = ((int)$page -1) * (int)$limit;
+                        $perimeter = $perimeter->offset($offset);
+                    }
+                }
+                $perimeter = $perimeter->get();
+                //$totalperimeter = $perimeter->count();
+                //$totalpmmonitoring = 0;
                 
-                if (isset($page)) {
-                    $offset = ((int)$page -1) * (int)$limit;
-                    $perimeter = $perimeter->offset($offset);
+                foreach ($perimeter as $itemperimeter) {
+                    
+                    $status_monitoring = $itemperimeter->status_pic;
+                    
+                    $data[] = array(
+                        "id_region" => $itemperimeter->mr_id,
+                        "region" => $itemperimeter->mr_name,
+                        "id_perimeter" => $itemperimeter->mpm_id,
+                        "nama_perimeter" => $itemperimeter->mpm_name,
+                        "alamat" => $itemperimeter->mpm_alamat,
+                        "kategori" => $itemperimeter->mpmk_name,
+                        "status_monitoring" => $status_monitoring,
+                        "last_update" => $itemperimeter->last_update,
+                        //"status_monitoring" => ($status['status']),
+                        //"percentage" => ($status['percentage']),
+                        "percentage" => 0,
+                        "provinsi" => $itemperimeter->mpro_name,
+                        "kabupaten" => $itemperimeter->mkab_name,
+                        "lockdown" => $itemperimeter->mpm_lockdown == 1? true: false,
+                        "keterangan_lockdown" => $itemperimeter->mpm_keterangan_lockdown
+                    );
+                    //if ($status['status'] == true) {
+                    //  $totalpmmonitoring++;
+                    //}
                 }
+                
+                //return  $data;
+                return array('page_end' => $endpage, 'data' => $data);
+       });
+            if(isset($nik) && ($user != null)) {
+                $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+            } else {
+                $status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             }
-            $perimeter = $perimeter->get();
-            //$totalperimeter = $perimeter->count();
-            //$totalpmmonitoring = 0;
-            
-            foreach ($perimeter as $itemperimeter) {
-                $status_monitoring = $itemperimeter->status_pic;
-                $data[] = array(
-                    "id_region" => $itemperimeter->mr_id,
-                    "region" => $itemperimeter->mr_name,
-                    "id_perimeter" => $itemperimeter->mpm_id,
-                    "nama_perimeter" => $itemperimeter->mpm_name,
-                    "alamat" => $itemperimeter->mpm_alamat,
-                    "kategori" => $itemperimeter->mpmk_name,
-                    "status_monitoring" => $status_monitoring,
-                    "last_update" => $itemperimeter->last_update,
-                    //"status_monitoring" => ($status['status']),
-                    //"percentage" => ($status['percentage']),
-                    "percentage" => 0,
-                    "provinsi" => $itemperimeter->mpro_name,
-                    "kabupaten" => $itemperimeter->mkab_name,
-                    "lockdown" => $itemperimeter->mpm_lockdown == 1? true: false,
-                    "keterangan_lockdown" => $itemperimeter->mpm_keterangan_lockdown
-                );
-                //if ($status['status'] == true) {
-                //  $totalpmmonitoring++;
-                //}
-            }
-            //return  $data;
-            return array('page_end' => $endpage, 'data' => $data);
-        });
-        if(isset($nik) && ($user != null)) {
-            $status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
-        } else {
-            $status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
-        }
-        //$status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
-        //$status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
-        Cache::tags(['cosmic_index_pic'])->flush();
-        return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
-        //return response()->json(['status' => 200,'page_end' =>$page_end, 'data_dashboard' => $status_dashboard, 'data' => $data]);
+            //$status_dashboard = $this->getJumlahPerimeterLevel($kd_perusahaan,$nik);
+            //$status_dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
+            Cache::tags(['cosmic_index_pic'])->flush();
+           return response()->json(['status' => 200,'page_end' =>$datacache['page_end'], 'data_dashboard' => $status_dashboard, 'data' => $datacache['data']]);
+            //return response()->json(['status' => 200,'page_end' =>$page_end, 'data_dashboard' => $status_dashboard, 'data' => $data]);
     }
 }

@@ -77,9 +77,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/perimeter_level/get_file/{id_perimeter_level}', 'PICController@getFilePerimeterLevelByPerimeterLevel');
 	$router->post('/perimeter/update', 'PerimeterListController@updateDetailPerimeter');
 //	$router->post('/perimeter_closed/add', 'PerimeterListController@addClosedPerimeter');
-  $router->post('/perimeter_closed/add', function () use ($router) {
+    $router->post('/perimeter_closed/add', function () use ($router) {
       return response()->json(['status' => 500,'message' => 'Fitur saat ini ditutup sementara'])->setStatusCode(500);
-  });
+    });
 	$router->post('/perimeter_closed/validasi', 'PerimeterListController@validasiClosedPerimeter');
 	$router->post('/perimeter_closed/addActivity', 'PerimeterListController@updateAktifitasClosedPerimeter');  //force add for actifity closed perimeter
 	$router->post('/perimeter_open/add', 'PerimeterListController@openPerimeter');
@@ -115,7 +115,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 	//Data_detail /Terpapar /Kasus
 	$router->get('/terpapar/laporan_home/{id}', 'TerpaparController@getDataHome');
-	$router->get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
+
 	$router->get('/terpapar/laporan_detail_new/{id}', 'TerpaparController@getDatadetailNew');
 	$router->get('/terpapar/byid/{id}', 'TerpaparController@getDataByid');
 
@@ -250,8 +250,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/dashboard/cosmic_index_detail/{kd_perusahaan}', 'DashboardController@getCosmicIndexbyCompanyAndDate');
 	$router->get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
 	$router->get('/dashboard/cosmic_index_detaillist/download/{kd_perusahaan}', 'DashboardController@getDownloadCosmicIndexListbyCompany');
-  $router->get('/dashboard/cosmic_index_detail_average/{kd_perusahaan}', 'DashboardController@getAverageCosmicIndexDetailbyCompany');
-  $router->get('/dashboard/cosmic_index_list_average', 'DashboardController@getAverageCosmicIndexList');
+    $router->get('/dashboard/cosmic_index_detail_average/{kd_perusahaan}', 'DashboardController@getAverageCosmicIndexDetailbyCompany');
+    $router->get('/dashboard/cosmic_index_list_average', 'DashboardController@getAverageCosmicIndexList');
 	//sprint18
 	$router->get('/dashboard/perusahaan_byprovinsi_all', 'DashboardController@getPerusahaanbyProvinsiAll');
 	$router->get('/dashboard/perusahaan_byindustri_all', 'DashboardController@getPerusahaanbyIndustriAll');
@@ -318,8 +318,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
   	$router->get('/product/daftar_riwayat', 'ProductController@getListRiwayatProduk');
   	$router->get('/product/detail_produk', 'ProductController@getPengajuanById');
-
-
 
     //Sosialisasi Web
     Route::post('/sosialisasi/webupload_json/{user_id}', 'SosialisasiController@WebuploadSosialisasiJSON');
@@ -403,23 +401,23 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
         Route::post('/rumah_singgah/update/{id}', 'RumahSinggahController@updateRumahSinggah');
         Route::get('/total_rumah_singgah', 'RumahSinggahController@getJumlahRumahSinggah');
 
-
         //lockdown
         Route::post('/update_lockdown', 'ReportController@UpdateLockdown');
+        Route::get('/terpapar/laporan_detail/{id}/{page}/{search}', 'TerpaparController@getDatadetail');
 	});
 });
 
 $router->group(['prefix' => 'api/v2'], function () use ($router) {
-  Route::post('/user/reset_password', 'UserController@postResetPassword');
-  Route::get('/company', 'MasterController@getAllCompany');
-  Route::post('/user/cek_user', 'UserController@postCekUser');
+    Route::post('/user/reset_password', 'UserController@postResetPassword');
+    Route::get('/company', 'MasterController@getAllCompany');
+    Route::post('/user/cek_user', 'UserController@postCekUser');
 
-  Route::group(['middleware' => 'auth:api'], function () {
+    Route::group(['middleware' => 'auth:api'], function () {
 		//Data_User
-      Route::get('/report/perimeter/{id_perimeter}', 'PerimeterListController@getReportByPerimeter');
-      Route::get('/report/by_id/{id_report}', 'PerimeterListController@getReportPerimeterByID');
-      Route::get('/review/perimeter/{id_perimeter}', 'PerimeterListController@getReviewByPerimeter');
-      Route::get('/review/by_id/{id_review}', 'PerimeterListController@getReviewPerimeterByID');
+    Route::get('/report/perimeter/{id_perimeter}', 'PerimeterListController@getReportByPerimeter');
+    Route::get('/report/by_id/{id_report}', 'PerimeterListController@getReportPerimeterByID');
+    Route::get('/review/perimeter/{id_perimeter}', 'PerimeterListController@getReviewByPerimeter');
+    Route::get('/review/by_id/{id_review}', 'PerimeterListController@getReviewPerimeterByID');
 
     Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
     Route::post('/user/sendfirebase/{id}', 'UserController@sendFirebase');
@@ -482,7 +480,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/dashboard/cosmic_index_detail_average/{kd_perusahaan}', 'DashboardController@getAverageCosmicIndexDetailbyCompany');
     Route::get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
     Route::get('/dashboard/cosmic_index_list_average', 'DashboardController@getAverageCosmicIndexList');
-	  Route::get('/dashboard/alert_week_bymcid/{id}', 'DashboardController@getAlertWeek_byMcid');
+	Route::get('/dashboard/alert_week_bymcid/{id}', 'DashboardController@getAlertWeek_byMcid');
     Route::get('/dashboard/dashboardhead', 'DashboardController@getDashboardHead');
     Route::get('/dashboard/card_produk', 'DashboardController@getCardProduk');
     Route::get('/dashboard/card_atestasi', 'DashboardController@getCardAtestasi');
@@ -497,7 +495,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::post('/perimeter/update', 'PerimeterListController@updateDetailPerimeter');
     Route::get('/perimeter_level/perimeter/{id_perimeter}', 'PerimeterController@getLevelbyPerimeter');
     Route::post('/perimeter_level/update', 'PerimeterController@updateDetailPerimeterLevel');
-	  Route::post('/import', 'ImportController@import');
+	Route::post('/import', 'ImportController@import');
 
     Route::get('/list_perimeter/region/{id}', 'PerimeterListController@getPerimeterListbyRegion');
     Route::get('/list_perimeter_report/{kd_perusahaan}', 'PerimeterReportController@getPerimeterList');
@@ -518,7 +516,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::post('/terpapar/add', 'TerpaparController@InsertKasus');
     Route::delete('/terpapar/delete/{id_kasus}', 'TerpaparController@deleteKasus');
 
-	  Route::get('/product/layanan_produk', 'ProductController@getLayananProduk');
+	Route::get('/product/layanan_produk', 'ProductController@getLayananProduk');
     Route::get('/product/daftar_riwayat', 'ProductController@getListRiwayatProduk');
     Route::get('/product/detail_produk', 'ProductController@getPengajuanById');
     Route::post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
@@ -527,7 +525,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
 
 
     //Gugus Tugas
-	  Route::get('/dashboard/perimeter_byperusahaan_all', 'DashboardController@getPerimeterbyPerusahaanAll');
+	Route::get('/dashboard/perimeter_byperusahaan_all', 'DashboardController@getPerimeterbyPerusahaanAll');
     Route::get('/dashboard/perimeter_bykategori_all', 'DashboardController@getPerimeterbyKategoriAll');
     Route::get('/dashboard/region_byperusahaan/{kd_perusahaan}', 'DashboardController@getRegionbyPerusahaanbyID');
     Route::get('/dashboard/perimeter_byperusahaan_byregion/{kd_perusahaan}/{id_region}', 'DashboardController@getListPerimeter_byPerusahaanbyRegion');
@@ -536,7 +534,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/dashboard/cosmic_index_report', 'DashboardController@getCosmicIndexReport');
     Route::get('/dashboard/cosmic_index_report_average', 'DashboardController@getCosmicIndexReportAverage');
     Route::post('/dashboard/agregasi_data_pegawai/add', 'DashboardController@addAgregasiData');
-	  Route::get('/dashboard/cosmic_index_detaillist/download/{kd_perusahaan}', 'DashboardController@getDownloadCosmicIndexListbyCompany');
+	Route::get('/dashboard/cosmic_index_detaillist/download/{kd_perusahaan}', 'DashboardController@getDownloadCosmicIndexListbyCompany');
     Route::get('/dashreport/mobileall_byjns/{id}', 'ReportController@getDashReportMobileByJns');
     Route::get('/dashreport/card_bymcid/{id}', 'ReportController@getDashReportCardByMcid');
     Route::get('/dashreport/all_card_byjns/{id}', 'ReportController@getDashReportCardByJns');
