@@ -408,6 +408,13 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 });
 
 $router->group(['prefix' => 'api/v2'], function () use ($router) {
+    Route::get('/product/list_pengajuan_atestasi/{id_produk}', 'ProductController@getPengajuanAtestasi');
+    Route::get('/product/layanan_produk', 'ProductController@getLayananProduk');
+    Route::post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
+    Route::post('/product/add_pengajuan_layanan/{id_produk}', 'ProductController@addPengajuanLayanan');
+    Route::post('/product/add_pelaporan_mandiri/{id_produk}', 'ProductController@addPelaporanMandiri');
+    
+    
     Route::post('/user/reset_password', 'UserController@postResetPassword');
     Route::get('/company', 'MasterController@getAllCompany');
     Route::post('/user/cek_user', 'UserController@postCekUser');
