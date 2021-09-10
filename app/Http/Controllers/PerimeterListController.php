@@ -796,6 +796,7 @@ class PerimeterListController extends Controller
             $str_fnc[]=$nik;
         }
         //dd($str_fnc);
+        if(env('APP_ENV')=="dev"){
         $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 30 * 60, function()use($kd_perusahaan,$nik,$user,$role_id) {
 
 
@@ -845,7 +846,58 @@ class PerimeterListController extends Controller
             return $data;
 
         });
+
         return ($datacache);
+
+      }else{
+
+          
+            $data = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
+
+            $perimeter = new TmpPerimeterList;
+            //test pindah ke master
+            $perimeter->setConnection('pgsql4');
+            
+            $perimeter = $perimeter->select('id_perimeter')
+            ->where(DB::raw('coalesce(lockdown, false)'),FALSE); 
+
+            if(isset($nik) && ($user != null)) {
+                $role_id = $user->roles()->first()->id;
+                if ($role_id == 3) {
+                    $perimeter = $perimeter->where('nik_pic', $nik);
+                } else if ($role_id == 4) {
+                    $perimeter = $perimeter->where('nik_fo', $nik);
+                }
+            }
+
+            $perimeter = $perimeter->where('mc_id', $kd_perusahaan)->get();
+            $totalperimeter = $perimeter->count();
+            $totalpmmonitoring = 0;
+
+            foreach ($perimeter as $itemperimeter) {
+              //$cluster = new TblPerimeterDetail;
+              //$cluster->setConnection('pgsql2');
+              //$cluster = $cluster->where('tpmd_mpml_id', $itemperimeter->mpml_id)->where('tpmd_cek', true)->count();
+              //$status = $this->getStatusMonitoring($itemperimeter->mpml_id, $role_id, $cluster);
+
+                if (($role_id==3?$itemperimeter->status_pic:$itemperimeter->status_fo)== true) {
+                    $totalpmmonitoring++;
+                }
+            }
+
+            //dashboard
+            $data= array(
+                "total_perimeter" => $totalperimeter,
+                "sudah_dimonitor" => $totalpmmonitoring,
+                "belum_dimonitor" => $totalperimeter - $totalpmmonitoring
+            );
+
+            return $data;
+
+        
+      }
+        
+      
 
     }
 
