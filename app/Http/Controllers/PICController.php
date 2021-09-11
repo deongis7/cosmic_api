@@ -641,7 +641,7 @@ class PICController extends Controller{
 	public function getAktifitasbyCluster($nik,$id_perimeter_cluster){
 		$str = 'get_aktifitas_'.$nik.$id_perimeter_cluster;
 		/*$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 0 * 10, function () use($nik,$id_perimeter_cluster) {*/
-        $datacache =Cache::remember(env('APP_ENV', 'prod').$str, 0 * 10, function()use($nik,$id_perimeter_cluster) {    
+        /*$datacache =Cache::remember(env('APP_ENV', 'prod').$str, 0 * 10, function()use($nik,$id_perimeter_cluster) {    */
 		$user = User::where('username',$nik)->first();
 		$data = array();
 
@@ -695,14 +695,13 @@ class PICController extends Controller{
 			return array('status' => 200,'data' => $data);
 		}
 
-	  });
+	  // });
 
-        if($datacache){
-            // Cache::tags([$str])->flush();
-	       return response()->json($datacache);
+        /*if($datacache){
+           return response()->json($datacache);
         }else{
             return response()->json(['status' => 200,'data' => "No Data!"]);
-        }
+        }*/
 	}
 
 	//Get Cluster per Perimeter Level
