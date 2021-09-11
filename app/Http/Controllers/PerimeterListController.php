@@ -274,10 +274,11 @@ class PerimeterListController extends Controller
                 $perimeter = $perimeter->where('temp_parameter_list.mc_id', $kd_perusahaan);
 
                 if($lockdown!=null) {
-                    if($lockdown=0){
+                    if($lockdown==0){
                       $perimeter = $perimeter->where(DB::raw('coalesce(temp_parameter_list.lockdown, false)'),FALSE);
+
                     }else{
-                      $perimeter = $perimeter->where(DB::raw('coalesce(temp_parameter_list.lockdown, true)'),TRUE);
+                      $perimeter = $perimeter->where(DB::raw('coalesce(temp_parameter_list.lockdown, false)'),TRUE);
                     }
                 }
 
