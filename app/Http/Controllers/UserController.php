@@ -508,8 +508,8 @@ class UserController extends Controller
         }else{*/
             $id_perimeter_cluster = $request->id_perimeter_cluster;
             $id_konfig_cluster_aktifitas = $request->id_konfig_cluster_aktifitas;
-            $weeks = AppHelper::Weeks();
-
+            $weeks = AppHelper::Months();
+            // dd($weeks);
             $trn_aktifitas= TrnAktifitas::where('ta_tpmd_id',$id_perimeter_cluster)
                 ->where('ta_kcar_id',$id_konfig_cluster_aktifitas)
                 ->where('ta_week',$weeks['weeks'])->first();
