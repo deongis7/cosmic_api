@@ -301,10 +301,10 @@ class PICController extends Controller{
 	
 		$cluster = DB::connection('pgsql2')->select( "select  kc.kcar_id, kc.kcar_mcr_id, kc.kcar_ag_id, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from konfigurasi_car kc
     		join  master_cluster_ruangan mcr on kc.kcar_mcr_id = mcr.mcr_id
-    		join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
+    		join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id
     		left join transaksi_aktifitas ta on  ta.ta_kcar_id = kc.kcar_id and (ta.ta_date >= ? and ta.ta_date <= ? ) and ta.ta_tpmd_id = ?
-    		where  kc.kcar_mcr_id = ? and kc.kcar_ag_id = 4
-    		order by mcar.mcar_name asc", [ $startdate, $enddate,$id_perimeter_cluster,$id_cluster]);
+    		where  kc.kcar_mcr_id = ? and kc.kcar_ag_id = 4 and mcar.mcar_active=true
+    		/*order by mcar.mcar_name asc*/", [ $startdate, $enddate,$id_perimeter_cluster,$id_cluster]);
 
 		foreach($cluster as $itemcluster){
 			$data[] = array(
@@ -708,7 +708,7 @@ class PICController extends Controller{
 		$string = "_perimeter_in_aktifitas_by_".$id_perimeter_level;
 		$data = array();
        	// $datacache =Cache::remember(env('APP_ENV', 'prod')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level, $user, $dataprogress, $data) {
-       	$datacache = Cache::tags(['_perimeter_in_aktifitas_by_x'.$id_perimeter_level])->remember(env('APP_ENV', 'prod').$string, 60, function () use($id_perimeter_level, $user, $dataprogress, $data) {
+       	$datacache = Cache::tags(['_perimeter_in_aktifitas_by_x'.$id_perimeter_level])->remember(env('APP_ENV', 'prod').$string, 100 * 60, function () use($id_perimeter_level, $user, $dataprogress, $data) {
 
             if ($user != null){
     			$role_id = $user->roles()->first()->id;
