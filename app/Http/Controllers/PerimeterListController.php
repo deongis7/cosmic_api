@@ -173,7 +173,7 @@ class PerimeterListController extends Controller
         $monitoring = $request->monitoring;
 
         $nik = $request->nik;
-        $str = "_get_perimeterlist_by_perusahaan_xx". $kd_perusahaan;
+        $str = "_get_perimeterlist_by_perusahaan_". $kd_perusahaan;
 
         if(isset($nik)){
             $str = $str.'_nik_'. $nik;
@@ -218,10 +218,6 @@ class PerimeterListController extends Controller
         $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 10*60, function()use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown) {
-
-          /*$datacache = Cache::tags(['cosmic_index21'])->remember(env('APP_ENV', 'prod').$str, 10*60,   function () use($kd_perusahaan,
-           $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
-           $search,$column,$sort,$lockdown){*/
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
