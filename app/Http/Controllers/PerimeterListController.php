@@ -342,7 +342,7 @@ class PerimeterListController extends Controller
 
     }else{
 
-    $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 10*60, function()use($kd_perusahaan,
+    $datacache = Cache::remember(env('APP_ENV', 'dev').$str, 360 * 60, function()use($kd_perusahaan,
            $nik,$user,$role_id,$limit,$page,$monitoring,$endpage,
            $search,$column,$sort,$lockdown) {
                $data = array();
