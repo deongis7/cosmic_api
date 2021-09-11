@@ -648,14 +648,25 @@ class PICController extends Controller{
 			$startdate = $weeks['startmonth'];
 			$enddate = $weeks['endmonth'];
 			
-			$aktifitas = DB::connection('pgsql3')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from  table_perimeter_detail tpd
+			/*$aktifitas = DB::connection('pgsql3')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from  table_perimeter_detail tpd
             join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
             join konfigurasi_car kc on kc.kcar_mcr_id = mcr.mcr_id
-            join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id
+            join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
             left join transaksi_aktifitas ta on tpd.tpmd_id = ta.ta_tpmd_id and ta.ta_kcar_id = kc.kcar_id and (ta.ta_date >= ? and ta.ta_date <= ? )
-            where tpd.tpmd_cek=true and tpd.tpmd_id = ? and kc.kcar_ag_id = 4 and mcar.mcar_active=true
-            order by mcr.mcr_name asc,tpd.tpmd_order asc, mcar.mcar_name asc", [$startdate,$enddate,$id_perimeter_cluster]);
+            where tpd.tpmd_cek=true and tpd.tpmd_id = ? and kc.kcar_ag_id = 4
+            order by mcr.mcr_name asc,tpd.tpmd_order asc, mcar.mcar_name asc", [$startdate,$enddate,$id_perimeter_cluster]);*/
 			
+            $aktifitas = DB::connection('pgsql3')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak 
+                from  table_perimeter_detail tpd
+            join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
+            join konfigurasi_car kc on kc.kcar_mcr_id = mcr.mcr_id
+            join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
+            left join 
+            (select ta_id, ta_ket_tolak, ta_tpmd_id, ta_kcar_id, ta_date, ta_status from transaksi_aktifitas where (ta_date >= ? and ta_date <= ?)) ta
+             on (tpd.tpmd_id = ta.ta_tpmd_id  and ta_kcar_id = kc.kcar_id)
+            where tpd.tpmd_cek=true and tpd.tpmd_id = ? and kc.kcar_ag_id = 4
+            order by mcr.mcr_name asc,tpd.tpmd_order asc, mcar.mcar_name asc", [$startdate,$enddate,$id_perimeter_cluster]);
+
 			foreach($aktifitas as $itemaktifitas){
 				$data_monitoring = array();
 				$data_monitoring = $this->getDataMonitoring($itemaktifitas->ta_id,$role_id,$nik,$user->mc_id);
