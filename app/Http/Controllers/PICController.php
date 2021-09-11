@@ -691,7 +691,7 @@ class PICController extends Controller{
 		$string = "_perimeter_in_aktifitas_by_".$id_perimeter_level;
 		$data = array();
        	// $datacache =Cache::remember(env('APP_ENV', 'prod')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 5 * 60, function()use($id_perimeter_level, $user, $dataprogress, $data) {
-       	$datacache = Cache::tags(['_perimeter_in_aktifitas_by_'.$id_perimeter_level])->remember(env('APP_ENV', 'prod').$string, 60, function () use($id_perimeter_level, $user, $dataprogress, $data) {
+       	$datacache = Cache::tags(['_perimeter_in_aktifitas_by_x'.$id_perimeter_level])->remember(env('APP_ENV', 'prod').$string, 60, function () use($id_perimeter_level, $user, $dataprogress, $data) {
 
             if ($user != null){
     			$role_id = $user->roles()->first()->id;
