@@ -635,7 +635,7 @@ class PICController extends Controller{
 	//Get Cluster per Perimeter Level
 	public function getAktifitasbyCluster($nik,$id_perimeter_cluster){
 		$str = 'get_aktifitas_x'.$nik.$id_perimeter_cluster;
-		 $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 0 * 10, function () use($nik,$id_perimeter_cluster) {
+		$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 0 * 10, function () use($nik,$id_perimeter_cluster) {
 		$user = User::where('username',$nik)->first();
 		$data = array();
 
@@ -651,9 +651,9 @@ class PICController extends Controller{
 			$aktifitas = DB::connection('pgsql3')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from  table_perimeter_detail tpd
             join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
             join konfigurasi_car kc on kc.kcar_mcr_id = mcr.mcr_id
-            join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
+            join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id
             left join transaksi_aktifitas ta on tpd.tpmd_id = ta.ta_tpmd_id and ta.ta_kcar_id = kc.kcar_id and (ta.ta_date >= ? and ta.ta_date <= ? )
-            where tpd.tpmd_cek=true and tpd.tpmd_id = ? and kc.kcar_ag_id = 4
+            where tpd.tpmd_cek=true and tpd.tpmd_id = ? and kc.kcar_ag_id = 4 and mcar.mcar_active=true
             order by mcr.mcr_name asc,tpd.tpmd_order asc, mcar.mcar_name asc", [$startdate,$enddate,$id_perimeter_cluster]);
 			
 			foreach($aktifitas as $itemaktifitas){
