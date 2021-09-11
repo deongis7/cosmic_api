@@ -503,7 +503,7 @@ class PerimeterListController extends Controller
         $column = null;
         $sort = null;
         $nik = $request->nik;
-        $str = "_get_perimeterlevellist_by_perimeter_". $id_perimeter;
+        $str = "_get_perimeterlevellist_by_perimeter_xx". $id_perimeter;
 
         if(isset($nik)){
             $str = $str.'_nik_'. $nik;
@@ -537,7 +537,7 @@ class PerimeterListController extends Controller
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
             $perimeter = new Perimeter;
-            $perimeter->setConnection('pgsql');
+            $perimeter->setConnection('pgsql3');
 
             $perimeter = $perimeter->select( "master_perimeter.mpm_id", "master_perimeter_level.mpml_id", "master_perimeter_level.mpml_name","master_perimeter.mpm_name",
                         "master_perimeter_level.mpml_ket", "userpic.username as nik_pic", "userpic.first_name as pic", "userfo.username as nik_fo","master_perimeter.mpm_gmap",
