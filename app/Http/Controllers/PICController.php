@@ -720,11 +720,11 @@ class PICController extends Controller{
                     from master_perimeter_level mpl
                     join master_perimeter mpm on mpm.mpm_id = mpl.mpml_mpm_id
                     join master_perimeter_kategori mpk on mpk.mpmk_id = mpm.mpm_mpmk_id
-                    join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id and tpd.tpmd_cek=true
+                    join table_perimeter_detail tpd on tpd.tpmd_mpml_id = mpl.mpml_id
                     join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
                     left join table_status_perimeter tsp on tsp.tbsp_tpmd_id=tpd.tpmd_id
-                    where mpl.mpml_id = ?
-                    order by mpm.mpm_name asc,mpl.mpml_name asc, mcr.mcr_name asc, tpmd_order asc", [$id_perimeter_level]);
+                    where mpl.mpml_id = ? and tpd.tpmd_cek=true
+                    /*order by mpm.mpm_name asc,mpl.mpml_name asc, mcr.mcr_name asc, tpmd_order asc*/", [$id_perimeter_level]);
                 $total_monitoring = 0;
                 $jml_monitoring = 0;
                 
