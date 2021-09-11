@@ -528,7 +528,7 @@ class PerimeterListController extends Controller
         }
         //dd($str);
         //dd($str_fnc);
-        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 1 * 5, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search,$column,$sort) {
+        $datacache = Cache::remember(env('APP_ENV', 'prod').$str, 360 * 60, function()use($id_perimeter,$nik,$user,$role_id,$limit,$page,$endpage,$search,$column,$sort) {
 
             $data = array();
             $dashboard = array("total_perimeter" => 0, "sudah_dimonitor" => 0, "belum_dimonitor" => 0,);
