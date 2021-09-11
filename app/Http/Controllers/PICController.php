@@ -662,7 +662,7 @@ class PICController extends Controller{
             where tpd.tpmd_cek=true and tpd.tpmd_id = ? and kc.kcar_ag_id = 4
             order by mcr.mcr_name asc,tpd.tpmd_order asc, mcar.mcar_name asc", [$startdate,$enddate,$id_perimeter_cluster]);*/
 			
-            $aktifitas = DB::connection('pgsql')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak 
+            $aktifitas = DB::connection('pgsql3')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak 
                 from  table_perimeter_detail tpd
             join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
             join konfigurasi_car kc on kc.kcar_mcr_id = mcr.mcr_id
@@ -688,12 +688,12 @@ class PICController extends Controller{
 					"monitoring" => $data_monitoring,
 				);
 			}
-			//return response()->json(['status' => 200,'data' => $data]);
-			return array('status' => 200,'data' => $data);
+			// return array('status' => 200,'data' => $data);
 		} else {
 			//return response()->json(['status' => 200,'data' => $data]);
-			return array('status' => 200,'data' => $data);
+			// return array('status' => 200,'data' => $data);
 		}
+		return response()->json(['status' => 200,'data' => $data]);
 
 	  // });
 
