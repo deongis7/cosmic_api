@@ -512,19 +512,25 @@ class PICController extends Controller{
 		$startdate = $weeks['startmonth'];
 		$enddate = $weeks['endmonth'];
 
-		$clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id,kc.kcar_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,ta.ta_id,taf.taf_id,taf.taf_file ,taf.taf_file_tumb , taf.taf_date from transaksi_aktifitas_file taf
+		/*$clustertrans = DB::connection('pgsql3')->select( "select tpd.tpmd_id,kc.kcar_id, tpd.tpmd_mpml_id, tpd.tpmd_mcr_id,ta.ta_id,taf.taf_id,taf.taf_file ,taf.taf_file_tumb , taf.taf_date from transaksi_aktifitas_file taf
     		join transaksi_aktifitas ta on ta.ta_id = taf.taf_ta_id
     		join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id
     		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
     		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
     		where ta.ta_id = ?  and ta.ta_status <> 2 and tpd.tpmd_cek = true
-    		/*order by  ta.ta_id desc*/ limit 2", [$id_aktifitas]);
+    		order by  ta.ta_id desc limit 2", [$id_aktifitas]);*/
+
+        $clustertrans = DB::connection('pgsql3')->select( "select ta.ta_id,taf.taf_id,taf.taf_file ,taf.taf_file_tumb , taf.taf_date from transaksi_aktifitas_file taf
+            join transaksi_aktifitas ta on ta.ta_id = taf.taf_ta_id
+            join table_perimeter_detail tpd on tpd.tpmd_id = ta.ta_tpmd_id
+            where ta.ta_id = ?  and ta.ta_status <> 2 and tpd.tpmd_cek = true
+            limit 2", [$id_aktifitas]);
 
         foreach ($clustertrans as $itemclustertrans){
             $data[] = array(
     			"nomor" => $i,
-    			"id_perimeter_cluster" => $itemclustertrans->tpmd_id,
-    			"id_konfig_cluster_aktifitas" => $itemclustertrans->kcar_id,
+    			"id_perimeter_cluster" => "",
+    			"id_konfig_cluster_aktifitas" => "",
     			"id_aktifitas" => $itemclustertrans->ta_id,
     			"id_file" => $itemclustertrans->taf_id,
     			"file" => "/aktifitas/".$mc_id."/".$itemclustertrans->taf_date."/".$itemclustertrans->taf_file,
