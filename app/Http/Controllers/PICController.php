@@ -518,7 +518,7 @@ class PICController extends Controller{
     		join master_perimeter_level mpl on mpl.mpml_id = tpd.tpmd_mpml_id
     		join konfigurasi_car kc on kc.kcar_id = ta.ta_kcar_id
     		where ta.ta_id = ?  and ta.ta_status <> 2 and tpd.tpmd_cek = true
-    		order by  ta.ta_id desc limit 2", [$id_aktifitas]);
+    		/*order by  ta.ta_id desc*/ limit 2", [$id_aktifitas]);
 
         foreach ($clustertrans as $itemclustertrans){
             $data[] = array(
