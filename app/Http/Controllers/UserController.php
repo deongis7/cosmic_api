@@ -503,9 +503,9 @@ class UserController extends Controller
             'status' => 'required',
         ]);
 
-        if(date('w')==6 OR date('w')==7){
+        /*if(date('w')==6 OR date('w')==7){
             return response()->json(['status' => 200,'message' => 'Mohon maaf, untuk monitoring hanya bisa dilakukan di hari Senin - Jumat']);
-        }else{
+        }else{*/
             $id_perimeter_cluster = $request->id_perimeter_cluster;
             $id_konfig_cluster_aktifitas = $request->id_konfig_cluster_aktifitas;
             $weeks = AppHelper::Weeks();
@@ -550,6 +550,6 @@ class UserController extends Controller
             } else {
                 return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
             }
-        }
+       // }
     }
 }
