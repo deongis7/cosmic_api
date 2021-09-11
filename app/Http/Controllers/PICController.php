@@ -106,7 +106,6 @@ class PICController extends Controller{
             $image1 = $img1[1];
             $filedecode1 = base64_decode($image1);
 
-
             Image::make($filedecode1)->resize(700, NULL, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath.'/'.$name1);
@@ -636,7 +635,8 @@ class PICController extends Controller{
 	//Get Cluster per Perimeter Level
 	public function getAktifitasbyCluster($nik,$id_perimeter_cluster){
 		$str = 'get_aktifitas_'.$nik.$id_perimeter_cluster;
-		 $datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 0 * 10, function () use($nik,$id_perimeter_cluster) {
+		/*$datacache = Cache::tags([$str])->remember(env('APP_ENV', 'prod').$str, 0 * 10, function () use($nik,$id_perimeter_cluster) {*/
+        $datacache =Cache::remember(env('APP_ENV', 'prod').$str, 10 * 60, function()use($nik,$id_perimeter_cluster) {    
 		$user = User::where('username',$nik)->first();
 		$data = array();
 
@@ -649,7 +649,7 @@ class PICController extends Controller{
 			$startdate = $weeks['startmonth'];
 			$enddate = $weeks['endmonth'];
 			
-			$aktifitas = DB::connection('pgsql2')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from  table_perimeter_detail tpd
+			$aktifitas = DB::connection('pgsql3')->select( "select tpd.tpmd_id,kc.kcar_id,kc.kcar_mcar_id, mcr.mcr_name,tpd.tpmd_order, mcar.mcar_name,ta.ta_id,ta.ta_status,ta.ta_ket_tolak from  table_perimeter_detail tpd
 			join master_cluster_ruangan mcr on mcr.mcr_id = tpd.tpmd_mcr_id
 			join konfigurasi_car kc on kc.kcar_mcr_id = mcr.mcr_id
 			join master_car mcar on mcar.mcar_id =kc.kcar_mcar_id and mcar.mcar_active=true
@@ -680,7 +680,7 @@ class PICController extends Controller{
 		}
 
 	  });
-		Cache::tags([$str])->flush();
+		// Cache::tags([$str])->flush();
 	    return response()->json($datacache);
 	}
 
