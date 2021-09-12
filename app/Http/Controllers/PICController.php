@@ -522,7 +522,7 @@ class PICController extends Controller{
 
         $clustertrans = DB::connection('pgsql3')->select( "select ta.ta_id,taf.taf_id,taf.taf_file ,taf.taf_file_tumb , taf.taf_date from transaksi_aktifitas_file taf
             join transaksi_aktifitas ta on ta.ta_id = taf.taf_ta_id
-            where ta.ta_id = ?  and ta.ta_status <> 2 
+            where ta.ta_id = ?   
             limit 2", [$id_aktifitas]);
 
         foreach ($clustertrans as $itemclustertrans){
