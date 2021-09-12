@@ -320,7 +320,7 @@ class UserController extends Controller
           'kd_perusahaan' => 'required',
         ]);
         $user= new User();
-        $user->setConnection('pgsql3');
+        $user->setConnection('pgsql');
         $user = $user->whereRaw("trim(lower(username))='". trim(strtolower($request->username))."'")->first();
         
         if($user != null){
@@ -503,13 +503,13 @@ class UserController extends Controller
             'status' => 'required',
         ]);
 
-        if(date('w')==6 OR date('w')==7){
+        /*if(date('w')==6 OR date('w')==7){
             return response()->json(['status' => 200,'message' => 'Mohon maaf, untuk monitoring hanya bisa dilakukan di hari Senin - Jumat']);
-        }else{
+        }else{*/
             $id_perimeter_cluster = $request->id_perimeter_cluster;
             $id_konfig_cluster_aktifitas = $request->id_konfig_cluster_aktifitas;
-            $weeks = AppHelper::Weeks();
-
+            $weeks = AppHelper::Months();
+            // dd($weeks);
             $trn_aktifitas= TrnAktifitas::where('ta_tpmd_id',$id_perimeter_cluster)
                 ->where('ta_kcar_id',$id_konfig_cluster_aktifitas)
                 ->where('ta_week',$weeks['weeks'])->first();
@@ -550,6 +550,6 @@ class UserController extends Controller
             } else {
                 return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
             }
-        }
+       // }
     }
 }
