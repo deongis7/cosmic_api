@@ -575,7 +575,9 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/kriteria_orang', 'MasterController@getKriteriaOrang');
     Route::get('/fasilitas_rumah', 'MasterController@getFasilitasRumah');
     Route::post('/perimeter_level/add_file', 'PICController@addFilePerimeterLevel');
-
+    Route::post('/report/survei_kepuasan', 'ReportController@postSurveiKepuasan');
+    Route::post('/report/data_wfh/add', 'ReportController@postDataWFHWFO');
+    Route::get('/report/data_wfh/{mc_id}', 'ReportController@getDataWFHWFOByPerusahaan');
 
     Route::get('/rumah_singgah', 'RumahSinggahController@getListRumahSinggah');
     Route::get('/rumah_singgah/provinsi', 'RumahSinggahController@getGroupRumahSinggahByProv');
