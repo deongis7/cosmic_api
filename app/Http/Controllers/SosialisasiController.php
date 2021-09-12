@@ -69,7 +69,7 @@ class SosialisasiController extends Controller {
 
         $cntsosialisasiall = count($sosialisasiall);
         $pageend = ceil($cntsosialisasiall/$row);
-
+        $ppkm_head1 = false;
         if (count($sosialisasi) > 0){
             $ppkm_headx = 0;
             $ppkm_head1 = false;
