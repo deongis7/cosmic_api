@@ -711,7 +711,7 @@ class PICController extends Controller{
 		$dataprogress = array("total_monitor"=> 0,"sudah_dimonitor"=>0,"belum_dimonitor"=>0);
 		$string = "_perimeter_in_aktifitas_by_".$id_perimeter_level;
 		$data = array();
-       	 $datacache =Cache::remember(env('APP_ENV', 'prod')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 1 * 60, function()use($id_perimeter_level, $user, $dataprogress, $data) {
+       	 // $datacache =Cache::remember(env('APP_ENV', 'prod')."_perimeter_in_aktifitas_by_". $id_perimeter_level, 1 * 60, function()use($id_perimeter_level, $user, $dataprogress, $data) {
        	/*$datacache = Cache::tags(['_perimeter_in_aktifitas_by_x'.$id_perimeter_level])->remember(env('APP_ENV', 'prod').$string, 0 * 60, function () use($id_perimeter_level, $user, $dataprogress, $data) {*/
 
             if ($user != null){
@@ -772,9 +772,9 @@ class PICController extends Controller{
 				// return response()->json(['status_monitoring' => $dataprogress,'status' => 200,'data' => $data]);
 				return array('status_monitoring' => $dataprogress,'status' => 200,'data' => $data);
 			}
-        });
+        // });
         // Cache::tags(['_perimeter_in_aktifitas_by_'.$id_perimeter_level])->flush();
-        return response()->json($datacache);
+        // return response()->json($datacache);
 	}
 
 	//Get ID
