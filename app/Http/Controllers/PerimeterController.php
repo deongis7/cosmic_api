@@ -962,7 +962,6 @@ class PerimeterController extends Controller
 	                "id" => $exec->z_id,
 	                "judul" => $exec->er_judul,
 	                "desc" => $exec->er_desc,
-	                "color" => $exec->er_color,
 	                "persen" => $exec->er_bobot,
 	                "date_update" => $exec->v_date_update,
 	                "update_every" => 'Data Cosmic Index diupdate setiap 6 Jam Sekali'
