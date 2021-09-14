@@ -2019,4 +2019,80 @@ class DashboardController extends Controller
             return response()->json(['status' => 404,'message' => 'Data Tidak Ditemukan'])->setStatusCode(404);
         }
     }
+    
+    public function getReadinessIndexbyCompanyAndDate($kd_perusahaan,Request $request){
+        $str = '_get_readiness_index2_'.$kd_perusahaan;
+        $mc_id = $kd_perusahaan;
+        
+        if(isset($request->date)){
+            $strdate =  Carbon::parse($request->date);
+            $startdate = $strdate->startOfMonth()->format('Y-m-d');
+            $enddate = $strdate->endOfMonth()->format('Y-m-d');
+            $str = $str."_".$startdate."_".$enddate;
+        } else {
+            $crweeks = AppHelper::Months();
+            $startdate = $crweeks['startmonth'];
+            $enddate = $crweeks['endmonth'];
+            $str = $str."_".$startdate."_".$enddate;
+        }
+        
+        //$datacache =  Cache::remember(env('APP_ENV', 'prod').$str, 0 * 60, function()use($startdate,$enddate,$mc_id) {
+        $data = array();
+        $weeks = AppHelper::Months();
+        $startdatenow = $weeks['startmonth'];
+        $enddatenow = $weeks['endmonth'];
+        
+        $week = $startdate ."-".$enddate;
+        $weeknow = $startdatenow ."-".$enddatenow;
+        $data=[];
+        $company_id = $mc_id;
+        if ($week==$weeknow){
+            $sql = "SELECT v_mc_id,
+                    v_readiness_index,
+                    v_cosmic_index,
+                    v_wfh_wfo,
+                    v_sosialisasi,
+                    v_kasus,
+                    v_date_insert,
+                    v_date_update
+                    FROM mvt_readiness_index
+                    WHERE v_mc_id =? ";
+      
+            $result =  DB::connection('pgsql3')->select($sql, [(string)$company_id]);
+  
+            foreach ($result as $value) {
+                $data = array(
+                    "week" =>  $week,
+                    "mc_id" => $value->v_mc_id,
+                    "cosmic_index" => $value->v_cosmic_index,
+                    "wfh_wfo" => $value->v_wfh_wfo,
+                    "sosialisasi" => $value->v_sosialisasi,
+                    "kasus" => $value->v_kasus,
+                    "date_update" => $value->v_date_update,
+                    "update_every" => 'Data Cosmic Index diupdate setiap 6 Jam Sekali'
+                );
+            }
+        } else {
+            $rpi =  DB::connection('pgsql3')->select("SELECT *
+                        FROM report_readiness_index rri
+                        WHERE rri_week = ? and rri_mc_id = ?
+                        ORDER BY rri_id LIMIT 1",[(string)$week,(string)$company_id]);
+            
+            foreach($rpi as $itemrpi){
+                $data = array(
+                    "week" =>  $week,
+                    "mc_id" => $itemrpi->rri_mc_id,
+                    "readiness_index" => $itemrpi->rri_readiness_index,
+                    "cosmic_index" => $itemrpi->rri_cosmic_index,
+                    "rri_wfh_wfo" => $itemrpi->rri_wfh_wfo,
+                    "rri_sosialisasi" => $itemrpi->rri_sosialisasi,
+                    "rri_kasus" => $itemrpi->rri_kasus,
+                    "date_update" => $itemrpi->rri_date_update,
+                    "update_every" => $itemrpi->rri_date_update
+                );
+            }
+        }
+        
+        return response()->json(['status' => 200,'data' => $data]);
+    }
 }
