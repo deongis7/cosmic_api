@@ -733,6 +733,7 @@ class PICController extends Controller{
                 $jml_monitoring = 0;
                 
                 foreach($cacheperimeter as $itemperimeter){
+                    
                     $data_aktifitas_cluster = array();
 			        //$aktifitas = new KonfigurasiCAR;
 			        //$aktifitas->setConnection('pgsql2');

@@ -951,7 +951,7 @@ class PerimeterController extends Controller
 	        $data = array();
 	        $execution = DB::select("
                 SELECT *,
-                (SELECT v_date_update::VARCHAR FROM mvt_readiness_index WHERE v_mc_id='$id')
+                (SELECT v_date_update::VARCHAR FROM mvt_readiness_index WHERE v_mc_id='$id') 
                 FROM readiness_index_all_bymcid('$id') a
                 LEFT JOIN execution_readiness er ON er.er_id=a.z_id
                 WHERE z_id NOT IN (10,14)
@@ -964,7 +964,7 @@ class PerimeterController extends Controller
 	                "desc" => $exec->er_desc,
 	                "color" => $exec->er_color,
 	                "persen" => $exec->er_bobot,
-	                "date_update" => $exec->v_update,
+	                "date_update" => $exec->v_date_update,
 	                "update_every" => 'Data Cosmic Index diupdate setiap 6 Jam Sekali'
 	            );
 	        }
