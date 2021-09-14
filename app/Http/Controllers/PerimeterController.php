@@ -964,7 +964,7 @@ class PerimeterController extends Controller
 	                "desc" => $exec->er_desc,
 	                "persen" => $exec->z_readiness_index,
 	                "date_update" => $exec->v_date_update,
-	                "update_every" => 'Data Cosmic Index diupdate setiap 6 Jam Sekali'
+	                "update_every" => 'Data Readiness Index diupdate setiap 6 Jam Sekali'
 	            );
 	        }
 	        return $data;
