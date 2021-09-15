@@ -63,6 +63,7 @@ $router->get('/download/template/{filename}', function ($filename)
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Perimeter
     $router->get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
+    $router->get('/dashboard/readiness_index_detail/{id}', 'PerimeterController@getReadinessIndexbyCompanyAndDate');
 	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
 	$router->get('/perimeter/{id}', 'PerimeterController@getPerimeter');
@@ -599,5 +600,6 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
 
     Route::get('/report/dashboard_pelaporan/{mc_id}', 'ReportController@getDataPelaporanWFHWFOByPerusahaan');
     Route::get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
+    Route::get('/dashboard/readiness_index_detail/{id}', 'PerimeterController@getReadinessIndexbyCompanyAndDate');
 	});
 });
