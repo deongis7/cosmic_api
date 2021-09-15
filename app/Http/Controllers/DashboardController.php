@@ -2020,8 +2020,8 @@ class DashboardController extends Controller
         }
     }
     
-    public function getReadinessIndexbyCompany($kd_perusahaan,Request $request){
-
+    public function getReadinessIndexbyCompany($id,Request $request){
+        $kd_perusahaan = $id;
         $str = '_get_readiness_index2_'.$kd_perusahaan;
         $mc_id = $kd_perusahaan;
         
