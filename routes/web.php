@@ -63,7 +63,7 @@ $router->get('/download/template/{filename}', function ($filename)
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Perimeter
     $router->get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
-    $router->get('/dashboard/readiness_index_detail/{id}', 'DashboardController@getReadinessIndexbyCompanyAndDate');
+    $router->get('/dashboard/readiness/{id}', 'DashboardController@getReadinessIndexbyCompany');
 	
     $router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
@@ -414,6 +414,9 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 });
 
 $router->group(['prefix' => 'api/v2'], function () use ($router) {
+    Route::get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
+    Route::get('/dashboard/readiness/{id}', 'DashboardController@getReadinessIndexbyCompany');
+    
     Route::get('/product/list_pengajuan_atestasi/{id_produk}', 'ProductController@getPengajuanAtestasi');
     Route::get('/product/layanan_produk', 'ProductController@getLayananProduk');
     Route::post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
@@ -600,7 +603,6 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::post('/report/update_json/{id}', 'ReportController@updateReportJSON');
 
     Route::get('/report/dashboard_pelaporan/{mc_id}', 'ReportController@getDataPelaporanWFHWFOByPerusahaan');
-    Route::get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
-    Route::get('/dashboard/readiness_index_detail/{id}', 'DashboardController@getReadinessIndexbyCompanyAndDate');
+
 	});
 });
