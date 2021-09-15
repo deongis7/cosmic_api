@@ -702,7 +702,7 @@ class DashboardController extends Controller
 	        $data = array();
 	        $dashboard_head =  DB::connection('pgsql3')->select("SELECT v_mpt_id, v_mpt_name,
                         CASE WHEN v_tbpt_id > 0 THEN 'Terupload' ELSE 'Belum Terupload' END AS v_upload
-                        FROM protokol_bymc('$id')");
+                        FROM protokol_bymc('$id','')");
 
 	        foreach($dashboard_head as $dh){
 	            $data[] = array(
