@@ -88,6 +88,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//TaskForce
 	$router->get('/taskforce/count/{id}', 'PerimeterController@getCountTaskForce');
 	$router->get('/taskforce/{id}', 'PerimeterController@getTaskForce');
+	$router->get('/taskforce2/{id}', 'PerimeterController@getTaskForce2');
 	$router->get('/taskforce/region/{id}', 'PerimeterController@getTaskForcebyRegion');
 	$router->get('/taskforce/detail/{nik}', 'PerimeterController@getTaskForceDetail');
 	$router->get('/taskforce/detail_user/{nik}', 'PerimeterController@getTaskForceDetailUser');
@@ -481,6 +482,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/kota', 'MasterController@getAllKota');
     Route::get('/kota/{id_provinsi}', 'MasterController@getKotaByProvinsi');
     Route::get('/taskforce/{id}', 'PerimeterController@getTaskForce');
+    Route::get('/taskforce2/{id}', 'PerimeterController@getTaskForce2');
     Route::get('/taskforce/detail/{nik}', 'PerimeterController@getTaskForceDetail');
     Route::get('/taskforce/delete/{nik}', 'PerimeterController@deleteTaskForce');
     Route::get('/taskforce/reset_password/{nik}', 'PerimeterController@resetPasswordTaskForce');

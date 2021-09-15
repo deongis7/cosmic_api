@@ -971,4 +971,102 @@ class PerimeterController extends Controller
 	    });
         return response()->json(['status' => 200,'data' => $datacache]);
 	}
+	
+	public function getTaskForce2($id,Request $request){
+	    $param = [];
+	    $limit = null;
+	    $page = null;
+	    $search = null;
+	    $endpage = 1;
+	    if(isset($request->limit)){
+	        $limit=$request->limit;
+	        if(isset($request->page)){
+	            $page=$request->page;
+	        }
+	    }
+	    if(isset($request->search)){
+	        
+	        $search=$request->search;
+	    }
+	    
+	    $querycache = "_get_taskforce_by_company_id2_". $id;
+	    
+// 	    if(isset($request->id_kota) && $request->id_kota <> 'null'&& $request->id_kota <> ''){
+// 	        $querycache = $querycache ."_kota_". $request->id_kota;
+// 	        $querykota = " and mpm_mkab_id=$request->id_kota";
+// 	    }else{
+// 	        $querykota = " ";
+// 	    }
+	    
+	    $query = "select app.username, app.first_name, app.mc_id, aug.name,
+            (
+            	select case when count(*) > 0 then false else true end AS unassigned  
+            	from master_perimeter_level 
+            	inner join master_perimeter on mpm_id=mpml_mpm_id
+            	inner join master_region on mr_id=mpm_mr_id
+            	where (mpml_pic_nik=app.username  OR mpml_me_nik =app.username)
+            	limit 1
+            ),
+            (
+            	select mr_name 
+            	from master_perimeter_level 
+            	inner join master_perimeter on mpm_id=mpml_mpm_id
+            	inner join master_region on mr_id=mpm_mr_id
+            	where (mpml_pic_nik=app.username OR mpml_me_nik =app.username)
+            	order by mr_id
+            	limit 1
+            ),
+            (
+            	select mr_id
+            	from master_perimeter_level 
+            	inner join master_perimeter on mpm_id=mpml_mpm_id
+            	inner join master_region on mr_id=mpm_mr_id
+            	where (mpml_pic_nik=app.username OR mpml_me_nik =app.username)
+	            order by mr_id
+            	limit 1
+            )
+            from app_users app 
+            join app_users_groups aup on aup.user_id = app.id and (aup.group_id=3 or aup.group_id=4) 
+            join app_groups aug on aup.group_id = aug.id
+            where app.mc_id='$id' ";
+
+	    if(isset($request->id_role)){
+	        $querycache = $querycache ."_role_". $request->id_role;
+	        $query = $query . " and aup.group_id=?";
+	        $param[] = $request->id_role;
+	    } else {
+	        $query = $query . " and (aup.group_id=3 or aup.group_id=4)";
+	    }
+
+	    $jmltotal=count(DB::connection('pgsql3')->select( $query , $param));
+	    
+	    if(isset($limit)) {
+	        $query=$query ." limit ". $limit;
+	        $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+	        
+	        if (isset($page)) {
+	            $offset = ((int)$page -1) * (int)$limit;
+	            $query=$query ." offset ". $offset;
+	            
+	        }
+	    }
+	    
+	    $data = array();
+	    $taskforce = DB::connection('pgsql3')->select( $query , $param);
+	    
+	    foreach($taskforce as $itemtaskforce){
+	        $data[] = array(
+	            "kd_perusahaan" => $itemtaskforce->mc_id,
+	            "kd_region" => $itemtaskforce->mr_id,
+	            "region" => $itemtaskforce->mr_name,
+	            "nik" => $itemtaskforce->username,
+	            "username" => $itemtaskforce->username,
+	            "nama" => $itemtaskforce->first_name,
+	            "role" => $itemtaskforce->name,
+	            "unassigned" => $itemtaskforce->unassigned,
+	        );
+	    }
+	    $data;
+	    return response()->json(['status' => 200,'page_end' => $endpage,'data' => $data]);
+	}
 }
