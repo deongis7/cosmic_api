@@ -60,7 +60,7 @@ $router->get('/download/template/{filename}', function ($filename)
     ]);
 });
 
-$router->group(['prefix' => 'api/v1'], function () use ($router) {
+$router->group(['prefix' => 'api/v1_maintenance'], function () use ($router) {
 	//Perimeter
 	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
@@ -409,7 +409,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	});
 });
 
-$router->group(['prefix' => 'api/v2'], function () use ($router) {
+$router->group(['prefix' => 'api/v2_maintenance'], function () use ($router) {
     Route::get('/product/list_pengajuan_atestasi/{id_produk}', 'ProductController@getPengajuanAtestasi');
     Route::get('/product/layanan_produk', 'ProductController@getLayananProduk');
     Route::post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
