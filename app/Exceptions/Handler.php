@@ -58,21 +58,21 @@ class Handler extends ExceptionHandler
 
 			return response()->json([
 							'status' => '500',
-							//'message' => 'Sedang dilakukan Maintenance. Mohon Login kembali beberapa saat lagi.'
-							'message' => 'Internal Service Error. '.$exception->getMessage()
+							'message' => 'Sedang dilakukan Maintenance. Mohon Login kembali beberapa saat lagi.'
+							// 'message' => 'Internal Service Error. '.$exception->getMessage()
 						])->setStatusCode(500);
 		}
 		if ($exception instanceof NotFoundHttpException) {
 
-			return response()->json([
+			/*return response()->json([
 							'status' => '404',
 							'message' => 'Data Tidak Ditemukan. '
-						])->setStatusCode(404);
+						])->setStatusCode(404);*/
 
-//       return response()->json([
-// 							'status' => '500',
-// 							'message' => 'Sedang dilakukan Maintenance. Mohon Login kembali beberapa saat lagi.'
-// 						])->setStatusCode(500);
+      return response()->json([
+							'status' => '500',
+							'message' => 'Sedang dilakukan Maintenance. Mohon Login kembali beberapa saat lagi.'
+						])->setStatusCode(500);
 
 
 		}
