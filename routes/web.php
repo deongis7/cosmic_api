@@ -345,7 +345,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //User Reset Password
     $router->post('/user/reset_password', 'UserController@postResetPassword');
     $router->post('/user/cek_user', 'UserController@postCekUser');
-
+    
+    $router->get('/report/readiness', 'PerimeterController@getReadinessIndex');
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
 
@@ -597,6 +598,6 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::post('/report/update_json/{id}', 'ReportController@updateReportJSON');
 
     Route::get('/report/dashboard_pelaporan/{mc_id}', 'ReportController@getDataPelaporanWFHWFOByPerusahaan');
-    
+    Route::get('/report/readiness', 'PerimeterController@getReadinessIndex');
 	});
 });
