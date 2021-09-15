@@ -59,15 +59,15 @@ class Handler extends ExceptionHandler
 			return response()->json([
 							'status' => '500',
 							'message' => 'Sedang dilakukan Maintenance. Mohon Login kembali beberapa saat lagi.'
-							// 'message' => 'Internal Service Error. '.$exception->getMessage()
+							//'message' => 'Internal Service Error. '.$exception->getMessage()
 						])->setStatusCode(500);
 		}
 		if ($exception instanceof NotFoundHttpException) {
 
-			/*return response()->json([
-							'status' => '404',
-							'message' => 'Data Tidak Ditemukan. '
-						])->setStatusCode(404);*/
+// 			return response()->json([
+// 							'status' => '404',
+// 							'message' => 'Data Tidak Ditemukan. '
+// 						])->setStatusCode(404);
 
       return response()->json([
 							'status' => '500',
@@ -78,29 +78,29 @@ class Handler extends ExceptionHandler
 		}
     if ($exception instanceof BindingResolutionException) {
 
-      return response()->json([
-              'status' => '404',
-              'message' => 'Data Tidak Ditemukan. '
-            ])->setStatusCode(404);
-
 //       return response()->json([
-//               'status' => '500',
-//               'message' => 'Sedang dilakukan Maintenance. Mohon Login kembali beberapa saat lagi.'
-//             ])->setStatusCode(500);
+//               'status' => '404',
+//               'message' => 'Data Tidak Ditemukan. '
+//             ])->setStatusCode(404);
+
+      return response()->json([
+              'status' => '500',
+              'message' => 'Sedang dilakukan Maintenance. Mohon Login kembali beberapa saat lagi.'
+            ])->setStatusCode(500);
 
 
     }
 		if ($exception instanceof NotReadableException) {
 
-			return response()->json([
-							'status' => '404',
-							'message' => 'Data Tidak Ditemukan. '
-						])->setStatusCode(404);
-			
 // 			return response()->json([
-// 			    'status' => '500',
-// 			    'message' => 'Sedang dilakukan Maintenance. Mohon Login kembali beberapa saat lagi.'
-// 			])->setStatusCode(500);
+// 							'status' => '404',
+// 							'message' => 'Data Tidak Ditemukan. '
+// 						])->setStatusCode(404);
+			
+			return response()->json([
+			    'status' => '500',
+			    'message' => 'Sedang dilakukan Maintenance. Mohon Login kembali beberapa saat lagi.'
+			])->setStatusCode(500);
 		}
 		
 
