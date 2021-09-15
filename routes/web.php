@@ -64,7 +64,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Perimeter
     $router->get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
     $router->get('/dashboard/readiness_index_detail/{id}', 'DashboardController@getReadinessIndexbyCompanyAndDate');
-	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
+	
+    $router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
 	$router->get('/perimeter/{id}', 'PerimeterController@getPerimeter');
 	$router->get('/perimeter/region/{id}', 'PerimeterController@getPerimeterbyRegion');
