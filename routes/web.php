@@ -247,6 +247,7 @@ $router->group(['prefix' => 'api/v1_maintenance'], function () use ($router) {
 	$router->get('/dashboard/perimeter_bykategoriperusahaan/{name}', 'DashboardController@getPerimeter_bykategoriperusahaan');
 	$router->get('/dashboard/perimeter_bykategoriperusahaanProv/{id}', 'DashboardController@getPerimeter_bykategoriperusahaanProv');
 
+	$router->get('/dashboard/readiness_index_detail/{kd_perusahaan}', 'DashboardController@getReadinessIndexbyCompanyAndDate');
 	$router->get('/dashboard/cosmic_index_detail/{kd_perusahaan}', 'DashboardController@getCosmicIndexbyCompanyAndDate');
 	$router->get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
 	$router->get('/dashboard/cosmic_index_detaillist/download/{kd_perusahaan}', 'DashboardController@getDownloadCosmicIndexListbyCompany');
@@ -302,6 +303,7 @@ $router->group(['prefix' => 'api/v1_maintenance'], function () use ($router) {
 
 	//Execution
 	$router->get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
+	$router->get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
 	$router->get('/dashboard/dashboardhead_bumn/{id}', 'DashboardController@getDashboardHeadBUMN');
 	$router->get('/dashboard/dashboardprotokol_bumn/{id}', 'DashboardController@getDashboardProtokolBUMN');
 	$router->get('/dashboard/dashboardmrmpm_bumn/{id}', 'DashboardController@getDashboardMrMpmBUMN');
@@ -486,6 +488,7 @@ $router->group(['prefix' => 'api/v2_maintenance'], function () use ($router) {
 
     Route::get('/detail_profile', 'DashVaksinController@getDetailProfile');
 
+    Route::get('/dashboard/readiness_index_detail/{kd_perusahaan}', 'DashboardController@getReadinessIndexbyCompanyAndDate');
     Route::get('/dashboard/cosmic_index_detail_average/{kd_perusahaan}', 'DashboardController@getAverageCosmicIndexDetailbyCompany');
     Route::get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
     Route::get('/dashboard/cosmic_index_list_average', 'DashboardController@getAverageCosmicIndexList');
@@ -510,6 +513,7 @@ $router->group(['prefix' => 'api/v2_maintenance'], function () use ($router) {
     Route::get('/list_perimeter_report/{kd_perusahaan}', 'PerimeterReportController@getPerimeterList');
     Route::get('/list_perimeter_new/{kd_perusahaan}', 'PerimeterListController@getPerimeterListNew');
     Route::get('/report/execution/{id}', 'PerimeterController@getExecutionReport');
+    Route::get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
 
     Route::get('/sosialisasi/get_bymcid/{id}/{page}', 'SosialisasiController@getDataByMcid');
     Route::get('/sosialisasi/get_byid/{id}', 'SosialisasiController@getDataById');

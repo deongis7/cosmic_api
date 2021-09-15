@@ -552,7 +552,7 @@ class PerimeterController extends Controller
 					"color" => $exec->v_color,
 					"persen" => $exec->v_persen,
 				    "date_update" => $exec->v_update,
-				    "update_every" => 'Data Cosmic Index diupdate setiap 2 Jam Sekali'
+				    "update_every" => 'Data Cosmic Index diupdate setiap 6 Jam Sekali'
 				);
 			}
 			return $data;
@@ -943,5 +943,32 @@ class PerimeterController extends Controller
 	    //return $data;
 	    //});
 	    return response()->json(['status' => 200,'page_end' => $endpage,'data' => $data]);
+	}
+	
+	public function getReadinessIndex($id){
+	    Config::set('database.default', 'pgsql3');
+	    $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_readiness_index_". $id, 0 * 60, function()use($id) {
+	        $data = array();
+	        $execution = DB::select("
+                SELECT *,
+                (SELECT v_date_update::VARCHAR FROM mvt_readiness_index WHERE v_mc_id='$id') 
+                FROM readiness_index_all_bymcid('$id') a
+                LEFT JOIN execution_readiness er ON er.er_id=a.z_id
+                WHERE z_id NOT IN (10,14)
+			");
+	        
+	        foreach($execution as $exec){
+	            $data[] = array(
+	                "id" => $exec->z_id,
+	                "judul" => $exec->er_judul,
+	                "desc" => $exec->er_desc,
+	                "persen" => $exec->z_readiness_index,
+	                "date_update" => $exec->v_date_update,
+	                "update_every" => 'Data Readiness Index diupdate setiap 6 Jam Sekali'
+	            );
+	        }
+	        return $data;
+	    });
+        return response()->json(['status' => 200,'data' => $datacache]);
 	}
 }
