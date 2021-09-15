@@ -985,18 +985,17 @@ class PerimeterController extends Controller
 	        }
 	    }
 	    if(isset($request->search)){
-	        
 	        $search=$request->search;
 	    }
 	    
 	    $querycache = "_get_taskforce_by_company_id2_". $id;
 	    
-// 	    if(isset($request->id_kota) && $request->id_kota <> 'null'&& $request->id_kota <> ''){
-// 	        $querycache = $querycache ."_kota_". $request->id_kota;
-// 	        $querykota = " and mpm_mkab_id=$request->id_kota";
-// 	    }else{
-// 	        $querykota = " ";
-// 	    }
+	    if(isset($request->id_kota) && $request->id_kota <> 'null'&& $request->id_kota <> ''){
+	        $querycache = $querycache ."_kota_". $request->id_kota;
+	        $querykota = " and mpm_mkab_id=$request->id_kota";
+	    }else{
+	        $querykota = " ";
+	    }
 	    
 	    $query = "select app.username, app.first_name, app.mc_id, aug.name,
             (
@@ -1036,6 +1035,13 @@ class PerimeterController extends Controller
 	        $param[] = $request->id_role;
 	    } else {
 	        $query = $query . " and (aup.group_id=3 or aup.group_id=4)";
+	    }
+	    
+	    if(isset($search)) {
+	        $querycache = $querycache.'_searh_'. str_replace(' ','_',$request->search);
+	        $query = $query ." and (lower(TRIM(app.username)) like ? or lower(TRIM(app.first_name)) like ?) ";
+	        $param[] = '%'.strtolower(trim($search)).'%';
+	        $param[] = '%'.strtolower(trim($search)).'%';
 	    }
 
 	    $jmltotal=count(DB::connection('pgsql3')->select( $query , $param));
