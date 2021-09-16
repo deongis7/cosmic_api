@@ -411,21 +411,55 @@ class MasterController extends Controller
         return response()->json(['status' => 200,'data' => $datacache]);
     }
 
+    public function getJenisIndustri(){
+        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_jenis_industri", 360 * 60, function() {
+            $data=[];
+            $mstjenisindustri = MstJenisIndustri::all();
 
-        public function getJenisIndustri(){
-            $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_jenis_industri", 360 * 60, function() {
-                $data=[];
-                $mstjenisindustri = MstJenisIndustri::all();
-
-                foreach($mstjenisindustri as $msj){
-                    $data[] = array(
-                        "id" => $msj->id,
-                        "jenis" => $msj->jenis,
-                        "keterangan" => $msj->keterangan,
-                    );
-                }
-                return $data;
-            });
-            return response()->json(['status' => 200,'data' => $datacache]);
-        }
+            foreach($mstjenisindustri as $msj){
+                $data[] = array(
+                    "id" => $msj->id,
+                    "jenis" => $msj->jenis,
+                    "keterangan" => $msj->keterangan,
+                );
+            }
+            return $data;
+        });
+        return response()->json(['status' => 200,'data' => $datacache]);
+    }
+    
+    public function getJnsIndustri(){
+        $datacache = Cache::remember(env('APP_ENV', 'dev')."_get_jns_industri", 360 * 60, function() {
+            $data=[];
+            $mstjnsindustri = MstJnsIndustri::all();
+            
+            foreach($mstjnsindustri as $msj){
+                $data[] = array(
+                    "id" => $msj->id,
+                    "jenis" => $msj->jenis,
+                    "keterangan" => $msj->keterangan,
+                );
+            }
+            return $data;
+        });
+        return response()->json(['status' => 200,'data' => $datacache]);
+    }
+    
+    public function getMonthList(){
+        $datacache = Cache::remember(env('APP_ENV', 'prod').'_get_monthlist_', 360 * 60, function() {
+            $month =  DB::select("SELECT * FROM list_month()");
+            foreach ($month as $monthitem) {
+                $data[] = array(
+                    "awal" => $monthitem->v_awal ,
+                    "akhir" => $monthitem->v_akhir,
+                    "awal_akhir" => $monthitem->v_awal_akhir,
+                    "tahun" => $monthitem->v_thn,
+                    "bulan" => $monthitem->v_bln,
+                    "bulan_tahun" => date('F Y', strtotime($monthitem->v_awal)),
+                );
+            }
+            return array('status' => 200, 'data' => $data);
+        });
+        return $datacache;
+    }
 }

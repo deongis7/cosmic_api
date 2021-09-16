@@ -214,10 +214,11 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/perimeterkategori', 'MasterController@getKategoriPerimeter');
 	$router->get('/clusterruangan', 'MasterController@getClusterRuangan');
 	$router->get('/weeklist', 'MasterController@getWeekList');
+	$router->get('/monthlist', 'MasterController@getMonthList');
 	$router->get('/fasilitas_rumah', 'MasterController@getFasilitasRumah');
 	$router->get('/kriteria_orang', 'MasterController@getKriteriaOrang');
 	$router->get('/jenis_industri', 'MasterController@getJenisIndustri');
-
+	$router->get('/jns_industri', 'MasterController@getJnsIndustri');
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
 	$router->get('/company/detail/{id}', 'MasterController@getDetailCompany');
@@ -414,6 +415,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 });
 
 $router->group(['prefix' => 'api/v2'], function () use ($router) {
+    Route::get('/jns_industri', 'MasterController@getJnsIndustri');
     Route::get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
     Route::get('/dashboard/readiness/{id}', 'DashboardController@getReadinessIndexbyCompany');
     
@@ -422,7 +424,6 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
     Route::post('/product/add_pengajuan_layanan/{id_produk}', 'ProductController@addPengajuanLayanan');
     Route::post('/product/add_pelaporan_mandiri/{id_produk}', 'ProductController@addPelaporanMandiri');
-    
     
     Route::post('/user/reset_password', 'UserController@postResetPassword');
     Route::get('/company', 'MasterController@getAllCompany');
@@ -481,6 +482,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/clusterruangan', 'MasterController@getClusterRuangan');
     Route::get('/perimeterkategori', 'MasterController@getKategoriPerimeter');
     Route::get('/weeklist', 'MasterController@getWeekList');
+    Route::get('/monthlist', 'MasterController@getMonthList');
     Route::get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
     Route::get('/provinsi', 'MasterController@getAllProvinsi');
     Route::get('/kota', 'MasterController@getAllKota');
