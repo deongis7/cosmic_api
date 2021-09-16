@@ -26,6 +26,7 @@ use App\MstSosialisasiKategori;
 use App\MstFasilitasRumah;
 use App\MstKriteriaOrang;
 use App\MstJenisIndustri;
+use App\MstJnsIndustri;
 use Intervention\Image\ImageManagerStatic as Image;
 
 
