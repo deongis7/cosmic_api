@@ -27,6 +27,6 @@ class PerimeterPedulilindungi extends Model
 	    'mppl_no_hp',
 	    'mppl_user_insert',
 	    'mppl_user_update',
-	    'mppl_flag'
+	    'mppl_qr'
     ];
 }
