@@ -64,7 +64,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	//Perimeter
     $router->get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
     $router->get('/dashboard/readiness/{id}', 'DashboardController@getReadinessIndexbyCompany');
-	
+
     $router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
 	$router->get('/perimeter/{id}', 'PerimeterController@getPerimeter');
@@ -343,13 +343,15 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/report/bymcid/{id}', 'ReportController@getDataByMcid');
     $router->get('/report/picfobymcid/{id}', 'ReportController@getMobilePICFObyMcid');
 
+    $router->get('/download/data_wfh/{kd_perusahaan}/{filename}', 'ReportController@getDownloadFileProtokolWFH');
+    
     $router->get('/dashreport/mobileall_byjns/{id}', 'ReportController@getDashReportMobileByJns');
 
 
     //User Reset Password
     $router->post('/user/reset_password', 'UserController@postResetPassword');
     $router->post('/user/cek_user', 'UserController@postCekUser');
-    
+
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
 
@@ -357,7 +359,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::post('/report/survei_kepuasan', 'ReportController@postSurveiKepuasan');
     Route::post('/report/data_wfh/add', 'ReportController@postDataWFHWFO');
     Route::get('/report/data_wfh/{mc_id}', 'ReportController@getDataWFHWFOByPerusahaan');
-    
+
     Route::get('/report/dashboard_pelaporan/{mc_id}', 'ReportController@getDataPelaporanWFHWFOByPerusahaan');
 
     Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
@@ -418,13 +420,13 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/jns_industri', 'MasterController@getJnsIndustri');
     Route::get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
     Route::get('/dashboard/readiness/{id}', 'DashboardController@getReadinessIndexbyCompany');
-    
+
     Route::get('/product/list_pengajuan_atestasi/{id_produk}', 'ProductController@getPengajuanAtestasi');
     Route::get('/product/layanan_produk', 'ProductController@getLayananProduk');
     Route::post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
     Route::post('/product/add_pengajuan_layanan/{id_produk}', 'ProductController@addPengajuanLayanan');
     Route::post('/product/add_pelaporan_mandiri/{id_produk}', 'ProductController@addPelaporanMandiri');
-    
+
     Route::post('/user/reset_password', 'UserController@postResetPassword');
     Route::get('/company', 'MasterController@getAllCompany');
     Route::post('/user/cek_user', 'UserController@postCekUser');
@@ -578,6 +580,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/sosialisasi/get_perusahaan_all', 'DashboardController@getEventbyPerusahaanAll');
     Route::get('/sosialisasi/total_perusahaan_all', 'DashboardController@countEventbyPerusahaanAll');
     Route::get('/download/sosialisasi/{kd_perusahaan}/{filename}', 'SosialisasiController@getDownloadFileSosialisasi');
+    Route::get('/download/data_wfh/{kd_perusahaan}/{filename}', 'ReportController@getDownloadFileProtokolWFH');
 
     Route::get('/mobiledashvaksin/jmlpegawai', 'DashVaksinController@getDataJmlPegawai');
     Route::get('/mobiledashvaksin/groupbyjnskelamin', 'DashVaksinController@getDashVaksinMobileByJnsKelamin');

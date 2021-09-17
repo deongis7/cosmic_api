@@ -801,10 +801,89 @@ class ReportController extends Controller {
     }
 
     public function getDataWFHWFOByPerusahaan($mc_id) {
-        $data_wfh_wfo = DB::connection('pgsql3')->select("SELECT tw.*, mc.mc_name, mc.mc_id
+        $data_wfh_wfo = DB::connection('pgsql3')->select("SELECT tw.*, mc.mc_name, mc.mc_id, mj.jenis
                 FROM transaksi_wfh_wfo tw
                 LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
+                LEFT JOIN master_jenis_industri mj ON mj.id=tw.tw_jns_industri
                 WHERE tw_mc_id='$mc_id' and tw_bulan = date_part('month', now()) and tw_tahun = date_part('year', now()) order by tw_id desc limit 1");
+
+        if(count($data_wfh_wfo) > 0) {
+            foreach($data_wfh_wfo as $wfh){
+                if($wfh->tw_file_protokol_wfh !=NULL || $wfh->tw_file_protokol_wfh !=''){
+                    if (!file_exists(base_path("storage/app/public/data_wfh_wfo/".$mc_id.'/'.$wfh->tw_file_protokol_wfh))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filewfh1 = $path_file404;
+
+                    }else{
+                        $path_file1 = '/data_wfh_wfo/'.$mc_id.'/'.$wfh->tw_file_protokol_wfh;
+                        $filewfh1 = $path_file1;
+
+                    }
+                }else{
+                    $filewfh1 = '/404/img404.jpg';
+
+                }
+
+                if($wfh->tw_file_jadwal !=NULL || $wfh->tw_file_jadwal !=''){
+                    if (!file_exists(base_path("storage/app/public/data_wfh_wfo/".$mc_id.'/'.$wfh->tw_file_jadwal))) {
+                        $path_file404 = '/404/img404.jpg';
+                        $filewfh2 = $path_file404;
+                    }else{
+                        $path_file2 = '/data_wfh_wfo/'.$mc_id.'/'.$wfh->tw_file_jadwal;
+                        $filewfh2 = $path_file2;
+
+                    }
+                }else{
+                    $filewfh2 = '/404/img404.jpg';
+
+                }
+
+
+                $data = array(
+                    "kd_perusahaan" => $wfh->mc_id,
+                    "tahun" => $wfh->tw_tahun,
+                    "bulan" => $wfh->tw_bulan,
+                    "jml_peg_tetap" => $wfh->tw_jml_peg_tetap,
+                    "jml_peg_kontrak" => $wfh->tw_jml_peg_kontrak,
+                    "jml_peg_alihdaya" => $wfh->tw_jml_peg_alihdaya,
+                    "jml_rata_peg_masuk" => $wfh->tw_jml_rata_peg_masuk,
+                    "jns_industri" =>$wfh->tw_jns_industri,
+                    "nm_jns_industri" =>$wfh->jenis,
+                    "file_protokol_wfh" =>$wfh->tw_file_protokol_wfh,
+                    "file_jadwal" =>$wfh->tw_file_jadwal,
+                    "flag_dok_protokol" =>$wfh->tw_flag_dok_protokol,
+
+                );
+            }
+        }else{
+          $data = array(
+              "kd_perusahaan" => $mc_id,
+              "tahun" => Carbon::now()->year,
+              "bulan" => Carbon::now()->month,
+              "jml_peg_tetap" => 0,
+              "jml_peg_kontrak" => 0,
+              "jml_peg_alihdaya" => 0,
+              "jml_rata_peg_masuk" => 0,
+              "jns_industri" =>0,
+              "nm_jns_industri" =>'',
+              "file_protokol_wfh" =>NULL,
+              "file_jadwal" =>NULL,
+              "flag_dok_protokol" =>false,
+
+          );
+        }
+        return response()->json(['status' => 200,'data' => $data]);
+    }
+
+    public function getDataPelaporanWFHWFOByPerusahaan($mc_id, Request $request) {
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+
+        $data_wfh_wfo = DB::connection('pgsql3')->select("SELECT tw.*, mc.mc_name, mc.mc_id, mj.jenis
+                FROM transaksi_wfh_wfo tw
+                LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
+                LEFT JOIN master_jenis_industri mj ON mj.id=tw.tw_jns_industri
+                WHERE tw_mc_id='$mc_id' and tw_bulan = '$bulan' and tw_tahun = '$tahun' order by tw_id desc limit 1");
 
         if(count($data_wfh_wfo) > 0) {
             foreach($data_wfh_wfo as $wfh){
@@ -872,78 +951,23 @@ class ReportController extends Controller {
         return response()->json(['status' => 200,'data' => $data]);
     }
 
-    public function getDataPelaporanWFHWFOByPerusahaan($mc_id, Request $request) {
-        $bulan = $request->bulan;
-        $tahun = $request->tahun;
+    public function getDownloadFileProtokolWFH($kd_perusahaan,$filename)
+    {
+      //PDF file is stored under project/public/download/info.pdf
+    //$protokol = TblProtokol::where('tbpt_mpt_id',$id_protokol)->where('tbpt_mc_id',$kd_perusahaan)->first();
+      $file= storage_path() . "/app/public/data_wfh_wfo/".$kd_perusahaan."/". $filename;
 
-        $data_wfh_wfo = DB::connection('pgsql3')->select("SELECT tw.*, mc.mc_name, mc.mc_id
-                FROM transaksi_wfh_wfo tw
-                LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
-                WHERE tw_mc_id='$mc_id' and tw_bulan = '$bulan' and tw_tahun = '$tahun' order by tw_id desc limit 1");
+    $headers = [
+            'Content-Type' => 'application/pdf',
+           ];
 
-        if(count($data_wfh_wfo) > 0) {
-            foreach($data_wfh_wfo as $wfh){
-                if($wfh->tw_file_protokol_wfh !=NULL || $wfh->tw_file_protokol_wfh !=''){
-                    if (!file_exists(base_path("storage/app/public/data_wfh_wfo/".$mc_id.'/'.$wfh->tw_file_protokol_wfh))) {
-                        $path_file404 = '/404/img404.jpg';
-                        $filewfh1 = $path_file404;
+    if (!is_file($file)) {
+       return response()->json(['status' => 404,'message' => 'Data Tidak Ada'])->setStatusCode(404);
+      }
+    $response = new BinaryFileResponse($file, 200 , $headers);
 
-                    }else{
-                        $path_file1 = '/data_wfh_wfo/'.$mc_id.'/'.$wfh->tw_file_protokol_wfh;
-                        $filewfh1 = $path_file1;
+    return $response;
+    //return response()->file($file);
 
-                    }
-                }else{
-                    $filewfh1 = '/404/img404.jpg';
-
-                }
-
-                if($wfh->tw_file_jadwal !=NULL || $wfh->tw_file_jadwal !=''){
-                    if (!file_exists(base_path("storage/app/public/data_wfh_wfo/".$mc_id.'/'.$wfh->tw_file_jadwal))) {
-                        $path_file404 = '/404/img404.jpg';
-                        $filewfh2 = $path_file404;
-                    }else{
-                        $path_file2 = '/data_wfh_wfo/'.$mc_id.'/'.$wfh->tw_file_jadwal;
-                        $filewfh2 = $path_file2;
-
-                    }
-                }else{
-                    $filewfh2 = '/404/img404.jpg';
-
-                }
-
-
-                $data = array(
-                    "kd_perusahaan" => $wfh->mc_id,
-                    "tahun" => $wfh->tw_tahun,
-                    "bulan" => $wfh->tw_bulan,
-                    "jml_peg_tetap" => $wfh->tw_jml_peg_tetap,
-                    "jml_peg_kontrak" => $wfh->tw_jml_peg_kontrak,
-                    "jml_peg_alihdaya" => $wfh->tw_jml_peg_alihdaya,
-                    "jml_rata_peg_masuk" => $wfh->tw_jml_rata_peg_masuk,
-                    "jns_industri" =>$wfh->tw_jns_industri,
-                    "file_protokol_wfh" =>$wfh->tw_file_protokol_wfh,
-                    "file_jadwal" =>$wfh->tw_file_jadwal,
-                    "flag_dok_protokol" =>$wfh->tw_flag_dok_protokol,
-
-                );
-            }
-        }else{
-          $data = array(
-              "kd_perusahaan" => $mc_id,
-              "tahun" => Carbon::now()->year,
-              "bulan" => Carbon::now()->month,
-              "jml_peg_tetap" => 0,
-              "jml_peg_kontrak" => 0,
-              "jml_peg_alihdaya" => 0,
-              "jml_rata_peg_masuk" => 0,
-              "jns_industri" =>0,
-              "file_protokol_wfh" =>NULL,
-              "file_jadwal" =>NULL,
-              "flag_dok_protokol" =>false,
-
-          );
-        }
-        return response()->json(['status' => 200,'data' => $data]);
     }
 }
