@@ -801,10 +801,15 @@ class ReportController extends Controller {
     }
 
     public function getDataWFHWFOByPerusahaan($mc_id) {
-        $data_wfh_wfo = DB::connection('pgsql3')->select("SELECT tw.*, mc.mc_name, mc.mc_id
+        $data_wfh_wfo = DB::connection('pgsql3')->select("SELECT tw.*, mc.mc_name, mc.mc_id, mji.jenis,
+                tw.tw_jml_rata_peg_masuk*100/(tw.tw_jml_peg_tetap+tw.tw_jml_peg_kontrak+tw.tw_jml_peg_alihdaya) persen
                 FROM transaksi_wfh_wfo tw
                 LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
-                WHERE tw_mc_id='$mc_id' and tw_bulan = date_part('month', now()) and tw_tahun = date_part('year', now()) order by tw_id desc limit 1");
+                LEFT JOIN master_jns_industri mji ON mji.id=tw.tw_jns_industri
+                WHERE tw_mc_id='$mc_id' 
+                AND tw_bulan = date_part('month', NOW()) 
+                AND tw_tahun = date_part('year', NOW()) 
+                ORDER BY tw_id DESC LIMIT 1");
 
         if(count($data_wfh_wfo) > 0) {
             foreach($data_wfh_wfo as $wfh){
@@ -812,11 +817,9 @@ class ReportController extends Controller {
                     if (!file_exists(base_path("storage/app/public/data_wfh_wfo/".$mc_id.'/'.$wfh->tw_file_protokol_wfh))) {
                         $path_file404 = '/404/img404.jpg';
                         $filewfh1 = $path_file404;
-
                     }else{
                         $path_file1 = '/data_wfh_wfo/'.$mc_id.'/'.$wfh->tw_file_protokol_wfh;
                         $filewfh1 = $path_file1;
-
                     }
                 }else{
                     $filewfh1 = '/404/img404.jpg';
@@ -830,13 +833,10 @@ class ReportController extends Controller {
                     }else{
                         $path_file2 = '/data_wfh_wfo/'.$mc_id.'/'.$wfh->tw_file_jadwal;
                         $filewfh2 = $path_file2;
-
                     }
                 }else{
                     $filewfh2 = '/404/img404.jpg';
-
                 }
-
 
                 $data = array(
                     "kd_perusahaan" => $wfh->mc_id,
@@ -847,10 +847,11 @@ class ReportController extends Controller {
                     "jml_peg_alihdaya" => $wfh->tw_jml_peg_alihdaya,
                     "jml_rata_peg_masuk" => $wfh->tw_jml_rata_peg_masuk,
                     "jns_industri" =>$wfh->tw_jns_industri,
+                    "jns_industri_nama" =>$wfh->jenis,
+                    "persen" =>$wfh->persen,
                     "file_protokol_wfh" =>$wfh->tw_file_protokol_wfh,
                     "file_jadwal" =>$wfh->tw_file_jadwal,
                     "flag_dok_protokol" =>$wfh->tw_flag_dok_protokol,
-
                 );
             }
         }else{
@@ -863,10 +864,11 @@ class ReportController extends Controller {
               "jml_peg_alihdaya" => 0,
               "jml_rata_peg_masuk" => 0,
               "jns_industri" =>0,
+              "jns_industri_nama" =>NULL,
+              "persen" => 0,
               "file_protokol_wfh" =>NULL,
               "file_jadwal" =>NULL,
               "flag_dok_protokol" =>false,
-
           );
         }
         return response()->json(['status' => 200,'data' => $data]);
