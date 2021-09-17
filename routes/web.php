@@ -606,5 +606,6 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/report/dashboard_pelaporan/{mc_id}', 'ReportController@getDataPelaporanWFHWFOByPerusahaan');
     Route::post('/perimeter_pedulilindungi/update/{id}', 'ProductController@updatePerimeterPL');
     Route::post('/perimeter_pedulilindungi/insert', 'ProductController@insertPerimeterPL');
+    Route::post('/product/card_perimeter_pl/{id}', 'ProductController@getCardPerimeterQR');
 	});
 });
