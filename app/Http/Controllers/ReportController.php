@@ -852,6 +852,7 @@ class ReportController extends Controller {
                     "file_protokol_wfh" =>$wfh->tw_file_protokol_wfh,
                     "file_jadwal" =>$wfh->tw_file_jadwal,
                     "flag_dok_protokol" =>$wfh->tw_flag_dok_protokol,
+                    "tgl_submit" =>$wfh->tw_date_insert,
                 );
             }
         }else{
@@ -869,6 +870,7 @@ class ReportController extends Controller {
               "file_protokol_wfh" =>NULL,
               "file_jadwal" =>NULL,
               "flag_dok_protokol" =>false,
+              "tgl_submit" =>NULL,
           );
         }
         return response()->json(['status' => 200,'data' => $data]);
