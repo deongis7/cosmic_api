@@ -588,7 +588,7 @@ class ProductController extends Controller
         $r_no_hp = $request->no_hp;
         $r_email = $request->email;
         
-        $datpl = New PerimeterPedulilindungi::find($id);
+        $datpl = PerimeterPedulilindungi::find($id);
         $datpl->mppl_mc_id = $r_kd_perusahaan;
         $datpl->mppl_name = $r_nama;
         $datpl->mppl_alamat = $r_alamat;
