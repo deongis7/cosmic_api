@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Validator;
 use Carbon\Carbon;
 use Intervention\Image\ImageManagerStatic as Image;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class ReportController extends Controller {
 
     public function __construct() {
@@ -801,7 +802,7 @@ class ReportController extends Controller {
     }
 
     public function getDataWFHWFOByPerusahaan($mc_id) {
-        $data_wfh_wfo = DB::connection('pgsql3')->select("SELECT tw.*, mc.mc_name, mc.mc_id, mj.jenis
+        $data_wfh_wfo = DB::connection('pgsql')->select("SELECT tw.*, mc.mc_name, mc.mc_id, mj.jenis
                 FROM transaksi_wfh_wfo tw
                 LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
                 LEFT JOIN master_jenis_industri mj ON mj.id=tw.tw_jns_industri
@@ -926,6 +927,7 @@ class ReportController extends Controller {
                     "jml_peg_alihdaya" => $wfh->tw_jml_peg_alihdaya,
                     "jml_rata_peg_masuk" => $wfh->tw_jml_rata_peg_masuk,
                     "jns_industri" =>$wfh->tw_jns_industri,
+                    "nm_jns_industri" =>$wfh->jenis,
                     "file_protokol_wfh" =>$wfh->tw_file_protokol_wfh,
                     "file_jadwal" =>$wfh->tw_file_jadwal,
                     "flag_dok_protokol" =>$wfh->tw_flag_dok_protokol,
@@ -942,6 +944,7 @@ class ReportController extends Controller {
               "jml_peg_alihdaya" => 0,
               "jml_rata_peg_masuk" => 0,
               "jns_industri" =>0,
+              "nm_jns_industri" =>'',
               "file_protokol_wfh" =>NULL,
               "file_jadwal" =>NULL,
               "flag_dok_protokol" =>false,
