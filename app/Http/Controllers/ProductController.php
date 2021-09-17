@@ -682,18 +682,16 @@ class ProductController extends Controller
     }
     
     public function getCardPerimeterQR($id){
-        $datacache =  Cache::remember(env('APP_ENV', 'prod')."_get_PerimeterQR", 0 * 60, function() {
-            $data = array();
-            $perimeter_qr = DB::connection('pgsql3')->select("SELECT * 
-                    FROM perimeter_qrpedulilindungi_bymcid('$id')");
-            
-            foreach($perimeter_qr as $qr){
-                $data[] = array(
-                    "v_judul" => $qr->v_judul,
-                    "v_jml" => $qr->v_jml
-                );
-            }
-        });
-        return response()->json(['status' => 200,'data' => $datacache['data']]);
+        $data = array();
+        $perimeter_qr = DB::connection('pgsql3')->select("SELECT * 
+                FROM perimeter_qrpedulilindungi_bymcid('$id')");
+        
+        foreach($perimeter_qr as $qr){
+            $data[] = array(
+                "v_judul" => $qr->v_judul,
+                "v_jml" => $qr->v_jml
+            );
+        }
+        return response()->json(['status' => 200,'data' =>$data]);
     }
 }
