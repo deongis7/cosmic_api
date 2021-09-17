@@ -570,7 +570,7 @@ class ProductController extends Controller
             'kapasitas' => 'required',
             'maps' => 'required',
             'pic' => 'required',
-            'nohp' => 'required',
+            'no_hp' => 'required',
             'email' => 'required',
         ]);
         
