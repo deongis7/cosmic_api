@@ -572,6 +572,7 @@ class ProductController extends Controller
             'pic' => 'required',
             'no_hp' => 'required',
             'email' => 'required',
+            'qr' => 'required',
         ]);
         
         $r_user_id = $request->user_id;
@@ -587,6 +588,7 @@ class ProductController extends Controller
         $r_pic = $request->pic;
         $r_no_hp = $request->no_hp;
         $r_email = $request->email;
+        $r_qr = $request->qr;
         
         $datpl = PerimeterPedulilindungi::find($id);
         $datpl->mppl_mc_id = $r_kd_perusahaan;
@@ -601,6 +603,7 @@ class ProductController extends Controller
         $datpl->mppl_pic = $r_pic;
         $datpl->mppl_no_hp = $r_no_hp;
         $datpl->mppl_email = $r_email;
+        $datpl->mppl_qr = $r_qr;
         $datpl->mppl_date_update = date('Y-m-d H:i:s');
         if(isset($r_user_id)){
             $datpl->mppl_user_update = $r_user_id;
@@ -631,6 +634,7 @@ class ProductController extends Controller
             'pic' => 'required',
             'no_hp' => 'required',
             'email' => 'required',
+            'qr' => 'required',
         ]);
         
         $r_user_id = $request->user_id;
@@ -646,6 +650,7 @@ class ProductController extends Controller
         $r_pic = $request->pic;
         $r_no_hp = $request->no_hp;
         $r_email = $request->email;
+        $r_qr = $request->qr;
         
         $datpl = new PerimeterPedulilindungi();
         $datpl->mppl_mc_id = $r_kd_perusahaan;
@@ -660,6 +665,7 @@ class ProductController extends Controller
         $datpl->mppl_pic = $r_pic;
         $datpl->mppl_no_hp = $r_no_hp;
         $datpl->mppl_email = $r_email;
+        $datpl->mppl_qr = $r_qr;
         $datpl->mppl_date_update = date('Y-m-d H:i:s');
         if(isset($r_user_id)){
             $datpl->mppl_user_update = $r_user_id;
