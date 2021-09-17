@@ -683,7 +683,7 @@ class ProductController extends Controller
     
     public function getCardPerimeterQR($id){
         $data = array();
-        $perimeter_qr = DB::connection('pgsql3')->select("SELECT * 
+        $perimeter_qr = DB::connection('pgsql2')->select("SELECT * 
                 FROM perimeter_qrpedulilindungi_bymcid('$id')");
         
         foreach($perimeter_qr as $qr){
