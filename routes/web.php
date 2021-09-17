@@ -64,6 +64,7 @@ $router->get('/download/template/{filename}', function ($filename)
 });
 
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
+    $router->post('/product/card_perimeter_pl/{id}', 'ProductController@getCardPerimeterQR');
     $router->post('/perimeter_pedulilindungi/update/{id}', 'ProductController@updatePerimeterPL');
     $router->post('/perimeter_pedulilindungi/insert', 'ProductController@insertPerimeterPL');
 	//Perimeter
