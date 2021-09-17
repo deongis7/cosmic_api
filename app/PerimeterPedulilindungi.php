@@ -10,9 +10,9 @@ class PerimeterPedulilindungi extends Model
 {
     protected $table = 'master_perimeter_pl';
 	protected $primaryKey = 'mppl_id';
-	public $timestamps = false;
+	const CREATED_AT = 'mppl_date_insert';
+	const UPDATED_AT = 'mppl_date_update';
 	protected $fillable = [
-        'tpmd_mpml_id', 
 	    'mppl_mc_id',
 	    'mppl_name',
 	    'mppl_jml_lantai',
@@ -26,9 +26,7 @@ class PerimeterPedulilindungi extends Model
 	    'mppl_email',
 	    'mppl_no_hp',
 	    'mppl_user_insert',
-	    'mppl_date_insert',
 	    'mppl_user_update',
-	    'mppl_date_update',
 	    'mppl_flag'
     ];
 }

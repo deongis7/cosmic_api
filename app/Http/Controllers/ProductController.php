@@ -585,7 +585,7 @@ class ProductController extends Controller
         $r_kapasitas = $request->kapasitas;
         $r_maps = $request->maps;
         $r_pic = $request->pic;
-        $r_nohp = $request->nohp;
+        $r_no_hp = $request->no_hp;
         $r_email = $request->email;
         
         $datpl = New PerimeterPedulilindungi::find($id);
@@ -599,7 +599,7 @@ class ProductController extends Controller
         $datpl->mppl_kapasitas = $r_kapasitas;
         $datpl->mppl_gmap = $r_maps;
         $datpl->mppl_pic = $r_pic;
-        $datpl->mppl_no_hp = $r_nohp;
+        $datpl->mppl_no_hp = $r_no_hp;
         $datpl->mppl_email = $r_email;
         $datpl->mppl_date_update = date('Y-m-d H:i:s');
         if(isset($r_user_id)){
