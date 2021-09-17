@@ -592,9 +592,9 @@ class ProductController extends Controller
         $datpl->mppl_mc_id = $r_kd_perusahaan;
         $datpl->mppl_name = $r_nama;
         $datpl->mppl_alamat = $r_alamat;
-        $datpl->mppl_kategori = $r_kategori;
-        $datpl->mppl_provinsi = $r_provinsi;
-        $datpl->mppl_kabupaten = $r_kabupaten;
+        $datpl->mppl_mpmk_id = $r_kategori;
+        $datpl->mppl_mpro_id = $r_provinsi;
+        $datpl->mppl_mkab_id = $r_kabupaten;
         $datpl->mppl_jml_lantai = $r_lantai;
         $datpl->mppl_kapasitas = $r_kapasitas;
         $datpl->mppl_gmap = $r_maps;
