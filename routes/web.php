@@ -105,6 +105,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/taskforce/reset_password/{nik}', 'PerimeterController@resetPasswordTaskForce');
 	$router->get('/taskforce/delete/{nik}', 'PerimeterController@deleteTaskForce');
 
+	
 	//Cluster Ruangan
 	$router->get('/cluster/perimeter/{id}', 'PerimeterController@getClusterbyPerimeter');
 	$router->get('/cluster/perimeter/{id}/{nik}', 'PICController@getClusterbyPerimeter');
