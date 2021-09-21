@@ -815,11 +815,24 @@ class ReportController extends Controller {
     }
 
     public function getDataWFHWFOByPerusahaan($mc_id) {
-        $data_wfh_wfo = DB::connection('pgsql')->select("SELECT tw.*, mc.mc_name, mc.mc_id, mj.jenis
-                FROM transaksi_wfh_wfo tw
-                LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
-                LEFT JOIN master_jns_industri mj ON mj.id=tw.tw_jns_industri
-                WHERE tw_mc_id='$mc_id' and tw_bulan = date_part('month', now()) and tw_tahun = date_part('year', now()) order by tw_id desc limit 1");
+
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+
+        if(isset($tahun) && isset($bulan)){
+          $data_wfh_wfo = DB::connection('pgsql')->select("SELECT tw.*, mc.mc_name, mc.mc_id, mj.jenis
+                  FROM transaksi_wfh_wfo tw
+                  LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
+                  LEFT JOIN master_jns_industri mj ON mj.id=tw.tw_jns_industri
+                  WHERE tw_mc_id='$mc_id' and tw_bulan = '$bulan' and tw_tahun = '$tahun' order by tw_id desc limit 1");
+        } else {
+          $data_wfh_wfo = DB::connection('pgsql')->select("SELECT tw.*, mc.mc_name, mc.mc_id, mj.jenis
+                  FROM transaksi_wfh_wfo tw
+                  LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
+                  LEFT JOIN master_jns_industri mj ON mj.id=tw.tw_jns_industri
+                  WHERE tw_mc_id='$mc_id' and tw_bulan = date_part('month', now()) and tw_tahun = date_part('year', now()) order by tw_id desc limit 1");
+
+        }
 
         if(count($data_wfh_wfo) > 0) {
             foreach($data_wfh_wfo as $wfh){
