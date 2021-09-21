@@ -826,8 +826,8 @@ class ReportController extends Controller {
                   LEFT JOIN master_jns_industri mj ON mj.id=tw.tw_jns_industri
                   WHERE tw_mc_id='$mc_id' and tw_bulan = '$bulan' and tw_tahun = '$tahun' order by tw_id desc limit 1");
         } else {
-          $bulan = Carbon::now()->month,;
-          $tahun = Carbon::now()->year,;
+          $bulan = Carbon::now()->month;
+          $tahun = Carbon::now()->year;
           $data_wfh_wfo = DB::connection('pgsql')->select("SELECT tw.*, mc.mc_name, mc.mc_id, mj.jenis
                   FROM transaksi_wfh_wfo tw
                   LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
