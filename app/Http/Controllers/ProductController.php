@@ -7,7 +7,7 @@ use App\TblPengajuanAtestasi;
 use App\TblStatusPengajuanAtestasi;
 use App\TblPengajuanSertifikasi;
 use App\Helpers\AppHelper;
-
+use App\PerimeterPedulilindungi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -555,5 +555,143 @@ class ProductController extends Controller
         } else {
             return response()->json(['status' => 404,'message' => 'Data Layanan Tidak DItemukan'])->setStatusCode(404);
         }
+    }
+    
+    public function updatePerimeterPL($id, Request $request) {
+        date_default_timezone_set('Asia/Jakarta');
+        $this->validate($request, [
+            'kd_perusahaan' => 'required',
+            'nama' => 'required',
+            'alamat' => 'required',
+            'kategori' => 'required',
+            'provinsi' => 'required',
+            'kabupaten' => 'required',
+            'lantai' => 'required',
+            'kapasitas' => 'required',
+            'maps' => 'required',
+            'pic' => 'required',
+            'no_hp' => 'required',
+            'email' => 'required',
+            'qr' => 'required',
+        ]);
+        
+        $r_user_id = $request->user_id;
+        $r_kd_perusahaan = $request->kd_perusahaan;
+        $r_nama = $request->nama;
+        $r_alamat = $request->alamat;
+        $r_kategori = $request->kategori;
+        $r_provinsi = $request->provinsi;
+        $r_kabupaten = $request->kabupaten;
+        $r_lantai = $request->lantai;
+        $r_kapasitas = $request->kapasitas;
+        $r_maps = $request->maps;
+        $r_pic = $request->pic;
+        $r_no_hp = $request->no_hp;
+        $r_email = $request->email;
+        $r_qr = $request->qr;
+        
+        $datpl = PerimeterPedulilindungi::find($id);
+        $datpl->mppl_mc_id = $r_kd_perusahaan;
+        $datpl->mppl_name = $r_nama;
+        $datpl->mppl_alamat = $r_alamat;
+        $datpl->mppl_mpmk_id = $r_kategori;
+        $datpl->mppl_mpro_id = $r_provinsi;
+        $datpl->mppl_mkab_id = $r_kabupaten;
+        $datpl->mppl_jml_lantai = $r_lantai;
+        $datpl->mppl_kapasitas = $r_kapasitas;
+        $datpl->mppl_gmap = $r_maps;
+        $datpl->mppl_pic = $r_pic;
+        $datpl->mppl_no_hp = $r_no_hp;
+        $datpl->mppl_email = $r_email;
+        $datpl->mppl_qr = $r_qr;
+        $datpl->mppl_date_update = date('Y-m-d H:i:s');
+        if(isset($r_user_id)){
+            $datpl->mppl_user_update = $r_user_id;
+        }else{
+            $datpl->mppl_user_update = Auth::guard('api')->user()->id;
+        }
+        $datpl->save();
+        
+        if($datpl->save()) {
+            return response()->json(['status' => 200,'message' => 'Data Perimeter Berhasil diUpdate']);
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Perimeter Gagal diUpdate'])->setStatusCode(500);
+        }
+    }
+    
+    public function insertPerimeterPL(Request $request) {
+        date_default_timezone_set('Asia/Jakarta');
+        $this->validate($request, [
+            'kd_perusahaan' => 'required',
+            'nama' => 'required',
+            'alamat' => 'required',
+            'kategori' => 'required',
+            'provinsi' => 'required',
+            'kabupaten' => 'required',
+            'lantai' => 'required',
+            'kapasitas' => 'required',
+            'maps' => 'required',
+            'pic' => 'required',
+            'no_hp' => 'required',
+            'email' => 'required',
+            'qr' => 'required',
+        ]);
+        
+        $r_user_id = $request->user_id;
+        $r_kd_perusahaan = $request->kd_perusahaan;
+        $r_nama = $request->nama;
+        $r_alamat = $request->alamat;
+        $r_kategori = $request->kategori;
+        $r_provinsi = $request->provinsi;
+        $r_kabupaten = $request->kabupaten;
+        $r_lantai = $request->lantai;
+        $r_kapasitas = $request->kapasitas;
+        $r_maps = $request->maps;
+        $r_pic = $request->pic;
+        $r_no_hp = $request->no_hp;
+        $r_email = $request->email;
+        $r_qr = $request->qr;
+        
+        $datpl = new PerimeterPedulilindungi();
+        $datpl->mppl_mc_id = $r_kd_perusahaan;
+        $datpl->mppl_name = $r_nama;
+        $datpl->mppl_alamat = $r_alamat;
+        $datpl->mppl_mpmk_id = $r_kategori;
+        $datpl->mppl_mpro_id = $r_provinsi;
+        $datpl->mppl_mkab_id = $r_kabupaten;
+        $datpl->mppl_jml_lantai = $r_lantai;
+        $datpl->mppl_kapasitas = $r_kapasitas;
+        $datpl->mppl_gmap = $r_maps;
+        $datpl->mppl_pic = $r_pic;
+        $datpl->mppl_no_hp = $r_no_hp;
+        $datpl->mppl_email = $r_email;
+        $datpl->mppl_qr = $r_qr;
+        $datpl->mppl_date_update = date('Y-m-d H:i:s');
+        if(isset($r_user_id)){
+            $datpl->mppl_user_update = $r_user_id;
+        }else{
+            $datpl->mppl_user_update = Auth::guard('api')->user()->id;
+        }
+        $datpl->save();
+        
+        if($datpl->save()) {
+            return response()->json(['status' => 200,'message' => 'Data Perimeter Berhasil diInsert']);
+        } else {
+            return response()->json(['status' => 500,'message' => 'Data Perimeter Gagal diInsert'])->setStatusCode(500);
+        }
+    }
+    
+    public function getCardPerimeterQR($id){
+        $data = array();
+        $perimeter_qr = DB::connection('pgsql2')->select("SELECT * 
+                FROM perimeter_qrpedulilindungi_bymcid('$id')");
+        
+        foreach($perimeter_qr as $qr){
+            $data[] = array(
+                "v_judul" => $qr->v_judul,
+                "v_jml" => $qr->v_jml
+            );
+        }
+        return response()->json(['status' => 200,'data' =>$data]);
     }
 }

@@ -31,18 +31,22 @@ $router->get('/todo', 'todoController@index');
 $router->get('/key', 'todoController@apikey');
 $router->get('/todo/{id}', 'todoController@show');
 $router->post('/todo', 'todoController@store');
+
 $router->get('/storage/{jenis}/{kd_perusahaan}/{tgl}/{filename}', function ($jenis,$kd_perusahaan,$tgl,$filename)
-	{
-		return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/' .$tgl.'/'. $filename))->response();
-	});
+{
+    return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/' .$tgl.'/'. $filename))->response();
+});
+
 $router->get('/storage/{jenis}/{filename}', function ($jenis,$filename)
 {
     return Image::make(storage_path('app/public/'.$jenis.'/'. $filename))->response();
 });
+
 $router->get('/storage/{jenis}/{kd_perusahaan}/{filename}', function ($jenis,$kd_perusahaan,$filename)
 {
     return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/'. $filename))->response();
 });
+
 $router->get('/storage/{jenis}/{kd_perusahaan}/id-{id}/{filename}', function ($jenis,$kd_perusahaan,$id,$filename)
 {
     return Image::make(storage_path('app/public/'.$jenis.'/'.$kd_perusahaan.'/'.$id.'/'. $filename))->response();
@@ -50,7 +54,6 @@ $router->get('/storage/{jenis}/{kd_perusahaan}/id-{id}/{filename}', function ($j
 
 $router->get('/download/template/{filename}', function ($filename)
 {
-
     $path = storage_path('app/public/protokol/example/' . $filename);
 
     // Download file with custom headers
@@ -61,8 +64,14 @@ $router->get('/download/template/{filename}', function ($filename)
 });
 
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
+    $router->get('/product/card_perimeter_pl/{id}', 'ProductController@getCardPerimeterQR');
+    $router->post('/perimeter_pedulilindungi/update/{id}', 'ProductController@updatePerimeterPL');
+    $router->post('/perimeter_pedulilindungi/insert', 'ProductController@insertPerimeterPL');
 	//Perimeter
-	$router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
+    $router->get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
+    $router->get('/dashboard/readiness/{id}', 'DashboardController@getReadinessIndexbyCompany');
+	
+    $router->get('/perimeter/count/{id}', 'PerimeterController@getCountPerimeter');
 	$router->get('/perimeter/map/{id}', 'PerimeterController@getPerimeterMap');
 	$router->get('/perimeter/{id}', 'PerimeterController@getPerimeter');
 	$router->get('/perimeter/region/{id}', 'PerimeterController@getPerimeterbyRegion');
@@ -84,10 +93,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->post('/perimeter_closed/addActivity', 'PerimeterListController@updateAktifitasClosedPerimeter');  //force add for actifity closed perimeter
 	$router->post('/perimeter_open/add', 'PerimeterListController@openPerimeter');
 
-
 	//TaskForce
 	$router->get('/taskforce/count/{id}', 'PerimeterController@getCountTaskForce');
 	$router->get('/taskforce/{id}', 'PerimeterController@getTaskForce');
+	$router->get('/taskforce2/{id}', 'PerimeterController@getTaskForce2');
 	$router->get('/taskforce/region/{id}', 'PerimeterController@getTaskForcebyRegion');
 	$router->get('/taskforce/detail/{nik}', 'PerimeterController@getTaskForceDetail');
 	$router->get('/taskforce/detail_user/{nik}', 'PerimeterController@getTaskForceDetailUser');
@@ -210,10 +219,11 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/perimeterkategori', 'MasterController@getKategoriPerimeter');
 	$router->get('/clusterruangan', 'MasterController@getClusterRuangan');
 	$router->get('/weeklist', 'MasterController@getWeekList');
+	$router->get('/monthlist', 'MasterController@getMonthList');
 	$router->get('/fasilitas_rumah', 'MasterController@getFasilitasRumah');
 	$router->get('/kriteria_orang', 'MasterController@getKriteriaOrang');
 	$router->get('/jenis_industri', 'MasterController@getJenisIndustri');
-
+	$router->get('/jns_industri', 'MasterController@getJnsIndustri');
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
 	$router->get('/company/detail/{id}', 'MasterController@getDetailCompany');
@@ -221,7 +231,6 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
 	//Alert
 	$router->get('/dashboard/alert_week_bymcid/{id}', 'DashboardController@getAlertWeek_byMcid');
-
 
 	//rangkuman_all
 	$router->get('/dashboard/rangkuman_all', 'DashboardController@getRangkumanAll');
@@ -344,7 +353,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //User Reset Password
     $router->post('/user/reset_password', 'UserController@postResetPassword');
     $router->post('/user/cek_user', 'UserController@postCekUser');
-
+    
     //Report Protokol  Web
     Route::post('/report/webupdate_json/{user_id}/{id}', 'ReportController@WebUpdateReportJSON');
 
@@ -410,12 +419,15 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 });
 
 $router->group(['prefix' => 'api/v2'], function () use ($router) {
+    Route::get('/jns_industri', 'MasterController@getJnsIndustri');
+    Route::get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
+    Route::get('/dashboard/readiness/{id}', 'DashboardController@getReadinessIndexbyCompany');
+    
     Route::get('/product/list_pengajuan_atestasi/{id_produk}', 'ProductController@getPengajuanAtestasi');
     Route::get('/product/layanan_produk', 'ProductController@getLayananProduk');
     Route::post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
     Route::post('/product/add_pengajuan_layanan/{id_produk}', 'ProductController@addPengajuanLayanan');
     Route::post('/product/add_pelaporan_mandiri/{id_produk}', 'ProductController@addPelaporanMandiri');
-    
     
     Route::post('/user/reset_password', 'UserController@postResetPassword');
     Route::get('/company', 'MasterController@getAllCompany');
@@ -466,26 +478,24 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::post('/perimeter_open/add', 'PerimeterListController@openPerimeter');
 
     Route::get('/notif/{nik}', 'PICController@getNotifFO');
-
     Route::get('/dashboard/cosmic_index_detail/{kd_perusahaan}', 'DashboardController@getCosmicIndexbyCompanyAndDate');
-
 
     //BUMN
     Route::get('/clusterruangan', 'MasterController@getClusterRuangan');
     Route::get('/perimeterkategori', 'MasterController@getKategoriPerimeter');
     Route::get('/weeklist', 'MasterController@getWeekList');
+    Route::get('/monthlist', 'MasterController@getMonthList');
     Route::get('/region/{kd_perusahaan}', 'PerimeterListController@getRegionList');
     Route::get('/provinsi', 'MasterController@getAllProvinsi');
     Route::get('/kota', 'MasterController@getAllKota');
     Route::get('/kota/{id_provinsi}', 'MasterController@getKotaByProvinsi');
     Route::get('/taskforce/{id}', 'PerimeterController@getTaskForce');
+    Route::get('/taskforce2/{id}', 'PerimeterController@getTaskForce2');
     Route::get('/taskforce/detail/{nik}', 'PerimeterController@getTaskForceDetail');
     Route::get('/taskforce/delete/{nik}', 'PerimeterController@deleteTaskForce');
     Route::get('/taskforce/reset_password/{nik}', 'PerimeterController@resetPasswordTaskForce');
     Route::post('/taskforce/add', 'PerimeterController@addTaskForce');
-
     Route::get('/detail_profile', 'DashVaksinController@getDetailProfile');
-
     Route::get('/dashboard/cosmic_index_detail_average/{kd_perusahaan}', 'DashboardController@getAverageCosmicIndexDetailbyCompany');
     Route::get('/dashboard/cosmic_index_detaillist/{kd_perusahaan}', 'DashboardController@getCosmicIndexListbyCompany');
     Route::get('/dashboard/cosmic_index_list_average', 'DashboardController@getAverageCosmicIndexList');
@@ -531,7 +541,6 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::post('/product/add_pengajuan_atestasi/{id_produk}', 'ProductController@addPengajuanAtestasi');
 
     Route::post('/company/upload_foto', 'MasterController@uploadFotoBUMN');
-
 
     //Gugus Tugas
 	Route::get('/dashboard/perimeter_byperusahaan_all', 'DashboardController@getPerimeterbyPerusahaanAll');
@@ -595,6 +604,8 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::post('/report/update_json/{id}', 'ReportController@updateReportJSON');
 
     Route::get('/report/dashboard_pelaporan/{mc_id}', 'ReportController@getDataPelaporanWFHWFOByPerusahaan');
-    
+    Route::post('/perimeter_pedulilindungi/update/{id}', 'ProductController@updatePerimeterPL');
+    Route::post('/perimeter_pedulilindungi/insert', 'ProductController@insertPerimeterPL');
+    Route::get('/product/card_perimeter_pl/{id}', 'ProductController@getCardPerimeterQR');
 	});
 });

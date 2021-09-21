@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Validator;
 use Carbon\Carbon;
 use Intervention\Image\ImageManagerStatic as Image;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class ReportController extends Controller {
 
     public function __construct() {
@@ -773,10 +774,17 @@ class ReportController extends Controller {
           $datawfh->tw_jml_peg_alihdaya = $jml_peg_alihdaya;
           $datawfh->tw_jml_rata_peg_masuk = $jml_rata_peg_masuk;
           $datawfh->tw_jns_industri = $jns_industri;
-          $datawfh->tw_file_protokol_wfh = $name_pdf;
-          $datawfh->tw_file_jadwal = $name_pdf2;
+
           $datawfh->tw_flag_dok_protokol = $flag_dok_protokol;
           $datawfh->tw_user_insert = $user_id;
+          if(isset($request->file_jadwal)){
+              $datawfh->tw_file_jadwal = $name_pdf2;
+              $datawfh->tw_date_file_jadwal = date('Y-m-d G:i:s');
+          }
+          if(isset($request->tw_file_protokol_wfh)){
+              $datawfh->tw_file_protokol_wfh = $name_pdf;
+              $datawfh->tw_date_file_protokol =date('Y-m-d G:i:s');
+          }
 
         } else {
           $datawfh->tw_jml_peg_tetap = $jml_peg_tetap;
@@ -784,11 +792,17 @@ class ReportController extends Controller {
           $datawfh->tw_jml_peg_alihdaya = $jml_peg_alihdaya;
           $datawfh->tw_jml_rata_peg_masuk = $jml_rata_peg_masuk;
           $datawfh->tw_jns_industri = $jns_industri;
-          $datawfh->tw_file_protokol_wfh = $name_pdf;
-          $datawfh->tw_file_jadwal = $name_pdf2;
+
           $datawfh->tw_flag_dok_protokol = $flag_dok_protokol;
           $datawfh->tw_user_update = $user_id;
-
+          if(isset($request->file_jadwal)){
+              $datawfh->tw_file_jadwal = $name_pdf2;
+              $datawfh->tw_date_file_jadwal = date('Y-m-d G:i:s');
+          }
+          if(isset($request->tw_file_protokol_wfh)){
+              $datawfh->tw_file_protokol_wfh = $name_pdf;
+              $datawfh->tw_date_file_protokol = date('Y-m-d G:i:s');
+          }
         }
 
             if($datawfh->save()) {
@@ -801,9 +815,10 @@ class ReportController extends Controller {
     }
 
     public function getDataWFHWFOByPerusahaan($mc_id) {
-        $data_wfh_wfo = DB::connection('pgsql3')->select("SELECT tw.*, mc.mc_name, mc.mc_id
+        $data_wfh_wfo = DB::connection('pgsql')->select("SELECT tw.*, mc.mc_name, mc.mc_id, mj.jenis
                 FROM transaksi_wfh_wfo tw
                 LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
+                LEFT JOIN master_jns_industri mj ON mj.id=tw.tw_jns_industri
                 WHERE tw_mc_id='$mc_id' and tw_bulan = date_part('month', now()) and tw_tahun = date_part('year', now()) order by tw_id desc limit 1");
 
         if(count($data_wfh_wfo) > 0) {
@@ -847,9 +862,13 @@ class ReportController extends Controller {
                     "jml_peg_alihdaya" => $wfh->tw_jml_peg_alihdaya,
                     "jml_rata_peg_masuk" => $wfh->tw_jml_rata_peg_masuk,
                     "jns_industri" =>$wfh->tw_jns_industri,
+                    "nm_jns_industri" =>$wfh->jenis,
                     "file_protokol_wfh" =>$wfh->tw_file_protokol_wfh,
                     "file_jadwal" =>$wfh->tw_file_jadwal,
                     "flag_dok_protokol" =>$wfh->tw_flag_dok_protokol,
+                    "date_file_protokol_wfh" =>$wfh->tw_date_file_protokol,
+                    "date_file_jadwal" =>$wfh->tw_date_file_jadwal,
+
 
                 );
             }
@@ -863,9 +882,12 @@ class ReportController extends Controller {
               "jml_peg_alihdaya" => 0,
               "jml_rata_peg_masuk" => 0,
               "jns_industri" =>0,
+              "nm_jns_industri" =>'',
               "file_protokol_wfh" =>NULL,
               "file_jadwal" =>NULL,
               "flag_dok_protokol" =>false,
+              "date_file_protokol_wfh" =>$wfh->tw_date_file_protokol,
+              "date_file_jadwal" =>$wfh->tw_date_file_jadwal,
 
           );
         }
@@ -876,9 +898,10 @@ class ReportController extends Controller {
         $bulan = $request->bulan;
         $tahun = $request->tahun;
 
-        $data_wfh_wfo = DB::connection('pgsql3')->select("SELECT tw.*, mc.mc_name, mc.mc_id
+        $data_wfh_wfo = DB::connection('pgsql3')->select("SELECT tw.*, mc.mc_name, mc.mc_id, mj.jenis
                 FROM transaksi_wfh_wfo tw
                 LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
+                LEFT JOIN master_jns_industri mj ON mj.id=tw.tw_jns_industri
                 WHERE tw_mc_id='$mc_id' and tw_bulan = '$bulan' and tw_tahun = '$tahun' order by tw_id desc limit 1");
 
         if(count($data_wfh_wfo) > 0) {
@@ -922,9 +945,12 @@ class ReportController extends Controller {
                     "jml_peg_alihdaya" => $wfh->tw_jml_peg_alihdaya,
                     "jml_rata_peg_masuk" => $wfh->tw_jml_rata_peg_masuk,
                     "jns_industri" =>$wfh->tw_jns_industri,
+                    "nm_jns_industri" =>$wfh->jenis,
                     "file_protokol_wfh" =>$wfh->tw_file_protokol_wfh,
                     "file_jadwal" =>$wfh->tw_file_jadwal,
                     "flag_dok_protokol" =>$wfh->tw_flag_dok_protokol,
+                    "date_file_protokol_wfh" =>$wfh->tw_date_file_protokol,
+                    "date_file_jadwal" =>$wfh->tw_date_file_jadwal,
 
                 );
             }
@@ -938,12 +964,35 @@ class ReportController extends Controller {
               "jml_peg_alihdaya" => 0,
               "jml_rata_peg_masuk" => 0,
               "jns_industri" =>0,
+              "nm_jns_industri" =>'',
               "file_protokol_wfh" =>NULL,
               "file_jadwal" =>NULL,
               "flag_dok_protokol" =>false,
+              "date_file_protokol_wfh" =>$wfh->tw_date_file_protokol,
+              "date_file_jadwal" =>$wfh->tw_date_file_jadwal,
 
           );
         }
         return response()->json(['status' => 200,'data' => $data]);
+    }
+
+    public function getDownloadFileProtokolWFH($kd_perusahaan,$filename)
+    {
+      //PDF file is stored under project/public/download/info.pdf
+    //$protokol = TblProtokol::where('tbpt_mpt_id',$id_protokol)->where('tbpt_mc_id',$kd_perusahaan)->first();
+      $file= storage_path() . "/app/public/data_wfh_wfo/".$kd_perusahaan."/". $filename;
+
+    $headers = [
+            'Content-Type' => 'application/pdf',
+           ];
+
+    if (!is_file($file)) {
+       return response()->json(['status' => 404,'message' => 'Data Tidak Ada'])->setStatusCode(404);
+      }
+    $response = new BinaryFileResponse($file, 200 , $headers);
+
+    return $response;
+    //return response()->file($file);
+
     }
 }

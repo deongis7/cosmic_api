@@ -2020,7 +2020,8 @@ class DashboardController extends Controller
         }
     }
     
-    public function getReadinessIndexbyCompanyAndDate($kd_perusahaan,Request $request){
+    public function getReadinessIndexbyCompany($id,Request $request){
+        $kd_perusahaan = $id;
         $str = '_get_readiness_index2_'.$kd_perusahaan;
         $mc_id = $kd_perusahaan;
         
@@ -2058,7 +2059,7 @@ class DashboardController extends Controller
                     FROM mvt_readiness_index
                     WHERE v_mc_id =? ";
       
-            $result =  DB::connection('pgsql3')->select($sql, [(string)$company_id]);
+            $result =  DB::connection('pgsql2')->select($sql, [(string)$company_id]);
   
             foreach ($result as $value) {
                 $data = array(
@@ -2073,7 +2074,7 @@ class DashboardController extends Controller
                 );
             }
         } else {
-            $rpi =  DB::connection('pgsql3')->select("SELECT *
+            $rpi =  DB::connection('pgsql2')->select("SELECT *
                         FROM report_readiness_index rri
                         WHERE rri_week = ? and rri_mc_id = ?
                         ORDER BY rri_id LIMIT 1",[(string)$week,(string)$company_id]);
