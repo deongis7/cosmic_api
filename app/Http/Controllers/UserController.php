@@ -509,12 +509,21 @@ class UserController extends Controller
             $id_perimeter_cluster = $request->id_perimeter_cluster;
             $id_konfig_cluster_aktifitas = $request->id_konfig_cluster_aktifitas;
             $weeks = AppHelper::Months();
-            // dd($weeks);
-            $trn_aktifitas= TrnAktifitas::where('ta_tpmd_id',$id_perimeter_cluster)
-                ->where('ta_kcar_id',$id_konfig_cluster_aktifitas)
-                ->where('ta_week',$weeks['weeks'])->first();
-            
+            $weeks2 = AppHelper::Weeks();
+            $bln = date('m');
+            if($bln=="09"){
+                $trn_aktifitas= TrnAktifitas::where('ta_tpmd_id',$id_perimeter_cluster)
+                    ->where('ta_kcar_id',$id_konfig_cluster_aktifitas)
+                    ->whereMonth("ta_date_update", $bln)->first();
+            }else{
+
+                $trn_aktifitas= TrnAktifitas::where('ta_tpmd_id',$id_perimeter_cluster)
+                    ->where('ta_kcar_id',$id_konfig_cluster_aktifitas)
+                    ->where('ta_week',$weeks['weeks'])
+                    ->orwhere('ta_week',$weeks2['weeks'])->first();
+            }
             if($trn_aktifitas != null){
+                 // dd($trn_aktifitas->ta_status);
                 $trn_aktifitas->ta_status = $request->status;
                 
                 if($request->status==2){
