@@ -866,6 +866,9 @@ class ReportController extends Controller {
                     "file_protokol_wfh" =>$wfh->tw_file_protokol_wfh,
                     "file_jadwal" =>$wfh->tw_file_jadwal,
                     "flag_dok_protokol" =>$wfh->tw_flag_dok_protokol,
+                    "date_file_protokol_wfh" =>$wfh->tw_date_file_protokol,
+                    "date_file_jadwal" =>$wfh->tw_date_file_jadwal,
+
 
                 );
             }
@@ -883,6 +886,8 @@ class ReportController extends Controller {
               "file_protokol_wfh" =>NULL,
               "file_jadwal" =>NULL,
               "flag_dok_protokol" =>false,
+              "date_file_protokol_wfh" =>$wfh->tw_date_file_protokol,
+              "date_file_jadwal" =>$wfh->tw_date_file_jadwal,
 
           );
         }
@@ -944,6 +949,8 @@ class ReportController extends Controller {
                     "file_protokol_wfh" =>$wfh->tw_file_protokol_wfh,
                     "file_jadwal" =>$wfh->tw_file_jadwal,
                     "flag_dok_protokol" =>$wfh->tw_flag_dok_protokol,
+                    "date_file_protokol_wfh" =>$wfh->tw_date_file_protokol,
+                    "date_file_jadwal" =>$wfh->tw_date_file_jadwal,
 
                 );
             }
@@ -961,6 +968,8 @@ class ReportController extends Controller {
               "file_protokol_wfh" =>NULL,
               "file_jadwal" =>NULL,
               "flag_dok_protokol" =>false,
+              "date_file_protokol_wfh" =>$wfh->tw_date_file_protokol,
+              "date_file_jadwal" =>$wfh->tw_date_file_jadwal,
 
           );
         }
