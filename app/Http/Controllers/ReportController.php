@@ -814,7 +814,7 @@ class ReportController extends Controller {
 
     }
 
-    public function getDataWFHWFOByPerusahaan($mc_id) {
+    public function getDataWFHWFOByPerusahaan($mc_id, Request $request) {
 
         $bulan = $request->bulan;
         $tahun = $request->tahun;
