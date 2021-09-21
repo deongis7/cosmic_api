@@ -826,6 +826,8 @@ class ReportController extends Controller {
                   LEFT JOIN master_jns_industri mj ON mj.id=tw.tw_jns_industri
                   WHERE tw_mc_id='$mc_id' and tw_bulan = '$bulan' and tw_tahun = '$tahun' order by tw_id desc limit 1");
         } else {
+          $bulan = Carbon::now()->month,;
+          $tahun = Carbon::now()->year,;
           $data_wfh_wfo = DB::connection('pgsql')->select("SELECT tw.*, mc.mc_name, mc.mc_id, mj.jenis
                   FROM transaksi_wfh_wfo tw
                   LEFT JOIN master_company mc ON mc.mc_id=tw.tw_mc_id
@@ -888,8 +890,8 @@ class ReportController extends Controller {
         }else{
           $data = array(
               "kd_perusahaan" => $mc_id,
-              "tahun" => Carbon::now()->year,
-              "bulan" => Carbon::now()->month,
+              "tahun" => $bulan,
+              "bulan" => $tahun,
               "jml_peg_tetap" => 0,
               "jml_peg_kontrak" => 0,
               "jml_peg_alihdaya" => 0,
@@ -899,8 +901,8 @@ class ReportController extends Controller {
               "file_protokol_wfh" =>NULL,
               "file_jadwal" =>NULL,
               "flag_dok_protokol" =>false,
-              "date_file_protokol_wfh" =>$wfh->tw_date_file_protokol,
-              "date_file_jadwal" =>$wfh->tw_date_file_jadwal,
+              "date_file_protokol_wfh" => null,
+              "date_file_jadwal" => null,
 
           );
         }
