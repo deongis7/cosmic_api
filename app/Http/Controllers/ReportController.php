@@ -993,6 +993,7 @@ class ReportController extends Controller {
 
     public function getDownloadFileProtokolWFH($kd_perusahaan,$filename)
     {
+
       //PDF file is stored under project/public/download/info.pdf
     //$protokol = TblProtokol::where('tbpt_mpt_id',$id_protokol)->where('tbpt_mc_id',$kd_perusahaan)->first();
       $file= storage_path() . "/app/public/data_wfh_wfo/".$kd_perusahaan."/". $filename;
@@ -1002,7 +1003,7 @@ class ReportController extends Controller {
            ];
 
     if (!is_file($file)) {
-       return response()->json(['status' => 404,'message' => 'Data Tidak Ada'])->setStatusCode(404);
+       return response()->json(['status' => 404,'message' => 'Data Tidak Ada.'])->setStatusCode(404);
       }
     $response = new BinaryFileResponse($file, 200 , $headers);
 
