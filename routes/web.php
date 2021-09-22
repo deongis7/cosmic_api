@@ -362,7 +362,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     Route::post('/report/survei_kepuasan', 'ReportController@postSurveiKepuasan');
     Route::post('/report/data_wfh/add', 'ReportController@postDataWFHWFO');
     Route::get('/report/data_wfh/{mc_id}', 'ReportController@getDataWFHWFOByPerusahaan');
-
+    Route::get('/download/data_wfh/{mc_id}', 'ReportController@getDownloadFileProtokolWFH');
     Route::get('/report/dashboard_pelaporan/{mc_id}', 'ReportController@getDataPelaporanWFHWFOByPerusahaan');
 
     Route::post('/user/token_update/{id}', 'UserController@tokenUpdate');
