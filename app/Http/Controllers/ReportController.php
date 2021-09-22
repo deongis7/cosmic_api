@@ -890,8 +890,8 @@ class ReportController extends Controller {
         }else{
           $data = array(
               "kd_perusahaan" => $mc_id,
-              "tahun" => $tahun,
-              "bulan" => $bulan,
+              "tahun" =>  (int)$tahun,
+              "bulan" => (int)$bulan,
               "jml_peg_tetap" => 0,
               "jml_peg_kontrak" => 0,
               "jml_peg_alihdaya" => 0,
