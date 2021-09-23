@@ -781,7 +781,7 @@ class ReportController extends Controller {
               $datawfh->tw_file_jadwal = $name_pdf2;
               $datawfh->tw_date_file_jadwal = date('Y-m-d G:i:s');
           }
-          if(isset($request->tw_file_protokol_wfh)){
+          if(isset($request->file_protokol_wfh)){
               $datawfh->tw_file_protokol_wfh = $name_pdf;
               $datawfh->tw_date_file_protokol =date('Y-m-d G:i:s');
           }
@@ -799,7 +799,7 @@ class ReportController extends Controller {
               $datawfh->tw_file_jadwal = $name_pdf2;
               $datawfh->tw_date_file_jadwal = date('Y-m-d G:i:s');
           }
-          if(isset($request->tw_file_protokol_wfh)){
+          if(isset($request->file_protokol_wfh)){
               $datawfh->tw_file_protokol_wfh = $name_pdf;
               $datawfh->tw_date_file_protokol = date('Y-m-d G:i:s');
           }
