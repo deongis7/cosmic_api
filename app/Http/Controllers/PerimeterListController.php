@@ -283,6 +283,8 @@ class PerimeterListController extends Controller
                     $perimeter = $perimeter->where(DB::raw("lower(TRIM(temp_parameter_list.nama_perimeter))"),'like','%'.strtolower(trim($search)).'%');
                 }
 
+                $perimeter = $perimeter->groupBy('id_region','region','id_perimeter','nama_perimeter','alamat','kategori','status_monitoring','last_update','percentage','provinsi','kabupaten','lockdown','keterangan_lockdown','mc_id','week','status_pic','status_fo','nik_pic','nik_fo');
+
                 if(isset($column)) {
                     if(isset($sort)) {
                         $perimeter = $perimeter->orderBy($column,$sort);
