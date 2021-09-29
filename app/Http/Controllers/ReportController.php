@@ -781,7 +781,7 @@ class ReportController extends Controller {
               $datawfh->tw_file_jadwal = $name_pdf2;
               $datawfh->tw_date_file_jadwal = date('Y-m-d G:i:s');
           }
-          if(isset($request->tw_file_protokol_wfh)){
+          if(isset($request->file_protokol_wfh)){
               $datawfh->tw_file_protokol_wfh = $name_pdf;
               $datawfh->tw_date_file_protokol =date('Y-m-d G:i:s');
           }
@@ -799,7 +799,7 @@ class ReportController extends Controller {
               $datawfh->tw_file_jadwal = $name_pdf2;
               $datawfh->tw_date_file_jadwal = date('Y-m-d G:i:s');
           }
-          if(isset($request->tw_file_protokol_wfh)){
+          if(isset($request->file_protokol_wfh)){
               $datawfh->tw_file_protokol_wfh = $name_pdf;
               $datawfh->tw_date_file_protokol = date('Y-m-d G:i:s');
           }
@@ -890,8 +890,8 @@ class ReportController extends Controller {
         }else{
           $data = array(
               "kd_perusahaan" => $mc_id,
-              "tahun" => $bulan,
-              "bulan" => $tahun,
+              "tahun" =>  (int)$tahun,
+              "bulan" => (int)$bulan,
               "jml_peg_tetap" => 0,
               "jml_peg_kontrak" => 0,
               "jml_peg_alihdaya" => 0,
@@ -993,6 +993,7 @@ class ReportController extends Controller {
 
     public function getDownloadFileProtokolWFH($kd_perusahaan,$filename)
     {
+
       //PDF file is stored under project/public/download/info.pdf
     //$protokol = TblProtokol::where('tbpt_mpt_id',$id_protokol)->where('tbpt_mc_id',$kd_perusahaan)->first();
       $file= storage_path() . "/app/public/data_wfh_wfo/".$kd_perusahaan."/". $filename;
@@ -1002,7 +1003,7 @@ class ReportController extends Controller {
            ];
 
     if (!is_file($file)) {
-       return response()->json(['status' => 404,'message' => 'Data Tidak Ada'])->setStatusCode(404);
+       return response()->json(['status' => 404,'message' => 'Data Tidak Ada.'])->setStatusCode(404);
       }
     $response = new BinaryFileResponse($file, 200 , $headers);
 
