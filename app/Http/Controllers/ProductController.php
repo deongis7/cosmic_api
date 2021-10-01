@@ -568,13 +568,13 @@ class ProductController extends Controller
             'kategori' => 'required',
             'provinsi' => 'required',
             'kabupaten' => 'required',
-            'lantai' => 'required',
-            'kapasitas' => 'required',
-            'maps' => 'required',
-            'pic' => 'required',
-            'no_hp' => 'required',
-            'email' => 'required',
-            'qr' => 'required',
+//             'lantai' => 'required',
+//             'kapasitas' => 'required',
+//             'maps' => 'required',
+//             'pic' => 'required',
+//             'no_hp' => 'required',
+//             'email' => 'required',
+//             'qr' => 'required',
         ]);
         
         $r_user_id = $request->user_id;
@@ -630,13 +630,13 @@ class ProductController extends Controller
             'kategori' => 'required',
             'provinsi' => 'required',
             'kabupaten' => 'required',
-            'lantai' => 'required',
-            'kapasitas' => 'required',
-            'maps' => 'required',
-            'pic' => 'required',
-            'no_hp' => 'required',
-            'email' => 'required',
-            'qr' => 'required',
+//             'lantai' => 'required',
+//             'kapasitas' => 'required',
+//             'maps' => 'required',
+//             'pic' => 'required',
+//             'no_hp' => 'required',
+//             'email' => 'required',
+//             'qr' => 'required',
         ]);
         
         $r_user_id = $request->user_id;
@@ -695,5 +695,166 @@ class ProductController extends Controller
             );
         }
         return response()->json(['status' => 200,'data' =>$data]);
+    }
+    
+    public function getStsPerimeterPL(){
+        $data = array();
+        $sts_perimeter_pl = DB::connection('pgsql2')->select(
+            "SELECT * FROM master_status_perimeterpl");
+        
+        foreach($sts_perimeter_pl as $spl){
+            $data[] = array(
+                "id" => $spl->id,
+                "nama" => $spl->nama
+            );
+        }
+        return response()->json(['status' => 200,'data' =>$data]);
+    }
+    
+    public function getPICPerimeterPL($id){
+        $data = array();
+        $sts_perimeter_pl = DB::connection('pgsql2')->select(
+            "SELECT mppl_pic, mppl_email, mppl_no_hp
+                FROM master_perimeter_pl 
+                WHERE mppl_mc_id='$id'
+                ORDER BY mppl_kapasitas DESC
+                LIMIT 1");
+        
+        foreach($sts_perimeter_pl as $spl){
+            $data[] = array(
+                "pic" => $spl->mppl_pic,
+                "email" => $spl->mppl_email,
+                "no_hp" => $spl->mppl_no_hp,
+            );
+        }
+        return response()->json(['status' => 200,'data' =>$data]);
+    }
+    
+    public function PerimeterPLByMcid($id,Request $request) {
+        $limit = null;
+        $page = null;
+        $search = null;
+        $endpage = 1;
+        
+        $perimeterpl = new PerimeterPedulilindungi();
+        $perimeterpl->setConnection('pgsql2');
+        $perimeterpl = $perimeterpl->select('mppl_id','mppl_mc_id',
+            'mppl_name', 'mppl_jml_lantai', 'mppl_kapasitas', 'mppl_alamat',
+            'mppl_mpro_id', 'mppl_mkab_id', 'mppl_gmap', 'mppl_mpmk_id', 'mppl_pic',
+            'mppl_email', 'mppl_no_hp', 'mppl_qr','nama AS status',
+            'mpro.mpro_name', 'mkab.mkab_name', 'mpmk.mpmk_name',
+            'mppl_user_insert', 'mppl_user_update', 'mppl_date_insert', 'mppl_date_update'
+            )
+            ->leftjoin('master_status_perimeterpl AS mspml','mspml.id','mppl_qr')
+            ->leftjoin('master_kabupaten AS mkab','mkab.mkab_id','mppl_mkab_id')
+            ->leftjoin('master_provinsi AS mpro','mpro.mpro_id','mppl_mpro_id')
+            ->leftjoin('master_perimeter_kategori AS mpmk','mpmk.mpmk_id','mppl_mpmk_id')
+            ->where('mppl_mc_id', $id);
+            
+        if(isset($request->kota)) {
+            $perimeterpl = $perimeterpl->where(DB::raw("mppl_mkab_id"),'=',trim($request->kota));
+        }
+        
+        if(isset($request->status)) {
+            $perimeterpl = $perimeterpl->where(DB::raw("mppl_qr"),'=',trim($request->status));
+        }
+            
+        if(isset($request->search)) {
+            $search = $request->search;
+            $perimeterpl = $perimeterpl->where(DB::raw("LOWER(TRIM(mppl_name))"),'like','%'.strtolower(trim($search)).'%');
+        }
+        
+        $jmltotal=($perimeterpl->count());
+        if(isset($request->limit)) {
+            $limit = $request->limit;
+            $perimeterpl = $perimeterpl->limit($limit);
+            $endpage = (int)(ceil((int)$jmltotal/(int)$limit));
+            
+            if (isset($request->page)) {
+                $page = $request->page;
+                $offset = ((int)$page -1) * (int)$limit;
+                $perimeterpl = $perimeterpl->offset($offset);
+            }
+        }
+        $perimeterpl = $perimeterpl->get();
+        $totalperimeterpl = $perimeterpl->count();
+        
+        if (count($perimeterpl) > 0){
+            foreach($perimeterpl as $mppl){
+                $data[] = array(
+                    "id" => $mppl->mppl_id,
+                    "nama" => $mppl->mppl_name,
+                    "kapasitas" => $mppl->mppl_kapasitas,
+                    "alamat" => $mppl->mppl_alamat,
+                    "provinsi_id" => $mppl->mppl_mpro_id, 
+                    "provinsi_name" => $mppl->mpro_name, 
+                    "kabupaten_id" => $mppl->mppl_mkab_id,
+                    "kabupaten_name" => $mppl->mkab_name, 
+                    "gmap"=> $mppl->mppl_gmap,
+                    "kategori_id" => $mppl->mppl_mpmk_id,
+                    "kategori_name" => $mppl->mpmk_name, 
+                    "pic"=> $mppl->mppl_pic,
+                    "email"=> $mppl->mppl_email,
+                    "no_hp"=> $mppl->mppl_no_hp,
+                    "status_id"=> $mppl->mppl_qr,
+                    "status"=> $mppl->status,
+                    "date_insert" =>$mppl->mppl_date_insert,
+                    "date_update" =>$mppl->mppl_date_update,
+                );
+            }
+            return response()->json(['status' => 200, 'page_end'=> $endpage, 'data' => $data]);
+        }else{
+            return response()->json(['status' => 404, 'message' => 'Tidak ada data'])->setStatusCode(404);
+        }
+    }
+    
+    public function PerimeterPLByid($id) {
+        $limit = null;
+        $page = null;
+        $search = null;
+        $endpage = 1;
+        
+        $perimeterpl = new PerimeterPedulilindungi();
+        $perimeterpl->setConnection('pgsql2');
+        $perimeterpl = $perimeterpl->select('mppl_id','mppl_mc_id',
+        'mppl_name', 'mppl_jml_lantai', 'mppl_kapasitas', 'mppl_alamat',
+        'mppl_mpro_id', 'mppl_mkab_id', 'mppl_gmap', 'mppl_mpmk_id', 'mppl_pic',
+        'mppl_email', 'mppl_no_hp', 'mppl_qr', 'nama AS status',
+        'mpro.mpro_name', 'mkab.mkab_name', 'mpmk.mpmk_name',
+        'mppl_user_insert', 'mppl_user_update', 'mppl_date_insert', 'mppl_date_update'
+        )
+        ->leftjoin('master_status_perimeterpl AS mspml','mspml.id','mppl_qr')
+        ->leftjoin('master_kabupaten AS mkab','mkab.mkab_id','mppl_mkab_id')
+        ->leftjoin('master_provinsi AS mpro','mpro.mpro_id','mppl_mpro_id')
+        ->leftjoin('master_perimeter_kategori AS mpmk','mpmk.mpmk_id','mppl_mpmk_id')
+        ->where('mppl_id', $id);
+        
+        if (count($perimeterpl) > 0){
+            foreach($perimeterpl as $mppl){
+                $data[] = array(
+                    "id" => $mppl->mppl_id,
+                    "nama" => $mppl->mppl_name,
+                    "kapasitas" => $mppl->mppl_kapasitas,
+                    "alamat" => $mppl->mppl_alamat,
+                    "provinsi_id" => $mppl->mppl_mpro_id,
+                    "provinsi_name" => $mppl->mpro_name,
+                    "kabupaten_id" => $mppl->mppl_mkab_id,
+                    "kabupaten_name" => $mppl->mkab_name,
+                    "gmap"=> $mppl->mppl_gmap,
+                    "kategori_id" => $mppl->mppl_mpmk_id,
+                    "kategori_name" => $mppl->mpmk_name,
+                    "pic"=> $mppl->mppl_pic,
+                    "email"=> $mppl->mppl_email,
+                    "no_hp"=> $mppl->mppl_no_hp,
+                    "status_id"=> $mppl->mppl_qr,
+                    "status"=> $mppl->status,
+                    "date_insert" =>$mppl->mppl_date_insert,
+                    "date_update" =>$mppl->mppl_date_update,
+                );
+            }
+            return response()->json(['status' => 200,  'data' => $data]);
+        }else{
+            return response()->json(['status' => 404, 'message' => 'Tidak ada data'])->setStatusCode(404);
+        }
     }
 }

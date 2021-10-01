@@ -67,6 +67,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->get('/product/card_perimeter_pl/{id}', 'ProductController@getCardPerimeterQR');
     $router->post('/perimeter_pedulilindungi/update/{id}', 'ProductController@updatePerimeterPL');
     $router->post('/perimeter_pedulilindungi/insert', 'ProductController@insertPerimeterPL');
+    $router->get('/perimeterpl_bymcid/{id}', 'ProductController@PerimeterPLByMcid');
+    $router->get('/perimeterpl_byid/{id}', 'ProductController@PerimeterPLByMcid');
 	//Perimeter
     $router->get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
     $router->get('/dashboard/readiness/{id}', 'DashboardController@getReadinessIndexbyCompany');
@@ -225,6 +227,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 	$router->get('/kriteria_orang', 'MasterController@getKriteriaOrang');
 	$router->get('/jenis_industri', 'MasterController@getJenisIndustri');
 	$router->get('/jns_industri', 'MasterController@getJnsIndustri');
+	$router->get('/stsperimeterpl', 'ProductController@getStsPerimeterPL');
+	$router->get('/picheaderperimeter/{id}', 'ProductController@getPICPerimeterPL');
 	//Company
 	$router->get('/company', 'MasterController@getAllCompany');
 	$router->get('/company/detail/{id}', 'MasterController@getDetailCompany');
@@ -609,5 +613,11 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::post('/perimeter_pedulilindungi/update/{id}', 'ProductController@updatePerimeterPL');
     Route::post('/perimeter_pedulilindungi/insert', 'ProductController@insertPerimeterPL');
     Route::get('/product/card_perimeter_pl/{id}', 'ProductController@getCardPerimeterQR');
+    
+    Route::get('/stsperimeterpl', 'ProductController@getStsPerimeterPL');
+    Route::get('/picheaderperimeter/{id}', 'ProductController@getPICPerimeterPL');
+    Route::get('/perimeterpl_bymcid/{id}', 'ProductController@PerimeterPLByMcid');
+    Route::get('/perimeterpl_byid/{id}', 'ProductController@PerimeterPLByMcid');
+
 	});
 });
