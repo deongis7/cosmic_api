@@ -617,7 +617,7 @@ $router->group(['prefix' => 'api/v2'], function () use ($router) {
     Route::get('/stsperimeterpl', 'ProductController@getStsPerimeterPL');
     Route::get('/picheaderperimeter/{id}', 'ProductController@getPICPerimeterPL');
     Route::get('/perimeterpl_bymcid/{id}', 'ProductController@PerimeterPLByMcid');
-    Route::get('/perimeterpl_byid/{id}', 'ProductController@PerimeterPLByMcid');
-
+    Route::get('/perimeterpl_byid/{id}', 'ProductController@PerimeterPLByid');
+    Route::get('/kota', 'MasterController@getAllKota');
 	});
 });
