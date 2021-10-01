@@ -829,6 +829,9 @@ class ProductController extends Controller
         ->leftjoin('master_perimeter_kategori AS mpmk','mpmk.mpmk_id','mppl_mpmk_id')
         ->where('mppl_id', $id);
         
+        $perimeterpl = $perimeterpl->get();
+        $totalperimeterpl = $perimeterpl->count();
+        
         if (count($perimeterpl) > 0){
             foreach($perimeterpl as $mppl){
                 $data[] = array(
