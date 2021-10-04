@@ -714,12 +714,14 @@ class ProductController extends Controller
     public function getPICPerimeterPL($id){
         $data = array();
         $sts_perimeter_pl = DB::connection('pgsql2')->select(
-            "SELECT mppl_pic, mppl_email, mppl_no_hp
+            "SELECT mppl_pic, mppl_email, mppl_no_hp, count(mppl_id) as cnt
                 FROM master_perimeter_pl 
                 WHERE mppl_mc_id='$id'
-                AND mppl_pic!=NULL
-                ORDER BY mppl_kapasitas DESC
-                LIMIT 1");
+                AND mppl_pic IS NOT NULL
+                GROUP BY mppl_pic, mppl_email, mppl_no_hp
+                ORDER BY cnt DESC
+                LIMIT 1
+                ");
         
         foreach($sts_perimeter_pl as $spl){
             $data[] = array(
