@@ -599,6 +599,7 @@ class ProductController extends Controller
         $datpl->mppl_mpmk_id = $r_kategori;
         $datpl->mppl_mpro_id = $r_provinsi;
         $datpl->mppl_mkab_id = $r_kabupaten;
+        if
         $datpl->mppl_jml_lantai = $r_lantai;
         $datpl->mppl_kapasitas = $r_kapasitas;
         $datpl->mppl_gmap = $r_maps;
@@ -717,6 +718,7 @@ class ProductController extends Controller
             "SELECT mppl_pic, mppl_email, mppl_no_hp
                 FROM master_perimeter_pl 
                 WHERE mppl_mc_id='$id'
+                AND mppl_pic!=NULL
                 ORDER BY mppl_kapasitas DESC
                 LIMIT 1");
         
