@@ -751,11 +751,11 @@ class ProductController extends Controller
             ->leftjoin('master_perimeter_kategori AS mpmk','mpmk.mpmk_id','mppl_mpmk_id')
             ->where('mppl_mc_id', $id);
             
-        if(isset($request->kota)) {
+        if(isset($request->kota) && $request->kota!='ALL') {
             $perimeterpl = $perimeterpl->where(DB::raw("mppl_mkab_id"),'=',trim($request->kota));
         }
         
-        if(isset($request->status)) {
+        if(isset($request->status) && $request->status!='ALL') {
             $perimeterpl = $perimeterpl->where(DB::raw("mppl_qr"),'=',trim($request->status));
         }
             
