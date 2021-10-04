@@ -68,7 +68,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->post('/perimeter_pedulilindungi/update/{id}', 'ProductController@updatePerimeterPL');
     $router->post('/perimeter_pedulilindungi/insert', 'ProductController@insertPerimeterPL');
     $router->get('/perimeterpl_bymcid/{id}', 'ProductController@PerimeterPLByMcid');
-    $router->get('/perimeterpl_byid/{id}', 'ProductController@PerimeterPLByMcid');
+    $router->get('/perimeterpl_byid/{id}', 'ProductController@PerimeterPLByid');
 	//Perimeter
     $router->get('/report/readiness/{id}', 'PerimeterController@getReadinessIndex');
     $router->get('/dashboard/readiness/{id}', 'DashboardController@getReadinessIndexbyCompany');
