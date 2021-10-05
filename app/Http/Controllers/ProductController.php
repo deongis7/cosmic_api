@@ -577,38 +577,48 @@ class ProductController extends Controller
 //             'qr' => 'required',
         ]);
         
-        $r_user_id = $request->user_id;
-        $r_kd_perusahaan = $request->kd_perusahaan;
-        $r_nama = $request->nama;
-        $r_alamat = $request->alamat;
-        $r_kategori = $request->kategori;
-        $r_provinsi = $request->provinsi;
-        $r_kabupaten = $request->kabupaten;
-        $r_lantai = $request->lantai;
-        $r_kapasitas = $request->kapasitas;
-        $r_maps = $request->maps;
-        $r_pic = $request->pic;
-        $r_no_hp = $request->no_hp;
-        $r_email = $request->email;
-        $r_qr = $request->qr;
-        
         $datpl = PerimeterPedulilindungi::find($id);
-        $datpl->mppl_mc_id = $r_kd_perusahaan;
-        $datpl->mppl_name = $r_nama;
-        $datpl->mppl_alamat = $r_alamat;
-        $datpl->mppl_mpmk_id = $r_kategori;
-        $datpl->mppl_mpro_id = $r_provinsi;
-        $datpl->mppl_mkab_id = $r_kabupaten;
-        $datpl->mppl_jml_lantai = $r_lantai;
-        $datpl->mppl_kapasitas = $r_kapasitas;
-        $datpl->mppl_gmap = $r_maps;
-        $datpl->mppl_pic = $r_pic;
-        $datpl->mppl_no_hp = $r_no_hp;
-        $datpl->mppl_email = $r_email;
-        $datpl->mppl_qr = $r_qr;
+        $datpl->mppl_mc_id = $request->kd_perusahaan;
+        $datpl->mppl_name =$request->nama;
+        $datpl->mppl_alamat = $request->alamat;
+        $datpl->mppl_mpmk_id = $request->kategori;
+        $datpl->mppl_mpro_id = $request->provinsi;
+        $datpl->mppl_mkab_id = $request->kabupaten;
+        
+        if(isset($request->lantai)){
+            $datpl->mppl_jml_lantai =$request->lantai;
+        }
+        if(isset($request->kapasitas)){
+            $datpl->mppl_kapasitas = $request->kapasitas;
+        }
+        if(isset($request->maps)){
+            $datpl->mppl_gmap = $request->maps;
+        }
+        if(isset($request->lantai)){
+            $datpl->mppl_jml_lantai =$request->lantai;
+        }
+        if(isset($request->kapasitas)){
+            $datpl->mppl_kapasitas = $request->kapasitas;
+        }
+        if(isset($request->maps)){
+            $datpl->mppl_gmap = $request->maps;
+        }
+        if(isset($request->pic)){
+            $datpl->mppl_pic = $request->pic;
+        }
+        if(isset($request->no_hp)){
+            $datpl->mppl_no_hp = $request->no_hp;
+        }
+        if(isset($request->email)){
+            $datpl->mppl_email = $request->email;
+        }
+        if(isset($request->qr)){
+            $datpl->mppl_qr = $request->qr;
+        }
+        
         $datpl->mppl_date_update = date('Y-m-d H:i:s');
         if(isset($r_user_id)){
-            $datpl->mppl_user_update = $r_user_id;
+            $datpl->mppl_user_update = $request->user_id;
         }else{
             $datpl->mppl_user_update = Auth::guard('api')->user()->id;
         }
