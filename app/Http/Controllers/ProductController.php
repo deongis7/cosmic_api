@@ -609,7 +609,7 @@ class ProductController extends Controller
         }
         
         $datpl->mppl_date_update = date('Y-m-d H:i:s');
-        if(isset($r_user_id)){
+        if(isset($request->user_id)){
             $datpl->mppl_user_update = $request->user_id;
         }else{
             $datpl->mppl_user_update = Auth::guard('api')->user()->id;
