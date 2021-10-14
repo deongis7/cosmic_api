@@ -585,15 +585,7 @@ class ProductController extends Controller
         $datpl->mppl_mpro_id = $request->provinsi;
         $datpl->mppl_mkab_id = $request->kabupaten;
         
-        if(isset($request->lantai)){
-            $datpl->mppl_jml_lantai =$request->lantai;
-        }
-        if(isset($request->kapasitas)){
-            $datpl->mppl_kapasitas = $request->kapasitas;
-        }
-        if(isset($request->maps)){
-            $datpl->mppl_gmap = $request->maps;
-        }
+
         if(isset($request->lantai)){
             $datpl->mppl_jml_lantai =$request->lantai;
         }
