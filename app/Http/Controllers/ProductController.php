@@ -656,6 +656,7 @@ class ProductController extends Controller
         $r_email = $request->email;
         $r_qr = $request->qr;
         
+        
         $datpl = new PerimeterPedulilindungi();
         $datpl->mppl_mc_id = $r_kd_perusahaan;
         $datpl->mppl_name = $r_nama;
